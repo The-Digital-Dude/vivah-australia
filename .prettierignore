@@ -1,0 +1,5 @@
+node_modules
+.next
+dist
+coverage
+vivah_ai_ready_development_tasklist.md
