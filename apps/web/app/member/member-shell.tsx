@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 const memberLinks = [
   ['Onboarding', '/member/onboarding'],
   ['Edit profile', '/member/profile/edit'],
+  ['Media', '/member/media'],
   ['Settings', '/member/settings'],
 ] as const;
 

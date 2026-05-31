@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createAuthRouter } from './auth/auth.routes.js';
 import { isHttpError } from './auth/auth-errors.js';
 import type { AuthConfig } from './auth/auth-types.js';
+import { createMediaRouter } from './media/media.routes.js';
 import { createPublicRouter } from './public/public.routes.js';
 import { createProfileRouter } from './profile/profile.routes.js';
 
@@ -48,6 +49,7 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api/auth', createAuthRouter(options.auth));
   app.use('/api', createPublicRouter(options.auth));
   app.use('/api', createProfileRouter(options.auth));
+  app.use('/api', createMediaRouter(options.auth));
 
   app.use((error: unknown, _request: Request, response: Response, _next: express.NextFunction) => {
     if (isZodValidationError(error)) {

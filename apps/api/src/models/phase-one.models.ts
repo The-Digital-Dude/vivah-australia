@@ -1,6 +1,8 @@
 import {
   CommunityPostStatus,
   InterestStatus,
+  MediaCategory,
+  MediaUploadStatus,
   MediaVisibility,
   PaymentStatus,
   ReportStatus,
@@ -8,6 +10,8 @@ import {
   VerificationStatus,
   type CommunityPostStatus as CommunityPostStatusType,
   type InterestStatus as InterestStatusType,
+  type MediaCategory as MediaCategoryType,
+  type MediaUploadStatus as MediaUploadStatusType,
   type MediaVisibility as MediaVisibilityType,
   type PaymentStatus as PaymentStatusType,
   type ReportStatus as ReportStatusType,
@@ -25,12 +29,24 @@ export interface ProfileMedia {
   assetUrl: string;
   storageKey?: string;
   mediaType: 'PHOTO' | 'VIDEO';
+  category: MediaCategoryType;
+  uploadStatus: MediaUploadStatusType;
+  mimeType: string;
+  fileSizeBytes: number;
+  originalFilename: string;
+  width?: number;
+  height?: number;
   visibility: MediaVisibilityType;
   approvalStatus: VerificationStatusType;
+  moderationReason?: string;
+  reviewedBy?: ObjectId;
+  reviewedAt?: Date;
   isPrimary: boolean;
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
 }
 
 const profileMediaSchema = new Schema<ProfileMedia>(
@@ -40,6 +56,25 @@ const profileMediaSchema = new Schema<ProfileMedia>(
     assetUrl: { type: String, required: true },
     storageKey: { type: String },
     mediaType: { type: String, enum: ['PHOTO', 'VIDEO'], default: 'PHOTO', required: true },
+    category: {
+      type: String,
+      enum: Object.values(MediaCategory),
+      default: MediaCategory.PUBLIC_GALLERY,
+      required: true,
+      index: true,
+    },
+    uploadStatus: {
+      type: String,
+      enum: Object.values(MediaUploadStatus),
+      default: MediaUploadStatus.SIGNED,
+      required: true,
+      index: true,
+    },
+    mimeType: { type: String, required: true, trim: true },
+    fileSizeBytes: { type: Number, required: true, min: 1 },
+    originalFilename: { type: String, required: true, trim: true },
+    width: { type: Number, min: 1 },
+    height: { type: Number, min: 1 },
     visibility: {
       type: String,
       enum: Object.values(MediaVisibility),
@@ -53,11 +88,17 @@ const profileMediaSchema = new Schema<ProfileMedia>(
       required: true,
       index: true,
     },
+    moderationReason: { type: String, trim: true },
+    reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    reviewedAt: { type: Date },
     isPrimary: { type: Boolean, default: false },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'profile_media' },
 );
+
+profileMediaSchema.index({ profileId: 1, category: 1, approvalStatus: 1 });
+profileMediaSchema.index({ userId: 1, uploadStatus: 1, createdAt: -1 });
 
 export interface VerificationRequest {
   userId: ObjectId;

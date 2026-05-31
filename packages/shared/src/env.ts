@@ -19,6 +19,10 @@ export const apiEnvSchema = z.object({
   ADMIN_SEED_EMAIL: z.string().trim().email().optional(),
   ADMIN_SEED_PASSWORD: z.string().min(12).optional(),
   HCAPTCHA_SECRET: nonEmptyString.optional(),
+  MEDIA_ACCESS_SECRET: nonEmptyString.min(32).optional(),
+  CLOUDINARY_CLOUD_NAME: nonEmptyString.optional(),
+  CLOUDINARY_API_KEY: nonEmptyString.optional(),
+  CLOUDINARY_API_SECRET: nonEmptyString.optional(),
 });
 
 export const webEnvSchema = z.object({

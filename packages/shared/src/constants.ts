@@ -75,6 +75,22 @@ export const MediaVisibility = {
 
 export type MediaVisibility = (typeof MediaVisibility)[keyof typeof MediaVisibility];
 
+export const MediaCategory = {
+  PROFILE_PHOTO: 'PROFILE_PHOTO',
+  PUBLIC_GALLERY: 'PUBLIC_GALLERY',
+  PRIVATE_GALLERY: 'PRIVATE_GALLERY',
+} as const;
+
+export type MediaCategory = (typeof MediaCategory)[keyof typeof MediaCategory];
+
+export const MediaUploadStatus = {
+  SIGNED: 'SIGNED',
+  UPLOADED: 'UPLOADED',
+  FAILED: 'FAILED',
+} as const;
+
+export type MediaUploadStatus = (typeof MediaUploadStatus)[keyof typeof MediaUploadStatus];
+
 export const InterestStatus = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',

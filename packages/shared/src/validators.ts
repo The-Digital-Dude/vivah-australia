@@ -4,9 +4,13 @@ import {
   Gender,
   INCOME_VISIBILITY_VALUES,
   MaritalStatus,
+  MediaCategory,
+  MediaUploadStatus,
+  MediaVisibility,
   ProfileVisibility,
   UserRole,
   VerificationLevel,
+  VerificationStatus,
 } from './constants.js';
 
 export const emailSchema = z.string().trim().email().max(254).toLowerCase();
@@ -92,6 +96,52 @@ export const genderSchema = z.nativeEnum(Gender);
 export const maritalStatusSchema = z.nativeEnum(MaritalStatus);
 export const verificationLevelSchema = z.nativeEnum(VerificationLevel);
 export const profileVisibilitySchema = z.nativeEnum(ProfileVisibility);
+export const mediaVisibilitySchema = z.nativeEnum(MediaVisibility);
+export const mediaCategorySchema = z.nativeEnum(MediaCategory);
+export const mediaUploadStatusSchema = z.nativeEnum(MediaUploadStatus);
+export const verificationStatusSchema = z.nativeEnum(VerificationStatus);
+
+const imageMimeTypes = ['image/jpeg', 'image/png', 'image/webp'] as const;
+
+export const mediaSignUploadSchema = z.object({
+  category: mediaCategorySchema,
+  visibility: mediaVisibilitySchema.optional(),
+  fileName: z.string().trim().min(1).max(180),
+  mimeType: z.enum(imageMimeTypes),
+  fileSizeBytes: z
+    .number()
+    .int()
+    .min(1)
+    .max(10 * 1024 * 1024),
+});
+
+export const mediaCompleteUploadSchema = z.object({
+  mediaId: z.string().trim().min(1),
+  assetUrl: z.string().trim().url(),
+  storageKey: z.string().trim().min(1).max(500).optional(),
+  bytes: z
+    .number()
+    .int()
+    .min(1)
+    .max(10 * 1024 * 1024)
+    .optional(),
+  width: z.number().int().positive().max(10000).optional(),
+  height: z.number().int().positive().max(10000).optional(),
+});
+
+export const mediaUpdateSchema = z.object({
+  visibility: mediaVisibilitySchema.optional(),
+  isPrimary: z.boolean().optional(),
+});
+
+export const mediaReviewSchema = z.object({
+  approvalStatus: z.enum([
+    VerificationStatus.APPROVED,
+    VerificationStatus.REJECTED,
+    VerificationStatus.NEEDS_RESUBMISSION,
+  ]),
+  reason: z.string().trim().max(1000).optional(),
+});
 
 export const profileDraftSchema = z.object({
   personal: z
@@ -226,6 +276,10 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type CmsPageInput = z.infer<typeof cmsPageInputSchema>;
 export type ContactInquiryInput = z.infer<typeof contactInquirySchema>;
+export type MediaSignUploadInput = z.infer<typeof mediaSignUploadSchema>;
+export type MediaCompleteUploadInput = z.infer<typeof mediaCompleteUploadSchema>;
+export type MediaUpdateInput = z.infer<typeof mediaUpdateSchema>;
+export type MediaReviewInput = z.infer<typeof mediaReviewSchema>;
 export type ProfileDraftInput = z.infer<typeof profileDraftSchema>;
 export type ProfileSubmitInput = z.infer<typeof profileSubmitSchema>;
 export type NotificationPreferencesInput = z.infer<typeof notificationPreferencesSchema>;

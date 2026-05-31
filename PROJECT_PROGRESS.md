@@ -38,6 +38,8 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | PROFILE-001 Profile Onboarding Wizard                      | Complete                              | Member onboarding page, partial saves, completion percentage, submit for approval, shared validators, backend tests.                                                                                                                                                                                                    |
 | PROFILE-002 Profile View Page                              | Complete                              | Public/member profile route and page, approved/visible filtering, privacy controls, block checks, tests.                                                                                                                                                                                                                |
 | PROFILE-003 Profile Edit and Account Settings              | Mostly complete                       | Edit page, settings page, privacy update, notification preferences validation, account marketing preference update, tests for profile/privacy.                                                                                                                                                                          |
+| MEDIA-001 Photo Uploads                                    | Complete                              | Secure signed Cloudinary-compatible upload flow, mock local signing fallback, file type/size validation, member media page, profile photo/public/private gallery categories, visibility controls, signed private access, and backend tests.                                                                             |
+| MEDIA-003 Admin Media Review                               | Complete                              | Admin media review queue API and page, approve/reject/resubmission workflow, review metadata, moderation reason support, and backend tests.                                                                                                                                                                             |
 
 ## Partially Completed / Infrastructure Present
 
@@ -56,9 +58,7 @@ The following modules do not yet have full business-feature implementations in t
 
 - AUTH-002 Mobile Registration and OTP
 - AUTH-003 Social Login
-- MEDIA-001 Photo Uploads
 - MEDIA-002 Video Introduction Upload
-- MEDIA-003 Admin Media Review
 - VERIFY-001 Verification Request System
 - VERIFY-002 Verification Badge Logic
 - VERIFY-003 External Provider Extension Points
@@ -109,6 +109,8 @@ The following modules do not yet have full business-feature implementations in t
 - Account deactivate and delete-request endpoints currently return accepted responses but do not yet perform lifecycle workflows.
 - WEB-002 has backend CRUD and public rendering, but no admin UI for editing static pages.
 - Public homepage uses fallback/homepage composition plus public APIs; a full CMS-driven homepage editor is not implemented yet.
+- Media upload uses Cloudinary signed-upload parameters when `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are configured; local development falls back to mock signed upload metadata.
+- Private media access is app-signed for owner/admin flows; match-based private gallery unlock rules still need the interest/matching module.
 - Frontend tests and E2E tests are not present.
 - No CI/CD pipeline is configured yet.
 
@@ -132,7 +134,7 @@ Live local checks also passed for:
 
 1. Finish WEB-003 gaps: email notification and CAPTCHA.
 2. Add ADMIN-001 and ADMIN-006 UI so CMS content can be managed from the product.
-3. Build MEDIA-001 photo upload and review foundation.
-4. Build MATCH-001 search profiles using the existing profile indexes.
-5. Build INTEREST-001, INTEREST-002, SAFETY-001 UI/API completion, and SAFETY-002.
+3. Build MATCH-001 search profiles using the existing profile indexes.
+4. Build INTEREST-001, INTEREST-002, SAFETY-001 UI/API completion, and SAFETY-002.
+5. Add MEDIA-002 video introduction upload after photo moderation is stable.
 6. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.
