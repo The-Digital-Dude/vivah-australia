@@ -16,6 +16,7 @@ The website is the core product entry point. It must do four things extremely we
 ### 2.1 Shaadi.com
 
 Useful patterns:
+
 - Strong emotional hero message: “Choose Your Forever”.
 - Trust-led positioning: verified profiles, success stories, safety, premium plans.
 - Success stories are used heavily to reduce hesitation.
@@ -23,6 +24,7 @@ Useful patterns:
 - Category SEO is strong: community, country, marital status, religion, city, state, mother tongue.
 
 What to use:
+
 - Emotional headline.
 - Verification badge system.
 - Success story carousel.
@@ -30,6 +32,7 @@ What to use:
 - Premium plan comparison.
 
 What to avoid:
+
 - Too much clutter.
 - Too many links on the homepage above the fold.
 - Overloading users with every filter before registration.
@@ -37,6 +40,7 @@ What to avoid:
 ### 2.2 BharatMatrimony
 
 Useful patterns:
+
 - Registration form appears immediately on homepage.
 - Simple profile creation intent: self, daughter, son, sister, brother, relative, friend.
 - Phone OTP trust signal.
@@ -44,18 +48,21 @@ Useful patterns:
 - Assisted matchmaking and elite services are positioned as premium upsells.
 
 What to use:
+
 - Homepage quick registration/search panel.
 - Mobile verification badge.
 - Profile completion guidance.
 - Optional concierge/assisted matchmaking area later.
 
 What to avoid for Phase 1:
+
 - Family-account complexity unless specifically included later.
 - Too many community links at the top.
 
 ### 2.3 RSVP Australia
 
 Useful patterns:
+
 - Australian-local trust positioning.
 - Simple entry form: “I am…” and “Looking for…”.
 - Safety content is visible early.
@@ -63,6 +70,7 @@ Useful patterns:
 - Uses daily/curated matches, common interests, advanced search, and serious relationship language.
 
 What to use:
+
 - Australian-local identity.
 - “Serious matches, not endless swiping” positioning.
 - Search-led discovery.
@@ -72,6 +80,7 @@ What to use:
 ### 2.4 eHarmony Australia
 
 Useful patterns:
+
 - Uses interactive onboarding questions on homepage.
 - Compatibility-led messaging.
 - Strong trust and relationship outcome claims.
@@ -79,18 +88,21 @@ Useful patterns:
 - Good emotional reassurance: “real love”, “compatible singles”, “serious relationship”.
 
 What to use:
+
 - Interactive onboarding wizard.
 - Compatibility/profile quality sections.
 - City-specific pages for Australian SEO.
 - Soft, serious, reassuring copy.
 
 What to avoid:
+
 - Long quiz before users see value.
 - Subscription ambiguity.
 
 ### 2.5 Bumble / Hinge / Tinder
 
 Useful patterns:
+
 - Modern visual identity.
 - Large lifestyle photos.
 - App-like cards and movement.
@@ -99,12 +111,14 @@ Useful patterns:
 - Strong mobile-first feel.
 
 What to use:
+
 - Modern cards, soft animations, lifestyle visuals.
 - Prompt-style profile fields.
 - Modern dashboard instead of old database layout.
 - Mobile-first browsing and chat UX.
 
 What to avoid:
+
 - Swipe-only design.
 - Casual dating tone.
 - Too much gamification for a serious matrimonial platform.
@@ -114,6 +128,7 @@ What to avoid:
 ### 3.1 Brand Personality
 
 Vivah Australia should feel:
+
 - Premium
 - Warm
 - Safe
@@ -128,6 +143,7 @@ Vivah Australia should feel:
 Use a “premium matrimonial + modern social app” design style.
 
 Recommended visual keywords:
+
 - Ivory background
 - Deep maroon / burgundy accents
 - Soft rose / blush gradients
@@ -143,20 +159,24 @@ Recommended visual keywords:
 ### 3.3 Suggested Color Palette
 
 Primary:
+
 - Deep Burgundy: #7A1E3A
 - Rose: #C94F7C
 - Champagne Gold: #D6A84F
 
 Background:
+
 - Warm Ivory: #FFF8F1
 - Soft Blush: #FDECEF
 - White: #FFFFFF
 
 Text:
+
 - Charcoal: #232323
 - Slate: #5E6470
 
 Status Colors:
+
 - Verified Green: #1F9D68
 - Warning Amber: #F59E0B
 - Error Red: #DC2626
@@ -165,10 +185,12 @@ Status Colors:
 ### 3.4 Typography
 
 Recommended:
+
 - Headings: Playfair Display, Cormorant Garamond, or Fraunces for premium feel.
 - Body/UI: Inter, Manrope, or Plus Jakarta Sans for modern clarity.
 
 Rules:
+
 - Big emotional homepage headline.
 - Very readable dashboard typography.
 - Avoid overly decorative fonts inside forms, filters, and admin screens.
@@ -178,6 +200,7 @@ Rules:
 ### 4.1 Public Website Navigation
 
 Main nav:
+
 - Home
 - Browse Matches
 - How It Works
@@ -190,6 +213,7 @@ Main nav:
 - Join Free CTA
 
 Footer:
+
 - About Us
 - Contact Us
 - Privacy Policy
@@ -209,6 +233,7 @@ Footer:
 ### 4.2 Member Portal Navigation
 
 Desktop sidebar:
+
 - Dashboard
 - Matches
 - Search
@@ -223,6 +248,7 @@ Desktop sidebar:
 - Help & Safety
 
 Mobile bottom nav:
+
 - Home
 - Matches
 - Search
@@ -230,6 +256,7 @@ Mobile bottom nav:
 - Profile
 
 Secondary mobile actions:
+
 - Verification
 - Membership
 - Settings
@@ -238,6 +265,7 @@ Secondary mobile actions:
 ### 4.3 Admin CRM Navigation
 
 Admin sidebar:
+
 - Dashboard
 - Members
 - Verification Queue
@@ -263,9 +291,11 @@ Admin sidebar:
 The homepage must convert unknown visitors into registered users. It should not only describe the product. It should create confidence and give the user a clear first action.
 
 Primary CTA:
+
 - Create Free Profile
 
 Secondary CTA:
+
 - Browse Matches
 
 ### 5.2 Homepage Section Order
@@ -273,6 +303,7 @@ Secondary CTA:
 #### Section 1: Header
 
 Requirements:
+
 - Sticky header on scroll.
 - Logo left.
 - Clean navigation.
@@ -283,6 +314,7 @@ Requirements:
 #### Section 2: Hero Section
 
 Layout:
+
 - Left: emotional headline + trust copy + CTAs.
 - Right: interactive sign-up/search card.
 
@@ -293,12 +325,14 @@ Suggested subtext:
 “Create your profile, verify your identity, discover compatible matches, and connect safely with people who are serious about marriage.”
 
 Hero trust badges:
+
 - Verified Profiles
 - Private & Secure
 - Australian Community
 - Free to Start
 
 Hero quick form fields:
+
 - I am: Man / Woman
 - Looking for: Woman / Man
 - Age range
@@ -307,6 +341,7 @@ Hero quick form fields:
 - Create Free Profile button
 
 Mobile hero:
+
 - Hero copy first.
 - Form card below.
 - Trust badges in horizontal scroll.
@@ -314,6 +349,7 @@ Mobile hero:
 #### Section 3: Trust Bar
 
 Show simple proof points:
+
 - Email & Mobile Verified Profiles
 - Safe Messaging Controls
 - Admin Reviewed Reports
@@ -323,6 +359,7 @@ Show simple proof points:
 #### Section 4: How It Works
 
 Use 4 cards:
+
 1. Create Profile
 2. Verify Yourself
 3. Discover Matches
@@ -335,6 +372,7 @@ Each card should have icon, short heading, one-line description.
 Show blurred/limited public cards.
 
 Card fields:
+
 - First name or initials only before login
 - Age
 - City
@@ -344,12 +382,14 @@ Card fields:
 - CTA: View Profile / Join to Connect
 
 Privacy rule:
+
 - Public users should not see full private details.
 - Photos can be blurred or generic unless profile is public.
 
 #### Section 6: Smart Match Discovery
 
 Show product preview:
+
 - Advanced filters
 - Compatible suggestions
 - Recently active profiles
@@ -364,6 +404,7 @@ Use mock UI screenshots/cards.
 This must be a strong section.
 
 Include:
+
 - Email verification
 - Mobile verification
 - ID verification
@@ -373,6 +414,7 @@ Include:
 - Manual admin moderation
 
 Recommended visual:
+
 - Badge ladder: Basic, Silver, Gold, Platinum, Fully Verified.
 
 #### Section 8: Membership Plans
@@ -380,6 +422,7 @@ Recommended visual:
 Show Free, Premium, Gold, Platinum.
 
 UX rules:
+
 - Show plan cards clearly.
 - Show monthly/yearly toggle if needed.
 - Show what is limited in Free.
@@ -387,6 +430,7 @@ UX rules:
 - Use a comparison table below cards.
 
 Important conversion rule:
+
 - Do not force plan selection before user profile completion.
 - Let users experience profile/search first, then show paywall at messaging or advanced search.
 
@@ -395,6 +439,7 @@ Important conversion rule:
 Show carousel.
 
 Card content:
+
 - Couple image or illustration
 - Names
 - City
@@ -404,6 +449,7 @@ Card content:
 #### Section 10: Community Landing Cards
 
 Show SEO-friendly entry points:
+
 - Indian Matrimony in Melbourne
 - Indian Matrimony in Sydney
 - Indian Matrimony in Brisbane
@@ -418,6 +464,7 @@ Show SEO-friendly entry points:
 #### Section 11: Blog / Guidance
 
 Topics:
+
 - How to create a strong matrimonial profile
 - Safety tips for online matchmaking
 - How verification works
@@ -427,6 +474,7 @@ Topics:
 #### Section 12: FAQ
 
 FAQ topics:
+
 - Is Vivah Australia free?
 - How does verification work?
 - Who can see my photos?
@@ -441,6 +489,7 @@ Text:
 “Start your journey with a safe, verified matrimonial profile.”
 
 CTA:
+
 - Create Free Profile
 - Browse Matches
 
@@ -453,18 +502,21 @@ Do not ask every profile field at once. The profile form in the scope is large, 
 ### 6.2 Registration Flow
 
 Step 1: Account
+
 - Email or mobile
 - Password
 - Accept terms/privacy
 - 18+ confirmation
 
 Step 2: OTP Verification
+
 - Email OTP
 - Mobile OTP
 - Resend code
 - Change email/mobile
 
 Step 3: Basic Identity
+
 - First name
 - Last name
 - Gender
@@ -472,6 +524,7 @@ Step 3: Basic Identity
 - City/suburb
 
 Step 4: Match Basics
+
 - Looking for
 - Age preference
 - Religion
@@ -479,17 +532,20 @@ Step 4: Match Basics
 - Marital status
 
 Step 5: Profile Photo
+
 - Upload photo
 - Skip for now option
 - Explain approval/privacy
 
 Step 6: Dashboard Entry
+
 - Show profile strength
 - Continue profile completion prompts
 
 ### 6.3 Profile Completion Wizard
 
 Break profile into sections:
+
 - Personal
 - Religion & Community
 - Location & Visa
@@ -503,6 +559,7 @@ Break profile into sections:
 - Verification
 
 UX features:
+
 - Progress percentage.
 - Save and continue later.
 - Inline validation.
@@ -513,6 +570,7 @@ UX features:
 ### 6.4 Required vs Optional Fields
 
 Required for searchable profile:
+
 - First name
 - Gender
 - Date of birth
@@ -527,6 +585,7 @@ Required for searchable profile:
 - At least one approved profile photo, unless privacy mode allows hidden photo
 
 Optional:
+
 - Weight
 - Annual income
 - Employer name
@@ -543,6 +602,7 @@ Optional:
 The dashboard should tell users what to do next.
 
 Top dashboard widgets:
+
 - Profile strength
 - Verification status
 - New recommended matches
@@ -554,11 +614,13 @@ Top dashboard widgets:
 ### 7.2 Dashboard Layout
 
 Desktop:
+
 - Left sidebar navigation.
 - Main area with cards.
 - Right column with profile completion and premium prompts.
 
 Mobile:
+
 - Card stack.
 - Bottom nav.
 - Floating CTA: Complete Profile / Verify Now.
@@ -566,6 +628,7 @@ Mobile:
 ### 7.3 Dashboard Cards
 
 Cards:
+
 - Complete Your Profile
 - Verify Your Account
 - Recommended Matches
@@ -579,11 +642,13 @@ Cards:
 ### 8.1 Search Page Layout
 
 Desktop:
+
 - Left filter panel.
 - Main profile card grid.
 - Top sort bar.
 
 Mobile:
+
 - Search results first.
 - Sticky “Filters” button.
 - Filters open in full-screen sheet.
@@ -591,6 +656,7 @@ Mobile:
 ### 8.2 Filters
 
 Basic filters:
+
 - Age
 - Gender
 - Religion
@@ -608,6 +674,7 @@ Basic filters:
 - Verification status
 
 Advanced filters:
+
 - Visa status
 - Citizenship status
 - Dietary preference
@@ -621,6 +688,7 @@ Advanced filters:
 ### 8.3 Profile Card Design
 
 Profile card fields:
+
 - Photo
 - Name / initials
 - Age
@@ -634,12 +702,14 @@ Profile card fields:
 - Match score or compatibility label
 
 Actions:
+
 - View Profile
 - Send Interest
 - Save
 - More menu: Report / Block
 
 Card variants:
+
 - Standard card
 - Premium highlighted card
 - Boosted card
@@ -649,6 +719,7 @@ Card variants:
 ### 8.4 Search Result Interactions
 
 Features:
+
 - Filter chips at top.
 - Save search.
 - Clear all filters.
@@ -660,6 +731,7 @@ Features:
 ### 8.5 Recommendation Sections
 
 Member homepage should show:
+
 - Recommended for You
 - Newly Joined
 - Recently Active
@@ -675,6 +747,7 @@ Member homepage should show:
 ### 9.1 Profile Page Layout
 
 Top section:
+
 - Photo gallery
 - Basic info
 - Verification badge
@@ -682,6 +755,7 @@ Top section:
 - CTA buttons
 
 CTA buttons:
+
 - Send Interest
 - Message, only if allowed
 - Save Profile
@@ -689,6 +763,7 @@ CTA buttons:
 - Block
 
 Profile sections:
+
 - About Me
 - Basic Details
 - Religious & Community Details
@@ -703,6 +778,7 @@ Profile sections:
 ### 9.2 Privacy Controls
 
 User can control:
+
 - Show/hide photos
 - Public/private gallery
 - Who can message
@@ -715,6 +791,7 @@ User can control:
 ### 9.3 Trust Indicators
 
 Show:
+
 - Email verified
 - Mobile verified
 - ID verified
@@ -725,6 +802,7 @@ Show:
 - Selfie/liveness verified
 
 Use badge ladder:
+
 - Basic Verified
 - Silver Verified
 - Gold Verified
@@ -736,6 +814,7 @@ Use badge ladder:
 ### 10.1 Interest Flow
 
 States:
+
 - Not sent
 - Sent
 - Accepted
@@ -744,6 +823,7 @@ States:
 - Blocked
 
 User actions:
+
 - Send interest
 - Accept interest
 - Reject interest
@@ -764,12 +844,14 @@ User actions:
 ### 11.1 Messaging Entry Rules
 
 Messaging should be allowed only when:
+
 - Interest is accepted, or
 - premium plan allows direct messaging, depending on business rules.
 
 ### 11.2 Chat UI
 
 Features:
+
 - One-to-one chat list.
 - Conversation detail.
 - Typing indicator.
@@ -788,6 +870,7 @@ Show safety reminder in first conversation:
 “Keep conversations respectful. Never share financial information. Report suspicious behaviour.”
 
 Message actions:
+
 - Copy
 - Delete for me
 - Report message
@@ -800,6 +883,7 @@ Message actions:
 Member portal should include a dedicated Verification Center.
 
 Sections:
+
 - Basic verification
 - Identity verification
 - Address verification
@@ -809,6 +893,7 @@ Sections:
 - Facial verification
 
 Each verification item should show:
+
 - Status: Not started, Pending, Approved, Rejected, Resubmission required
 - Accepted document types
 - Upload instructions
@@ -829,6 +914,7 @@ Each verification item should show:
 ### 12.3 Rejection UX
 
 If rejected:
+
 - Show reason.
 - Show example of accepted document.
 - Allow resubmission.
@@ -838,12 +924,14 @@ If rejected:
 ### 13.1 Pricing Page
 
 Plans:
+
 - Free
 - Premium
 - Gold
 - Platinum
 
 Pricing card layout:
+
 - Plan name
 - Price
 - Duration
@@ -852,6 +940,7 @@ Pricing card layout:
 - CTA
 
 Comparison table below:
+
 - Profile creation
 - Photo uploads
 - Search limits
@@ -866,6 +955,7 @@ Comparison table below:
 ### 13.2 Checkout UX
 
 Checkout should show:
+
 - Selected plan
 - Billing duration
 - Total amount
@@ -878,6 +968,7 @@ Checkout should show:
 ### 13.3 Payment History UX
 
 User should see:
+
 - Plan name
 - Payment date
 - Amount
@@ -891,6 +982,7 @@ User should see:
 ### 14.1 Boost Page
 
 Show boost options:
+
 - 24-hour boost
 - 3-day boost
 - 7-day boost
@@ -900,6 +992,7 @@ Show boost options:
 ### 14.2 Boost Status
 
 Dashboard card:
+
 - Active boost status
 - Remaining time
 - Views gained
@@ -911,6 +1004,7 @@ Dashboard card:
 ### 15.1 Community Room Structure
 
 Rooms:
+
 - General Discussions
 - New Members
 - Success Stories
@@ -935,6 +1029,7 @@ For MVP, community rooms should be visually planned but can be launched after co
 ### 16.1 Notification Types
 
 Email:
+
 - Registration confirmation
 - Verification updates
 - Interest received
@@ -943,10 +1038,12 @@ Email:
 - Subscription updates
 
 SMS:
+
 - OTP
 - Important security alerts
 
 In-app:
+
 - Interest received
 - Message received
 - Profile viewed
@@ -957,6 +1054,7 @@ In-app:
 ### 16.2 Notification Center
 
 Member portal should include:
+
 - All notifications
 - Unread count
 - Filter by type
@@ -968,6 +1066,7 @@ Member portal should include:
 ### 17.1 Admin Dashboard
 
 Widgets:
+
 - Total users
 - New registrations
 - Pending verifications
@@ -980,6 +1079,7 @@ Widgets:
 ### 17.2 User Management
 
 Admin can:
+
 - View user list
 - Search/filter users
 - View full profile
@@ -992,6 +1092,7 @@ Admin can:
 ### 17.3 Verification Queue
 
 Admin can:
+
 - View submitted documents
 - Approve
 - Reject with reason
@@ -1001,6 +1102,7 @@ Admin can:
 ### 17.4 Moderation Queue
 
 Admin/moderator can:
+
 - View user reports
 - View content reports
 - View chat reports
@@ -1011,6 +1113,7 @@ Admin/moderator can:
 ### 17.5 CMS UX
 
 Admin can manage:
+
 - Homepage content
 - Banners
 - Blogs
@@ -1025,6 +1128,7 @@ Admin can manage:
 Mobile must be treated as primary.
 
 Priority screens:
+
 - Homepage
 - Registration
 - Profile completion
@@ -1049,6 +1153,7 @@ Priority screens:
 ## 19. Interaction & Microinteraction Plan
 
 Use subtle interactions:
+
 - Button hover elevation.
 - Profile card hover preview.
 - Swipe-free card carousel on mobile.
@@ -1074,6 +1179,7 @@ Use subtle interactions:
 ## 21. Design System Components
 
 Core components:
+
 - Header
 - Footer
 - Button
@@ -1183,6 +1289,7 @@ Core components:
 ## 23. Suggested Figma Structure
 
 Figma pages:
+
 1. Cover
 2. Brand Guidelines
 3. Design Tokens
@@ -1203,6 +1310,7 @@ Figma pages:
 ## 24. Prototype Flow for Client Review
 
 Clickable prototype should include:
+
 1. Homepage
 2. Create Free Profile
 3. OTP Verification
@@ -1221,6 +1329,7 @@ Clickable prototype should include:
 ## 25. Developer Handoff Notes
 
 Each screen should be delivered with:
+
 - Desktop design
 - Tablet design
 - Mobile design
@@ -1279,6 +1388,7 @@ Each screen should be delivered with:
 Build Vivah Australia as a premium trust-first matrimonial product, not a casual dating app and not an old directory-style matrimony site.
 
 The best UI direction is:
+
 - Homepage like a modern premium landing page.
 - Registration like eHarmony-style guided onboarding.
 - Search like RSVP/Shaadi-style structured discovery.

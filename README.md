@@ -2,6 +2,12 @@
 
 AI-ready monorepo foundation for the Vivah Australia matrimonial platform.
 
+## Standing Development Rules
+
+- Follow `vivah_australia_ui_ux_planning.md` for all frontend, product, layout, and interaction work.
+- Treat the UI direction as premium, trust-first, culturally aware, mobile-first, and conversion-focused.
+- Before marking a task complete, update `PROJECT_PROGRESS.md`, commit the completed work, and push it to GitHub.
+
 ## Prerequisites
 
 - Node.js 22+

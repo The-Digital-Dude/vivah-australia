@@ -12,6 +12,14 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Tests currently cover shared validators, database model/index registration, auth routes, public/CMS/contact routes, and profile routes.
 - `.env.example` files exist for API and web.
 - Real environment files, build outputs, logs, and dependencies are ignored by git.
+- `vivah_australia_ui_ux_planning.md` is now the standing UI/UX source of truth for all frontend and product work.
+- Every completed task should update this progress file, then be committed and pushed to GitHub.
+
+## Standing Implementation Rules
+
+- Follow `vivah_australia_ui_ux_planning.md` for all UI, UX, layout, interaction, accessibility, mobile, and design-system choices.
+- Keep future UI work aligned with the premium trust-first matrimonial direction: warm ivory/burgundy/gold visual language, modern cards, guided onboarding, strong safety/verification cues, and mobile-first flows.
+- After completing any future module or task, update this file with the new status, commit the change, and push to `origin/main`.
 
 ## Completed Modules
 

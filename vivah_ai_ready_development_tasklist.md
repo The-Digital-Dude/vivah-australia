@@ -10,6 +10,12 @@
 
 Use this file as the master development backlog.
 
+Mandatory project rules:
+
+- Follow `vivah_australia_ui_ux_planning.md` for every UI, UX, frontend, layout, interaction, mobile, accessibility, and design-system decision.
+- Build product screens in the premium trust-first Vivah Australia direction: warm, safe, culturally aware, mobile-first, and conversion-focused.
+- For every completed module or task, update `PROJECT_PROGRESS.md`, commit the completed work, and push it to the GitHub remote before handing off.
+
 Recommended AI workflow:
 
 1. Give Codex only one module at a time.
@@ -17,18 +23,22 @@ Recommended AI workflow:
 3. Ask Codex to generate schema/models, services, controllers/routes, frontend pages/components, and tests in small batches.
 4. Do not allow Codex to skip tests or validation.
 5. After each module, run linting, type-checking, unit tests, and integration tests.
-6. Keep Phase 2 features as placeholders only unless explicitly requested.
+6. Update `PROJECT_PROGRESS.md` with what changed, what is complete, what remains partial, and what is still not started.
+7. Commit and push the completed module/task to GitHub.
+8. Keep Phase 2 features as placeholders only unless explicitly requested.
 
 Suggested Codex prompt format:
 
 ```text
 You are building the Vivah Australia matrimonial platform.
 Follow the project conventions already present in the repo.
+Follow vivah_australia_ui_ux_planning.md for all UI/UX decisions.
 Implement Module [MODULE_ID] from the attached AI-ready task list.
 Start by reading the current folder structure and existing code.
 Then implement backend, frontend, database, validation, security, and tests.
 Do not implement Phase 2 features unless the task explicitly says so.
-Return a summary of changed files, created routes, tests added, and any required env vars.
+Update PROJECT_PROGRESS.md, commit the completed work, and push it to GitHub.
+Return a summary of changed files, created routes, tests added, any required env vars, and the commit hash pushed.
 ```
 
 ---
@@ -2554,4 +2564,3 @@ Set up CI/CD, staging/production environments, logging, monitoring, backups, and
 - Never expose private media/document URLs without signed, short-lived access.
 - Make all critical user actions idempotent where possible.
 - Prefer small, testable services over large controllers.
-
