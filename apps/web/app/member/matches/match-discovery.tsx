@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { BadgeCheck, Heart, Search, ShieldCheck, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { profileSearchQuerySchema } from '@vivah/shared';
 import { csvList, optionalNumber, optionalString, useMemberRequest } from '@/lib/member-api';
+import ProfileActions from '../profile-actions';
 
 interface MatchCard {
   id: string;
@@ -337,7 +338,7 @@ function ProfileCard({
       </div>
 
       {!compact ? (
-        <div className="border-t border-[#F0D6DA] px-4 py-3">
+        <div className="grid gap-3 border-t border-[#F0D6DA] px-4 py-3">
           <div className="flex flex-wrap gap-2">
             {profile.matchReasons.slice(0, 3).map((reason) => (
               <span
@@ -349,8 +350,13 @@ function ProfileCard({
               </span>
             ))}
           </div>
+          <ProfileActions profileId={profile.id} />
         </div>
-      ) : null}
+      ) : (
+        <div className="border-t border-[#F0D6DA] px-4 py-3">
+          <ProfileActions profileId={profile.id} compact />
+        </div>
+      )}
     </motion.article>
   );
 }

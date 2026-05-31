@@ -42,6 +42,10 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | MEDIA-003 Admin Media Review                               | Complete                              | Admin media review queue API and page, approve/reject/resubmission workflow, review metadata, moderation reason support, and backend tests.                                                                                                                                                                             |
 | MATCH-001 Search Profiles                                  | Complete                              | Authenticated `/api/matches/search`, shared validators, approval/visibility enforcement, self and blocked-user exclusion, pagination/sorting, subscription-gated advanced filters, capped free/paid page sizes, member search UI, and backend tests.                                                                    |
 | MATCH-002 Recommended Matches                              | Complete                              | Rule-based `/api/matches/recommended`, compatibility score and match reasons, preference/location/religion/education/occupation/interest/verification scoring, blocked/hidden/unapproved exclusions, member recommended matches UI, and backend tests.                                                                  |
+| INTEREST-001 Interest Workflow                             | Complete                              | Send/list/respond interest APIs, accept/reject/withdraw workflow, duplicate prevention, blocked-user enforcement, monthly membership limits, notification records, conversation unlock on accept, match-card actions, interests page, and backend tests.                                                                |
+| INTEREST-002 Favourite Profiles                            | Complete                              | Favourite/unfavourite/list APIs, duplicate prevention, blocked-user enforcement, favourites page, match-card save action, and backend tests.                                                                                                                                                                            |
+| SAFETY-001 Block Users                                     | Complete                              | Block/unblock/list APIs, search/profile/interest enforcement, pending interest withdrawal on block, safety page, block modal/actions, and backend tests.                                                                                                                                                                |
+| SAFETY-002 Report Users and Content                        | Mostly complete                       | Member report API for profiles/users/media/messages/posts/comments, report modal, safety page report form, notification record, admin report queue/API/page with assign/resolve/dismiss actions, and backend tests. Auto-risk counters remain outstanding.                                                              |
 
 ## Partially Completed / Infrastructure Present
 
@@ -49,7 +53,6 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | WEB-003 Contact Form                      | Contact inquiry model, public POST endpoint, frontend contact form, validation, rate limiting, hCaptcha verification, console email notification, storage test. | Real production email provider integration and stronger CAPTCHA test coverage.                                |
 | PLAN-001 Membership Plan System           | Plan model, seeded sample plans, public active plans API.                                                                                                       | Admin plan CRUD, entitlement use, subscription integration.                                                   |
-| SAFETY-001 Block Users                    | Block model exists and profile viewing respects block relationships.                                                                                            | Member-facing block/unblock APIs and UI.                                                                      |
 | ADMIN-006 CMS Management                  | Admin CMS page CRUD API exists with admin role check.                                                                                                           | Admin frontend CMS management screens.                                                                        |
 | SEC-001 Core Security Middleware          | Helmet, CORS, JSON limit, route rate limits, password hashing are in place.                                                                                     | Full security middleware checklist, centralized abuse controls, security tests beyond current route coverage. |
 | TEST-001 / TEST-002 Backend and API Tests | Meaningful backend/API tests exist for implemented modules.                                                                                                     | Coverage for future modules and deeper negative/security cases.                                               |
@@ -65,9 +68,6 @@ The following modules do not yet have full business-feature implementations in t
 - VERIFY-002 Verification Badge Logic
 - VERIFY-003 External Provider Extension Points
 - MATCH-003 Recently Viewed Profiles
-- INTEREST-001 Send/Accept/Reject/Withdraw Interest
-- INTEREST-002 Favourite Profiles
-- SAFETY-002 Report Users and Content
 - MSG-001 Conversations
 - MSG-002 Real-Time Socket.IO Messaging
 - MSG-003 Message Attachments
@@ -110,8 +110,9 @@ The following modules do not yet have full business-feature implementations in t
 - WEB-002 has backend CRUD and public rendering, but no admin UI for editing static pages.
 - Public homepage uses fallback/homepage composition plus public APIs; a full CMS-driven homepage editor is not implemented yet.
 - Media upload uses Cloudinary signed-upload parameters when `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are configured; local development falls back to mock signed upload metadata.
-- Private media access is app-signed for owner/admin flows; accepted-interest private gallery unlock rules still need the interest module.
+- Private media access is app-signed for owner/admin flows; accepted-interest private gallery unlock still needs to be wired into media access rules.
 - Match recommendations are calculated on demand; stored recommendation snapshots and dedicated newly joined/recently active/highly compatible endpoints are not implemented yet.
+- Safety reports create moderation records and admin review actions; auto-risk counters are not implemented yet.
 - Frontend tests and E2E tests are not present.
 - No CI/CD pipeline is configured yet.
 
@@ -131,12 +132,15 @@ Live local checks also passed for:
 - `http://localhost:3000/member/onboarding`
 - `http://localhost:3000/member/settings`
 - `http://localhost:3000/member/matches`
+- `http://localhost:3000/member/interests`
+- `http://localhost:3000/member/favourites`
+- `http://localhost:3000/member/safety`
 
 ## Recommended Next Build Order
 
 1. Finish WEB-003 gaps: email notification and CAPTCHA.
 2. Add ADMIN-001 and ADMIN-006 UI so CMS content can be managed from the product.
-3. Build INTEREST-001, INTEREST-002, SAFETY-001 UI/API completion, and SAFETY-002.
+3. Add admin report queue/workflow and report risk counters.
 4. Add MATCH-003 recently viewed profiles and saved search UX.
 5. Add MEDIA-002 video introduction upload after photo moderation is stable.
 6. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.

@@ -4,9 +4,12 @@ import type { ReactNode } from 'react';
 const memberLinks = [
   ['Onboarding', '/member/onboarding'],
   ['Matches', '/member/matches'],
+  ['Interests', '/member/interests'],
+  ['Favourites', '/member/favourites'],
   ['Edit profile', '/member/profile/edit'],
   ['Media', '/member/media'],
   ['Settings', '/member/settings'],
+  ['Safety', '/member/safety'],
 ] as const;
 
 export default function MemberShell({

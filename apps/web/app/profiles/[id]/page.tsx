@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation';
+import type { ReactNode } from 'react';
+import ProfileActions from '../../member/profile-actions';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
@@ -8,6 +10,7 @@ interface ProfilePageProps {
 
 interface PublicProfileResponse {
   profile?: {
+    _id?: string;
     displayId: string;
     completionPercentage: number;
     personal?: { firstName?: string; lastName?: string; age?: number; gender?: string };
@@ -63,6 +66,9 @@ export default async function ProfileViewPage({ params }: ProfilePageProps) {
             .filter(Boolean)
             .join(' | ')}
         </p>
+        <div className="mt-6 max-w-xl">
+          <ProfileActions profileId={profile._id ?? id} compact />
+        </div>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <Panel title="Background">
             <p>Religion: {profile.religion?.religion ?? 'Not shared'}</p>
@@ -85,7 +91,7 @@ export default async function ProfileViewPage({ params }: ProfilePageProps) {
   );
 }
 
-function Panel({ title, children }: Readonly<{ title: string; children: React.ReactNode }>) {
+function Panel({ title, children }: Readonly<{ title: string; children: ReactNode }>) {
   return (
     <section className="rounded-lg border border-neutral-200 p-5">
       <h2 className="text-lg font-semibold">{title}</h2>

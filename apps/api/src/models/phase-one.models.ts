@@ -196,6 +196,8 @@ export interface UserPair {
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
 }
 
 const favouriteSchema = new Schema<UserPair>(

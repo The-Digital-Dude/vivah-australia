@@ -3,10 +3,12 @@ import {
   AccountStatus,
   Gender,
   INCOME_VISIBILITY_VALUES,
+  InterestStatus,
   MaritalStatus,
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
+  ReportStatus,
   ProfileVisibility,
   UserRole,
   VerificationLevel,
@@ -100,6 +102,13 @@ export const mediaVisibilitySchema = z.nativeEnum(MediaVisibility);
 export const mediaCategorySchema = z.nativeEnum(MediaCategory);
 export const mediaUploadStatusSchema = z.nativeEnum(MediaUploadStatus);
 export const verificationStatusSchema = z.nativeEnum(VerificationStatus);
+export const interestStatusSchema = z.nativeEnum(InterestStatus);
+export const reportStatusSchema = z.nativeEnum(ReportStatus);
+
+const objectIdSchema = z
+  .string()
+  .trim()
+  .regex(/^[a-f\d]{24}$/i, 'Invalid identifier');
 
 const imageMimeTypes = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
@@ -235,6 +244,39 @@ export const profileSearchQuerySchema = z
 
 export const recommendedMatchesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(30).default(12),
+});
+
+export const profileTargetSchema = z.object({
+  profileId: objectIdSchema,
+});
+
+export const interestRespondSchema = z.object({
+  action: z.enum(['ACCEPT', 'REJECT', 'WITHDRAW']),
+});
+
+export const interestListQuerySchema = z.object({
+  box: z.enum(['sent', 'received']).default('received'),
+});
+
+export const reportTargetTypeSchema = z.enum([
+  'PROFILE',
+  'MEDIA',
+  'MESSAGE',
+  'USER',
+  'POST',
+  'COMMENT',
+]);
+
+export const reportCreateSchema = z.object({
+  targetType: reportTargetTypeSchema.default('PROFILE'),
+  targetId: objectIdSchema.optional(),
+  profileId: objectIdSchema.optional(),
+  reason: z.string().trim().min(10).max(2000),
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('LOW'),
+});
+
+export const reportAdminReviewSchema = z.object({
+  action: z.enum(['ASSIGN', 'RESOLVE', 'DISMISS']),
 });
 
 export const profileDraftSchema = z.object({
@@ -376,6 +418,11 @@ export type MediaUpdateInput = z.infer<typeof mediaUpdateSchema>;
 export type MediaReviewInput = z.infer<typeof mediaReviewSchema>;
 export type ProfileSearchQueryInput = z.infer<typeof profileSearchQuerySchema>;
 export type RecommendedMatchesQueryInput = z.infer<typeof recommendedMatchesQuerySchema>;
+export type ProfileTargetInput = z.infer<typeof profileTargetSchema>;
+export type InterestRespondInput = z.infer<typeof interestRespondSchema>;
+export type InterestListQueryInput = z.infer<typeof interestListQuerySchema>;
+export type ReportCreateInput = z.infer<typeof reportCreateSchema>;
+export type ReportAdminReviewInput = z.infer<typeof reportAdminReviewSchema>;
 export type ProfileDraftInput = z.infer<typeof profileDraftSchema>;
 export type ProfileSubmitInput = z.infer<typeof profileSubmitSchema>;
 export type NotificationPreferencesInput = z.infer<typeof notificationPreferencesSchema>;

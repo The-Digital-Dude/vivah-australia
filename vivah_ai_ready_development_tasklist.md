@@ -975,7 +975,7 @@ Allow users to submit verification documents and allow moderators/admins to revi
 - [ ] Create secure upload flow.
 - [ ] Encrypt sensitive document metadata.
 - [ ] Restrict document access to owner and authorized staff.
-- [ ] Add admin review workflow.
+- [x] Add admin review workflow.
 - [ ] Auto-update verification badge after approval.
 
 #### Frontend Tasks
@@ -1186,14 +1186,14 @@ GET /api/me/recently-viewed
 
 #### Backend Tasks
 
-- [ ] Create interest model.
-- [ ] Create send interest endpoint.
-- [ ] Create accept/reject endpoint.
-- [ ] Create withdraw endpoint.
-- [ ] Prevent duplicate interests.
-- [ ] Prevent sending to blocked users.
-- [ ] Apply free membership interest limits.
-- [ ] Create conversation after interest is accepted if messaging requires acceptance.
+- [x] Create interest model.
+- [x] Create send interest endpoint.
+- [x] Create accept/reject endpoint.
+- [x] Create withdraw endpoint.
+- [x] Prevent duplicate interests.
+- [x] Prevent sending to blocked users.
+- [x] Apply free membership interest limits.
+- [x] Create conversation after interest is accepted if messaging requires acceptance.
 
 #### API Endpoints
 
@@ -1208,16 +1208,16 @@ POST /api/interests/:id/withdraw
 
 #### Frontend Tasks
 
-- [ ] Add interest buttons on profile cards and detail pages.
-- [ ] Build sent interests page.
-- [ ] Build received interests page.
+- [x] Add interest buttons on profile cards and detail pages.
+- [x] Build sent interests page.
+- [x] Build received interests page.
 
 #### Tests
 
-- [ ] Duplicate interest rejected.
-- [ ] Blocked users cannot send interest.
-- [ ] Accepted interest enables messaging.
-- [ ] Free limits enforced.
+- [x] Duplicate interest rejected.
+- [x] Blocked users cannot send interest.
+- [x] Accepted interest enables messaging.
+- [x] Free limits enforced.
 
 ---
 
@@ -1225,9 +1225,9 @@ POST /api/interests/:id/withdraw
 
 #### Backend Tasks
 
-- [ ] Create favourite model.
-- [ ] Add favourite/unfavourite endpoints.
-- [ ] Create favourites list endpoint.
+- [x] Create favourite model.
+- [x] Add favourite/unfavourite endpoints.
+- [x] Create favourites list endpoint.
 
 #### API Endpoints
 
@@ -1239,8 +1239,8 @@ GET /api/me/favourites
 
 #### Frontend Tasks
 
-- [ ] Add favourite action on cards/details.
-- [ ] Build favourites page.
+- [x] Add favourite action on cards/details.
+- [x] Build favourites page.
 
 ---
 
@@ -1248,9 +1248,9 @@ GET /api/me/favourites
 
 #### Backend Tasks
 
-- [ ] Create block model.
-- [ ] Create block/unblock endpoints.
-- [ ] Enforce block rules in search, profile view, interests, messaging, community interactions.
+- [x] Create block model.
+- [x] Create block/unblock endpoints.
+- [x] Enforce block rules in search, profile view, interests, messaging, community interactions.
 
 #### API Endpoints
 
@@ -1262,8 +1262,8 @@ GET /api/me/blocks
 
 #### Tests
 
-- [ ] Blocked users cannot message each other.
-- [ ] Blocked users do not appear in search.
+- [x] Blocked users cannot message each other.
+- [x] Blocked users do not appear in search.
 - [ ] Existing conversation becomes inaccessible or read-only.
 
 ---
@@ -1272,9 +1272,9 @@ GET /api/me/blocks
 
 #### Backend Tasks
 
-- [ ] Create report model.
-- [ ] Support reporting users, profiles, messages, posts, comments, and media.
-- [ ] Add reason, description, screenshots/attachments optional.
+- [x] Create report model.
+- [x] Support reporting users, profiles, messages, posts, comments, and media.
+- [x] Add reason, description, screenshots/attachments optional.
 - [ ] Add admin review workflow.
 - [ ] Add auto-risk counter per reported user.
 
@@ -1290,14 +1290,14 @@ POST /api/admin/reports/:id/dismiss
 
 #### Frontend Tasks
 
-- [ ] Build report modal.
-- [ ] Build admin report queue.
-- [ ] Add moderation action buttons.
+- [x] Build report modal.
+- [x] Build admin report queue.
+- [x] Add moderation action buttons.
 
 #### Tests
 
-- [ ] Report creates admin queue item.
-- [ ] Reported user is not automatically banned unless configured.
+- [x] Report creates admin queue item.
+- [x] Reported user is not automatically banned unless configured.
 - [ ] Admin resolution logs action.
 
 ---
@@ -2293,10 +2293,10 @@ ADMIN_SEED_PASSWORD=
 
 - [x] MATCH-001 Search profiles
 - [x] MATCH-002 Recommended matches
-- [ ] INTEREST-001 Interest workflow
-- [ ] INTEREST-002 Favourites
-- [ ] SAFETY-001 Block users
-- [ ] SAFETY-002 Report users
+- [x] INTEREST-001 Interest workflow
+- [x] INTEREST-002 Favourites
+- [x] SAFETY-001 Block users
+- [x] SAFETY-002 Report users
 
 ### Sprint 4 - Messaging and Community
 
