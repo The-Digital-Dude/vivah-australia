@@ -10,6 +10,7 @@ export interface PublicPlan {
 }
 
 export interface FeaturedProfile {
+  _id?: string;
   displayId: string;
   slug?: string;
   personal?: {

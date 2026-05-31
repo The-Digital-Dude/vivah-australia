@@ -8,7 +8,6 @@ import {
 } from '@vivah/shared';
 import type { Types } from 'mongoose';
 import { sendEmail } from '../common/email.service.js';
-import { env } from '../env.js';
 import {
   AuthProvider,
   AuthTokenModel,
@@ -32,6 +31,7 @@ const EMAIL_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000;
+const DEFAULT_WEB_BASE_URL = 'http://localhost:3000';
 
 export interface RegisterResult {
   user: {
@@ -39,6 +39,7 @@ export interface RegisterResult {
     email: string;
     status: string;
   };
+  verificationToken?: string;
 }
 
 export interface AuthResult extends TokenPair {
@@ -70,9 +71,13 @@ function publicUser(user: UserDocument) {
   };
 }
 
+function getWebBaseUrl() {
+  return process.env.WEB_BASE_URL ?? DEFAULT_WEB_BASE_URL;
+}
+
 export async function registerWithEmail(
   input: RegisterEmailInput,
-  _config: AuthConfig,
+  config: AuthConfig,
 ): Promise<RegisterResult> {
   const existingUser = await UserModel.findOne({ email: input.email });
 
@@ -149,10 +154,10 @@ export async function registerWithEmail(
     EMAIL_TOKEN_TTL_MS,
   );
 
-  const verificationLink = `${env.WEB_BASE_URL}/verify-email?token=${verificationToken}`;
+  const verificationLink = `${getWebBaseUrl()}/verify-email?token=${verificationToken}`;
 
   await sendEmail({
-    to: user.email,
+    to: input.email,
     from: 'noreply@vivahaustralia.com.au',
     subject: 'Verify your email address',
     text: `Please click the following link to verify your email address: ${verificationLink}`,
@@ -165,6 +170,7 @@ export async function registerWithEmail(
       email: user.email ?? input.email,
       status: user.status,
     },
+    ...(config.exposeSensitiveTokens ? { verificationToken } : {}),
   };
 }
 
@@ -282,11 +288,14 @@ export async function logout(refreshToken: string, config: AuthConfig): Promise<
   );
 }
 
-export async function requestPasswordReset(email: string, _config: AuthConfig): Promise<void> {
+export async function requestPasswordReset(
+  email: string,
+  config: AuthConfig,
+): Promise<{ resetToken?: string }> {
   const user = await UserModel.findOne({ email });
 
-  if (!user) {
-    return;
+  if (!user?.email) {
+    return {};
   }
 
   const resetToken = await createAuthToken(
@@ -295,7 +304,7 @@ export async function requestPasswordReset(email: string, _config: AuthConfig): 
     PASSWORD_RESET_TTL_MS,
   );
 
-  const resetLink = `${env.WEB_BASE_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${getWebBaseUrl()}/reset-password?token=${resetToken}`;
 
   await sendEmail({
     to: user.email,
@@ -304,6 +313,8 @@ export async function requestPasswordReset(email: string, _config: AuthConfig): 
     text: `Please click the following link to reset your password: ${resetLink}`,
     html: `<p>Please click the following link to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
   });
+
+  return config.exposeSensitiveTokens ? { resetToken } : {};
 }
 
 export async function resetPassword(token: string, password: string): Promise<void> {

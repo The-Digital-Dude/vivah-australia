@@ -1,6 +1,3 @@
-
-import { env } from '../env.js';
-
 export interface Email {
   to: string;
   from: string;

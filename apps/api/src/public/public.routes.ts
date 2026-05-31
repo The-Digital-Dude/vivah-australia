@@ -6,7 +6,6 @@ import { requireAuth } from '../auth/auth.middleware.js';
 import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { sendEmail } from '../common/email.service.js';
-import { env } from '../env.js';
 import {
   BlogPostModel,
   CmsPageModel,
@@ -28,8 +27,10 @@ const contactRateLimit = rateLimit({
 });
 
 async function verifyCaptcha(token: string | undefined) {
+  const secret = process.env.HCAPTCHA_SECRET;
+
   // Allow skipping captcha in dev or if secret is not set
-  if (!env.HCAPTCHA_SECRET) {
+  if (!secret) {
     console.warn('HCAPTCHA_SECRET not set, skipping CAPTCHA verification.');
     return;
   }
@@ -44,7 +45,7 @@ async function verifyCaptcha(token: string | undefined) {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
-      secret: env.HCAPTCHA_SECRET,
+      secret,
       response: token,
     }),
   });
@@ -218,7 +219,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
 
       // Send email notification
       await sendEmail({
-        to: env.ADMIN_SEED_EMAIL ?? 'support@vivahaustralia.com.au',
+        to: process.env.ADMIN_SEED_EMAIL ?? 'support@vivahaustralia.com.au',
         from: 'noreply@vivahaustralia.com.au',
         subject: `New Contact Inquiry: ${inquiry.subject}`,
         text: `

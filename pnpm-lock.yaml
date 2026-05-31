@@ -118,9 +118,6 @@ importers:
         specifier: ^3.24.1
         version: 3.25.76
     devDependencies:
-      '@types/hcaptcha__react-hcaptcha':
-        specifier: ^0.3.7
-        version: 0.3.7(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@types/react':
         specifier: ^19.0.1
         version: 19.2.15
@@ -948,10 +945,6 @@ packages:
 
   '@types/express@4.17.25':
     resolution: {integrity: sha512-dVd04UKsfpINUnK0yBoYHDF3xu7xVH4BuDotC/xGuycx4CgbP48X/KF/586bcObxT0HENHXEU8Nqtu6NR+eKhw==}
-
-  '@types/hcaptcha__react-hcaptcha@0.3.7':
-    resolution: {integrity: sha512-Hw1UXr6q4M/2NZQLVY+ZZx2uAJ2GEz18D126WmoRg8onGdsnIts7DE19RtMiJsphkS47JAQJz7v/A980UHc2OQ==}
-    deprecated: This is a stub types definition. @hcaptcha/react-hcaptcha provides its own type definitions, so you do not need this installed.
 
   '@types/http-errors@2.0.5':
     resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
@@ -3128,13 +3121,6 @@ snapshots:
       '@types/express-serve-static-core': 4.19.8
       '@types/qs': 6.15.1
       '@types/serve-static': 1.15.10
-
-  '@types/hcaptcha__react-hcaptcha@0.3.7(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
-    dependencies:
-      '@hcaptcha/react-hcaptcha': 1.17.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-    transitivePeerDependencies:
-      - react
-      - react-dom
 
   '@types/http-errors@2.0.5': {}
 
