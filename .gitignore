@@ -13,3 +13,8 @@ yarn-debug.log*
 yarn-error.log*
 .*-dev.log
 .*-dev.err.log
+.api-live.log
+.api-live.err.log
+.mongo.log
+.mongo.err.log
+.mongo-data
