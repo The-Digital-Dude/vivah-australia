@@ -11,16 +11,16 @@
 
 ## Technology Stack At a Glance
 
-| Component | Technology | Version |
-|-----------|-----------|---------|
-| Frontend | Next.js + React + TypeScript | 16.2.6 + 19.2.6 + 5.7.2 |
-| Backend | Express.js + Node.js | 4.21.1 + 22+ |
-| Database | MongoDB + Mongoose | Latest + 9.6.3 |
-| Styling | TailwindCSS | 3.4.17 |
-| Auth | JWT + bcryptjs | 9.0.3 + 3.0.3 |
-| Validation | Zod | 3.24.1 |
-| Testing | Vitest + Supertest | 2.1.8 + 7.0.0 |
-| Package Manager | pnpm | 10.33.0+ |
+| Component       | Technology                   | Version                 |
+| --------------- | ---------------------------- | ----------------------- |
+| Frontend        | Next.js + React + TypeScript | 16.2.6 + 19.2.6 + 5.7.2 |
+| Backend         | Express.js + Node.js         | 4.21.1 + 22+            |
+| Database        | MongoDB + Mongoose           | Latest + 9.6.3          |
+| Styling         | TailwindCSS                  | 3.4.17                  |
+| Auth            | JWT + bcryptjs               | 9.0.3 + 3.0.3           |
+| Validation      | Zod                          | 3.24.1                  |
+| Testing         | Vitest + Supertest           | 2.1.8 + 7.0.0           |
+| Package Manager | pnpm                         | 10.33.0+                |
 
 ---
 
@@ -177,6 +177,7 @@ pnpm build
 ## API Endpoints Summary
 
 ### Auth
+
 - `POST /api/auth/register/email` - Register
 - `POST /api/auth/verify-email` - Verify email
 - `POST /api/auth/login` - Login
@@ -186,18 +187,21 @@ pnpm build
 - `POST /api/auth/reset-password` - Reset password
 
 ### Profile
+
 - `GET /api/me/profile` - Get own profile
 - `PATCH /api/me/profile` - Update profile
 - `POST /api/me/profile/submit` - Submit for review
 - `GET /api/profiles/:id` - View public profile
 
 ### Public
+
 - `GET /api/pages/:slug` - CMS page
 - `GET /api/plans/active` - Plans list
 - `GET /api/profiles/featured` - Featured profiles
 - `POST /api/contact` - Contact form
 
 ### System
+
 - `GET /health` - Health check
 
 ---
@@ -207,20 +211,20 @@ pnpm build
 ### Backend Validation
 
 ```typescript
-import { loginSchema } from '@vivah/shared'
+import { loginSchema } from '@vivah/shared';
 
 router.post('/api/auth/login', async (req, res) => {
-  const input = loginSchema.parse(req.body)  // Throws ZodError if invalid
+  const input = loginSchema.parse(req.body); // Throws ZodError if invalid
   // ... handler logic
-})
+});
 ```
 
 ### Frontend Validation
 
 ```typescript
-import { registerEmailSchema } from '@vivah/shared'
+import { registerEmailSchema } from '@vivah/shared';
 
-const result = await registerEmailSchema.parseAsync(formData)
+const result = await registerEmailSchema.parseAsync(formData);
 if (result.success) {
   // Valid
 } else {
@@ -278,24 +282,28 @@ POST /api/auth/refresh → new tokens issued
 ## Project Structure: What Goes Where
 
 ### Add to `@vivah/shared`
+
 - Enums & constants
 - Zod validation schemas
 - Env variable schemas
 - Types/interfaces shared by API & Web
 
 ### Add to `@vivah/api`
+
 - Express routes
 - MongoDB models
 - Business logic services
 - API-specific middleware
 
 ### Add to `@vivah/web`
+
 - Next.js pages
 - React components
 - API client functions
 - Form handling
 
 ### Add to `packages/ui`
+
 - Reusable React components
 - Design system components
 - Shared form fields
@@ -305,21 +313,25 @@ POST /api/auth/refresh → new tokens issued
 ## Testing
 
 ### Run All Tests
+
 ```bash
 pnpm test
 ```
 
 ### Run Specific Package Tests
+
 ```bash
 pnpm --filter @vivah/api test
 pnpm --filter @vivah/shared test
 ```
 
 ### Test File Location
+
 - Backend: `apps/api/src/*.test.ts`
 - Shared: `packages/shared/src/*.test.ts`
 
 ### Test Utilities
+
 - **Vitest** - Test runner
 - **Supertest** - HTTP assertions
 - **mongodb-memory-server** - In-memory MongoDB
@@ -331,13 +343,13 @@ pnpm --filter @vivah/shared test
 ### API Errors
 
 ```typescript
-import { HttpError } from './auth/auth-errors'
+import { HttpError } from './auth/auth-errors';
 
-throw new HttpError(400, 'Email is already registered')
-throw new HttpError(401, 'Authentication required')
-throw new HttpError(403, 'Admin access required')
-throw new HttpError(404, 'Profile not found')
-throw new HttpError(500, 'Internal server error')
+throw new HttpError(400, 'Email is already registered');
+throw new HttpError(401, 'Authentication required');
+throw new HttpError(403, 'Admin access required');
+throw new HttpError(404, 'Profile not found');
+throw new HttpError(500, 'Internal server error');
 ```
 
 ### Validation Errors
@@ -354,7 +366,7 @@ throw new HttpError(500, 'Internal server error')
 
 ```typescript
 try {
-  const result = await schema.parseAsync(data)
+  const result = await schema.parseAsync(data);
 } catch (error) {
   // Handle ZodError - show field-specific errors
 }
@@ -365,6 +377,7 @@ try {
 ## Security Reminders
 
 ✅ DO:
+
 - Use HTTPS in production
 - Store JWT secrets as env variables (32+ chars)
 - Hash passwords with bcryptjs (12 rounds)
@@ -375,6 +388,7 @@ try {
 - Configure CORS properly
 
 ❌ DON'T:
+
 - Store plain text passwords
 - Commit `.env` files
 - Use `any` in TypeScript
@@ -406,24 +420,29 @@ try {
 ## Common Issues & Solutions
 
 ### "Module not found: @vivah/shared"
+
 - Run `pnpm --filter @vivah/shared build`
 - Restart dev server
 
 ### MongoDB connection fails
+
 - Check MONGODB_URI in .env
 - Ensure MongoDB is running
 - Verify network access/firewall
 
 ### Port already in use
+
 - Change port in .env (default: 4000 for API, 3000 for web)
 - Or kill process using port: `lsof -i :4000`
 
 ### TypeScript compilation errors
+
 - Run `pnpm typecheck`
 - Check tsconfig.json
 - Ensure all types are imported
 
 ### CORS errors
+
 - Update CORS_ORIGINS in API .env
 - Restart API server
 - Check browser console for exact error

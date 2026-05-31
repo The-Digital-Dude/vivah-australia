@@ -86,31 +86,31 @@ vivah-australia/
 
 ### Core Technologies
 
-| Layer | Technology | Version | Purpose |
-|-------|-----------|---------|---------|
-| **Frontend** | Next.js | 16.2.6 | React web framework with SSR/SSG |
-| | React | 19.2.6 | UI library |
-| | TypeScript | 5.7.2 | Type safety |
-| | TailwindCSS | 3.4.17 | Utility-first CSS framework |
-| **Backend** | Express.js | 4.21.1 | HTTP server framework |
-| | TypeScript | 5.7.2 | Type safety |
-| | Node.js | 22+ | Runtime |
-| **Database** | MongoDB | Latest | NoSQL database |
-| | Mongoose | 9.6.3 | MongoDB ODM |
-| **Authentication** | JWT | `jsonwebtoken` 9.0.3 | Token-based auth |
-| | bcryptjs | 3.0.3 | Password hashing |
-| **Validation** | Zod | 3.24.1 | Schema validation (frontend & backend) |
-| **Security** | Helmet | 8.0.0 | HTTP header security |
-| | CORS | 2.8.5 | Cross-origin resource sharing |
-| | express-rate-limit | 8.5.2 | Request rate limiting |
-| | hCaptcha | - | Bot/spam protection |
-| **Testing** | Vitest | 2.1.8 | Fast unit testing framework |
-| | Supertest | 7.0.0 | HTTP assertion library |
-| | mongodb-memory-server | 11.2.0 | In-memory MongoDB for tests |
-| **Code Quality** | ESLint | 9.15.0 | Linting |
-| | Prettier | 3.4.2 | Code formatting |
-| **Development Tools** | tsx | 4.19.2 | TypeScript runner |
-| | concurrently | 9.1.0 | Run multiple commands |
+| Layer                 | Technology            | Version              | Purpose                                |
+| --------------------- | --------------------- | -------------------- | -------------------------------------- |
+| **Frontend**          | Next.js               | 16.2.6               | React web framework with SSR/SSG       |
+|                       | React                 | 19.2.6               | UI library                             |
+|                       | TypeScript            | 5.7.2                | Type safety                            |
+|                       | TailwindCSS           | 3.4.17               | Utility-first CSS framework            |
+| **Backend**           | Express.js            | 4.21.1               | HTTP server framework                  |
+|                       | TypeScript            | 5.7.2                | Type safety                            |
+|                       | Node.js               | 22+                  | Runtime                                |
+| **Database**          | MongoDB               | Latest               | NoSQL database                         |
+|                       | Mongoose              | 9.6.3                | MongoDB ODM                            |
+| **Authentication**    | JWT                   | `jsonwebtoken` 9.0.3 | Token-based auth                       |
+|                       | bcryptjs              | 3.0.3                | Password hashing                       |
+| **Validation**        | Zod                   | 3.24.1               | Schema validation (frontend & backend) |
+| **Security**          | Helmet                | 8.0.0                | HTTP header security                   |
+|                       | CORS                  | 2.8.5                | Cross-origin resource sharing          |
+|                       | express-rate-limit    | 8.5.2                | Request rate limiting                  |
+|                       | hCaptcha              | -                    | Bot/spam protection                    |
+| **Testing**           | Vitest                | 2.1.8                | Fast unit testing framework            |
+|                       | Supertest             | 7.0.0                | HTTP assertion library                 |
+|                       | mongodb-memory-server | 11.2.0               | In-memory MongoDB for tests            |
+| **Code Quality**      | ESLint                | 9.15.0               | Linting                                |
+|                       | Prettier              | 3.4.2                | Code formatting                        |
+| **Development Tools** | tsx                   | 4.19.2               | TypeScript runner                      |
+|                       | concurrently          | 9.1.0                | Run multiple commands                  |
 
 ### Build Tools
 
@@ -171,6 +171,7 @@ vivah-australia/
 ### .gitignore
 
 Standard ignore patterns:
+
 - `node_modules/` - Dependencies
 - `.next/` - Next.js build output
 - `dist/` - Compiled TypeScript
@@ -184,6 +185,7 @@ Standard ignore patterns:
 ### Purpose
 
 Express.js-based REST API that handles:
+
 - User authentication (registration, login, email verification, password reset)
 - Profile management (CRUD, completion tracking, moderation)
 - Public content serving (CMS pages, blog posts, plans, testimonials)
@@ -214,21 +216,21 @@ Express.js-based REST API that handles:
 
 Parsed from `.env` using Zod schema (`apiEnvSchema`):
 
-| Variable | Required | Default | Example |
-|----------|----------|---------|---------|
-| `NODE_ENV` | Yes | development | production, test |
-| `API_PORT` | No | 4000 | 4000 |
-| `API_BASE_URL` | Yes | - | http://localhost:4000 |
-| `WEB_BASE_URL` | Yes | - | http://localhost:3000 |
-| `MONGODB_URI` | Yes | - | mongodb://localhost:27017/vivah_dev |
-| `JWT_ACCESS_SECRET` | Yes (32+ chars) | - | (random 32+ char string) |
-| `JWT_REFRESH_SECRET` | Yes (32+ chars) | - | (random 32+ char string) |
-| `JWT_ACCESS_EXPIRES_IN` | No | 15m | 15m, 1h, etc. |
-| `JWT_REFRESH_EXPIRES_IN` | No | 30d | 7d, 30d, etc. |
-| `CORS_ORIGINS` | Yes | - | http://localhost:3000,https://app.example.com |
-| `ADMIN_SEED_EMAIL` | No | - | admin@example.com |
-| `ADMIN_SEED_PASSWORD` | No | - | (12+ chars, mixed case, numbers, symbols) |
-| `HCAPTCHA_SECRET` | No | - | (hCaptcha secret key for production) |
+| Variable                 | Required        | Default     | Example                                       |
+| ------------------------ | --------------- | ----------- | --------------------------------------------- |
+| `NODE_ENV`               | Yes             | development | production, test                              |
+| `API_PORT`               | No              | 4000        | 4000                                          |
+| `API_BASE_URL`           | Yes             | -           | http://localhost:4000                         |
+| `WEB_BASE_URL`           | Yes             | -           | http://localhost:3000                         |
+| `MONGODB_URI`            | Yes             | -           | mongodb://localhost:27017/vivah_dev           |
+| `JWT_ACCESS_SECRET`      | Yes (32+ chars) | -           | (random 32+ char string)                      |
+| `JWT_REFRESH_SECRET`     | Yes (32+ chars) | -           | (random 32+ char string)                      |
+| `JWT_ACCESS_EXPIRES_IN`  | No              | 15m         | 15m, 1h, etc.                                 |
+| `JWT_REFRESH_EXPIRES_IN` | No              | 30d         | 7d, 30d, etc.                                 |
+| `CORS_ORIGINS`           | Yes             | -           | http://localhost:3000,https://app.example.com |
+| `ADMIN_SEED_EMAIL`       | No              | -           | admin@example.com                             |
+| `ADMIN_SEED_PASSWORD`    | No              | -           | (12+ chars, mixed case, numbers, symbols)     |
+| `HCAPTCHA_SECRET`        | No              | -           | (hCaptcha secret key for production)          |
 
 ### App Configuration (src/app.ts)
 
@@ -239,17 +241,20 @@ createApp(options: CreateAppOptions): Express
 ```
 
 **Middleware Stack (in order):**
+
 1. `helmet()` - Security headers
 2. `cors()` - Cross-origin resource sharing
 3. `express.json({ limit: '1mb' })` - JSON parser with 1MB limit
 
 **Routes:**
+
 - `GET /health` - Health check endpoint
 - `POST /api/auth/*` - Authentication routes (register, login, verify, refresh, logout, etc.)
 - `GET /api/*` - Public and profile routes (includes profile view, CMS pages, plans, etc.)
 - `PATCH /api/me/*` - Authenticated member routes (profile, settings, privacy)
 
 **Error Handling:**
+
 - Catches `ZodError` → 400 Bad Request with validation issues
 - Catches `HttpError` → Returns appropriate status + message
 - Generic errors → 500 Internal Server Error
@@ -269,6 +274,7 @@ Used in `index.ts` for initialization and in tests for setup/teardown.
 #### Model Registration Pattern
 
 All models export:
+
 - TypeScript interface (e.g., `User`, `Profile`)
 - Mongoose schema
 - `getOrCreateModel()` which prevents duplicate model registration in HMR scenarios
@@ -309,6 +315,7 @@ Stores user account and authentication data:
 ```
 
 **Indexes:**
+
 - `{ email: 1 }` - Unique sparse (allows null)
 - `{ mobile: 1 }` - Unique sparse
 - `{ googleId, facebookId, appleId }` - Unique sparse for social providers
@@ -394,6 +401,7 @@ Stores detailed user profile information:
 ```
 
 **Indexes:**
+
 - `{ userId: 1 }`, `{ displayId: 1 }`, `{ slug: 1 }` - Lookups
 - `{ "verification.level": 1 }`, `{ "moderation.approvalStatus": 1 }` - Filtering
 - `{ "location.city": 1 }`, `{ "religion.community": 1 }` - Discovery
@@ -404,11 +412,11 @@ Stores email verification and password reset tokens:
 
 ```typescript
 {
-  userId: ObjectId
-  purpose: 'EMAIL_VERIFICATION' | 'PASSWORD_RESET'
-  tokenHash: string  // Hash of opaque token (never store plain tokens)
-  expiresAt: Date
-  createdAt: Date
+  userId: ObjectId;
+  purpose: 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
+  tokenHash: string; // Hash of opaque token (never store plain tokens)
+  expiresAt: Date;
+  createdAt: Date;
   // Soft delete support
 }
 ```
@@ -538,19 +546,19 @@ hashToken(token: string): string  // SHA256 hash for database storage
 
 ```typescript
 interface AuthConfig {
-  accessSecret: string  // 32+ characters
-  refreshSecret: string  // 32+ characters
-  accessExpiresIn: string  // e.g., "15m"
-  refreshExpiresIn: string  // e.g., "30d"
-  exposeSensitiveTokens?: boolean  // Dev mode: expose tokens in response
+  accessSecret: string; // 32+ characters
+  refreshSecret: string; // 32+ characters
+  accessExpiresIn: string; // e.g., "15m"
+  refreshExpiresIn: string; // e.g., "30d"
+  exposeSensitiveTokens?: boolean; // Dev mode: expose tokens in response
 }
 
 interface AuthenticatedRequest extends Request {
-  auth?: { userId: ObjectId, role: UserRole }
+  auth?: { userId: ObjectId; role: UserRole };
 }
 
 class HttpError extends Error {
-  constructor(statusCode: number, message: string)
+  constructor(statusCode: number, message: string);
   // Custom error for API responses
 }
 ```
@@ -723,6 +731,7 @@ sendEmail(email): Promise<void>
 ### Purpose
 
 Next.js 16 web application providing:
+
 - Public homepage with trust-building, featured profiles, plans, stories
 - Authentication flows (register, login, password reset)
 - Member portal (profile creation, editing, settings)
@@ -755,11 +764,11 @@ RootLayout
 
 Parsed from `.env.local` using Zod schema (`webEnvSchema`):
 
-| Variable | Required | Type | Default |
-|----------|----------|------|---------|
-| `NODE_ENV` | No | development, production, test | development |
-| `NEXT_PUBLIC_API_BASE_URL` | Yes | URL | http://localhost:4000 |
-| `NEXT_PUBLIC_HCAPTCHA_SITEKEY` | No | String | (hCaptcha site key for production) |
+| Variable                       | Required | Type                          | Default                            |
+| ------------------------------ | -------- | ----------------------------- | ---------------------------------- |
+| `NODE_ENV`                     | No       | development, production, test | development                        |
+| `NEXT_PUBLIC_API_BASE_URL`     | Yes      | URL                           | http://localhost:4000              |
+| `NEXT_PUBLIC_HCAPTCHA_SITEKEY` | No       | String                        | (hCaptcha site key for production) |
 
 ### Next.js Configuration (next.config.ts)
 
@@ -788,6 +797,7 @@ Parsed from `.env.local` using Zod schema (`webEnvSchema`):
 **Homepage - Premium Matrimonial Landing Page**
 
 **Components:**
+
 - Sticky navigation with logo, links, signup/login buttons
 - Hero section with emotional headline and CTA buttons
 - Featured approved profiles carousel (6 profiles)
@@ -803,12 +813,13 @@ Parsed from `.env.local` using Zod schema (`webEnvSchema`):
 - Footer with legal links
 
 **API Integration:**
+
 ```typescript
-getFeaturedProfiles()  // GET /api/profiles/featured
-getPlans()  // GET /api/plans/active
-getSuccessStories()  // GET /api/content/success-stories
-getTestimonials()  // GET /api/content/testimonials
-getBlogs()  // GET /api/content/blog
+getFeaturedProfiles(); // GET /api/profiles/featured
+getPlans(); // GET /api/plans/active
+getSuccessStories(); // GET /api/content/success-stories
+getTestimonials(); // GET /api/content/testimonials
+getBlogs(); // GET /api/content/blog
 ```
 
 **Fallback Content:** Static fallback data if API calls fail
@@ -820,6 +831,7 @@ getBlogs()  // GET /api/content/blog
 Shared auth UI shell with styling, brand colors, form container
 
 **Components:**
+
 - `form-field.tsx` - Reusable form input wrapper
 - `submit-button.tsx` - Submit button with loading state
 
@@ -862,6 +874,7 @@ Shared auth UI shell with styling, brand colors, form container
 **Layout: app/member/member-shell.tsx**
 
 Shared member portal UI shell:
+
 - Sidebar navigation
 - Profile summary
 - Member dashboard layout
@@ -971,7 +984,7 @@ Client for authenticated member endpoints:
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]  // Import @/app, @/lib, etc.
+      "@/*": ["./*"] // Import @/app, @/lib, etc.
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
@@ -986,6 +999,7 @@ Client for authenticated member endpoints:
 ### Purpose
 
 Shared utilities used by both API and Web:
+
 - Type definitions
 - Validation schemas
 - Constants and enums
@@ -1003,28 +1017,28 @@ Enums and constant values for the entire platform:
 
 ```typescript
 // User & Auth
-UserRole = { USER, PREMIUM_USER, MODERATOR, ADMIN, SUPER_ADMIN }
-AccountStatus = { PENDING, ACTIVE, SUSPENDED, BANNED, DELETED }
+UserRole = { USER, PREMIUM_USER, MODERATOR, ADMIN, SUPER_ADMIN };
+AccountStatus = { PENDING, ACTIVE, SUSPENDED, BANNED, DELETED };
 
 // Profile
-Gender = { FEMALE, MALE, NON_BINARY, PREFER_NOT_TO_SAY }
-MaritalStatus = { NEVER_MARRIED, DIVORCED, WIDOWED, SEPARATED, ANNULLED }
-VerificationLevel = { NONE, BASIC, SILVER, GOLD, PLATINUM, FULLY_VERIFIED }
-ProfileVisibility = { PUBLIC, MEMBERS_ONLY, MATCHES_ONLY, HIDDEN }
-VerificationStatus = { NOT_SUBMITTED, PENDING, APPROVED, REJECTED, NEEDS_RESUBMISSION }
+Gender = { FEMALE, MALE, NON_BINARY, PREFER_NOT_TO_SAY };
+MaritalStatus = { NEVER_MARRIED, DIVORCED, WIDOWED, SEPARATED, ANNULLED };
+VerificationLevel = { NONE, BASIC, SILVER, GOLD, PLATINUM, FULLY_VERIFIED };
+ProfileVisibility = { PUBLIC, MEMBERS_ONLY, MATCHES_ONLY, HIDDEN };
+VerificationStatus = { NOT_SUBMITTED, PENDING, APPROVED, REJECTED, NEEDS_RESUBMISSION };
 
 // Media
-MediaVisibility = { PUBLIC, PRIVATE, MATCHES_ONLY }
+MediaVisibility = { PUBLIC, PRIVATE, MATCHES_ONLY };
 
 // Features (Phase 1+)
-InterestStatus = { PENDING, ACCEPTED, REJECTED, WITHDRAWN }
-SubscriptionStatus = { TRIALING, ACTIVE, PAST_DUE, CANCELED, EXPIRED }
-PaymentStatus = { PENDING, SUCCEEDED, FAILED }
-ReportStatus = { PENDING, INVESTIGATING, RESOLVED, DISMISSED }
-CommunityPostStatus = { PUBLISHED, DRAFT, ARCHIVED, DELETED }
+InterestStatus = { PENDING, ACCEPTED, REJECTED, WITHDRAWN };
+SubscriptionStatus = { TRIALING, ACTIVE, PAST_DUE, CANCELED, EXPIRED };
+PaymentStatus = { PENDING, SUCCEEDED, FAILED };
+ReportStatus = { PENDING, INVESTIGATING, RESOLVED, DISMISSED };
+CommunityPostStatus = { PUBLISHED, DRAFT, ARCHIVED, DELETED };
 
 // Special values
-INCOME_VISIBILITY_VALUES = ['HIDDEN', 'MEMBERS_ONLY', 'ALL']
+INCOME_VISIBILITY_VALUES = ['HIDDEN', 'MEMBERS_ONLY', 'ALL'];
 ```
 
 #### src/validators.ts
@@ -1062,16 +1076,16 @@ userRoleSchema, accountStatusSchema, genderSchema, maritalStatusSchema, etc.
 Environment schema parsers:
 
 ```typescript
-apiEnvSchema
-  // Validates API environment variables
-  // Used in apps/api/src/env.ts
+apiEnvSchema;
+// Validates API environment variables
+// Used in apps/api/src/env.ts
 
-webEnvSchema
-  // Validates Web environment variables
-  // Used in apps/web/env.ts
+webEnvSchema;
+// Validates Web environment variables
+// Used in apps/web/env.ts
 
-parseEnv<TSchema>(schema, env)
-  // Generic Zod parser with error handling
+parseEnv<TSchema>(schema, env);
+// Generic Zod parser with error handling
 ```
 
 #### src/index.ts
@@ -1079,9 +1093,9 @@ parseEnv<TSchema>(schema, env)
 Barrel export file:
 
 ```typescript
-export * from './constants.js'
-export * from './env.js'
-export * from './validators.js'
+export * from './constants.js';
+export * from './env.js';
+export * from './validators.js';
 ```
 
 **Usage in API & Web:**
@@ -1094,7 +1108,7 @@ import {
   registerEmailSchema,
   parseEnv,
   apiEnvSchema,
-} from '@vivah/shared'
+} from '@vivah/shared';
 ```
 
 **Build Configuration:**
@@ -1130,20 +1144,20 @@ Strict TypeScript settings applied to all packages:
 ```json
 {
   "compilerOptions": {
-    "target": "ES2022",           // Modern JavaScript
+    "target": "ES2022", // Modern JavaScript
     "lib": ["ES2022"],
-    "module": "NodeNext",         // ESM
+    "module": "NodeNext", // ESM
     "moduleResolution": "NodeNext",
-    "strict": true,               // All strict checks
-    "noUncheckedIndexedAccess": true,  // Safer array access
+    "strict": true, // All strict checks
+    "noUncheckedIndexedAccess": true, // Safer array access
     "exactOptionalPropertyTypes": true, // Strict optional fields
-    "noImplicitOverride": true,   // Explicit override keyword
+    "noImplicitOverride": true, // Explicit override keyword
     "noFallthroughCasesInSwitch": true, // Switch must have returns
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,      // Each file is independent
-    "esModuleInterop": true,      // CommonJS compatibility
-    "skipLibCheck": true,         // Skip type checking of libs
-    "resolveJsonModule": true     // Can import JSON
+    "isolatedModules": true, // Each file is independent
+    "esModuleInterop": true, // CommonJS compatibility
+    "skipLibCheck": true, // Skip type checking of libs
+    "resolveJsonModule": true // Can import JSON
   }
 }
 ```
@@ -1159,8 +1173,8 @@ API-specific TypeScript configuration:
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "types": ["node"],
-    "declaration": true,          // Generate .d.ts
-    "sourceMap": true             // Debug support
+    "declaration": true, // Generate .d.ts
+    "sourceMap": true // Debug support
   }
 }
 ```
@@ -1174,6 +1188,7 @@ Web-specific TypeScript configuration (extends base, inherits in apps/web/tsconf
 **Purpose:** Placeholder for future shared React UI components
 
 Currently empty but structured for:
+
 - Reusable form components
 - Modal/dialog components
 - Profile card components
@@ -1254,12 +1269,12 @@ All input validated with Zod schemas:
 ```typescript
 // API Routes
 router.post('/api/auth/login', (req, res) => {
-  const input = loginSchema.parse(req.body)  // Throws on invalid
+  const input = loginSchema.parse(req.body); // Throws on invalid
   // ... handler
-})
+});
 
 // Web Forms
-const input = await registerEmailSchema.parseAsync(formData)
+const input = await registerEmailSchema.parseAsync(formData);
 // If validation fails, Zod error is caught and displayed to user
 ```
 
@@ -1283,15 +1298,15 @@ Web Client Result:
 
 ```typescript
 class HttpError extends Error {
-  statusCode: number
-  message: string
+  statusCode: number;
+  message: string;
 }
 
 // Examples
-throw new HttpError(400, 'Email is already registered')
-throw new HttpError(401, 'Authentication required')
-throw new HttpError(403, 'Account is not active')
-throw new HttpError(404, 'Profile not found')
+throw new HttpError(400, 'Email is already registered');
+throw new HttpError(401, 'Authentication required');
+throw new HttpError(403, 'Account is not active');
+throw new HttpError(404, 'Profile not found');
 ```
 
 #### Middleware Error Handler (app.ts)
@@ -1326,16 +1341,10 @@ PENDING (awaiting admin review)
 Changes to personal, religion, location, education, employment trigger re-moderation:
 
 ```typescript
-SENSITIVE_UPDATE_PREFIXES = [
-  'personal.',
-  'religion.',
-  'location.',
-  'education.',
-  'employment.',
-]
+SENSITIVE_UPDATE_PREFIXES = ['personal.', 'religion.', 'location.', 'education.', 'employment.'];
 
 if (profile.approvalStatus === 'APPROVED' && sensitivePath) {
-  profile.approvalStatus = 'PENDING'  // Require re-review
+  profile.approvalStatus = 'PENDING'; // Require re-review
 }
 ```
 
@@ -1361,42 +1370,46 @@ All models support soft delete:
 
 ### Complete Model List
 
-| Model | Status | Purpose |
-|-------|--------|---------|
-| User | ✅ Implemented | User accounts & authentication |
-| Profile | ✅ Implemented | Detailed user profile data |
-| AuthToken | ✅ Implemented | Email verification & password reset tokens |
-| ProfileMedia | ✅ Schema | Photo/video uploads with approval |
-| Block | ✅ Schema | User blocking relationships |
-| Interest | 🔲 Schema | Interest expressions (pending phase) |
-| CmsPage | ✅ Schema | Static pages (about, privacy, etc.) |
-| ContactInquiry | ✅ Schema | Contact form submissions |
-| Plan | ✅ Schema | Membership plans |
-| SuccessStory | ✅ Schema | Homepage success stories |
-| Testimonial | ✅ Schema | User testimonials |
-| BlogPost | ✅ Schema | Blog/news content |
-| Message | 🔲 Schema | Direct messages (phase 2) |
-| Room | 🔲 Schema | Community rooms (phase 2) |
-| Report | 🔲 Schema | User/content reports (phase 2) |
-| Subscription | 🔲 Schema | Active user subscriptions (phase 2) |
-| Payment | 🔲 Schema | Payment records (phase 2) |
-| Boost | 🔲 Schema | Profile boost purchases (phase 2) |
+| Model          | Status         | Purpose                                    |
+| -------------- | -------------- | ------------------------------------------ |
+| User           | ✅ Implemented | User accounts & authentication             |
+| Profile        | ✅ Implemented | Detailed user profile data                 |
+| AuthToken      | ✅ Implemented | Email verification & password reset tokens |
+| ProfileMedia   | ✅ Schema      | Photo/video uploads with approval          |
+| Block          | ✅ Schema      | User blocking relationships                |
+| Interest       | 🔲 Schema      | Interest expressions (pending phase)       |
+| CmsPage        | ✅ Schema      | Static pages (about, privacy, etc.)        |
+| ContactInquiry | ✅ Schema      | Contact form submissions                   |
+| Plan           | ✅ Schema      | Membership plans                           |
+| SuccessStory   | ✅ Schema      | Homepage success stories                   |
+| Testimonial    | ✅ Schema      | User testimonials                          |
+| BlogPost       | ✅ Schema      | Blog/news content                          |
+| Message        | 🔲 Schema      | Direct messages (phase 2)                  |
+| Room           | 🔲 Schema      | Community rooms (phase 2)                  |
+| Report         | 🔲 Schema      | User/content reports (phase 2)             |
+| Subscription   | 🔲 Schema      | Active user subscriptions (phase 2)        |
+| Payment        | 🔲 Schema      | Payment records (phase 2)                  |
+| Boost          | 🔲 Schema      | Profile boost purchases (phase 2)          |
 
 ### Indexes Strategy
 
 **Fast Lookups:**
+
 - User: email, mobile, social IDs
 - Profile: userId, displayId, slug
 
 **Filtering/Discovery:**
+
 - Profile: verification level, approval status, location, religion, community
 - User: role, status
 
 **Time-Based:**
+
 - AuthToken: expiresAt
 - Messages: createdAt
 
 **Audit:**
+
 - All: isDeleted (soft delete filtering)
 
 ---
@@ -1405,55 +1418,55 @@ All models support soft delete:
 
 ### Authentication Endpoints
 
-| Method | Path | Auth | Rate Limit | Purpose |
-|--------|------|------|-----------|---------|
-| POST | `/api/auth/register/email` | No | 100/15m | Register new user |
-| POST | `/api/auth/verify-email` | No | 100/15m | Verify email address |
-| POST | `/api/auth/login` | No | 100/15m | Login with credentials |
-| POST | `/api/auth/refresh` | No | 100/15m | Refresh token pair |
-| POST | `/api/auth/logout` | No | 100/15m | Invalidate refresh token |
-| POST | `/api/auth/forgot-password` | No | 100/15m | Request password reset email |
-| POST | `/api/auth/reset-password` | No | 20/15m | Reset password with token |
-| PATCH | `/api/auth/change-password` | Yes | N/A | Change password (logged in) |
+| Method | Path                        | Auth | Rate Limit | Purpose                      |
+| ------ | --------------------------- | ---- | ---------- | ---------------------------- |
+| POST   | `/api/auth/register/email`  | No   | 100/15m    | Register new user            |
+| POST   | `/api/auth/verify-email`    | No   | 100/15m    | Verify email address         |
+| POST   | `/api/auth/login`           | No   | 100/15m    | Login with credentials       |
+| POST   | `/api/auth/refresh`         | No   | 100/15m    | Refresh token pair           |
+| POST   | `/api/auth/logout`          | No   | 100/15m    | Invalidate refresh token     |
+| POST   | `/api/auth/forgot-password` | No   | 100/15m    | Request password reset email |
+| POST   | `/api/auth/reset-password`  | No   | 20/15m     | Reset password with token    |
+| PATCH  | `/api/auth/change-password` | Yes  | N/A        | Change password (logged in)  |
 
 ### Profile Endpoints
 
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| GET | `/api/me/profile` | Yes | Get own profile |
-| PATCH | `/api/me/profile` | Yes | Update own profile (draft) |
-| POST | `/api/me/profile/submit` | Yes | Submit for moderation |
-| PATCH | `/api/me/privacy` | Yes | Update visibility settings |
-| PATCH | `/api/me/notification-preferences` | Yes | Update notification prefs |
-| PATCH | `/api/me/account` | Yes | Update account settings |
-| GET | `/api/profiles/:id` | No | View public profile |
-| GET | `/api/profiles/featured` | No | Featured profiles for homepage |
+| Method | Path                               | Auth | Purpose                        |
+| ------ | ---------------------------------- | ---- | ------------------------------ |
+| GET    | `/api/me/profile`                  | Yes  | Get own profile                |
+| PATCH  | `/api/me/profile`                  | Yes  | Update own profile (draft)     |
+| POST   | `/api/me/profile/submit`           | Yes  | Submit for moderation          |
+| PATCH  | `/api/me/privacy`                  | Yes  | Update visibility settings     |
+| PATCH  | `/api/me/notification-preferences` | Yes  | Update notification prefs      |
+| PATCH  | `/api/me/account`                  | Yes  | Update account settings        |
+| GET    | `/api/profiles/:id`                | No   | View public profile            |
+| GET    | `/api/profiles/featured`           | No   | Featured profiles for homepage |
 
 ### Public Content Endpoints
 
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| GET | `/api/pages/:slug` | No | Render CMS page |
-| GET | `/api/plans/active` | No | List active plans |
-| GET | `/api/content/blog` | No | Blog posts |
-| GET | `/api/content/success-stories` | No | Success stories |
-| GET | `/api/content/testimonials` | No | Testimonials |
-| POST | `/api/contact` | No | Submit contact inquiry |
+| Method | Path                           | Auth | Purpose                |
+| ------ | ------------------------------ | ---- | ---------------------- |
+| GET    | `/api/pages/:slug`             | No   | Render CMS page        |
+| GET    | `/api/plans/active`            | No   | List active plans      |
+| GET    | `/api/content/blog`            | No   | Blog posts             |
+| GET    | `/api/content/success-stories` | No   | Success stories        |
+| GET    | `/api/content/testimonials`    | No   | Testimonials           |
+| POST   | `/api/contact`                 | No   | Submit contact inquiry |
 
 ### Admin Endpoints
 
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| POST | `/api/cms-pages` | Admin | Create CMS page |
-| GET | `/api/cms-pages` | Admin | List all CMS pages |
-| PATCH | `/api/cms-pages/:id` | Admin | Edit CMS page |
-| DELETE | `/api/cms-pages/:id` | Admin | Delete CMS page |
+| Method | Path                 | Auth  | Purpose            |
+| ------ | -------------------- | ----- | ------------------ |
+| POST   | `/api/cms-pages`     | Admin | Create CMS page    |
+| GET    | `/api/cms-pages`     | Admin | List all CMS pages |
+| PATCH  | `/api/cms-pages/:id` | Admin | Edit CMS page      |
+| DELETE | `/api/cms-pages/:id` | Admin | Delete CMS page    |
 
 ### System Endpoints
 
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| GET | `/health` | No | Health check |
+| Method | Path      | Auth | Purpose      |
+| ------ | --------- | ---- | ------------ |
+| GET    | `/health` | No   | Health check |
 
 ---
 
@@ -1461,29 +1474,29 @@ All models support soft delete:
 
 ### Public Routes
 
-| Path | Purpose | Components | Data Fetching |
-|------|---------|-----------|----------------|
-| `/` | Homepage | Hero, featured profiles, plans, stories, FAQ | Public APIs |
-| `/pages/:slug` | Static pages | CMS page renderer | `GET /api/pages/:slug` |
-| `/profiles/:id` | Public profile view | Profile card, verification badges | `GET /api/profiles/:id` |
-| `/contact` | Contact page | Contact form | `POST /api/contact` |
+| Path            | Purpose             | Components                                   | Data Fetching           |
+| --------------- | ------------------- | -------------------------------------------- | ----------------------- |
+| `/`             | Homepage            | Hero, featured profiles, plans, stories, FAQ | Public APIs             |
+| `/pages/:slug`  | Static pages        | CMS page renderer                            | `GET /api/pages/:slug`  |
+| `/profiles/:id` | Public profile view | Profile card, verification badges            | `GET /api/profiles/:id` |
+| `/contact`      | Contact page        | Contact form                                 | `POST /api/contact`     |
 
 ### Auth Routes
 
-| Path | Purpose | Components | Auth Required |
-|------|---------|-----------|----------------|
-| `/(auth)/register` | User registration | Register form | No |
-| `/(auth)/login` | Login | Login form | No |
-| `/(auth)/forgot-password` | Forgot password | Forgot password form | No |
-| `/(auth)/reset-password` | Reset password | Reset form | No |
+| Path                      | Purpose           | Components           | Auth Required |
+| ------------------------- | ----------------- | -------------------- | ------------- |
+| `/(auth)/register`        | User registration | Register form        | No            |
+| `/(auth)/login`           | Login             | Login form           | No            |
+| `/(auth)/forgot-password` | Forgot password   | Forgot password form | No            |
+| `/(auth)/reset-password`  | Reset password    | Reset form           | No            |
 
 ### Member Routes
 
-| Path | Purpose | Protected | Components |
-|------|---------|-----------|-----------|
-| `/member/onboarding` | Profile creation wizard | Yes | Multi-step form |
-| `/member/profile/edit` | Edit profile | Yes | Profile editor |
-| `/member/settings` | Account settings | Yes | Settings forms |
+| Path                   | Purpose                 | Protected | Components      |
+| ---------------------- | ----------------------- | --------- | --------------- |
+| `/member/onboarding`   | Profile creation wizard | Yes       | Multi-step form |
+| `/member/profile/edit` | Edit profile            | Yes       | Profile editor  |
+| `/member/settings`     | Account settings        | Yes       | Settings forms  |
 
 ---
 
@@ -1492,12 +1505,14 @@ All models support soft delete:
 ### Completed Features
 
 ✅ **Core Infrastructure:**
+
 - Monorepo setup (pnpm workspaces)
 - TypeScript strict mode throughout
 - ESLint + Prettier configuration
 - Test setup (Vitest + Supertest)
 
 ✅ **Authentication:**
+
 - Email registration with password hashing
 - Email verification flow
 - Login with JWT + refresh token rotation
@@ -1508,6 +1523,7 @@ All models support soft delete:
 - Rate limiting on auth endpoints
 
 ✅ **User & Profile:**
+
 - User model with auth fields
 - Profile model with comprehensive sections
 - Profile completion tracking
@@ -1515,6 +1531,7 @@ All models support soft delete:
 - Profile submission for review
 
 ✅ **Frontend Pages:**
+
 - Homepage (premium design following UI/UX plan)
 - Auth pages (register, login, forgot password, reset password)
 - Member portal (onboarding, profile edit, settings)
@@ -1523,6 +1540,7 @@ All models support soft delete:
 - Contact form
 
 ✅ **Public Content:**
+
 - Featured profiles API
 - Plans listing
 - Success stories & testimonials
@@ -1530,6 +1548,7 @@ All models support soft delete:
 - CMS page management (backend API, no admin UI)
 
 ✅ **Testing:**
+
 - Validator tests
 - Auth route tests
 - Public route tests
@@ -1539,21 +1558,25 @@ All models support soft delete:
 ### Partially Completed
 
 ⚠️ **Contact Form:**
+
 - Backend API complete
 - hCaptcha verification implemented
 - Email storage working
 - Missing: Production email provider integration
 
 ⚠️ **Profile Media:**
+
 - Schema defined
 - Model exists
 - Missing: Upload endpoints, storage integration
 
 ⚠️ **Admin Features:**
+
 - CMS page CRUD API exists
 - Missing: Admin UI for content management
 
 ⚠️ **Block Users:**
+
 - Model exists
 - Profile view respects blocks
 - Missing: Member UI to block/unblock
@@ -1576,7 +1599,7 @@ All models support soft delete:
 ❌ Reporting system  
 ❌ Analytics dashboard  
 ❌ Frontend/E2E tests  
-❌ CI/CD pipeline  
+❌ CI/CD pipeline
 
 ---
 
@@ -1712,6 +1735,7 @@ pnpm --filter @vivah/api seed
 ### File Organization
 
 **API:**
+
 ```
 apps/api/src/
 ├── index.ts              # Entry point
@@ -1726,6 +1750,7 @@ apps/api/src/
 ```
 
 **Web:**
+
 ```
 apps/web/
 ├── env.ts                # Environment config
@@ -1747,6 +1772,7 @@ apps/web/
 ```
 
 **Shared:**
+
 ```
 packages/shared/src/
 ├── constants.ts          # Enums and constants
@@ -1786,8 +1812,8 @@ packages/shared/src/
 describe('Feature', () => {
   it('should do something', () => {
     // test code
-  })
-})
+  });
+});
 
 // Run: pnpm --filter @vivah/api test
 ```
@@ -1894,6 +1920,7 @@ Based on `PROJECT_PROGRESS.md`:
 ## Contact & Support
 
 For questions about the codebase:
+
 1. Check `PROJECT_PROGRESS.md` for current status
 2. Refer to `vivah_australia_ui_ux_planning.md` for UI decisions
 3. Review test files for usage examples

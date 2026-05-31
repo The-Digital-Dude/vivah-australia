@@ -12,11 +12,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
 
   // Load token from localStorage on mount
   useEffect(() => {
-    setIsClient(true);
     const storedToken = localStorage.getItem('auth_token');
     if (storedToken) {
       setTokenState(storedToken);
@@ -36,14 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
   };
 
-  if (!isClient) {
-    return children;
-  }
-
   return (
-    <AuthContext.Provider value={{ token, setToken, clearToken }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ token, setToken, clearToken }}>{children}</AuthContext.Provider>
   );
 }
 

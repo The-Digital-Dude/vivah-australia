@@ -3,12 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { profileDraftSchema, profileSubmitSchema } from '@vivah/shared';
 import { useMemberRequest } from '@/lib/member-api';
-import {
-  csvList,
-  optionalNumber,
-  optionalString,
-  validationMessage,
-} from '@/lib/member-api';
+import { csvList, optionalNumber, optionalString, validationMessage } from '@/lib/member-api';
 
 export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'edit' }>) {
   const memberRequest = useMemberRequest();
