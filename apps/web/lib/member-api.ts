@@ -1,5 +1,7 @@
 'use client';
 
+import { useAuth } from '@/app/auth-context';
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
 export interface MemberApiResult {
@@ -8,6 +10,43 @@ export interface MemberApiResult {
   data?: unknown;
 }
 
+export function useMemberRequest() {
+  const { token } = useAuth();
+
+  return async function memberRequest(
+    path: string,
+    options: {
+      method?: string;
+      body?: Record<string, unknown>;
+    } = {},
+  ): Promise<MemberApiResult> {
+    if (!token) {
+      return {
+        ok: false,
+        message: 'Not authenticated. Please log in.',
+      };
+    }
+
+    const response = await fetch(`${apiBaseUrl}${path}`, {
+      method: options.method ?? 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+    });
+
+    const data = response.status === 204 ? {} : ((await response.json()) as { message?: string });
+
+    return {
+      ok: response.ok,
+      message: data.message ?? (response.ok ? 'Saved' : 'Request failed'),
+      data,
+    };
+  };
+}
+
+// Legacy export for backward compatibility (without hook - for non-client components)
 export async function memberRequest(
   path: string,
   options: {

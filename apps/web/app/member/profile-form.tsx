@@ -2,16 +2,16 @@
 
 import { useState, type FormEvent } from 'react';
 import { profileDraftSchema, profileSubmitSchema } from '@vivah/shared';
+import { useMemberRequest } from '@/lib/member-api';
 import {
   csvList,
-  formString,
-  memberRequest,
   optionalNumber,
   optionalString,
   validationMessage,
 } from '@/lib/member-api';
 
 export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'edit' }>) {
+  const memberRequest = useMemberRequest();
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -19,7 +19,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     event.preventDefault();
     setPending(true);
     const form = new FormData(event.currentTarget);
-    const token = formString(form.get('token'));
     const payload = {
       personal: {
         firstName: optionalString(form.get('firstName')),
@@ -73,7 +72,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     }
 
     const result = await memberRequest('/api/me/profile', {
-      token,
       method: 'PATCH',
       body: parsed.data,
     });
@@ -85,7 +83,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   async function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
-    const form = new FormData(event.currentTarget);
     const parsed = profileSubmitSchema.safeParse({ confirm: true });
 
     if (!parsed.success) {
@@ -95,7 +92,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     }
 
     const result = await memberRequest('/api/me/profile/submit', {
-      token: formString(form.get('submitToken')),
       method: 'POST',
       body: parsed.data,
     });
@@ -107,7 +103,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   return (
     <div className="grid gap-8">
       <form className="grid gap-5" onSubmit={(event) => void save(event)}>
-        <TokenField name="token" />
         <Field label="First name" name="firstName" />
         <Field label="Last name" name="lastName" />
         <Select
@@ -166,7 +161,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
         className="grid gap-4 border-t border-neutral-200 pt-6"
         onSubmit={(event) => void submitProfile(event)}
       >
-        <TokenField name="submitToken" />
         <button className="h-11 rounded-md border border-neutral-300 px-5 text-sm font-semibold">
           Submit for approval
         </button>
@@ -175,19 +169,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
         <p className="rounded-md bg-neutral-100 p-3 text-sm text-neutral-700">{message}</p>
       ) : null}
     </div>
-  );
-}
-
-function TokenField({ name }: Readonly<{ name: string }>) {
-  return (
-    <label className="grid gap-2 text-sm font-medium text-neutral-800">
-      Access token
-      <input
-        name={name}
-        required
-        className="h-11 rounded-md border border-neutral-300 px-3 text-base outline-none focus:border-red-700 focus:ring-2 focus:ring-red-100"
-      />
-    </label>
   );
 }
 

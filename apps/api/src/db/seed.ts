@@ -79,6 +79,39 @@ const sampleProfiles: SeedUserProfile[] = [
     city: 'Sydney',
     occupation: 'Accountant',
   },
+  {
+    email: 'rajesh.test@example.com',
+    firstName: 'Rajesh',
+    lastName: 'Kumar',
+    gender: Gender.MALE,
+    dateOfBirth: new Date('1990-06-15'),
+    displayId: 'VA100003',
+    slug: 'rajesh-kumar-va100003',
+    city: 'Brisbane',
+    occupation: 'Consultant',
+  },
+  {
+    email: 'neha.test@example.com',
+    firstName: 'Neha',
+    lastName: 'Singh',
+    gender: Gender.FEMALE,
+    dateOfBirth: new Date('1996-12-08'),
+    displayId: 'VA100004',
+    slug: 'neha-singh-va100004',
+    city: 'Perth',
+    occupation: 'Doctor',
+  },
+  {
+    email: 'arjun.test@example.com',
+    firstName: 'Arjun',
+    lastName: 'Desai',
+    gender: Gender.MALE,
+    dateOfBirth: new Date('1988-03-22'),
+    displayId: 'VA100005',
+    slug: 'arjun-desai-va100005',
+    city: 'Adelaide',
+    occupation: 'Lawyer',
+  },
 ];
 
 function calculateAge(dateOfBirth: Date, asOf = new Date()): number {
@@ -264,6 +297,41 @@ async function runSeed() {
   await seedAdmin();
   await seedPlans();
   await seedTestProfiles();
+  
+  // Print credentials to console
+  console.log('\n' + '='.repeat(70));
+  console.log('🌱 DATABASE SEEDING COMPLETE');
+  console.log('='.repeat(70));
+  
+  const adminEmail = env.ADMIN_SEED_EMAIL ?? 'admin@example.com';
+  const adminPassword = env.ADMIN_SEED_PASSWORD ?? 'ChangeMeStrong123!';
+  
+  console.log('\n👤 ADMIN USER');
+  console.log('-'.repeat(70));
+  console.log(`Email:    ${adminEmail}`);
+  console.log(`Password: ${adminPassword}`);
+  console.log(`Role:     SUPER_ADMIN`);
+  
+  console.log('\n👥 TEST USERS (All use password: TestUserStrong123!)');
+  console.log('-'.repeat(70));
+  sampleProfiles.forEach((profile) => {
+    console.log(`${profile.firstName} ${profile.lastName}`);
+    console.log(`  Email: ${profile.email}`);
+    console.log(`  City:  ${profile.city}`);
+    console.log(`  Job:   ${profile.occupation}`);
+  });
+  
+  console.log('\n📋 PLANS SEEDED');
+  console.log('-'.repeat(70));
+  console.log('✓ FREE (0 AUD/month) - Limited features');
+  console.log('✓ PREMIUM (49 AUD/month) - Send interests & messages');
+  console.log('✓ PLATINUM (99 AUD/month) - Priority visibility');
+  
+  console.log('\n' + '='.repeat(70));
+  console.log('Login at: http://localhost:3000/login');
+  console.log('API Docs: http://localhost:4000/health');
+  console.log('='.repeat(70) + '\n');
+  
   await disconnectDatabase();
 }
 

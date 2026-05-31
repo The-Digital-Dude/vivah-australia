@@ -3,11 +3,12 @@
 import { useState, type FormEvent } from 'react';
 import { notificationPreferencesSchema, profileDraftSchema } from '@vivah/shared';
 import MemberShell from '../member-shell';
-import { formString, memberRequest, validationMessage } from '@/lib/member-api';
+import { useMemberRequest, validationMessage } from '@/lib/member-api';
 
 const privacySchema = profileDraftSchema.pick({ visibility: true });
 
 export default function MemberSettingsPage() {
+  const memberRequest = useMemberRequest();
   const [message, setMessage] = useState<string | null>(null);
 
   async function savePrivacy(event: FormEvent<HTMLFormElement>) {
@@ -30,7 +31,6 @@ export default function MemberSettingsPage() {
     }
 
     const result = await memberRequest('/api/me/privacy', {
-      token: formString(form.get('token')),
       method: 'PATCH',
       body: parsed.data,
     });
@@ -53,7 +53,6 @@ export default function MemberSettingsPage() {
     }
 
     const result = await memberRequest('/api/me/notification-preferences', {
-      token: formString(form.get('token')),
       method: 'PATCH',
       body: parsed.data,
     });
@@ -67,7 +66,6 @@ export default function MemberSettingsPage() {
     >
       <div className="grid gap-8">
         <form className="grid gap-4" onSubmit={(event) => void savePrivacy(event)}>
-          <TokenField />
           <label className="grid gap-2 text-sm font-medium">
             Profile visibility
             <select name="status" className="h-11 rounded-md border border-neutral-300 px-3">
@@ -92,7 +90,6 @@ export default function MemberSettingsPage() {
           className="grid gap-4 border-t border-neutral-200 pt-6"
           onSubmit={(event) => void saveNotifications(event)}
         >
-          <TokenField />
           {['emailNotifications', 'smsNotifications', 'marketingNotifications'].map((name) => (
             <label key={name} className="flex gap-3 text-sm text-neutral-700">
               <input
@@ -113,18 +110,5 @@ export default function MemberSettingsPage() {
         ) : null}
       </div>
     </MemberShell>
-  );
-}
-
-function TokenField() {
-  return (
-    <label className="grid gap-2 text-sm font-medium text-neutral-800">
-      Access token
-      <input
-        name="token"
-        required
-        className="h-11 rounded-md border border-neutral-300 px-3 text-base"
-      />
-    </label>
   );
 }

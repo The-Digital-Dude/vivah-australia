@@ -1,13 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
+import { useAuth } from '@/app/auth-context';
 import AuthShell from '../auth-shell';
 import FormField from '../form-field';
 import SubmitButton from '../submit-button';
 import { postAuth } from '@/lib/auth-api';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { setToken } = useAuth();
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -20,7 +24,14 @@ export default function LoginPage() {
       password: form.get('password'),
     });
 
-    setMessage(result.ok ? 'Signed in successfully.' : result.message);
+    if (result.ok && result.data?.accessToken) {
+      setToken(result.data.accessToken);
+      setMessage('Signed in successfully.');
+      // Redirect to member page after a short delay
+      setTimeout(() => router.push('/member/onboarding'), 500);
+    } else {
+      setMessage(result.message);
+    }
     setPending(false);
   }
 
