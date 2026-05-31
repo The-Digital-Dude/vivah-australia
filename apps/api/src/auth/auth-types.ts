@@ -7,7 +7,6 @@ export interface AuthConfig {
   refreshSecret: string;
   accessExpiresIn: string;
   refreshExpiresIn: string;
-  exposeSensitiveTokens: boolean;
 }
 
 export interface AuthenticatedUser {

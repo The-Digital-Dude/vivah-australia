@@ -7,6 +7,8 @@ import {
   type RegisterEmailInput,
 } from '@vivah/shared';
 import type { Types } from 'mongoose';
+import { sendEmail } from '../common/email.service.js';
+import { env } from '../env.js';
 import {
   AuthProvider,
   AuthTokenModel,
@@ -37,7 +39,6 @@ export interface RegisterResult {
     email: string;
     status: string;
   };
-  verificationToken?: string;
 }
 
 export interface AuthResult extends TokenPair {
@@ -71,7 +72,7 @@ function publicUser(user: UserDocument) {
 
 export async function registerWithEmail(
   input: RegisterEmailInput,
-  config: AuthConfig,
+  _config: AuthConfig,
 ): Promise<RegisterResult> {
   const existingUser = await UserModel.findOne({ email: input.email });
 
@@ -148,13 +149,22 @@ export async function registerWithEmail(
     EMAIL_TOKEN_TTL_MS,
   );
 
+  const verificationLink = `${env.WEB_BASE_URL}/verify-email?token=${verificationToken}`;
+
+  await sendEmail({
+    to: user.email,
+    from: 'noreply@vivahaustralia.com.au',
+    subject: 'Verify your email address',
+    text: `Please click the following link to verify your email address: ${verificationLink}`,
+    html: `<p>Please click the following link to verify your email address:</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
+  });
+
   return {
     user: {
       id: user.id,
       email: user.email ?? input.email,
       status: user.status,
     },
-    ...(config.exposeSensitiveTokens ? { verificationToken } : {}),
   };
 }
 
@@ -272,11 +282,11 @@ export async function logout(refreshToken: string, config: AuthConfig): Promise<
   );
 }
 
-export async function requestPasswordReset(email: string, config: AuthConfig) {
+export async function requestPasswordReset(email: string, _config: AuthConfig): Promise<void> {
   const user = await UserModel.findOne({ email });
 
   if (!user) {
-    return {};
+    return;
   }
 
   const resetToken = await createAuthToken(
@@ -285,7 +295,15 @@ export async function requestPasswordReset(email: string, config: AuthConfig) {
     PASSWORD_RESET_TTL_MS,
   );
 
-  return config.exposeSensitiveTokens ? { resetToken } : {};
+  const resetLink = `${env.WEB_BASE_URL}/reset-password?token=${resetToken}`;
+
+  await sendEmail({
+    to: user.email,
+    from: 'noreply@vivahaustralia.com.au',
+    subject: 'Reset your password',
+    text: `Please click the following link to reset your password: ${resetLink}`,
+    html: `<p>Please click the following link to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
+  });
 }
 
 export async function resetPassword(token: string, password: string): Promise<void> {

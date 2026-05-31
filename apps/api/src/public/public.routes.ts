@@ -1,9 +1,12 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import { URLSearchParams } from 'url';
 import { cmsPageInputSchema, contactInquirySchema, UserRole } from '@vivah/shared';
 import { requireAuth } from '../auth/auth.middleware.js';
 import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
+import { sendEmail } from '../common/email.service.js';
+import { env } from '../env.js';
 import {
   BlogPostModel,
   CmsPageModel,
@@ -23,6 +26,35 @@ const contactRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+async function verifyCaptcha(token: string | undefined) {
+  // Allow skipping captcha in dev or if secret is not set
+  if (!env.HCAPTCHA_SECRET) {
+    console.warn('HCAPTCHA_SECRET not set, skipping CAPTCHA verification.');
+    return;
+  }
+
+  if (!token) {
+    throw new HttpError(400, 'CAPTCHA token is required');
+  }
+
+  const response = await fetch('https://api.hcaptcha.com/siteverify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      secret: env.HCAPTCHA_SECRET,
+      response: token,
+    }),
+  });
+
+  const result = (await response.json()) as { success: boolean };
+
+  if (!result.success) {
+    throw new HttpError(400, 'Invalid CAPTCHA token');
+  }
+}
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -173,12 +205,41 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     contactRateLimit,
     asyncHandler(async (request, response) => {
       const input = contactInquirySchema.parse(request.body);
+
+      await verifyCaptcha(input.captchaToken);
+
       const inquiry = await ContactInquiryModel.create({
         name: input.name,
         email: input.email,
         ...(input.phone ? { phone: input.phone } : {}),
         subject: input.subject,
         message: input.message,
+      });
+
+      // Send email notification
+      await sendEmail({
+        to: env.ADMIN_SEED_EMAIL ?? 'support@vivahaustralia.com.au',
+        from: 'noreply@vivahaustralia.com.au',
+        subject: `New Contact Inquiry: ${inquiry.subject}`,
+        text: `
+          Name: ${inquiry.name}
+          Email: ${inquiry.email}
+          Phone: ${inquiry.phone ?? 'N/A'}
+          Subject: ${inquiry.subject}
+          Message:
+          ${inquiry.message}
+        `,
+        html: `
+          <h3>New Contact Inquiry</h3>
+          <ul>
+            <li><strong>Name:</strong> ${inquiry.name}</li>
+            <li><strong>Email:</strong> ${inquiry.email}</li>
+            <li><strong>Phone:</strong> ${inquiry.phone ?? 'N/A'}</li>
+            <li><strong>Subject:</strong> ${inquiry.subject}</li>
+          </ul>
+          <h4>Message:</h4>
+          <p>${inquiry.message}</p>
+        `,
       });
 
       response.status(201).json({

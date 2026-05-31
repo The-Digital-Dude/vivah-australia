@@ -18,11 +18,13 @@ export const apiEnvSchema = z.object({
   CORS_ORIGINS: nonEmptyString,
   ADMIN_SEED_EMAIL: z.string().trim().email().optional(),
   ADMIN_SEED_PASSWORD: z.string().min(12).optional(),
+  HCAPTCHA_SECRET: nonEmptyString.optional(),
 });
 
 export const webEnvSchema = z.object({
   NODE_ENV: nodeEnvSchema,
   NEXT_PUBLIC_API_BASE_URL: urlString.default('http://localhost:4000'),
+  NEXT_PUBLIC_HCAPTCHA_SITEKEY: nonEmptyString.optional(),
 });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;

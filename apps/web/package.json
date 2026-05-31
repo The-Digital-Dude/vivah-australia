@@ -11,6 +11,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@hcaptcha/react-hcaptcha": "^1.10.1",
     "@vivah/shared": "workspace:*",
     "next": "^16.2.6",
     "react": "19.2.6",
@@ -18,6 +19,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/hcaptcha__react-hcaptcha": "^0.3.7",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
     "@vivah/config": "workspace:*",
