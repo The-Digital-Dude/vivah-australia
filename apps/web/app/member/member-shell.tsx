@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 const memberLinks = [
   ['Onboarding', '/member/onboarding'],
+  ['Matches', '/member/matches'],
   ['Edit profile', '/member/profile/edit'],
   ['Media', '/member/media'],
   ['Settings', '/member/settings'],

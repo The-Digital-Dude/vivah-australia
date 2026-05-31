@@ -40,6 +40,8 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | PROFILE-003 Profile Edit and Account Settings              | Mostly complete                       | Edit page, settings page, privacy update, notification preferences validation, account marketing preference update, tests for profile/privacy.                                                                                                                                                                          |
 | MEDIA-001 Photo Uploads                                    | Complete                              | Secure signed Cloudinary-compatible upload flow, mock local signing fallback, file type/size validation, member media page, profile photo/public/private gallery categories, visibility controls, signed private access, and backend tests.                                                                             |
 | MEDIA-003 Admin Media Review                               | Complete                              | Admin media review queue API and page, approve/reject/resubmission workflow, review metadata, moderation reason support, and backend tests.                                                                                                                                                                             |
+| MATCH-001 Search Profiles                                  | Complete                              | Authenticated `/api/matches/search`, shared validators, approval/visibility enforcement, self and blocked-user exclusion, pagination/sorting, subscription-gated advanced filters, capped free/paid page sizes, member search UI, and backend tests.                                                                    |
+| MATCH-002 Recommended Matches                              | Complete                              | Rule-based `/api/matches/recommended`, compatibility score and match reasons, preference/location/religion/education/occupation/interest/verification scoring, blocked/hidden/unapproved exclusions, member recommended matches UI, and backend tests.                                                                  |
 
 ## Partially Completed / Infrastructure Present
 
@@ -62,8 +64,6 @@ The following modules do not yet have full business-feature implementations in t
 - VERIFY-001 Verification Request System
 - VERIFY-002 Verification Badge Logic
 - VERIFY-003 External Provider Extension Points
-- MATCH-001 Search Profiles
-- MATCH-002 Recommended Matches
 - MATCH-003 Recently Viewed Profiles
 - INTEREST-001 Send/Accept/Reject/Withdraw Interest
 - INTEREST-002 Favourite Profiles
@@ -110,7 +110,8 @@ The following modules do not yet have full business-feature implementations in t
 - WEB-002 has backend CRUD and public rendering, but no admin UI for editing static pages.
 - Public homepage uses fallback/homepage composition plus public APIs; a full CMS-driven homepage editor is not implemented yet.
 - Media upload uses Cloudinary signed-upload parameters when `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are configured; local development falls back to mock signed upload metadata.
-- Private media access is app-signed for owner/admin flows; match-based private gallery unlock rules still need the interest/matching module.
+- Private media access is app-signed for owner/admin flows; accepted-interest private gallery unlock rules still need the interest module.
+- Match recommendations are calculated on demand; stored recommendation snapshots and dedicated newly joined/recently active/highly compatible endpoints are not implemented yet.
 - Frontend tests and E2E tests are not present.
 - No CI/CD pipeline is configured yet.
 
@@ -129,12 +130,13 @@ Live local checks also passed for:
 - `http://localhost:4000/health`
 - `http://localhost:3000/member/onboarding`
 - `http://localhost:3000/member/settings`
+- `http://localhost:3000/member/matches`
 
 ## Recommended Next Build Order
 
 1. Finish WEB-003 gaps: email notification and CAPTCHA.
 2. Add ADMIN-001 and ADMIN-006 UI so CMS content can be managed from the product.
-3. Build MATCH-001 search profiles using the existing profile indexes.
-4. Build INTEREST-001, INTEREST-002, SAFETY-001 UI/API completion, and SAFETY-002.
+3. Build INTEREST-001, INTEREST-002, SAFETY-001 UI/API completion, and SAFETY-002.
+4. Add MATCH-003 recently viewed profiles and saved search UX.
 5. Add MEDIA-002 video introduction upload after photo moderation is stable.
 6. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.

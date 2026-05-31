@@ -143,6 +143,100 @@ export const mediaReviewSchema = z.object({
   reason: z.string().trim().max(1000).optional(),
 });
 
+function csvQueryParam(maxItems = 20) {
+  return z.preprocess(
+    (value) => {
+      if (Array.isArray(value)) {
+        return value
+          .flatMap((item) => String(item).split(','))
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      if (typeof value === 'string') {
+        return value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      return undefined;
+    },
+    z.array(z.string().trim().min(1).max(120)).max(maxItems).optional(),
+  );
+}
+
+export const matchSortSchema = z.enum(['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED']);
+
+export const profileSearchQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).max(500).default(1),
+    pageSize: z.coerce.number().int().min(1).max(50).default(12),
+    sort: matchSortSchema.default('RECOMMENDED'),
+    gender: genderSchema.optional(),
+    ageMin: z.coerce.number().int().min(18).max(120).optional(),
+    ageMax: z.coerce.number().int().min(18).max(120).optional(),
+    heightMinCm: z.coerce.number().int().min(90).max(250).optional(),
+    heightMaxCm: z.coerce.number().int().min(90).max(250).optional(),
+    incomeMin: z.coerce.number().min(0).max(10000000).optional(),
+    incomeMax: z.coerce.number().min(0).max(10000000).optional(),
+    religion: csvQueryParam(),
+    community: csvQueryParam(),
+    caste: csvQueryParam(),
+    motherTongue: csvQueryParam(),
+    country: csvQueryParam(),
+    state: csvQueryParam(),
+    city: csvQueryParam(),
+    education: csvQueryParam(),
+    occupation: csvQueryParam(),
+    maritalStatus: z.preprocess((value) => {
+      if (Array.isArray(value)) {
+        return value.flatMap((item) => String(item).split(','));
+      }
+
+      if (typeof value === 'string') {
+        return value.split(',');
+      }
+
+      return undefined;
+    }, z.array(maritalStatusSchema).max(10).optional()),
+    verificationLevel: verificationLevelSchema.optional(),
+    hasPhoto: z.coerce.boolean().optional(),
+    visaStatus: csvQueryParam(),
+    citizenshipStatus: csvQueryParam(),
+    dietaryPreference: csvQueryParam(),
+    smokingHabits: csvQueryParam(),
+    drinkingHabits: csvQueryParam(),
+    familyValues: csvQueryParam(),
+    recentlyActive: z.coerce.boolean().optional(),
+  })
+  .refine(
+    (input) =>
+      input.ageMin === undefined || input.ageMax === undefined || input.ageMin <= input.ageMax,
+    { message: 'Minimum age must be less than or equal to maximum age', path: ['ageMin'] },
+  )
+  .refine(
+    (input) =>
+      input.heightMinCm === undefined ||
+      input.heightMaxCm === undefined ||
+      input.heightMinCm <= input.heightMaxCm,
+    {
+      message: 'Minimum height must be less than or equal to maximum height',
+      path: ['heightMinCm'],
+    },
+  )
+  .refine(
+    (input) =>
+      input.incomeMin === undefined ||
+      input.incomeMax === undefined ||
+      input.incomeMin <= input.incomeMax,
+    { message: 'Minimum income must be less than or equal to maximum income', path: ['incomeMin'] },
+  );
+
+export const recommendedMatchesQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(30).default(12),
+});
+
 export const profileDraftSchema = z.object({
   personal: z
     .object({
@@ -280,6 +374,8 @@ export type MediaSignUploadInput = z.infer<typeof mediaSignUploadSchema>;
 export type MediaCompleteUploadInput = z.infer<typeof mediaCompleteUploadSchema>;
 export type MediaUpdateInput = z.infer<typeof mediaUpdateSchema>;
 export type MediaReviewInput = z.infer<typeof mediaReviewSchema>;
+export type ProfileSearchQueryInput = z.infer<typeof profileSearchQuerySchema>;
+export type RecommendedMatchesQueryInput = z.infer<typeof recommendedMatchesQuerySchema>;
 export type ProfileDraftInput = z.infer<typeof profileDraftSchema>;
 export type ProfileSubmitInput = z.infer<typeof profileSubmitSchema>;
 export type NotificationPreferencesInput = z.infer<typeof notificationPreferencesSchema>;

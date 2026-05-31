@@ -1064,12 +1064,12 @@ Do not build full integrations immediately unless required, but create clean ada
 
 #### Backend Tasks
 
-- [ ] Create search endpoint with filters.
-- [ ] Enforce profile approval and visibility.
-- [ ] Exclude blocked users.
-- [ ] Exclude self.
-- [ ] Support pagination and sorting.
-- [ ] Apply subscription limits for free users.
+- [x] Create search endpoint with filters.
+- [x] Enforce profile approval and visibility.
+- [x] Exclude blocked users.
+- [x] Exclude self.
+- [x] Support pagination and sorting.
+- [x] Apply subscription limits for free users.
 
 #### Supported Filters
 
@@ -1097,17 +1097,17 @@ GET /api/matches/search?ageMin=25&ageMax=35&religion=Hindu&state=NSW&page=1&limi
 
 #### Frontend Tasks
 
-- [ ] Build search page.
-- [ ] Build filter sidebar/drawer.
-- [ ] Build profile result cards.
-- [ ] Build locked advanced filters for free users if applicable.
+- [x] Build search page.
+- [x] Build filter sidebar/drawer.
+- [x] Build profile result cards.
+- [x] Build locked advanced filters for free users if applicable.
 
 #### Tests
 
-- [ ] Search excludes hidden profiles.
-- [ ] Search excludes blocked profiles.
-- [ ] Free user search limits apply.
-- [ ] Pagination metadata is correct.
+- [x] Search excludes hidden profiles.
+- [x] Search excludes blocked profiles.
+- [x] Free user search limits apply.
+- [x] Pagination metadata is correct.
 
 ---
 
@@ -1115,11 +1115,11 @@ GET /api/matches/search?ageMin=25&ageMax=35&religion=Hindu&state=NSW&page=1&limi
 
 #### Backend Tasks
 
-- [ ] Build rule-based recommendation service.
-- [ ] Score profiles using partner preferences.
-- [ ] Boost verified and recently active users.
-- [ ] Penalize incomplete profiles.
-- [ ] Exclude rejected/blocked profiles.
+- [x] Build rule-based recommendation service.
+- [x] Score profiles using partner preferences.
+- [x] Boost verified and recently active users.
+- [x] Penalize incomplete profiles.
+- [x] Exclude rejected/blocked profiles.
 - [ ] Store optional recommendation snapshots.
 
 #### Initial Scoring Formula
@@ -1147,15 +1147,15 @@ GET /api/matches/highly-compatible
 
 #### Frontend Tasks
 
-- [ ] Build recommended match carousel/list.
-- [ ] Show compatibility indicator.
-- [ ] Explain match reason in simple text.
+- [x] Build recommended match carousel/list.
+- [x] Show compatibility indicator.
+- [x] Explain match reason in simple text.
 
 #### Tests
 
-- [ ] Recommendations exclude self/blocked/rejected users.
-- [ ] Recently active sort works.
-- [ ] Highly compatible profiles score above threshold.
+- [x] Recommendations exclude self/blocked/rejected users.
+- [x] Recently active sort works.
+- [x] Highly compatible profiles score above threshold.
 
 ---
 
@@ -2291,8 +2291,8 @@ ADMIN_SEED_PASSWORD=
 
 ### Sprint 3 - Search and Matchmaking
 
-- [ ] MATCH-001 Search profiles
-- [ ] MATCH-002 Recommended matches
+- [x] MATCH-001 Search profiles
+- [x] MATCH-002 Recommended matches
 - [ ] INTEREST-001 Interest workflow
 - [ ] INTEREST-002 Favourites
 - [ ] SAFETY-001 Block users
