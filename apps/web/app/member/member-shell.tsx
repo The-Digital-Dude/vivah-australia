@@ -13,6 +13,7 @@ const memberLinks = [
   ['Matches', '/member/matches'],
   ['Interests', '/member/interests'],
   ['Messages', '/member/messages'],
+  ['Community', '/member/community'],
   ['Favourites', '/member/favourites'],
   ['Edit profile', '/member/profile/edit'],
   ['Media', '/member/media'],

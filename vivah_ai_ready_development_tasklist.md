@@ -1414,22 +1414,23 @@ server: error
 
 #### Backend Tasks
 
-- [ ] Create community room model.
-- [ ] Seed default categories:
+- [x] Create community room model.
+- [x] Seed default categories:
   - General Discussions
   - New Members
   - Success Stories
   - Community Support
   - Cultural Discussions
   - Platform Announcements
-- [ ] Create room list endpoint.
-- [ ] Admin can create/edit/archive rooms.
+- [x] Create room list endpoint.
+- [x] Admin can create/edit rooms.
+- [ ] Admin can archive rooms.
 
 #### Frontend Tasks
 
-- [ ] Build community landing page.
-- [ ] Build room list UI.
-- [ ] Build room detail page.
+- [x] Build community landing page.
+- [x] Build room list UI.
+- [x] Build room detail page.
 
 #### API Endpoints
 
@@ -1446,14 +1447,14 @@ PATCH /api/admin/community/rooms/:id
 
 #### Backend Tasks
 
-- [ ] Create post model.
-- [ ] Create comment model.
-- [ ] Create reaction model.
-- [ ] Add create/edit/delete post.
-- [ ] Add comments.
-- [ ] Add likes/reactions.
-- [ ] Add report content.
-- [ ] Add moderator controls.
+- [x] Create post model.
+- [x] Create comment model.
+- [x] Create reaction model.
+- [x] Add create/edit/delete post.
+- [x] Add comments.
+- [x] Add likes/reactions.
+- [x] Add report content.
+- [x] Add moderator controls.
 
 #### API Endpoints
 
@@ -1469,15 +1470,15 @@ POST /api/community/posts/:id/report
 
 #### Frontend Tasks
 
-- [ ] Build post composer.
-- [ ] Build post feed.
-- [ ] Build comments UI.
-- [ ] Build reaction buttons.
-- [ ] Add report post/comment modal.
+- [x] Build post composer.
+- [x] Build post feed.
+- [x] Build comments UI.
+- [x] Build reaction buttons.
+- [x] Add report post/comment modal.
 
 #### Tests
 
-- [ ] Banned users cannot post.
+- [x] Banned users cannot post.
 - [ ] Moderator can remove content.
 - [ ] Reported content appears in admin moderation queue.
 
@@ -2300,8 +2301,8 @@ ADMIN_SEED_PASSWORD=
 - [x] MSG-001 Conversations
 - [x] MSG-002 Socket.IO realtime messaging
 - [x] MSG-003 Attachments
-- [ ] COMMUNITY-001 Rooms
-- [ ] COMMUNITY-002 Posts/comments/reactions
+- [x] COMMUNITY-001 Rooms
+- [x] COMMUNITY-002 Posts/comments/reactions
 
 ### Sprint 5 - Payments and Membership
 

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   AccountStatus,
+  CommunityPostStatus,
   Gender,
   INCOME_VISIBILITY_VALUES,
   InterestStatus,
@@ -398,6 +399,45 @@ export const conversationCreateSchema = z.object({
   profileId: objectIdSchema,
 });
 
+export const communityRoomInputSchema = z.object({
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  name: z.string().trim().min(2).max(120),
+  description: z.string().trim().max(1000).optional(),
+  isDefault: z.boolean().default(false),
+});
+
+export const communityRoomUpdateSchema = communityRoomInputSchema.partial();
+
+export const communityPostsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(500).default(1),
+  pageSize: z.coerce.number().int().min(1).max(50).default(20),
+});
+
+export const communityPostCreateSchema = z.object({
+  title: z.string().trim().min(2).max(160).optional(),
+  body: z.string().trim().min(5).max(5000),
+});
+
+export const communityPostUpdateSchema = communityPostCreateSchema.partial();
+
+export const communityCommentCreateSchema = z.object({
+  body: z.string().trim().min(2).max(2000),
+});
+
+export const communityReactionSchema = z.object({
+  reaction: z.string().trim().min(1).max(40).default('LIKE'),
+});
+
+export const communityPostStatusUpdateSchema = z.object({
+  status: z.nativeEnum(CommunityPostStatus),
+  reason: z.string().trim().max(1000).optional(),
+});
+
 const planLimitSchema = z.record(z.string().trim().min(1), z.number().int().min(-1));
 
 export const planInputSchema = z.object({
@@ -632,6 +672,14 @@ export type MessageAttachmentInput = z.infer<typeof messageAttachmentSchema>;
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
 export type TypingEventInput = z.infer<typeof typingEventSchema>;
 export type ConversationCreateInput = z.infer<typeof conversationCreateSchema>;
+export type CommunityRoomInput = z.infer<typeof communityRoomInputSchema>;
+export type CommunityRoomUpdateInput = z.infer<typeof communityRoomUpdateSchema>;
+export type CommunityPostsQueryInput = z.infer<typeof communityPostsQuerySchema>;
+export type CommunityPostCreateInput = z.infer<typeof communityPostCreateSchema>;
+export type CommunityPostUpdateInput = z.infer<typeof communityPostUpdateSchema>;
+export type CommunityCommentCreateInput = z.infer<typeof communityCommentCreateSchema>;
+export type CommunityReactionInput = z.infer<typeof communityReactionSchema>;
+export type CommunityPostStatusUpdateInput = z.infer<typeof communityPostStatusUpdateSchema>;
 export type PlanInput = z.infer<typeof planInputSchema>;
 export type PlanUpdateInput = z.infer<typeof planUpdateSchema>;
 export type CheckoutSessionInput = z.infer<typeof checkoutSessionSchema>;

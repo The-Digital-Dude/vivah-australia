@@ -7,6 +7,7 @@ import { createAuthRouter } from './auth/auth.routes.js';
 import { isHttpError } from './auth/auth-errors.js';
 import type { AuthConfig } from './auth/auth-types.js';
 import { createBillingRouter, createStripeWebhookRouter } from './billing/billing.routes.js';
+import { createCommunityRouter } from './community/community.routes.js';
 import { createInteractionsRouter } from './interactions/interactions.routes.js';
 import { createMatchRouter } from './match/match.routes.js';
 import { createMediaRouter } from './media/media.routes.js';
@@ -60,6 +61,7 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createMatchRouter(options.auth));
   app.use('/api', createInteractionsRouter(options.auth));
   app.use('/api', createMessagesRouter(options.auth));
+  app.use('/api', createCommunityRouter(options.auth));
   app.use('/api', createBillingRouter(options.auth));
   app.use('/api', createAdminRouter(options.auth));
   app.use('/api', createNotificationsRouter(options.auth));

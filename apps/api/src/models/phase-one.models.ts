@@ -377,6 +377,8 @@ export interface CommunityPost {
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
 }
 
 const communityPostSchema = new Schema<CommunityPost>(
@@ -424,6 +426,8 @@ export interface CommunityReaction {
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
 }
 
 const communityReactionSchema = new Schema<CommunityReaction>(
