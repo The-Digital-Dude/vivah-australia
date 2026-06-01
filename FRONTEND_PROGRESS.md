@@ -228,10 +228,12 @@ Updated profile detail experience:
 Route behavior:
 
 - Existing `/profiles/[id]` route continues to serve profile detail pages for ID/display ID fallback links.
-- Clickable cards continue to generate `/profiles/${profile.slug || profile.id}`; the current API-backed detail fetch remains ID-compatible.
+- Clickable cards continue to generate `/profiles/${profile.slug || profile.id}`.
+- API profile lookup now supports Mongo ObjectId, profile slug, and display ID values so seeded URLs such as `/profiles/amit-sharma-va100001` resolve correctly.
 
 Verification:
 
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm test`
+- `pnpm --filter @vivah/api test -- src/profile/profile.routes.test.ts`

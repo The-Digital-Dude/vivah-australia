@@ -16,3 +16,4 @@
 - Added a minimal member dashboard route for authenticated header navigation.
 - Completed FE-004 profile card navigation across homepage featured profiles, match discovery, favourites, interests, and recently viewed member pages.
 - Completed FE-005 premium public profile detail page with full profile sections, sticky/mobile actions, verification state, and locked private gallery messaging.
+- Fixed FE-005 profile detail lookup so public profile URLs can resolve by slug or display ID as well as Mongo ObjectId.

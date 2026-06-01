@@ -154,12 +154,18 @@ export async function submitOwnProfile(userId: Types.ObjectId) {
 }
 
 export async function getVisibleProfile(profileId: string, viewerId?: Types.ObjectId) {
-  if (!Types.ObjectId.isValid(profileId)) {
-    throw new HttpError(404, 'Profile not found');
-  }
+  const normalizedProfileId = profileId.trim();
+  const lookup = Types.ObjectId.isValid(normalizedProfileId)
+    ? { _id: normalizedProfileId }
+    : {
+        $or: [
+          { slug: normalizedProfileId.toLowerCase() },
+          { displayId: normalizedProfileId.toUpperCase() },
+        ],
+      };
 
   const profile = await ProfileModel.findOne({
-    _id: profileId,
+    ...lookup,
     isDeleted: false,
     'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
     'visibility.status': { $ne: ProfileVisibility.HIDDEN },

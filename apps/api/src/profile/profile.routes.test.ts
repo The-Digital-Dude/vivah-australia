@@ -232,6 +232,28 @@ describe('profile routes', () => {
     expect(body.profile.employment?.employerName).toBeUndefined();
   });
 
+  it('serves approved public profiles by slug', async () => {
+    const { user } = await createUser('slug-visible@example.com');
+    const profile = await createProfile(user._id, 'VA100001');
+    profile.set({
+      slug: 'amit-sharma-va100001',
+      'personal.gender': 'MALE',
+      'personal.age': 34,
+      'location.city': 'Melbourne',
+      'employment.occupation': 'Engineer',
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+      'visibility.status': 'PUBLIC',
+    });
+    await profile.save();
+
+    const response = await request(app).get('/api/profiles/amit-sharma-va100001').expect(200);
+
+    expect(bodyAs<{ profile: { displayId: string; slug: string } }>(response).profile).toMatchObject({
+      displayId: 'VA100001',
+      slug: 'amit-sharma-va100001',
+    });
+  });
+
   it('blocks profile viewing when either user has blocked the other', async () => {
     const { user, accessToken } = await createUser('viewer@example.com');
     const owner = await createUser('owner@example.com');

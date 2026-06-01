@@ -120,4 +120,5 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 - Desktop visitors get a sticky action card; mobile visitors get a bottom action bar.
 - Existing profile actions remain functional for Send Interest, Save, Report, and Block.
 - Private gallery content remains locked with the message: "Private photos visible after interest acceptance."
+- Profile detail links now resolve by Mongo ObjectId, slug, or display ID; seeded URLs like `/profiles/amit-sharma-va100001` no longer 404.
 - Admin profile/detail surfaces were not modified.
