@@ -109,3 +109,38 @@ This audit covers non-admin frontend surfaces only. Admin routes and admin panel
 ## Verification
 
 - FE-001 is documentation-only. No frontend UI or TypeScript source files were changed.
+- FE-001 checks passed: `pnpm typecheck`, `pnpm lint`, `pnpm test`.
+
+### FE-002 - Shared Public/Member Design System
+
+Status: Complete
+
+Added a web-local reusable public/member design system at `apps/web/app/components/premium-design-system.tsx` with a barrel export at `apps/web/app/components/index.ts`.
+
+The new component set includes:
+
+- `PremiumButton`
+- `PremiumCard`
+- `PageHero`
+- `SectionHeader`
+- `ProfileMatchCard`
+- `ProfileDetailSection`
+- `VerificationBadge`
+- `MatchScoreBadge`
+- `EmptyState`
+- `LoadingState`
+- `FormField`
+- `SelectField`
+- `FilterDrawer`
+- `StaticPageLayout`
+- `MemberPageLayout`
+- `PublicHeader`
+- `PublicFooter`
+
+Implementation notes:
+
+- Components use the sprint color palette: burgundy `#7A1F2B`, gold `#D4AF37`, ivory `#FCFAF7`, white `#FFFFFF`, text `#1A1A1A`, muted `#6B7280`, and blush `#F8E8E8`.
+- Components live under the web app so they can be applied to public/member routes without importing admin styles or touching admin route files.
+- `ProfileMatchCard` supports clickable image/name/body navigation to `/profiles/${profile.slug || profile.id}` while keeping action controls outside the link region.
+- `PublicHeader` switches between public and authenticated member navigation using the existing auth context.
+- Existing routes have not been migrated yet; FE-003 and later tasks will adopt these components.

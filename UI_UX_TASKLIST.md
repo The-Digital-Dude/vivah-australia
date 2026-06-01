@@ -66,7 +66,7 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 | Task | Status | Notes |
 | --- | --- | --- |
 | FE-001 | Complete | Frontend route/component audit completed; no UI changed. |
-| FE-002 | Pending | Create shared public/member design system components. |
+| FE-002 | Complete | Added web-local reusable public/member premium component module. |
 | FE-003 | Pending | Unify non-admin layout with premium header/footer and mobile menu. |
 | FE-004 | Pending | Make profile cards navigate to detail pages without hijacking action buttons. |
 | FE-005 | Pending | Upgrade public profile detail page. |
@@ -82,10 +82,16 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 
 ## Implementation Order
 
-1. Establish shared components and tokens.
-2. Apply shared layout to non-admin public/member routes.
-3. Replace duplicated profile card implementations.
-4. Build profile detail sections.
-5. Align public static/auth/pricing pages.
-6. Align member dashboard and workflow pages.
-7. Complete final route/mobile QA.
+1. Apply shared layout to non-admin public/member routes.
+2. Replace duplicated profile card implementations.
+3. Build profile detail sections.
+4. Align public static/auth/pricing pages.
+5. Align member dashboard and workflow pages.
+6. Complete final route/mobile QA.
+
+## FE-002 Component Inventory
+
+- Created `apps/web/app/components/premium-design-system.tsx`.
+- Created `apps/web/app/components/index.ts`.
+- Included reusable buttons, cards, page heroes, section headers, profile cards, detail sections, badges, empty/loading states, fields, filter drawer, static/member layouts, public header, and public footer.
+- Admin panel components and admin route files were not changed.
