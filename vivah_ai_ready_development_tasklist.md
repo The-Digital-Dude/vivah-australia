@@ -988,15 +988,12 @@ Allow users to submit verification documents and allow moderators/admins to revi
 #### API Endpoints
 
 ```http
-GET /api/me/verification
-POST /api/me/verification/:type/request
-POST /api/me/verification/:requestId/documents
-POST /api/me/verification/:requestId/submit
+GET /api/me/verifications
+POST /api/me/verifications
+GET /api/me/verifications/:id
 GET /api/admin/verifications?status=PENDING
 GET /api/admin/verifications/:id
-POST /api/admin/verifications/:id/approve
-POST /api/admin/verifications/:id/reject
-POST /api/admin/verifications/:id/request-resubmission
+PATCH /api/admin/verifications/:id/review
 ```
 
 #### Security Rules
@@ -1813,7 +1810,8 @@ DELETE /api/me/notifications/:id
 #### Backend Tasks
 
 - [x] Create admin user list endpoint.
-- [x] Add filters: role, status, verification level, subscription, date joined.
+- [x] Add filters: role, status, verification level.
+- [ ] Add filters: subscription, date joined.
 - [x] Add user detail endpoint.
 - [x] Add edit member endpoint.
 - [x] Add suspend/ban/delete endpoints.
@@ -1827,12 +1825,10 @@ GET /api/admin/users/:id
 PATCH /api/admin/users/:id
 PATCH /api/admin/users/:id/status
 PATCH /api/admin/users/:id/role
-POST /api/admin/users/:id/suspend
-POST /api/admin/users/:id/ban
-POST /api/admin/users/:id/activate
-DELETE /api/admin/users/:id
 PATCH /api/admin/users/:id/notes
 ```
+
+Status actions use `PATCH /api/admin/users/:id/status` with `PENDING`, `ACTIVE`, `SUSPENDED`, `BANNED`, or `DELETED`.
 
 #### Frontend Tasks
 
@@ -1868,11 +1864,9 @@ PATCH /api/admin/users/:id/notes
 #### API Endpoints
 
 ```http
-GET /api/admin/profiles?approvalStatus=PENDING
+GET /api/admin/profiles?status=PENDING
 GET /api/admin/profiles/:id
-POST /api/admin/profiles/:id/approve
-POST /api/admin/profiles/:id/reject
-POST /api/admin/profiles/:id/request-changes
+PATCH /api/admin/profiles/:id/review
 ```
 
 ---

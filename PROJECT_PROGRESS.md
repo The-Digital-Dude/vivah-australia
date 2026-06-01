@@ -9,7 +9,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Monorepo exists with `apps/api`, `apps/web`, `packages/shared`, `packages/ui`, and `packages/config`.
 - API is Express + MongoDB/Mongoose with shared validation from `@vivah/shared`.
 - Web app is Next.js 16.2.6 with public, auth, and member profile pages.
-- Tests currently cover shared validators, database model/index registration, auth routes, public/CMS/contact routes, and profile routes.
+- Tests currently cover shared validators, database model/index registration, auth routes, public/CMS/contact routes, profile routes, admin/RBAC, media, match, interactions, messaging, and billing.
 - `.env.example` files exist for API and web.
 - Real environment files, build outputs, logs, and dependencies are ignored by git.
 - `vivah_australia_ui_ux_planning.md` is now the standing UI/UX source of truth for all frontend and product work.
@@ -126,7 +126,7 @@ The following modules do not yet have full business-feature implementations in t
 
 ## Verification Status
 
-Last successful verification before this audit:
+Last successful verification for this audit:
 
 - `pnpm test`
 - `pnpm typecheck`
@@ -159,9 +159,9 @@ Live local checks also passed for:
 
 ## Recommended Next Build Order
 
-1. Finish WEB-003 gaps: email notification and CAPTCHA.
-2. Add ADMIN-001 and ADMIN-006 UI so CMS content can be managed from the product.
-3. Add admin report queue/workflow and report risk counters.
+1. Finish WEB-003 gaps: stronger CAPTCHA tests and production email templates/preferences.
+2. Add ADMIN-006 UI so CMS content can be managed from the product.
+3. Add report risk counters and a combined moderation dashboard.
 4. Add signed upload/private signed access for chat attachments.
 5. Add MATCH-003 recently viewed profiles and saved search UX.
 6. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.
