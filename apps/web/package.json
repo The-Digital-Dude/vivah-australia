@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@hcaptcha/react-hcaptcha": "^1.10.1",
-    "@vivah/shared": "workspace:*",
+    "@vivah/shared": "file:../../packages/shared",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.17.0",
     "next": "^16.2.6",

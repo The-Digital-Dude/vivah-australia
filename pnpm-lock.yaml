@@ -103,7 +103,7 @@ importers:
         specifier: ^1.10.1
         version: 1.17.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@vivah/shared':
-        specifier: workspace:*
+        specifier: file:../../packages/shared
         version: link:../../packages/shared
       framer-motion:
         specifier: ^12.40.0
