@@ -16,6 +16,7 @@ import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import {
   addComment,
+  archiveRoom,
   createPost,
   createRoom,
   deletePost,
@@ -212,6 +213,18 @@ export function createCommunityRouter(config: AuthConfig): Router {
         room: await updateRoom(auth.userId, roomId, communityRoomUpdateSchema.parse(request.body)),
         message: 'Room updated',
       });
+    }),
+  );
+
+  router.delete(
+    '/admin/community/rooms/:id',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireAdmin(request);
+      const roomId = request.params.id;
+      if (!roomId) throw new HttpError(404, 'Room not found');
+      await archiveRoom(auth.userId, roomId);
+      response.status(204).send();
     }),
   );
 

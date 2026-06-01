@@ -32,7 +32,7 @@ Checkbox count in `vivah_ai_ready_development_tasklist.md`:
 
 | File                                     | Total checkboxes | Checked | Open |
 | ---------------------------------------- | ---------------: | ------: | ---: |
-| `vivah_ai_ready_development_tasklist.md` |              697 |     256 |  441 |
+| `vivah_ai_ready_development_tasklist.md` |              697 |     268 |  429 |
 
 The detailed tasklist is not fully synchronized with the implementation progress. Several modules are recorded as completed in `PROJECT_PROGRESS.md` and are present in the codebase, but many detailed checklist items in the master tasklist remain unchecked.
 
@@ -40,51 +40,51 @@ The detailed tasklist is not fully synchronized with the implementation progress
 
 The following areas are present in the codebase and listed as completed or substantially completed in `PROJECT_PROGRESS.md`:
 
-| Area                                               | Evidence                                                                      |
-| -------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Monorepo foundation                                | `apps/api`, `apps/web`, `packages/shared`, `packages/config`, `packages/ui`   |
-| Shared validators/constants                        | `packages/shared/src`                                                         |
-| Strict TypeScript/build tooling                    | Root scripts and package-level configs                                        |
-| MongoDB/Mongoose models                            | `apps/api/src/models/phase-one.models.ts`                                     |
-| Auth flows                                         | `apps/api/src/auth`, auth pages in `apps/web/app`                             |
-| Public website/CMS/contact                         | `apps/api/src/public`, homepage/static/contact routes                         |
-| Member profile onboarding/edit/view/settings       | `apps/api/src/profile`, member profile pages                                  |
-| Media upload/review base                           | `apps/api/src/media`, `/member/media`, `/admin/media`                         |
-| Search/recommended matches                         | `apps/api/src/match`, `/member/matches`                                       |
-| Interests/favourites/blocks/reports                | `apps/api/src/interactions`, member safety/interest/favourite pages           |
-| Messaging                                          | `apps/api/src/messages`, `/member/messages`                                   |
-| Plans/payments/boost base                          | `apps/api/src/billing`, `/pricing`, `/member/subscription`, `/admin/payments` |
-| Admin auth/RBAC/dashboard/users/profile moderation | `apps/api/src/admin`, admin pages                                             |
-| Verification requests/badges                       | Admin/member verification routes and UI                                       |
-| Notifications                                      | `apps/api/src/notifications`, `/member/notifications`                         |
-| Email provider abstraction                         | API email/auth notification wiring listed in progress                         |
-| Audit logs                                         | Admin audit routes and `/admin/audit-logs`                                    |
-| Community rooms/posts                              | `apps/api/src/community`, `/member/community`, `/admin/community`             |
+| Area                                               | Evidence                                                                                                   |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Monorepo foundation                                | `apps/api`, `apps/web`, `packages/shared`, `packages/config`, `packages/ui`                                |
+| Shared validators/constants                        | `packages/shared/src`                                                                                      |
+| Strict TypeScript/build tooling                    | Root scripts and package-level configs                                                                     |
+| MongoDB/Mongoose models                            | `apps/api/src/models/phase-one.models.ts`                                                                  |
+| Auth flows                                         | `apps/api/src/auth`, auth pages in `apps/web/app`                                                          |
+| Public website/CMS/contact                         | `apps/api/src/public`, homepage/static/contact routes                                                      |
+| Member profile onboarding/edit/view/settings       | `apps/api/src/profile`, member profile pages                                                               |
+| Media upload/review base                           | `apps/api/src/media`, `/member/media`, `/admin/media`                                                      |
+| Search/recommended matches                         | `apps/api/src/match`, `/member/matches`                                                                    |
+| Interests/favourites/blocks/reports                | `apps/api/src/interactions`, member safety/interest/favourite pages                                        |
+| Messaging                                          | `apps/api/src/messages`, `/member/messages`                                                                |
+| Plans/payments/boost base                          | `apps/api/src/billing`, `/pricing`, `/member/subscription`, `/admin/payments`                              |
+| Admin auth/RBAC/dashboard/users/profile moderation | `apps/api/src/admin`, admin pages                                                                          |
+| Verification requests/badges                       | Admin/member verification routes and UI                                                                    |
+| Notifications                                      | `apps/api/src/notifications`, `/member/notifications`                                                      |
+| Email provider abstraction                         | API email/auth notification wiring listed in progress                                                      |
+| Audit logs                                         | Admin audit routes and `/admin/audit-logs`                                                                 |
+| Community rooms/posts                              | `apps/api/src/community`, `/member/community`, `/admin/community`, `DELETE /api/admin/community/rooms/:id` |
 
 ## Known Tasklist/Progress Mismatches
 
 These are the main inconsistencies found while comparing the files:
 
-| Item                                | Current finding                                                                                                         | Recommended action                                                                     |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Master tasklist detailed checkboxes | Many detailed items remain unchecked although modules are implemented and tracked as complete in `PROJECT_PROGRESS.md`. | Reconcile each completed module section in the master tasklist against code and tests. |
-| Final checklist section             | Many final verification/deployment checklist items remain open.                                                         | Keep open unless a dedicated final QA/deployment pass is completed.                    |
-| Community admin archive rooms       | Still appears open in the tasklist.                                                                                     | Implement or explicitly defer.                                                         |
-| Community moderation tests          | `Moderator can remove content` and `Reported content appears in admin moderation queue` remain open.                    | Add tests if these are required for COMMUNITY-002 acceptance.                          |
-| `/api/health` expectation           | `/api/health` returns 404 because the implemented health endpoint is `/health`.                                         | Use `/health`, or add `/api/health` alias if deployment checks expect it.              |
+| Item                                | Current finding                                                                                                                           | Recommended action                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Master tasklist detailed checkboxes | Partially reconciled for code-backed foundation and community items; many detailed items still require a dedicated module-by-module pass. | Continue reconciliation conservatively as modules are revisited.    |
+| Final checklist section             | Many final verification/deployment checklist items remain open.                                                                           | Keep open unless a dedicated final QA/deployment pass is completed. |
+| Community admin archive rooms       | Resolved: admin soft-archive endpoint and tests were added.                                                                               | None.                                                               |
+| Community moderation tests          | Resolved: moderator removal and reported-post admin queue checks were added.                                                              | None.                                                               |
+| `/api/health` expectation           | Resolved: `/api/health` now returns the same payload as `/health`.                                                                        | None.                                                               |
 
 ## Remaining Work Snapshot
 
 Based on the tasklist and progress file, the major remaining/not-yet-complete areas are:
 
-| Area                                            | Status                                   |
-| ----------------------------------------------- | ---------------------------------------- |
-| Tasklist reconciliation                         | Open                                     |
-| Community archive/moderation test gaps          | Open                                     |
-| Mobile app modules                              | Not started/deferred                     |
-| AI matchmaking/moderation/content modules       | Not started/deferred                     |
-| Final production hardening checklist            | Open                                     |
-| Any future CI/CD or deployment automation tasks | Deferred by previous sprint instructions |
+| Area                                            | Status                                               |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| Tasklist reconciliation                         | Partially complete; broad final checklist still open |
+| Community archive/moderation test gaps          | Complete                                             |
+| Mobile app modules                              | Not started/deferred                                 |
+| AI matchmaking/moderation/content modules       | Not started/deferred                                 |
+| Final production hardening checklist            | Open                                                 |
+| Any future CI/CD or deployment automation tasks | Deferred by previous sprint instructions             |
 
 ## Frontend Route Inventory
 
@@ -203,7 +203,7 @@ Local probe target: `http://localhost:4000`
 | Route                           | Status | Bytes | Notes                                  |
 | ------------------------------- | -----: | ----: | -------------------------------------- |
 | `/health`                       |    200 |    15 | Correct health endpoint                |
-| `/api/health`                   |    404 |     0 | Not registered; use `/health`          |
+| `/api/health`                   |    200 |    15 | Health alias                           |
 | `/api/public/home`              |    200 |   701 | Public homepage content                |
 | `/api/public/featured-profiles` |    200 |  1497 | Public profiles response               |
 | `/api/public/plans`             |    200 |   778 | Active plans response                  |
@@ -214,16 +214,15 @@ Local probe target: `http://localhost:4000`
 
 ## Routing Findings
 
-| Severity | Finding                                                                      | Impact                                                                             | Suggested fix                                                                           |
-| -------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Low      | `/api/health` is not registered while `/health` is registered.               | Vercel or external monitors configured for `/api/health` would fail.               | Add an alias or document `/health` as the canonical health check.                       |
-| Low      | Dynamic profile route was not validated with real data in this audit.        | A data-specific profile route issue would not be caught by the static route probe. | Add a seeded profile id route check after local seed data is known.                     |
-| Medium   | Master tasklist and progress file disagree in many completed module details. | Planning and handoff can become unreliable.                                        | Run a dedicated tasklist reconciliation pass and update checked items module by module. |
+| Severity | Finding                                                                      | Impact                                                                                  | Suggested fix                                                                           |
+| -------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Resolved | `/api/health` is now registered alongside `/health`.                         | External monitors can use either health path.                                           | Covered by API tests.                                                                   |
+| Resolved | `pnpm route:qa` now attempts seeded dynamic `/profiles/:id` checks.          | Data-specific profile route issues can be checked when seed/public profile data exists. | Keep seed data available for local QA.                                                  |
+| Medium   | Master tasklist and progress file disagree in many completed module details. | Planning and handoff can become unreliable.                                             | Run a dedicated tasklist reconciliation pass and update checked items module by module. |
 
 ## Recommended Next Actions
 
-1. Reconcile `vivah_ai_ready_development_tasklist.md` against completed code modules instead of relying only on `PROJECT_PROGRESS.md`.
-2. Decide whether to add `/api/health` as an alias for `/health`.
-3. Complete or defer the remaining Community archive/moderation test gaps.
-4. Add a route QA script so blank-page checks can be repeated automatically before commits.
-5. Add seeded dynamic route checks for `/profiles/[id]` and other data-dependent pages.
+1. Continue conservative tasklist reconciliation for older completed modules that still have unchecked detailed items.
+2. Keep running `pnpm route:qa` before commits when local API and web servers are available.
+3. Add seeded data before route QA when `/profiles/:id` dynamic page coverage is required.
+4. Continue final production hardening, CI/CD, mobile, and AI modules as separate future work.

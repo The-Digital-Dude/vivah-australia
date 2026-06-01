@@ -120,7 +120,7 @@ Create a clean, scalable project foundation that supports frontend, backend, sha
 
 #### Tasks
 
-- [ ] Create monorepo structure:
+- [x] Create monorepo structure:
 
 ```text
 /apps
@@ -137,12 +137,12 @@ Create a clean, scalable project foundation that supports frontend, backend, sha
 /scripts
 ```
 
-- [ ] Configure TypeScript strict mode across all apps.
-- [ ] Add ESLint and Prettier.
-- [ ] Add environment config validation.
-- [ ] Add `.env.example` files for frontend and backend.
+- [x] Configure TypeScript strict mode across all apps.
+- [x] Add ESLint and Prettier.
+- [x] Add environment config validation.
+- [x] Add `.env.example` files for frontend and backend.
 - [ ] Add GitHub Actions or equivalent CI pipeline.
-- [ ] Add base README with setup instructions.
+- [x] Add base README with setup instructions.
 
 #### Acceptance Criteria
 
@@ -160,7 +160,7 @@ Create shared definitions to prevent inconsistent values across frontend and bac
 
 #### Tasks
 
-- [ ] Create enums/constants for:
+- [x] Create enums/constants for:
   - User roles: `USER`, `PREMIUM_USER`, `MODERATOR`, `ADMIN`, `SUPER_ADMIN`
   - Account status: `PENDING`, `ACTIVE`, `SUSPENDED`, `BANNED`, `DELETED`
   - Gender
@@ -174,8 +174,8 @@ Create shared definitions to prevent inconsistent values across frontend and bac
   - Payment status
   - Report status
   - Community post status
-- [ ] Create reusable validation schemas using Zod or Joi.
-- [ ] Share validation between frontend forms and backend APIs where possible.
+- [x] Create reusable validation schemas using Zod or Joi.
+- [x] Share validation between frontend forms and backend APIs where possible.
 
 #### Acceptance Criteria
 
@@ -1424,7 +1424,7 @@ server: error
   - Platform Announcements
 - [x] Create room list endpoint.
 - [x] Admin can create/edit rooms.
-- [ ] Admin can archive rooms.
+- [x] Admin can archive rooms.
 
 #### Frontend Tasks
 
@@ -1479,8 +1479,8 @@ POST /api/community/posts/:id/report
 #### Tests
 
 - [x] Banned users cannot post.
-- [ ] Moderator can remove content.
-- [ ] Reported content appears in admin moderation queue.
+- [x] Moderator can remove content.
+- [x] Reported content appears in admin moderation queue.
 
 ---
 

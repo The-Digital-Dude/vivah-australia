@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "pnpm --filter @vivah/shared build && pnpm --filter @vivah/ui build && pnpm -r typecheck",
     "test": "pnpm -r test",
+    "route:qa": "node scripts/route-qa.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

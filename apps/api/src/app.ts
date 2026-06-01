@@ -50,9 +50,12 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createStripeWebhookRouter());
   app.use(express.json({ limit: '1mb' }));
 
-  app.get('/health', (_request: Request, response: Response) => {
+  const healthHandler = (_request: Request, response: Response) => {
     response.status(200).json({ status: 'ok' });
-  });
+  };
+
+  app.get('/health', healthHandler);
+  app.get('/api/health', healthHandler);
 
   app.use('/api/auth', createAuthRouter(options.auth));
   app.use('/api', createPublicRouter(options.auth));

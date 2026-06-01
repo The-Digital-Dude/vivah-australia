@@ -121,6 +121,22 @@ export async function updateRoom(
   return room;
 }
 
+export async function archiveRoom(actorId: Types.ObjectId, roomId: string) {
+  const room = await CommunityRoomModel.findOne({ _id: toId(roomId), isDeleted: false });
+  if (!room) throw new HttpError(404, 'Room not found');
+  room.isDeleted = true;
+  room.deletedAt = new Date();
+  room.deletedBy = actorId;
+  await room.save();
+  await logAudit({
+    actorId,
+    action: 'COMMUNITY_ROOM_ARCHIVED',
+    targetType: 'COMMUNITY_ROOM',
+    targetId: room._id,
+    metadata: { slug: room.slug },
+  });
+}
+
 export async function listPostsForRoom(slugOrId: string, input: CommunityPostsQueryInput) {
   const room = Types.ObjectId.isValid(slugOrId)
     ? await CommunityRoomModel.findOne({ _id: slugOrId, isDeleted: false })

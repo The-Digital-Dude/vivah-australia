@@ -103,6 +103,23 @@ describe('community routes', () => {
 
     expect((await CommunityRoomModel.findById(roomId).orFail()).name).toBe('Parents Forum');
     expect(await AuditLogModel.countDocuments({ action: 'COMMUNITY_ROOM_UPDATED' })).toBe(1);
+
+    await request(app)
+      .delete(`/api/admin/community/rooms/${roomId}`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(204);
+
+    const archived = await CommunityRoomModel.findById(roomId).orFail();
+    expect(archived.isDeleted).toBe(true);
+    expect(archived.deletedBy?.equals(admin.user._id)).toBe(true);
+    expect(await AuditLogModel.countDocuments({ action: 'COMMUNITY_ROOM_ARCHIVED' })).toBe(1);
+
+    const listedAfterArchive = await request(app).get('/api/community/rooms').expect(200);
+    expect(
+      bodyAs<{ rooms: Array<{ slug: string }> }>(listedAfterArchive).rooms.some(
+        (room) => room.slug === 'parents-corner',
+      ),
+    ).toBe(false);
   });
 
   it('supports posts, comments, reactions, reports, and moderation', async () => {
@@ -152,6 +169,15 @@ describe('community routes', () => {
       .expect(201);
     expect(await ReportModel.countDocuments({ targetType: 'POST' })).toBe(1);
 
+    const reportQueueResponse = await request(app)
+      .get('/api/admin/reports?status=OPEN')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(
+      bodyAs<{ reports: Array<{ targetType: string; targetId: string }> }>(reportQueueResponse)
+        .reports[0],
+    ).toMatchObject({ targetType: 'POST', targetId: postId });
+
     await request(app)
       .patch(`/api/admin/community/posts/${postId}/status`)
       .set('Authorization', `Bearer ${admin.accessToken}`)
@@ -165,6 +191,14 @@ describe('community routes', () => {
       await CommunityReactionModel.countDocuments({ targetId: postId, isDeleted: false }),
     ).toBe(1);
     expect(await AuditLogModel.countDocuments({ action: 'COMMUNITY_POST_MODERATED' })).toBe(1);
+
+    await request(app)
+      .delete(`/api/community/posts/${postId}`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(204);
+    const removedPost = await CommunityPostModel.findById(postId).orFail();
+    expect(removedPost.isDeleted).toBe(true);
+    expect(removedPost.deletedBy?.equals(admin.user._id)).toBe(true);
   });
 
   it('prevents banned users from posting', async () => {

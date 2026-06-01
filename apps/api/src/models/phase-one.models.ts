@@ -117,6 +117,8 @@ export interface VerificationRequest {
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
 }
 
 const verificationRequestSchema = new Schema<VerificationRequest>(
@@ -151,6 +153,8 @@ export interface VerificationDocument {
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
 }
 
 const verificationDocumentSchema = new Schema<VerificationDocument>(
@@ -355,6 +359,8 @@ export interface CommunityRoom {
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
 }
 
 const communityRoomSchema = new Schema<CommunityRoom>(
