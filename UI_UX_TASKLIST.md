@@ -121,4 +121,6 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 - Existing profile actions remain functional for Send Interest, Save, Report, and Block.
 - Private gallery content remains locked with the message: "Private photos visible after interest acceptance."
 - Profile detail links now resolve by Mongo ObjectId, slug, or display ID; seeded URLs like `/profiles/amit-sharma-va100001` no longer 404.
+- Unauthenticated member-only profile views now show a premium sign-in-required screen rather than the default 404 page.
+- Signed-in member profile views now fetch profile detail data with the active client auth token.
 - Admin profile/detail surfaces were not modified.

@@ -9,7 +9,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Monorepo exists with `apps/api`, `apps/web`, `packages/shared`, `packages/ui`, and `packages/config`.
 - API is Express + MongoDB/Mongoose with shared validation from `@vivah/shared`.
 - Web app is Next.js 16.2.6 with public, auth, and member profile pages.
-- Public/member frontend alignment sprint FE-001 audit, FE-002 shared design system, FE-003 shared public/member layout, FE-004 clickable profile cards, and FE-005 premium public profile detail page are complete in `FRONTEND_PROGRESS.md` and `UI_UX_TASKLIST.md`; FE-005 profile detail links now resolve by ObjectId, slug, or display ID, and remaining public/member page redesign work continues from FE-006.
+- Public/member frontend alignment sprint FE-001 audit, FE-002 shared design system, FE-003 shared public/member layout, FE-004 clickable profile cards, and FE-005 premium public profile detail page are complete in `FRONTEND_PROGRESS.md` and `UI_UX_TASKLIST.md`; FE-005 profile detail links now resolve by ObjectId, slug, or display ID, signed-in members can view member-only profile URLs with client auth, unauthenticated member-only profiles show a sign-in-required state, and remaining public/member page redesign work continues from FE-006.
 - Tests currently cover shared validators, database model/index registration, auth routes, public/CMS/contact routes, profile routes, admin/RBAC, media, match, interactions, messaging, billing, community moderation, and API health routes.
 - `pnpm route:qa` provides repeatable local route checks for public, auth, admin, member, API, CMS, and seeded dynamic profile routes.
 - `.env.example` files exist for API and web.

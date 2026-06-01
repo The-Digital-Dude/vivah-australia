@@ -230,6 +230,8 @@ Route behavior:
 - Existing `/profiles/[id]` route continues to serve profile detail pages for ID/display ID fallback links.
 - Clickable cards continue to generate `/profiles/${profile.slug || profile.id}`.
 - API profile lookup now supports Mongo ObjectId, profile slug, and display ID values so seeded URLs such as `/profiles/amit-sharma-va100001` resolve correctly.
+- Member-only profiles now render a premium sign-in-required state instead of a generic Next 404 when viewed without authentication.
+- Profile detail data now loads in a client component so signed-in members include their bearer token when viewing member-only profiles.
 
 Verification:
 
