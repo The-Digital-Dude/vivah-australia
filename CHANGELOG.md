@@ -15,3 +15,4 @@
 - Completed FE-003 shared public/member layout migration across homepage, static pages, contact, pricing, profile detail, auth shell, login, and member shell.
 - Added a minimal member dashboard route for authenticated header navigation.
 - Completed FE-004 profile card navigation across homepage featured profiles, match discovery, favourites, interests, and recently viewed member pages.
+- Completed FE-005 premium public profile detail page with full profile sections, sticky/mobile actions, verification state, and locked private gallery messaging.

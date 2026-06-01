@@ -150,8 +150,6 @@ Verification:
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm test`
-- `pnpm lint`
-- `pnpm test`
 
 ### FE-003 - Shared Public/Member Layout
 
@@ -209,3 +207,31 @@ Route behavior:
 Verification:
 
 - `pnpm typecheck`
+- `pnpm lint`
+- `pnpm test`
+
+### FE-005 - Public Profile Detail Page
+
+Status: Complete
+
+Upgraded the public profile detail route into a premium member-facing profile view while preserving the existing public API contract and avoiding admin routes.
+
+Updated profile detail experience:
+
+- Added a premium profile hero with name, age, city, profession, verification badge, match/completion badge, last active, and membership badge.
+- Added a primary profile photo area with a privacy-safe initials fallback so private media is not exposed.
+- Added desktop sticky action card and mobile bottom action bar using existing `ProfileActions` for Send Interest, Save, Report, and Block.
+- Added Message CTA when the visitor is in the member flow.
+- Added structured detail sections for About Me, Basic Details, Religion & Community, Education & Career, Location, Lifestyle, Family Details, Partner Expectations, Photos / Gallery, and Verification Status.
+- Added the locked private-gallery state with the required message: "Private photos visible after interest acceptance."
+
+Route behavior:
+
+- Existing `/profiles/[id]` route continues to serve profile detail pages for ID/display ID fallback links.
+- Clickable cards continue to generate `/profiles/${profile.slug || profile.id}`; the current API-backed detail fetch remains ID-compatible.
+
+Verification:
+
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm test`

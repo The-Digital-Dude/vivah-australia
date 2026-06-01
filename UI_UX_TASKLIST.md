@@ -69,7 +69,7 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 | FE-002 | Complete | Added web-local reusable public/member premium component module. |
 | FE-003 | Complete | Shared public/member header, footer, container spacing, ivory background, and mobile drawer applied to non-admin layout surfaces. |
 | FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate. |
-| FE-005 | Pending | Upgrade public profile detail page. |
+| FE-005 | Complete | Premium public profile detail page now includes hero, sticky/mobile actions, full profile sections, verification state, and locked private gallery messaging. |
 | FE-006 | Pending | Align static public pages. |
 | FE-007 | Pending | Align auth pages. |
 | FE-008 | Pending | Redesign member dashboard UX. |
@@ -111,3 +111,13 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 - Interests link the profile identity/body to profile detail while response controls remain separate.
 - Recently viewed cards use shared clickable `ProfileMatchCard`.
 - Admin profile cards and admin moderation views were not modified.
+
+## FE-005 Public Profile Detail Page
+
+- Upgraded `apps/web/app/profiles/[id]/page.tsx` into a premium profile detail experience.
+- Profile hero now shows identity, age, city, profession, verification, match/completion score, last active, and membership status.
+- Detail content now covers About Me, Basic Details, Religion & Community, Education & Career, Location, Lifestyle, Family Details, Partner Expectations, Photos / Gallery, and Verification Status.
+- Desktop visitors get a sticky action card; mobile visitors get a bottom action bar.
+- Existing profile actions remain functional for Send Interest, Save, Report, and Block.
+- Private gallery content remains locked with the message: "Private photos visible after interest acceptance."
+- Admin profile/detail surfaces were not modified.
