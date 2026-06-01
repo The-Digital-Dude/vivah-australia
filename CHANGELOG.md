@@ -14,3 +14,4 @@
 - Added shared public/member header, footer, layout, card, form, badge, loading, empty, and profile-card primitives for later route migration.
 - Completed FE-003 shared public/member layout migration across homepage, static pages, contact, pricing, profile detail, auth shell, login, and member shell.
 - Added a minimal member dashboard route for authenticated header navigation.
+- Completed FE-004 profile card navigation across homepage featured profiles, match discovery, favourites, interests, and recently viewed member pages.

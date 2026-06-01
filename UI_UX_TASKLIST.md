@@ -68,7 +68,7 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 | FE-001 | Complete | Frontend route/component audit completed; no UI changed. |
 | FE-002 | Complete | Added web-local reusable public/member premium component module. |
 | FE-003 | Complete | Shared public/member header, footer, container spacing, ivory background, and mobile drawer applied to non-admin layout surfaces. |
-| FE-004 | Pending | Make profile cards navigate to detail pages without hijacking action buttons. |
+| FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate. |
 | FE-005 | Pending | Upgrade public profile detail page. |
 | FE-006 | Pending | Align static public pages. |
 | FE-007 | Pending | Align auth pages. |
@@ -102,3 +102,12 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 - Member pages inherit the premium member shell with a desktop side navigation and mobile drawer.
 - A minimal `/member` dashboard route now exists to support the authenticated header Dashboard link.
 - `/admin/*` routes were not modified.
+
+## FE-004 Profile Card Navigation
+
+- Homepage featured profiles use shared clickable `ProfileMatchCard`.
+- Match discovery and recommended cards use shared clickable `ProfileMatchCard`.
+- Favourites use shared clickable `ProfileMatchCard` with remove/action controls outside the link.
+- Interests link the profile identity/body to profile detail while response controls remain separate.
+- Recently viewed cards use shared clickable `ProfileMatchCard`.
+- Admin profile cards and admin moderation views were not modified.

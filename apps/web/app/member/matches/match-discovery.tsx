@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { motion } from 'framer-motion';
-import { BadgeCheck, Heart, Search, ShieldCheck, SlidersHorizontal, Sparkles } from 'lucide-react';
-import { profileSearchQuerySchema } from '@vivah/shared';
+import { Bookmark, Heart, Search, ShieldCheck, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { profileSearchQuerySchema, savedSearchCreateSchema } from '@vivah/shared';
+import { ProfileMatchCard } from '@/app/components';
 import { csvList, optionalNumber, optionalString, useMemberRequest } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
 
@@ -43,6 +43,15 @@ interface MatchResponse {
   };
 }
 
+interface SavedSearch {
+  _id?: string;
+  id?: string;
+  name: string;
+  query: Record<string, unknown>;
+  notifyOnNewMatches: boolean;
+  updatedAt: string;
+}
+
 const defaultFilters = {
   page: 1,
   pageSize: 12,
@@ -55,6 +64,8 @@ export default function MatchDiscovery() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState<MatchResponse | null>(null);
   const [recommended, setRecommended] = useState<MatchCard[]>([]);
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [currentQuery, setCurrentQuery] = useState<Record<string, unknown>>(defaultFilters);
 
   const activeChips = useMemo(() => {
     if (!search?.pagination) {
@@ -81,14 +92,26 @@ export default function MatchDiscovery() {
     setRecommended(data.results);
   }
 
-  async function runSearch(query = defaultFilters) {
+  async function loadSavedSearches() {
+    const result = await memberRequest('/api/matches/saved-searches');
+    if (result.ok) {
+      setSavedSearches((result.data as { savedSearches?: SavedSearch[] }).savedSearches ?? []);
+    }
+  }
+
+  async function runSearch(query: Record<string, unknown> = defaultFilters) {
     setLoading(true);
     setMessage(null);
+    setCurrentQuery(query);
     const params = new URLSearchParams();
     Object.entries(query).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         value.forEach((item) => params.append(key, String(item)));
-      } else if (value !== undefined && value !== '') {
+      } else if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
         params.set(key, String(value));
       }
     });
@@ -107,7 +130,41 @@ export default function MatchDiscovery() {
   useEffect(() => {
     void runSearch();
     void loadRecommended();
+    void loadSavedSearches();
   }, []);
+
+  async function saveSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const payload = {
+      name: optionalString(form.get('name')) ?? 'Saved search',
+      query: currentQuery,
+      notifyOnNewMatches: form.get('notifyOnNewMatches') === 'on',
+    };
+    const parsed = savedSearchCreateSchema.safeParse(payload);
+    if (!parsed.success) {
+      setMessage(parsed.error.issues[0]?.message ?? 'Please name this search.');
+      return;
+    }
+    const result = await memberRequest('/api/matches/saved-searches', {
+      method: 'POST',
+      body: parsed.data,
+    });
+    setMessage(result.message);
+    if (result.ok) {
+      await loadSavedSearches();
+    }
+  }
+
+  async function deleteSavedSearch(searchId: string) {
+    const result = await memberRequest(`/api/matches/saved-searches/${searchId}`, {
+      method: 'DELETE',
+    });
+    setMessage(result.ok ? 'Saved search removed.' : result.message);
+    if (result.ok) {
+      await loadSavedSearches();
+    }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -268,77 +325,104 @@ export default function MatchDiscovery() {
           ))}
         </div>
       </section>
+
+      <section className="grid gap-4 rounded-lg border border-[#F0D6DA] bg-white p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7A1E3A]">
+              Saved searches
+            </p>
+            <h2 className="mt-1 text-xl font-semibold text-[#232323]">Repeat your best filters</h2>
+          </div>
+          <Bookmark className="size-5 text-[#C94F7C]" />
+        </div>
+        <form
+          className="grid gap-3 md:grid-cols-[1fr_auto_auto]"
+          onSubmit={(event) => void saveSearch(event)}
+        >
+          <input
+            name="name"
+            placeholder="Name this search"
+            className="h-10 rounded-md border border-[#E8D5D8] px-3 text-sm outline-none transition focus:border-[#7A1E3A] focus:ring-2 focus:ring-[#FDECEF]"
+          />
+          <label className="flex items-center gap-2 text-sm font-medium text-[#5E6470]">
+            <input name="notifyOnNewMatches" type="checkbox" className="size-4 accent-[#7A1E3A]" />
+            Notify
+          </label>
+          <button className="h-10 rounded-md border border-[#7A1E3A]/20 px-4 text-sm font-semibold text-[#7A1E3A]">
+            Save search
+          </button>
+        </form>
+        <div className="grid gap-2">
+          {savedSearches.length === 0 ? (
+            <p className="rounded-md border border-dashed border-[#F0D6DA] p-3 text-sm text-[#5E6470]">
+              Saved searches will appear here.
+            </p>
+          ) : (
+            savedSearches.map((savedSearch) => {
+              const id = savedSearch.id ?? savedSearch._id ?? savedSearch.name;
+              return (
+                <div
+                  key={id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#F0D6DA] p-3"
+                >
+                  <div>
+                    <p className="font-semibold text-[#232323]">{savedSearch.name}</p>
+                    <p className="text-xs text-[#5E6470]">
+                      {savedSearch.notifyOnNewMatches
+                        ? 'Notifications enabled'
+                        : 'Notifications off'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void runSearch(savedSearch.query)}
+                      className="rounded-md bg-[#7A1E3A] px-3 py-2 text-xs font-semibold text-white"
+                    >
+                      Run
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void deleteSavedSearch(id)}
+                      className="rounded-md border border-[#7A1E3A]/20 px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </section>
     </div>
   );
 }
 
 function ProfileCard({
   profile,
-  index,
   compact = false,
 }: Readonly<{ profile: MatchCard; index: number; compact?: boolean }>) {
-  const initials = profile.firstName?.slice(0, 1).toUpperCase() ?? 'V';
-
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: Math.min(index * 0.04, 0.2) }}
-      className="overflow-hidden rounded-lg border border-[#F0D6DA] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <div className="grid grid-cols-[96px_1fr] gap-4 p-4">
-        <div className="grid aspect-[3/4] place-items-center overflow-hidden rounded-md bg-[#FDECEF] text-3xl font-semibold text-[#7A1E3A]">
-          {profile.photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profile.photoUrl}
-              alt={`${profile.firstName ?? 'Member'} profile`}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            initials
-          )}
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold text-[#232323]">
-                {profile.firstName ?? 'Vivah member'}, {profile.age ?? 'Age hidden'}
-              </h3>
-              <p className="mt-1 text-sm text-[#5E6470]">
-                {[profile.city, profile.state, profile.country].filter(Boolean).join(', ')}
-              </p>
-            </div>
-            <span className="rounded-full bg-[#FDECEF] px-2.5 py-1 text-xs font-bold text-[#7A1E3A]">
-              {profile.matchScore}%
-            </span>
-          </div>
-
-          <div className="mt-3 grid gap-1 text-sm text-[#5E6470]">
-            <p>{[profile.occupation, profile.education].filter(Boolean).join(' • ')}</p>
-            <p>
-              {[profile.religion, profile.community, profile.motherTongue]
-                .filter(Boolean)
-                .join(' • ')}
-            </p>
-          </div>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF8F1] px-2.5 py-1 text-xs font-semibold text-[#5E6470]">
-              <BadgeCheck className="size-3.5 text-[#1F9D68]" />
-              {profile.verificationLevel.replaceAll('_', ' ')}
-            </span>
-            {profile.maritalStatus ? (
-              <span className="rounded-full bg-[#FFF8F1] px-2.5 py-1 text-xs font-semibold text-[#5E6470]">
-                {profile.maritalStatus.replaceAll('_', ' ')}
-              </span>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      {!compact ? (
-        <div className="grid gap-3 border-t border-[#F0D6DA] px-4 py-3">
+    <ProfileMatchCard
+      compact={compact}
+      profile={{
+        age: profile.age ?? 'Age hidden',
+        city: [profile.city, profile.state, profile.country].filter(Boolean).join(', '),
+        community: profile.community ?? profile.motherTongue,
+        education: profile.education,
+        id: profile.id,
+        matchScore: profile.matchScore,
+        name: profile.firstName ?? 'Vivah member',
+        occupation: profile.occupation,
+        photoUrl: profile.photoUrl,
+        religion: profile.religion,
+        verificationLevel: profile.verificationLevel,
+      }}
+      actions={
+        !compact ? (
+          <div className="grid gap-3">
           <div className="flex flex-wrap gap-2">
             {profile.matchReasons.slice(0, 3).map((reason) => (
               <span
@@ -352,12 +436,11 @@ function ProfileCard({
           </div>
           <ProfileActions profileId={profile.id} />
         </div>
-      ) : (
-        <div className="border-t border-[#F0D6DA] px-4 py-3">
+        ) : (
           <ProfileActions profileId={profile.id} compact />
-        </div>
-      )}
-    </motion.article>
+        )
+      }
+    />
   );
 }
 

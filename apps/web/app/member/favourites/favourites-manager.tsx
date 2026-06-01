@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
+import { ProfileMatchCard } from '@/app/components';
 import { useMemberRequest } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
 
@@ -49,32 +50,30 @@ export default function FavouritesManager() {
         <p className="rounded-md bg-[#FFF8F1] p-3 text-sm text-[#7A1E3A]">{message}</p>
       ) : null}
       {items.map((item) => (
-        <article
+        <ProfileMatchCard
           key={item.id}
-          className="grid gap-4 rounded-lg border border-[#F0D6DA] bg-white p-4 shadow-sm lg:grid-cols-[1fr_auto]"
-        >
-          <div>
-            <h3 className="text-lg font-semibold text-[#232323]">
-              {item.profile.firstName ?? 'Vivah member'}, {item.profile.age ?? 'age hidden'}
-            </h3>
-            <p className="mt-1 text-sm text-[#5E6470]">
-              {[item.profile.city, item.profile.occupation, item.profile.verificationLevel]
-                .filter(Boolean)
-                .join(' • ')}
-            </p>
-          </div>
-          <div className="grid gap-2">
-            <ProfileActions profileId={item.profile.id} compact />
-            <button
-              type="button"
-              onClick={() => void remove(item.profile.id)}
-              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#F0D6DA] px-3 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
-            >
-              <Trash2 className="size-3.5" />
-              Remove favourite
-            </button>
-          </div>
-        </article>
+          profile={{
+            age: item.profile.age ?? 'age hidden',
+            city: item.profile.city,
+            id: item.profile.id,
+            name: item.profile.firstName ?? 'Vivah member',
+            occupation: item.profile.occupation,
+            verificationLevel: item.profile.verificationLevel,
+          }}
+          actions={
+            <div className="grid gap-2">
+              <ProfileActions profileId={item.profile.id} compact />
+              <button
+                type="button"
+                onClick={() => void remove(item.profile.id)}
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#F0D6DA] px-3 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
+              >
+                <Trash2 className="size-3.5" />
+                Remove favourite
+              </button>
+            </div>
+          }
+        />
       ))}
       {items.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[#D6A84F] bg-white p-6 text-center text-sm text-[#5E6470]">

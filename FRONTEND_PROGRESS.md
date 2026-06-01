@@ -150,6 +150,8 @@ Verification:
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm test`
+- `pnpm lint`
+- `pnpm test`
 
 ### FE-003 - Shared Public/Member Layout
 
@@ -183,3 +185,27 @@ Verification:
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm test`
+
+### FE-004 - Profile Card Click Navigation
+
+Status: Complete
+
+Made public/member profile-card surfaces navigate to profile detail pages while keeping action controls separate from the clickable card body.
+
+Updated areas:
+
+- Homepage featured profiles now use shared `ProfileMatchCard` and link to `/profiles/${profile.slug || profile._id || profile.displayId}`.
+- Match discovery and recommended match cards now use shared `ProfileMatchCard` with card-body navigation and separate `ProfileActions`.
+- Favourites now use shared `ProfileMatchCard`; favourite/profile action buttons remain outside the link.
+- Interests now link the profile identity/body to the detail page while accept/reject/withdraw buttons remain separate controls.
+- Recently viewed now uses shared `ProfileMatchCard` with detail navigation.
+- `ProfileMatchCardProfile` accepts optional API values cleanly under `exactOptionalPropertyTypes`.
+
+Route behavior:
+
+- Preferred href uses `/profiles/${profile.slug || profile.id}` where slug is available.
+- Existing `/profiles/[id]` dynamic route continues to serve the fallback ID/display ID path.
+
+Verification:
+
+- `pnpm typecheck`

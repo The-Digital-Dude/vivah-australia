@@ -19,7 +19,7 @@ import {
   Award,
   PlayCircle,
 } from 'lucide-react';
-import { PublicFooter, PublicHeader } from '@/app/components';
+import { PremiumButton, ProfileMatchCard, PublicFooter, PublicHeader } from '@/app/components';
 import type { FeaturedProfile, PublicContentItem, PublicPlan } from '@/lib/public-api';
 
 const communities = [
@@ -360,48 +360,31 @@ export default function HomeClient({
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {profiles.slice(0, 3).map((profile, i) => (
               <FadeIn key={profile.displayId} delay={i * 0.1}>
-                <div className="group rounded-3xl overflow-hidden bg-[#FFF8F1] border border-[#7A1E3A]/5 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-                  <div className="relative h-64 w-full bg-gradient-to-br from-[#7A1E3A] via-[#C94F7C] to-[#D6A84F] overflow-hidden">
-                    <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80')] bg-cover mix-blend-overlay" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1A1020]/90 to-transparent" />
-                    <div className="absolute bottom-4 left-5 text-white">
-                      <h4 className="text-2xl font-serif font-bold">
-                        {profile.personal?.firstName ?? 'Member'}, {profile.personal?.age}
-                      </h4>
-                      <p className="text-sm font-medium text-white/80">
-                        {profile.location?.city || 'Australia'} •{' '}
-                        {profile.employment?.occupation || 'Professional'}
-                      </p>
-                    </div>
-                    <div className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                      <ShieldCheck className="size-3.5 text-[#1F9D68]" />
-                      <span className="text-xs font-bold text-[#1F9D68] uppercase tracking-wide">
-                        {profile.verification?.level ?? 'VERIFIED'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      <span className="px-3 py-1 bg-white rounded-full text-xs font-semibold text-[#5E6470] border border-[#7A1E3A]/10">
-                        {profile.religion?.religion || 'Religion'}
-                      </span>
-                      <span className="px-3 py-1 bg-white rounded-full text-xs font-semibold text-[#5E6470] border border-[#7A1E3A]/10">
-                        Never Married
-                      </span>
-                      <span className="px-3 py-1 bg-[#D6A84F]/10 rounded-full text-xs font-bold text-[#D6A84F]">
-                        90%+ Match
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button className="flex-1 py-3 rounded-full bg-white border border-[#7A1E3A]/20 text-sm font-bold text-[#7A1E3A] hover:bg-[#FDECEF] transition-colors">
+                <ProfileMatchCard
+                  compact
+                  profile={{
+                    age: profile.personal?.age,
+                    city: profile.location?.city ?? profile.location?.state,
+                    id: profile._id ?? profile.displayId,
+                    matchScore: 90,
+                    name: profile.personal?.firstName ?? 'Vivah member',
+                    occupation: profile.employment?.occupation ?? 'Professional',
+                    religion: profile.religion?.religion,
+                    slug: profile.slug,
+                    verificationLevel: profile.verification?.level ?? 'VERIFIED',
+                  }}
+                  actions={
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <PremiumButton
+                        href={`/profiles/${profile.slug || profile._id || profile.displayId}`}
+                        variant="secondary"
+                      >
                         View Profile
-                      </button>
-                      <button className="flex-1 py-3 rounded-full bg-[#7A1E3A] text-sm font-bold text-white shadow-md hover:bg-[#64172f] transition-colors">
-                        Send Interest
-                      </button>
+                      </PremiumButton>
+                      <PremiumButton href="/register">Send Interest</PremiumButton>
                     </div>
-                  </div>
-                </div>
+                  }
+                />
               </FadeIn>
             ))}
           </div>

@@ -150,18 +150,18 @@ export function SectionHeader({
 }
 
 export type ProfileMatchCardProfile = {
-  age?: number | string;
-  city?: string;
-  community?: string;
-  education?: string;
+  age?: number | string | undefined;
+  city?: string | undefined;
+  community?: string | undefined;
+  education?: string | undefined;
   id: string;
-  matchScore?: number;
-  name?: string;
-  occupation?: string;
-  photoUrl?: string;
-  religion?: string;
-  slug?: string;
-  verificationLevel?: string;
+  matchScore?: number | undefined;
+  name?: string | undefined;
+  occupation?: string | undefined;
+  photoUrl?: string | undefined;
+  religion?: string | undefined;
+  slug?: string | undefined;
+  verificationLevel?: string | undefined;
 };
 
 export function ProfileMatchCard({

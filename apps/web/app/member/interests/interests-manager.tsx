@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Check, RotateCcw, X } from 'lucide-react';
 import { useMemberRequest } from '@/lib/member-api';
@@ -85,7 +86,10 @@ export default function InterestsManager() {
               key={item.id}
               className="grid gap-4 rounded-lg border border-[#F0D6DA] bg-white p-4 shadow-sm md:grid-cols-[1fr_auto]"
             >
-              <div>
+              <Link
+                href={profile?.id ? `/profiles/${profile.id}` : '/member/matches'}
+                className="block rounded-2xl p-1 transition hover:bg-[#FFF8F1]"
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-lg font-semibold text-[#232323]">
                     {profile?.firstName ?? 'Vivah member'}, {profile?.age ?? 'age hidden'}
@@ -99,7 +103,7 @@ export default function InterestsManager() {
                     .filter(Boolean)
                     .join(' • ')}
                 </p>
-              </div>
+              </Link>
               <div className="flex flex-wrap items-center gap-2">
                 {box === 'received' && item.status === 'PENDING' ? (
                   <>
