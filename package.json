@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "pnpm --filter @vivah/shared build && concurrently \"pnpm --filter @vivah/api dev\" \"pnpm --filter @vivah/web dev\"",
-    "build": "pnpm -r build",
+    "build": "pnpm --filter \"@vivah/web\" --filter \"@vivah/api\" build",
     "lint": "eslint .",
     "typecheck": "pnpm --filter @vivah/shared build && pnpm --filter @vivah/ui build && pnpm -r typecheck",
     "test": "pnpm -r test",
