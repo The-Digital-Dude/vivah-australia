@@ -1,11 +1,17 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
 interface AuthContextType {
   token: string | null;
+  refreshToken: string | null;
   userRole: string | null;
+  initialized: boolean;
   setToken: (token: string | null) => void;
+  setSession: (tokens: { accessToken: string; refreshToken?: string | undefined }) => void;
+  refreshAccessToken: () => Promise<string | null>;
   clearToken: () => void;
 }
 
@@ -13,9 +19,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
+  const [refreshToken, setRefreshTokenState] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
-  function roleFromToken(value: string | null) {
+  const roleFromToken = useCallback((value: string | null) => {
     if (!value) return null;
     try {
       const payload = JSON.parse(atob(value.split('.')[1] ?? '')) as { role?: string };
@@ -23,16 +31,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       return null;
     }
-  }
+  }, []);
 
-  // Load token from localStorage on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('auth_token');
+    const storedRefreshToken = localStorage.getItem('refresh_token');
     if (storedToken) {
       setTokenState(storedToken);
       setUserRole(roleFromToken(storedToken));
     }
-  }, []);
+    if (storedRefreshToken) {
+      setRefreshTokenState(storedRefreshToken);
+    }
+    setInitialized(true);
+  }, [roleFromToken]);
 
   const setToken = (newToken: string | null) => {
     setTokenState(newToken);
@@ -44,12 +56,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const clearToken = () => {
-    setToken(null);
+  const setSession = (tokens: { accessToken: string; refreshToken?: string | undefined }) => {
+    setToken(tokens.accessToken);
+    if (tokens.refreshToken) {
+      setRefreshTokenState(tokens.refreshToken);
+      localStorage.setItem('refresh_token', tokens.refreshToken);
+    }
   };
 
+  const clearToken = useCallback(() => {
+    setTokenState(null);
+    setRefreshTokenState(null);
+    setUserRole(null);
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('refresh_token');
+  }, []);
+
+  const refreshAccessToken = useCallback(async () => {
+    const activeRefreshToken = refreshToken ?? localStorage.getItem('refresh_token');
+    if (!activeRefreshToken) {
+      clearToken();
+      return null;
+    }
+
+    const response = await fetch(`${apiBaseUrl}/api/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: activeRefreshToken }),
+    });
+
+    if (!response.ok) {
+      clearToken();
+      return null;
+    }
+
+    const data = (await response.json()) as { accessToken?: string; refreshToken?: string };
+    if (!data.accessToken || !data.refreshToken) {
+      clearToken();
+      return null;
+    }
+
+    setTokenState(data.accessToken);
+    setRefreshTokenState(data.refreshToken);
+    setUserRole(roleFromToken(data.accessToken));
+    localStorage.setItem('auth_token', data.accessToken);
+    localStorage.setItem('refresh_token', data.refreshToken);
+    return data.accessToken;
+  }, [clearToken, refreshToken, roleFromToken]);
+
   return (
-    <AuthContext.Provider value={{ token, userRole, setToken, clearToken }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        refreshToken,
+        userRole,
+        initialized,
+        setToken,
+        setSession,
+        refreshAccessToken,
+        clearToken,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -145,6 +145,34 @@ describe('auth routes', () => {
     expect(refreshBody.refreshToken).not.toBe(loginBody.refreshToken);
   });
 
+  it('increments failed attempts for invalid login', async () => {
+    const { email } = await registerAndVerify('invalid-login@example.com');
+
+    await request(app)
+      .post('/api/auth/login')
+      .send({ email, password: 'WrongPassword123!' })
+      .expect(401);
+
+    const user = await UserModel.findOne({ email }).orFail();
+    expect(user.failedLoginAttempts).toBe(1);
+  });
+
+  it('locks users after repeated invalid login attempts', async () => {
+    const { email, password } = await registerAndVerify('locked-login@example.com');
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await request(app)
+        .post('/api/auth/login')
+        .send({ email, password: 'WrongPassword123!' })
+        .expect(401);
+    }
+
+    const lockedUser = await UserModel.findOne({ email }).orFail();
+    expect(lockedUser.lockUntil?.getTime()).toBeGreaterThan(Date.now());
+
+    await request(app).post('/api/auth/login').send({ email, password }).expect(423);
+  });
+
   it('logs out by invalidating the active refresh token', async () => {
     const { email, password } = await registerAndVerify('logout@example.com');
     const loginResponse = await request(app).post('/api/auth/login').send({ email, password });

@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Bell } from 'lucide-react';
+import { useAuth } from '@/app/auth-context';
 import { useMemberRequest } from '@/lib/member-api';
 
 const memberLinks = [
@@ -27,17 +29,38 @@ export default function MemberShell({
   subtitle,
   children,
 }: Readonly<{ title: string; subtitle: string; children: ReactNode }>) {
+  const router = useRouter();
+  const { initialized, token } = useAuth();
   const memberRequest = useMemberRequest();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
+    if (initialized && !token) {
+      router.replace('/login');
+    }
+  }, [initialized, router, token]);
+
+  useEffect(() => {
+    if (!initialized || !token) {
+      return;
+    }
     void (async () => {
       const result = await memberRequest('/api/me/notifications?unreadOnly=true');
       if (result.ok) {
         setUnreadCount((result.data as { unreadCount?: number }).unreadCount ?? 0);
       }
     })();
-  }, []);
+  }, [initialized, memberRequest, token]);
+
+  if (!initialized || !token) {
+    return (
+      <main className="min-h-screen bg-neutral-50 px-6 py-10 text-neutral-950">
+        <p className="mx-auto max-w-6xl text-sm font-semibold text-red-700">
+          Member login required.
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-neutral-50 px-4 py-8 text-neutral-950">

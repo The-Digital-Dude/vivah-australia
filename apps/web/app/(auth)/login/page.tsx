@@ -13,7 +13,7 @@ function formValue(form: FormData, key: string) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setToken } = useAuth();
+  const { setSession } = useAuth();
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
@@ -32,7 +32,10 @@ export default function LoginPage() {
       const result = await postAuth('login', { email, password });
 
       if (result.ok && result.data?.accessToken) {
-        setToken(result.data.accessToken);
+        setSession({
+          accessToken: result.data.accessToken,
+          refreshToken: result.data.refreshToken,
+        });
         setMessage('Signed in successfully.');
         setTimeout(() => router.push('/member/onboarding'), 500);
       } else {

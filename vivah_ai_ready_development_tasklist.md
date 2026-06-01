@@ -559,27 +559,27 @@ Content-Type: application/json
 
 #### Backend Tasks
 
-- [ ] Create `POST /api/auth/login`.
-- [ ] Create `POST /api/auth/refresh`.
-- [ ] Create `POST /api/auth/logout`.
-- [ ] Use short-lived access tokens.
-- [ ] Use refresh token rotation.
-- [ ] Store refresh token version on user.
-- [ ] Revoke all sessions on password change.
+- [x] Create `POST /api/auth/login`.
+- [x] Create `POST /api/auth/refresh`.
+- [x] Create `POST /api/auth/logout`.
+- [x] Use short-lived access tokens.
+- [x] Use refresh token rotation.
+- [x] Store refresh token version on user.
+- [x] Revoke all sessions on password change.
 
 #### Frontend Tasks
 
-- [ ] Build login page.
-- [ ] Implement auth state management.
-- [ ] Protect private routes.
-- [ ] Auto-refresh access tokens.
+- [x] Build login page.
+- [x] Implement auth state management.
+- [x] Protect private routes.
+- [x] Auto-refresh access tokens.
 
 #### Tests
 
-- [ ] Valid login returns tokens.
-- [ ] Invalid login increments failed attempts.
-- [ ] Locked user cannot login.
-- [ ] Logout invalidates refresh token.
+- [x] Valid login returns tokens.
+- [x] Invalid login increments failed attempts.
+- [x] Locked user cannot login.
+- [x] Logout invalidates refresh token.
 
 ---
 

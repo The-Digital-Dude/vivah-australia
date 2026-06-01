@@ -15,7 +15,7 @@ function formValue(form: FormData, key: string) {
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { setToken } = useAuth();
+  const { setSession } = useAuth();
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
 
@@ -41,7 +41,10 @@ export default function AdminLoginPage() {
       return;
     }
 
-    setToken(result.data.accessToken);
+    setSession({
+      accessToken: result.data.accessToken,
+      refreshToken: result.data.refreshToken,
+    });
     router.push('/admin/dashboard');
   }
 
