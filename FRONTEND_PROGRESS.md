@@ -144,3 +144,42 @@ Implementation notes:
 - `ProfileMatchCard` supports clickable image/name/body navigation to `/profiles/${profile.slug || profile.id}` while keeping action controls outside the link region.
 - `PublicHeader` switches between public and authenticated member navigation using the existing auth context.
 - Existing routes have not been migrated yet; FE-003 and later tasks will adopt these components.
+
+Verification:
+
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm test`
+
+### FE-003 - Shared Public/Member Layout
+
+Status: Complete
+
+Applied the shared premium non-admin layout shell to public/member surfaces without changing admin routes or admin panel design.
+
+Updated frontend routes and shells:
+
+- Homepage now uses shared `PublicHeader` and `PublicFooter` instead of page-local chrome.
+- Static CMS pages now render through `StaticPageLayout`, `PageHero`, and `PremiumCard`.
+- Contact page now renders through `StaticPageLayout`, `PageHero`, and `PremiumCard`.
+- Pricing page now uses shared `PublicHeader`, `PageHero`, and `PublicFooter`.
+- Public profile detail route now uses shared `StaticPageLayout`, `PageHero`, `VerificationBadge`, and `ProfileDetailSection`.
+- Auth shell now uses shared public header/footer.
+- Standalone login page now uses shared public header/footer.
+- Member shell now uses shared public header/footer, ivory background, premium content container, premium side navigation, and mobile drawer.
+- Added a minimal `/member` dashboard route so authenticated header navigation has a valid Dashboard target; FE-008 remains responsible for the full dashboard redesign.
+
+Header behavior:
+
+- Public state links include Home, Matches, Membership, Verification, Blog, Help, Login, and Create Free Profile.
+- Authenticated state links include Dashboard, Matches, Messages, Notifications, Profile, and Logout.
+
+Admin scope:
+
+- No `/admin/*` files were changed for FE-003.
+
+Verification:
+
+- `pnpm typecheck`
+- `pnpm lint`
+- `pnpm test`

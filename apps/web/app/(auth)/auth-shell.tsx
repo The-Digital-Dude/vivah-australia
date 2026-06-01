@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { PublicFooter, PublicHeader } from '@/app/components';
 
 export default function AuthShell({
   title,
@@ -7,17 +7,16 @@ export default function AuthShell({
   children,
 }: Readonly<{ title: string; subtitle: string; children: ReactNode }>) {
   return (
-    <main className="min-h-screen bg-neutral-50 px-4 py-10">
-      <div className="mx-auto flex w-full max-w-md flex-col gap-8">
-        <Link href="/" className="text-sm font-semibold text-red-700">
-          Vivah Australia
-        </Link>
-        <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold text-neutral-950">{title}</h1>
-          <p className="mt-2 text-sm leading-6 text-neutral-600">{subtitle}</p>
+    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+      <PublicHeader />
+      <main className="mx-auto flex w-full max-w-md flex-col gap-8 px-4 py-12 sm:px-6 lg:px-8">
+        <section className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.08)]">
+          <h1 className="text-2xl font-semibold text-[#1A1A1A]">{title}</h1>
+          <p className="mt-2 text-sm leading-6 text-[#6B7280]">{subtitle}</p>
           <div className="mt-6">{children}</div>
         </section>
-      </div>
-    </main>
+      </main>
+      <PublicFooter />
+    </div>
   );
 }

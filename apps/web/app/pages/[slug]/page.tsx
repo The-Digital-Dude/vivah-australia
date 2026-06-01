@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { PageHero, PremiumCard, StaticPageLayout } from '@/app/components';
 import { getCmsPage } from '@/lib/public-api';
 
 const fallbackPages: Record<string, { title: string; body: string; description: string }> = {
@@ -74,16 +74,14 @@ export default async function StaticPage({ params }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-white px-6 py-16 text-neutral-950">
-      <article className="mx-auto max-w-3xl">
-        <Link href="/" className="text-sm font-semibold text-red-700">
-          Vivah Australia
-        </Link>
-        <h1 className="mt-8 text-4xl font-semibold">{page?.title ?? fallback.title}</h1>
-        <div className="mt-6 whitespace-pre-line text-base leading-8 text-neutral-700">
+    <StaticPageLayout
+      hero={<PageHero eyebrow="Vivah Australia" title={page?.title ?? fallback.title} />}
+    >
+      <PremiumCard className="mx-auto max-w-3xl">
+        <div className="whitespace-pre-line text-base leading-8 text-[#6B7280]">
           {page?.body ?? fallback.body}
         </div>
-      </article>
-    </main>
+      </PremiumCard>
+    </StaticPageLayout>
   );
 }

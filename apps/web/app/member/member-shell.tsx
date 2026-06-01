@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, Menu, X } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
+import { PublicFooter, PublicHeader, SectionHeader } from '@/app/components';
 import { useMemberRequest } from '@/lib/member-api';
 
 const memberLinks = [
@@ -34,6 +35,7 @@ export default function MemberShell({
   const { initialized, token } = useAuth();
   const memberRequest = useMemberRequest();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (initialized && !token) {
@@ -55,43 +57,94 @@ export default function MemberShell({
 
   if (!initialized || !token) {
     return (
-      <main className="min-h-screen bg-neutral-50 px-6 py-10 text-neutral-950">
-        <p className="mx-auto max-w-6xl text-sm font-semibold text-red-700">
-          Member login required.
-        </p>
-      </main>
+      <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+        <PublicHeader />
+        <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+          <p className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-6 text-sm font-semibold text-[#7A1F2B] shadow-sm">
+            Member login required.
+          </p>
+        </main>
+        <PublicFooter />
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-neutral-50 px-4 py-8 text-neutral-950">
-      <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[220px_1fr]">
-        <aside className="rounded-lg border border-neutral-200 bg-white p-4">
-          <Link href="/" className="font-semibold text-red-700">
-            Vivah Australia
-          </Link>
-          <nav className="mt-6 grid gap-2 text-sm">
+    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+      <PublicHeader />
+      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_1fr] lg:px-8">
+        <aside className="hidden rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.08)] md:block">
+          <p className="px-3 text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+            Member
+          </p>
+          <nav className="mt-4 grid gap-1 text-sm">
             {memberLinks.map(([label, href]) => (
-              <Link key={href} href={href} className="rounded-md px-3 py-2 hover:bg-neutral-100">
+              <Link
+                key={href}
+                href={href}
+                className="rounded-2xl px-3 py-2 font-semibold text-[#6B7280] transition hover:bg-[#F8E8E8] hover:text-[#7A1F2B]"
+              >
                 {label}
               </Link>
             ))}
           </nav>
         </aside>
-        <section className="rounded-lg border border-neutral-200 bg-white p-6">
+        {menuOpen ? (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <button
+              aria-label="Close menu"
+              className="absolute inset-0 bg-black/30"
+              type="button"
+              onClick={() => setMenuOpen(false)}
+            />
+            <aside className="relative h-full w-72 overflow-y-auto bg-white p-4 shadow-xl">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-semibold text-[#7A1F2B]">Member menu</p>
+                <button
+                  aria-label="Close menu"
+                  className="rounded-full border border-[#7A1F2B]/15 p-2 text-[#7A1F2B]"
+                  type="button"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <nav className="mt-6 grid gap-2 text-sm">
+                {memberLinks.map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-2xl px-3 py-2 font-semibold text-[#6B7280] hover:bg-[#F8E8E8] hover:text-[#7A1F2B]"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+            </aside>
+          </div>
+        ) : null}
+        <section className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.08)] sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-semibold">{title}</h1>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">{subtitle}</p>
+              <button
+                aria-label="Open menu"
+                className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#7A1F2B]/15 text-[#7A1F2B] md:hidden"
+                type="button"
+                onClick={() => setMenuOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <SectionHeader eyebrow="Member" title={title} subtitle={subtitle} />
             </div>
             <Link
               href="/member/notifications"
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-neutral-200 hover:bg-neutral-50"
+              className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#7A1F2B]/15 bg-white text-[#7A1F2B] hover:bg-[#F8E8E8]"
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5" />
               {unreadCount ? (
-                <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-red-700 px-1.5 text-center text-xs font-semibold text-white">
+                <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[#7A1F2B] px-1.5 text-center text-xs font-semibold text-white">
                   {unreadCount}
                 </span>
               ) : null}
@@ -99,7 +152,8 @@ export default function MemberShell({
           </div>
           <div className="mt-6">{children}</div>
         </section>
-      </div>
-    </main>
+      </main>
+      <PublicFooter />
+    </div>
   );
 }

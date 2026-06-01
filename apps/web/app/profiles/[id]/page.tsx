@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { PageHero, ProfileDetailSection, StaticPageLayout, VerificationBadge } from '@/app/components';
 import ProfileActions from '../../member/profile-actions';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -50,14 +51,15 @@ export default async function ProfileViewPage({ params }: ProfilePageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-white px-6 py-12 text-neutral-950">
-      <article className="mx-auto max-w-4xl">
-        <p className="text-sm font-semibold text-red-700">{profile.displayId}</p>
-        <h1 className="mt-3 text-4xl font-semibold">
-          {[profile.personal?.firstName, profile.personal?.lastName].filter(Boolean).join(' ') ||
-            'Member profile'}
-        </h1>
-        <p className="mt-3 text-neutral-600">
+    <StaticPageLayout
+      hero={
+        <PageHero
+          eyebrow={profile.displayId}
+          title={
+            [profile.personal?.firstName, profile.personal?.lastName].filter(Boolean).join(' ') ||
+            'Member profile'
+          }
+        >
           {[
             profile.personal?.age ? `${profile.personal.age} years` : undefined,
             profile.location?.city,
@@ -65,7 +67,13 @@ export default async function ProfileViewPage({ params }: ProfilePageProps) {
           ]
             .filter(Boolean)
             .join(' | ')}
-        </p>
+          <div className="mt-4">
+            <VerificationBadge level={profile.verification?.level} />
+          </div>
+        </PageHero>
+      }
+    >
+      <article className="mx-auto max-w-4xl">
         <div className="mt-6 max-w-xl">
           <ProfileActions profileId={profile._id ?? id} compact />
         </div>
@@ -87,15 +95,12 @@ export default async function ProfileViewPage({ params }: ProfilePageProps) {
           </Panel>
         </div>
       </article>
-    </main>
+    </StaticPageLayout>
   );
 }
 
 function Panel({ title, children }: Readonly<{ title: string; children: ReactNode }>) {
   return (
-    <section className="rounded-lg border border-neutral-200 p-5">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <div className="mt-3 grid gap-2 text-sm leading-6 text-neutral-700">{children}</div>
-    </section>
+    <ProfileDetailSection title={title}>{children}</ProfileDetailSection>
   );
 }

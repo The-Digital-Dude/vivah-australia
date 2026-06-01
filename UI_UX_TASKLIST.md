@@ -67,7 +67,7 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 | --- | --- | --- |
 | FE-001 | Complete | Frontend route/component audit completed; no UI changed. |
 | FE-002 | Complete | Added web-local reusable public/member premium component module. |
-| FE-003 | Pending | Unify non-admin layout with premium header/footer and mobile menu. |
+| FE-003 | Complete | Shared public/member header, footer, container spacing, ivory background, and mobile drawer applied to non-admin layout surfaces. |
 | FE-004 | Pending | Make profile cards navigate to detail pages without hijacking action buttons. |
 | FE-005 | Pending | Upgrade public profile detail page. |
 | FE-006 | Pending | Align static public pages. |
@@ -95,3 +95,10 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 - Created `apps/web/app/components/index.ts`.
 - Included reusable buttons, cards, page heroes, section headers, profile cards, detail sections, badges, empty/loading states, fields, filter drawer, static/member layouts, public header, and public footer.
 - Admin panel components and admin route files were not changed.
+
+## FE-003 Layout Migration
+
+- Homepage, static CMS pages, contact, pricing, profile detail, auth shell, login, and member shell now use shared public/member chrome.
+- Member pages inherit the premium member shell with a desktop side navigation and mobile drawer.
+- A minimal `/member` dashboard route now exists to support the authenticated header Dashboard link.
+- `/admin/*` routes were not modified.

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, Crown, Sparkles } from 'lucide-react';
+import { Check, Crown } from 'lucide-react';
+import { PageHero, PublicFooter, PublicHeader } from '@/app/components';
 import UpgradeModal from '../member/upgrade-modal';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -30,27 +31,21 @@ export default function PricingClient() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#f8f5ef] text-[#241c15]">
-      <section className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-16">
-        <div className="max-w-3xl space-y-5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#d8c7a3] bg-white px-4 py-2 text-sm font-semibold text-[#8b5e1b]">
-            <Sparkles className="h-4 w-4" />
-            Premium matchmaking access
-          </div>
-          <h1 className="text-4xl font-semibold tracking-normal md:text-6xl">
-            Choose the visibility and connection tools that match your search.
-          </h1>
-          <p className="max-w-2xl text-lg leading-8 text-[#675f55]">
+    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+      <PublicHeader />
+      <PageHero
+        eyebrow="Premium matchmaking access"
+        title="Choose the visibility and connection tools that match your search."
+      >
             Upgrade for deeper search, higher recommendation limits, profile boosts, and full
             payment history from your member dashboard.
-          </p>
-        </div>
-
+      </PageHero>
+      <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-3">
           {plans.map((plan) => (
             <article
               key={plan.id}
-              className="flex min-h-[420px] flex-col justify-between rounded-lg border border-[#e1d8c8] bg-white p-6 shadow-sm"
+              className="flex min-h-[420px] flex-col justify-between rounded-3xl border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.08)]"
             >
               <div className="space-y-6">
                 <div className="flex items-start justify-between gap-4">
@@ -60,7 +55,7 @@ export default function PricingClient() {
                       {plan.description ?? 'Thoughtful tools for serious introductions.'}
                     </p>
                   </div>
-                  {plan.code !== 'FREE' ? <Crown className="h-6 w-6 text-[#b9821f]" /> : null}
+                  {plan.code !== 'FREE' ? <Crown className="h-6 w-6 text-[#D4AF37]" /> : null}
                 </div>
 
                 <div>
@@ -83,16 +78,17 @@ export default function PricingClient() {
               <button
                 type="button"
                 onClick={() => setSelectedPlan(plan)}
-                className="mt-8 rounded-md bg-[#241c15] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#3b2f24]"
+                className="mt-8 rounded-2xl bg-[#7A1F2B] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#651925]"
               >
                 {plan.code === 'FREE' ? 'Current free access' : 'Upgrade'}
               </button>
             </article>
           ))}
         </div>
-      </section>
+      </main>
 
       <UpgradeModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
-    </main>
+      <PublicFooter />
+    </div>
   );
 }

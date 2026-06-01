@@ -2,12 +2,10 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Menu,
-  X,
   ChevronRight,
   ShieldCheck,
   UserPlus,
@@ -21,17 +19,8 @@ import {
   Award,
   PlayCircle,
 } from 'lucide-react';
+import { PublicFooter, PublicHeader } from '@/app/components';
 import type { FeaturedProfile, PublicContentItem, PublicPlan } from '@/lib/public-api';
-
-const navItems = [
-  ['Home', '/'],
-  ['How It Works', '#how-it-works'],
-  ['Matches', '#matches'],
-  ['Verification', '#verification'],
-  ['Membership', '#membership'],
-  ['Success Stories', '#stories'],
-  ['Blog', '#blog'],
-] as const;
 
 const communities = [
   'Indian Matrimony in Melbourne',
@@ -120,104 +109,11 @@ export default function HomeClient({
   testimonials: PublicContentItem[];
   blogs: PublicContentItem[];
 }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="bg-[#FFF8F1] text-[#232323] font-sans selection:bg-[#7A1E3A] selection:text-white">
-      {/* 1. Header */}
-      <header
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          scrolled ? 'bg-[#FFF8F1]/85 backdrop-blur-xl shadow-sm py-3' : 'bg-transparent py-5'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-serif font-bold text-[#7A1E3A] tracking-tight">
-              Vivah Australia
-            </span>
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {navItems.map(([label, href]) => (
-              <Link
-                key={label}
-                href={href}
-                className="text-sm font-medium text-[#5E6470] hover:text-[#7A1E3A] transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="hidden lg:flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-semibold text-[#7A1E3A] hover:text-[#5E6470] transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="relative overflow-hidden rounded-full bg-gradient-to-r from-[#7A1E3A] to-[#C94F7C] px-6 py-2.5 text-sm font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <span className="relative z-10 flex items-center gap-2">Create Free Profile</span>
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-            </Link>
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className="lg:hidden text-[#7A1E3A] p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Nav Dropdown */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-b border-[#7A1E3A]/10 overflow-hidden"
-            >
-              <div className="px-5 py-4 flex flex-col gap-4">
-                {navItems.map(([label, href]) => (
-                  <Link
-                    key={label}
-                    href={href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-sm font-medium text-[#5E6470]"
-                  >
-                    {label}
-                  </Link>
-                ))}
-                <div className="h-px bg-[#7A1E3A]/10 my-2" />
-                <Link href="/login" className="text-sm font-semibold text-[#7A1E3A]">
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="rounded-full bg-[#7A1E3A] px-5 py-3 text-center text-sm font-bold text-white shadow-md"
-                >
-                  Create Free Profile
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+      <PublicHeader />
       {/* 2. Hero Section */}
       <section className="relative min-h-[90vh] pt-28 pb-20 lg:pt-36 lg:pb-32 overflow-hidden flex items-center bg-gradient-to-br from-[#FFF8F1] via-[#FDF2E9] to-[#F6D88E]/20">
         <div className="absolute inset-x-0 top-0 h-px bg-[#D6A84F]/40" />
@@ -881,135 +777,7 @@ export default function HomeClient({
           </FadeIn>
         </div>
       </section>
-      {/* 14. Footer */}
-      <footer className="bg-[#1A1020] text-white/70 py-16 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
-          <div className="col-span-2 lg:col-span-2">
-            <span className="text-2xl font-serif font-bold text-white mb-4 block">
-              Vivah Australia
-            </span>
-            <p className="text-sm leading-relaxed max-w-sm mb-6">
-              Premium matrimonial matchmaking for serious Australian singles and families. Safe,
-              verified, and culturally aware.
-            </p>
-            <div className="flex gap-3">
-              <button className="bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-xs font-bold hover:bg-white/20 transition-colors">
-                App Store (Coming Soon)
-              </button>
-              <button className="bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-xs font-bold hover:bg-white/20 transition-colors">
-                Play Store (Coming Soon)
-              </button>
-            </div>
-          </div>
-          <div>
-            <h4 className="text-white font-bold mb-4">Quick Links</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/login" className="hover:text-[#D6A84F] transition-colors">
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link href="/register" className="hover:text-[#D6A84F] transition-colors">
-                  Join Free
-                </Link>
-              </li>
-              <li>
-                <Link href="#matches" className="hover:text-[#D6A84F] transition-colors">
-                  Browse Matches
-                </Link>
-              </li>
-              <li>
-                <Link href="#membership" className="hover:text-[#D6A84F] transition-colors">
-                  Pricing
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-bold mb-4">Legal</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link
-                  href="/pages/privacy-policy"
-                  className="hover:text-[#D6A84F] transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pages/terms-and-conditions"
-                  className="hover:text-[#D6A84F] transition-colors"
-                >
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pages/refund-policy"
-                  className="hover:text-[#D6A84F] transition-colors"
-                >
-                  Refund Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pages/safety-guidelines"
-                  className="hover:text-[#D6A84F] transition-colors"
-                >
-                  Safety Guidelines
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-bold mb-4">Support</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/pages/help-centre" className="hover:text-[#D6A84F] transition-colors">
-                  Help Centre
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-[#D6A84F] transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pages/verification-policy"
-                  className="hover:text-[#D6A84F] transition-colors"
-                >
-                  Verification Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pages/community-guidelines"
-                  className="hover:text-[#D6A84F] transition-colors"
-                >
-                  Community Guidelines
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 mt-16 pt-8 border-t border-white/10 text-xs text-center flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>&copy; {new Date().getFullYear()} Vivah Australia. All rights reserved.</p>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-white transition-colors">
-              Facebook
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              Instagram
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              LinkedIn
-            </a>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }
