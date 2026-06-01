@@ -8,6 +8,7 @@ import {
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
+  PaymentStatus,
   ReportStatus,
   ProfileVisibility,
   UserRole,
@@ -104,6 +105,7 @@ export const mediaUploadStatusSchema = z.nativeEnum(MediaUploadStatus);
 export const verificationStatusSchema = z.nativeEnum(VerificationStatus);
 export const interestStatusSchema = z.nativeEnum(InterestStatus);
 export const reportStatusSchema = z.nativeEnum(ReportStatus);
+export const paymentStatusSchema = z.nativeEnum(PaymentStatus);
 
 const objectIdSchema = z
   .string()
@@ -317,6 +319,81 @@ export const conversationCreateSchema = z.object({
   profileId: objectIdSchema,
 });
 
+const planLimitSchema = z.record(z.string().trim().min(1), z.number().int().min(-1));
+
+export const planInputSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .regex(/^[A-Za-z0-9_-]+$/)
+    .transform((value) => value.toUpperCase()),
+  name: z.string().trim().min(2).max(120),
+  description: z.string().trim().max(1000).optional(),
+  priceCents: z.number().int().min(0).max(10000000),
+  currency: z
+    .string()
+    .trim()
+    .length(3)
+    .default('AUD')
+    .transform((value) => value.toUpperCase()),
+  interval: z.enum(['MONTH', 'YEAR']),
+  features: z.array(z.string().trim().min(1).max(160)).max(30).default([]),
+  limits: planLimitSchema.default({}),
+  stripePriceId: z.string().trim().max(120).optional(),
+  sortOrder: z.number().int().min(0).max(10000).default(0),
+  active: z.boolean().default(true),
+});
+
+export const planUpdateSchema = planInputSchema.partial();
+
+export const checkoutSessionSchema = z.object({
+  planCode: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .transform((value) => value.toUpperCase()),
+  couponCode: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .transform((value) => value.toUpperCase())
+    .optional(),
+});
+
+export const couponInputSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .min(2)
+      .max(40)
+      .regex(/^[A-Za-z0-9_-]+$/)
+      .transform((value) => value.toUpperCase()),
+    percentOff: z.number().int().min(1).max(100).optional(),
+    amountOffCents: z.number().int().min(1).max(1000000).optional(),
+    active: z.boolean().default(true),
+    maxRedemptions: z.number().int().min(1).max(100000).optional(),
+    expiresAt: z.coerce.date().optional(),
+  })
+  .refine((input) => input.percentOff !== undefined || input.amountOffCents !== undefined, {
+    message: 'Coupon needs a percent or amount discount',
+    path: ['percentOff'],
+  });
+
+export const refundCreateSchema = z.object({
+  paymentId: objectIdSchema,
+  amountCents: z.number().int().min(1).max(10000000).optional(),
+  reason: z.string().trim().min(3).max(500).optional(),
+});
+
+export const boostCreateSchema = z.object({
+  durationHours: z.number().int().min(1).max(168).default(24),
+});
+
 export const profileDraftSchema = z.object({
   personal: z
     .object({
@@ -465,6 +542,12 @@ export type MessageAttachmentInput = z.infer<typeof messageAttachmentSchema>;
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
 export type TypingEventInput = z.infer<typeof typingEventSchema>;
 export type ConversationCreateInput = z.infer<typeof conversationCreateSchema>;
+export type PlanInput = z.infer<typeof planInputSchema>;
+export type PlanUpdateInput = z.infer<typeof planUpdateSchema>;
+export type CheckoutSessionInput = z.infer<typeof checkoutSessionSchema>;
+export type CouponInput = z.infer<typeof couponInputSchema>;
+export type RefundCreateInput = z.infer<typeof refundCreateSchema>;
+export type BoostCreateInput = z.infer<typeof boostCreateSchema>;
 export type ProfileDraftInput = z.infer<typeof profileDraftSchema>;
 export type ProfileSubmitInput = z.infer<typeof profileSubmitSchema>;
 export type NotificationPreferencesInput = z.infer<typeof notificationPreferencesSchema>;

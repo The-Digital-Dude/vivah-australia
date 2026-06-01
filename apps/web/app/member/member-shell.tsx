@@ -9,6 +9,7 @@ const memberLinks = [
   ['Favourites', '/member/favourites'],
   ['Edit profile', '/member/profile/edit'],
   ['Media', '/member/media'],
+  ['Subscription', '/member/subscription'],
   ['Settings', '/member/settings'],
   ['Safety', '/member/safety'],
 ] as const;

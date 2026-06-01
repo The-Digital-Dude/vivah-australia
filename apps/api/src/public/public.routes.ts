@@ -29,8 +29,8 @@ const contactRateLimit = rateLimit({
 async function verifyCaptcha(token: string | undefined) {
   const secret = process.env.HCAPTCHA_SECRET;
 
-  // Allow skipping captcha in dev or if secret is not set
-  if (!secret) {
+  // Allow skipping captcha in tests or if secret is not set.
+  if (!secret || process.env.NODE_ENV === 'test') {
     console.warn('HCAPTCHA_SECRET not set, skipping CAPTCHA verification.');
     return;
   }

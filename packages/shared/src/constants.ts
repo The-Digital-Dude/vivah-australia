@@ -120,6 +120,25 @@ export const PaymentStatus = {
 
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
 
+export const InvoiceStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  PAID: 'PAID',
+  VOID: 'VOID',
+  UNCOLLECTIBLE: 'UNCOLLECTIBLE',
+} as const;
+
+export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus];
+
+export const RefundStatus = {
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED',
+} as const;
+
+export type RefundStatus = (typeof RefundStatus)[keyof typeof RefundStatus];
+
 export const ReportStatus = {
   OPEN: 'OPEN',
   ASSIGNED: 'ASSIGNED',

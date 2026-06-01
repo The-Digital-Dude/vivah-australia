@@ -23,6 +23,9 @@ export const apiEnvSchema = z.object({
   CLOUDINARY_CLOUD_NAME: nonEmptyString.optional(),
   CLOUDINARY_API_KEY: nonEmptyString.optional(),
   CLOUDINARY_API_SECRET: nonEmptyString.optional(),
+  STRIPE_SECRET_KEY: nonEmptyString.optional(),
+  STRIPE_WEBHOOK_SECRET: nonEmptyString.optional(),
+  STRIPE_PRICE_PREFIX: nonEmptyString.default('price_'),
 });
 
 export const webEnvSchema = z.object({

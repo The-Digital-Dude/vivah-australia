@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createAuthRouter } from './auth/auth.routes.js';
 import { isHttpError } from './auth/auth-errors.js';
 import type { AuthConfig } from './auth/auth-types.js';
+import { createBillingRouter, createStripeWebhookRouter } from './billing/billing.routes.js';
 import { createInteractionsRouter } from './interactions/interactions.routes.js';
 import { createMatchRouter } from './match/match.routes.js';
 import { createMediaRouter } from './media/media.routes.js';
@@ -43,6 +44,7 @@ export function createApp(options: CreateAppOptions): Express {
       },
     }),
   );
+  app.use('/api', createStripeWebhookRouter());
   app.use(express.json({ limit: '1mb' }));
 
   app.get('/health', (_request: Request, response: Response) => {
@@ -56,6 +58,7 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createMatchRouter(options.auth));
   app.use('/api', createInteractionsRouter(options.auth));
   app.use('/api', createMessagesRouter(options.auth));
+  app.use('/api', createBillingRouter(options.auth));
 
   app.use((error: unknown, _request: Request, response: Response, _next: express.NextFunction) => {
     if (isZodValidationError(error)) {

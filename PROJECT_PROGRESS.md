@@ -49,13 +49,18 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | MSG-001 Conversations                                      | Complete                              | One-to-one conversation APIs, accepted-interest gate, participant access checks, blocked-user enforcement, history endpoint, read receipts, delete conversation/message for current user, member inbox UI, chat safety actions, and backend tests.                                                                      |
 | MSG-002 Real-Time Socket.IO Messaging                      | Complete                              | Socket.IO server attached to API HTTP server, JWT socket authentication, conversation room join, realtime message send, typing indicators, read receipt events, frontend socket client, REST fallback fetch, and socket tests.                                                                                          |
 | MSG-003 Message Attachments                                | Mostly complete                       | Image/document attachment metadata, type/size validation, attachment links in chat UI, attachment persistence tests. Full signed upload and private signed access reuse still needs storage integration for chat attachments.                                                                                           |
+| PLAN-001 Membership Plan System                            | Complete                              | Configurable plan model fields, active/inactive plans, seeded examples, public plans endpoint, admin create/update plan APIs, pricing page, and tests.                                                                                                                                                                  |
+| PLAN-002 Entitlement Middleware                            | Mostly complete                       | Subscription resolver, entitlement checker, monthly usage counters, boost entitlement enforcement, plan badges/remaining limits in subscription UI, and tests. Dedicated frontend entitlement hook and expired-subscription edge tests remain.                                                                          |
+| PAY-001 Stripe Subscription Integration                    | Mostly complete                       | Stripe checkout session endpoint, mock local checkout fallback, raw webhook endpoint, checkout completion subscription sync, invoice paid payment sync, subscription delete cancellation handling, subscription page, and webhook tests. Billing portal and failed-payment handling remain.                             |
+| PAY-002 Invoices, Coupons, Refund Records                  | Complete                              | Invoice metadata sync, payment history endpoint, coupon model/admin create API, refund record model/admin refund API, member payment history, admin payments screen, and tests.                                                                                                                                         |
+| PAY-003 Wallet/Provider Placeholders                       | Partial                               | Payments persist provider fields and Stripe checkout supports wallet-capable checkout. PayPal adapter and custom Stripe Payment Element UI are not implemented yet.                                                                                                                                                     |
+| BOOST-001 Boost Products and Active Boosts                 | Mostly complete                       | Profile boost model, fixed-duration boosts, entitlement-backed activation, usage counter enforcement, subscription UI boost action, active boost listing, and tests. Search ranking/homepage featured placement and visible boosted badges remain.                                                                      |
 
 ## Partially Completed / Infrastructure Present
 
 | Module / Area                             | Current State                                                                                                                                                   | Still Needed                                                                                                  |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | WEB-003 Contact Form                      | Contact inquiry model, public POST endpoint, frontend contact form, validation, rate limiting, hCaptcha verification, console email notification, storage test. | Real production email provider integration and stronger CAPTCHA test coverage.                                |
-| PLAN-001 Membership Plan System           | Plan model, seeded sample plans, public active plans API.                                                                                                       | Admin plan CRUD, entitlement use, subscription integration.                                                   |
 | ADMIN-006 CMS Management                  | Admin CMS page CRUD API exists with admin role check.                                                                                                           | Admin frontend CMS management screens.                                                                        |
 | SEC-001 Core Security Middleware          | Helmet, CORS, JSON limit, route rate limits, password hashing are in place.                                                                                     | Full security middleware checklist, centralized abuse controls, security tests beyond current route coverage. |
 | TEST-001 / TEST-002 Backend and API Tests | Meaningful backend/API tests exist for implemented modules.                                                                                                     | Coverage for future modules and deeper negative/security cases.                                               |
@@ -73,11 +78,6 @@ The following modules do not yet have full business-feature implementations in t
 - MATCH-003 Recently Viewed Profiles
 - COMMUNITY-001 Rooms
 - COMMUNITY-002 Posts, Comments, Reactions
-- PLAN-002 Entitlement Middleware
-- PAY-001 Stripe Subscription Integration
-- PAY-002 Invoices, Coupons, Refund Records
-- PAY-003 PayPal / Apple Pay / Google Pay Placeholders
-- BOOST-001 Boost Products and Active Boosts
 - NOTIF-001 In-App Notifications
 - NOTIF-002 Email Notifications
 - NOTIF-003 SMS Notifications and OTP
@@ -114,6 +114,9 @@ The following modules do not yet have full business-feature implementations in t
 - Match recommendations are calculated on demand; stored recommendation snapshots and dedicated newly joined/recently active/highly compatible endpoints are not implemented yet.
 - Safety reports create moderation records and admin review actions; auto-risk counters are not implemented yet.
 - Chat attachments currently accept already-uploaded HTTPS asset URLs and validate type/size metadata; direct signed chat upload and private signed attachment access should reuse the media storage flow next.
+- Billing uses Stripe when `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are configured; local development falls back to mock checkout records for plan checkout testing.
+- Payment provider abstraction is limited to persisted provider fields; a PayPal adapter and custom Payment Element wallet UI remain future work.
+- Profile boosts activate and expire by time window, but boosted ranking and public boosted badges still need search/homepage integration.
 - Frontend tests and E2E tests are not present.
 - No CI/CD pipeline is configured yet.
 
@@ -137,6 +140,9 @@ Live local checks also passed for:
 - `http://localhost:3000/member/favourites`
 - `http://localhost:3000/member/safety`
 - `http://localhost:3000/member/messages`
+- `http://localhost:3000/pricing`
+- `http://localhost:3000/member/subscription`
+- `http://localhost:3000/admin/payments`
 - `http://localhost:3000/admin/reports`
 
 ## Recommended Next Build Order

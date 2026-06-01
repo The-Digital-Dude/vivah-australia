@@ -1,10 +1,12 @@
 import {
   CommunityPostStatus,
   InterestStatus,
+  InvoiceStatus,
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
   PaymentStatus,
+  RefundStatus,
   ReportStatus,
   SubscriptionStatus,
   VerificationStatus,
@@ -14,6 +16,7 @@ import {
   type MediaUploadStatus as MediaUploadStatusType,
   type MediaVisibility as MediaVisibilityType,
   type PaymentStatus as PaymentStatusType,
+  type RefundStatus as RefundStatusType,
   type ReportStatus as ReportStatusType,
   type SubscriptionStatus as SubscriptionStatusType,
   type VerificationStatus as VerificationStatusType,
@@ -432,11 +435,14 @@ communityReactionSchema.index(
 export interface Plan {
   code: string;
   name: string;
+  description?: string;
   priceCents: number;
   currency: string;
   interval: 'MONTH' | 'YEAR';
   features: string[];
   limits: Record<string, number>;
+  stripePriceId?: string;
+  sortOrder: number;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -447,11 +453,14 @@ const planSchema = new Schema<Plan>(
   {
     code: { type: String, required: true, unique: true, uppercase: true, trim: true },
     name: { type: String, required: true, trim: true },
+    description: { type: String, trim: true },
     priceCents: { type: Number, required: true, min: 0 },
     currency: { type: String, default: 'AUD', uppercase: true, trim: true },
     interval: { type: String, enum: ['MONTH', 'YEAR'], default: 'MONTH', required: true },
     features: { type: [String], default: [] },
     limits: { type: Map, of: Number, default: {} },
+    stripePriceId: { type: String, trim: true, index: true },
+    sortOrder: { type: Number, default: 0, index: true },
     active: { type: Boolean, default: true, index: true },
     ...auditedSchemaFields,
   },
@@ -466,6 +475,10 @@ export interface Subscription {
   endsAt?: Date;
   provider?: string;
   providerSubscriptionId?: string;
+  providerCustomerId?: string;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
+  cancelAtPeriodEnd: boolean;
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -485,6 +498,10 @@ const subscriptionSchema = new Schema<Subscription>(
     endsAt: { type: Date },
     provider: { type: String, trim: true },
     providerSubscriptionId: { type: String, trim: true },
+    providerCustomerId: { type: String, trim: true, index: true },
+    currentPeriodStart: { type: Date },
+    currentPeriodEnd: { type: Date },
+    cancelAtPeriodEnd: { type: Boolean, default: false },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'subscriptions' },
@@ -499,6 +516,12 @@ export interface Payment {
   status: PaymentStatusType;
   provider: string;
   providerPaymentId?: string;
+  providerCustomerId?: string;
+  providerSubscriptionId?: string;
+  planId?: ObjectId;
+  couponId?: ObjectId;
+  description?: string;
+  refundedAmountCents: number;
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -517,13 +540,44 @@ const paymentSchema = new Schema<Payment>(
       index: true,
     },
     provider: { type: String, required: true, trim: true },
-    providerPaymentId: { type: String, trim: true },
+    providerPaymentId: { type: String, trim: true, index: true },
+    providerCustomerId: { type: String, trim: true, index: true },
+    providerSubscriptionId: { type: String, trim: true, index: true },
+    planId: { type: Schema.Types.ObjectId, ref: 'Plan' },
+    couponId: { type: Schema.Types.ObjectId, ref: 'Coupon' },
+    description: { type: String, trim: true },
+    refundedAmountCents: { type: Number, default: 0, min: 0 },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'payments' },
 );
 
 paymentSchema.index({ userId: 1, createdAt: 1 });
+
+export interface UsageCounter {
+  userId: ObjectId;
+  key: string;
+  periodStart: Date;
+  periodEnd: Date;
+  count: number;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const usageCounterSchema = new Schema<UsageCounter>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    key: { type: String, required: true, trim: true, index: true },
+    periodStart: { type: Date, required: true },
+    periodEnd: { type: Date, required: true },
+    count: { type: Number, default: 0, min: 0 },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'usage_counters' },
+);
+
+usageCounterSchema.index({ userId: 1, key: 1, periodStart: 1 }, { unique: true });
 
 const simpleContentFields = {
   slug: { type: String, trim: true, lowercase: true, index: true },
@@ -532,11 +586,36 @@ const simpleContentFields = {
   published: { type: Boolean, default: false, index: true },
 } as const;
 
-const invoiceSchema = new Schema(
+export interface Invoice {
+  userId: ObjectId;
+  paymentId?: ObjectId;
+  invoiceNumber: string;
+  providerInvoiceId?: string;
+  providerHostedUrl?: string;
+  providerPdfUrl?: string;
+  status: string;
+  totalCents: number;
+  currency: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const invoiceSchema = new Schema<Invoice>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     paymentId: { type: Schema.Types.ObjectId, ref: 'Payment' },
     invoiceNumber: { type: String, required: true, unique: true, trim: true },
+    providerInvoiceId: { type: String, trim: true, index: true },
+    providerHostedUrl: { type: String, trim: true },
+    providerPdfUrl: { type: String, trim: true },
+    status: {
+      type: String,
+      enum: Object.values(InvoiceStatus),
+      default: InvoiceStatus.OPEN,
+      required: true,
+      index: true,
+    },
     totalCents: { type: Number, required: true, min: 0 },
     currency: { type: String, default: 'AUD' },
     ...auditedSchemaFields,
@@ -544,11 +623,28 @@ const invoiceSchema = new Schema(
   { ...timestampedSchemaOptions, collection: 'invoices' },
 );
 
-const couponSchema = new Schema(
+export interface Coupon {
+  code: string;
+  percentOff?: number;
+  amountOffCents?: number;
+  stripeCouponId?: string;
+  maxRedemptions?: number;
+  redemptionCount: number;
+  active: boolean;
+  expiresAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const couponSchema = new Schema<Coupon>(
   {
     code: { type: String, required: true, unique: true, uppercase: true, trim: true },
     percentOff: { type: Number, min: 0, max: 100 },
     amountOffCents: { type: Number, min: 0 },
+    stripeCouponId: { type: String, trim: true, index: true },
+    maxRedemptions: { type: Number, min: 1 },
+    redemptionCount: { type: Number, default: 0, min: 0 },
     active: { type: Boolean, default: true, index: true },
     expiresAt: { type: Date },
     ...auditedSchemaFields,
@@ -556,10 +652,58 @@ const couponSchema = new Schema(
   { ...timestampedSchemaOptions, collection: 'coupons' },
 );
 
-const profileBoostSchema = new Schema(
+export interface Refund {
+  userId: ObjectId;
+  paymentId: ObjectId;
+  amountCents: number;
+  currency: string;
+  status: RefundStatusType;
+  provider: string;
+  providerRefundId?: string;
+  reason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const refundSchema = new Schema<Refund>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    paymentId: { type: Schema.Types.ObjectId, ref: 'Payment', required: true, index: true },
+    amountCents: { type: Number, required: true, min: 1 },
+    currency: { type: String, default: 'AUD', uppercase: true, trim: true },
+    status: {
+      type: String,
+      enum: Object.values(RefundStatus),
+      default: RefundStatus.PENDING,
+      required: true,
+      index: true,
+    },
+    provider: { type: String, required: true, trim: true },
+    providerRefundId: { type: String, trim: true, index: true },
+    reason: { type: String, trim: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'refunds' },
+);
+
+export interface ProfileBoost {
+  userId: ObjectId;
+  profileId: ObjectId;
+  source: 'ENTITLEMENT' | 'PURCHASE' | 'ADMIN';
+  startsAt: Date;
+  endsAt: Date;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const profileBoostSchema = new Schema<ProfileBoost>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     profileId: { type: Schema.Types.ObjectId, ref: 'Profile', required: true, index: true },
+    source: { type: String, enum: ['ENTITLEMENT', 'PURCHASE', 'ADMIN'], default: 'ENTITLEMENT' },
     startsAt: { type: Date, required: true },
     endsAt: { type: Date, required: true, index: true },
     active: { type: Boolean, default: true, index: true },
@@ -691,6 +835,9 @@ const contactInquirySchema = new Schema<ContactInquiry>(
 );
 
 export type PlanDocument = HydratedDocument<Plan>;
+export type SubscriptionDocument = HydratedDocument<Subscription>;
+export type PaymentDocument = HydratedDocument<Payment>;
+export type CouponDocument = HydratedDocument<Coupon>;
 export type ProfileMediaDocument = HydratedDocument<ProfileMedia>;
 export type ConversationDocument = HydratedDocument<Conversation>;
 export type MessageDocument = HydratedDocument<Message>;
@@ -733,9 +880,11 @@ export const CommunityReactionModel = getOrCreateModel<CommunityReaction>(
 export const PlanModel = getOrCreateModel<Plan>('Plan', planSchema);
 export const SubscriptionModel = getOrCreateModel<Subscription>('Subscription', subscriptionSchema);
 export const PaymentModel = getOrCreateModel<Payment>('Payment', paymentSchema);
-export const InvoiceModel = getOrCreateModel('Invoice', invoiceSchema);
-export const CouponModel = getOrCreateModel('Coupon', couponSchema);
-export const ProfileBoostModel = getOrCreateModel('ProfileBoost', profileBoostSchema);
+export const UsageCounterModel = getOrCreateModel<UsageCounter>('UsageCounter', usageCounterSchema);
+export const InvoiceModel = getOrCreateModel<Invoice>('Invoice', invoiceSchema);
+export const CouponModel = getOrCreateModel<Coupon>('Coupon', couponSchema);
+export const RefundModel = getOrCreateModel<Refund>('Refund', refundSchema);
+export const ProfileBoostModel = getOrCreateModel<ProfileBoost>('ProfileBoost', profileBoostSchema);
 export const NotificationModel = getOrCreateModel('Notification', notificationSchema);
 export const AuditLogModel = getOrCreateModel('AuditLog', auditLogSchema);
 export const ActivityLogModel = getOrCreateModel('ActivityLog', activityLogSchema);
@@ -769,8 +918,10 @@ export const phaseOneSchemas = {
   planSchema,
   subscriptionSchema,
   paymentSchema,
+  usageCounterSchema,
   invoiceSchema,
   couponSchema,
+  refundSchema,
   profileBoostSchema,
   notificationSchema,
   auditLogSchema,
@@ -803,8 +954,10 @@ export const phaseOneModels = [
   PlanModel,
   SubscriptionModel,
   PaymentModel,
+  UsageCounterModel,
   InvoiceModel,
   CouponModel,
+  RefundModel,
   ProfileBoostModel,
   NotificationModel,
   AuditLogModel,

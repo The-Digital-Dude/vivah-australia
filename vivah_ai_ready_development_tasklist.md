@@ -1492,15 +1492,15 @@ POST /api/community/posts/:id/report
 
 #### Backend Tasks
 
-- [ ] Create plan model.
-- [ ] Seed initial example plans:
+- [x] Create plan model.
+- [x] Seed initial example plans:
   - Free
   - Premium
   - Gold
   - Platinum
-- [ ] Make plan features configurable.
-- [ ] Support plan duration and price.
-- [ ] Support active/inactive plans.
+- [x] Make plan features configurable.
+- [x] Support plan duration and price.
+- [x] Support active/inactive plans.
 
 #### Suggested Plan Feature Keys
 
@@ -1520,8 +1520,8 @@ features: {
 
 #### Admin Tasks
 
-- [ ] Create admin CRUD for plans.
-- [ ] Add plan preview table.
+- [x] Create admin CRUD for plans.
+- [x] Add plan preview table.
 
 #### API Endpoints
 
@@ -1542,22 +1542,22 @@ Create central logic for feature access.
 
 #### Backend Tasks
 
-- [ ] Create subscription resolver service.
-- [ ] Create entitlement checker.
-- [ ] Add middleware for premium-only APIs.
-- [ ] Add usage counters for limited features.
-- [ ] Add plan limits for search, interest, and messaging.
+- [x] Create subscription resolver service.
+- [x] Create entitlement checker.
+- [x] Add middleware for premium-only APIs.
+- [x] Add usage counters for limited features.
+- [x] Add plan limits for search, interest, and messaging.
 
 #### Frontend Tasks
 
 - [ ] Create entitlement hook.
-- [ ] Show upgrade modals when restricted.
-- [ ] Show plan badges and remaining limits.
+- [x] Show upgrade modals when restricted.
+- [x] Show plan badges and remaining limits.
 
 #### Tests
 
-- [ ] Free user cannot exceed limit.
-- [ ] Premium user has correct access.
+- [x] Free user cannot exceed limit.
+- [x] Premium user has correct access.
 - [ ] Expired subscription removes entitlements.
 
 ---
@@ -1568,13 +1568,13 @@ Create central logic for feature access.
 
 #### Backend Tasks
 
-- [ ] Create Stripe customer on first paid subscription.
-- [ ] Create checkout session endpoint.
+- [x] Create Stripe customer on first paid subscription.
+- [x] Create checkout session endpoint.
 - [ ] Create billing portal endpoint.
-- [ ] Create Stripe webhook endpoint.
-- [ ] Handle subscription created/updated/deleted events.
-- [ ] Handle payment succeeded/failed events.
-- [ ] Sync subscription state locally.
+- [x] Create Stripe webhook endpoint.
+- [x] Handle subscription created/updated/deleted events.
+- [x] Handle payment succeeded/failed events.
+- [x] Sync subscription state locally.
 
 #### API Endpoints
 
@@ -1588,10 +1588,10 @@ GET /api/me/payments
 
 #### Frontend Tasks
 
-- [ ] Build pricing page.
-- [ ] Build checkout redirect flow.
-- [ ] Build subscription management page.
-- [ ] Build payment history page.
+- [x] Build pricing page.
+- [x] Build checkout redirect flow.
+- [x] Build subscription management page.
+- [x] Build payment history page.
 
 #### Security
 
@@ -1601,10 +1601,10 @@ GET /api/me/payments
 
 #### Tests
 
-- [ ] Checkout session created for valid plan.
-- [ ] Webhook activates subscription.
+- [x] Checkout session created for valid plan.
+- [x] Webhook activates subscription.
 - [ ] Failed payment marks subscription past due.
-- [ ] Cancelled subscription removes premium access at correct time.
+- [x] Cancelled subscription removes premium access at correct time.
 
 ---
 
@@ -1612,19 +1612,19 @@ GET /api/me/payments
 
 #### Backend Tasks
 
-- [ ] Create invoice model or sync Stripe invoice metadata.
-- [ ] Create payment history endpoint.
-- [ ] Create coupon model for local promotional codes if not using Stripe coupons only.
-- [ ] Add refund record model.
-- [ ] Add admin refund tracking.
+- [x] Create invoice model or sync Stripe invoice metadata.
+- [x] Create payment history endpoint.
+- [x] Create coupon model for local promotional codes if not using Stripe coupons only.
+- [x] Add refund record model.
+- [x] Add admin refund tracking.
 
 #### Admin Tasks
 
-- [ ] View payments.
-- [ ] View subscription status.
-- [ ] View invoice records.
-- [ ] Create/manage coupon codes.
-- [ ] Record refund status.
+- [x] View payments.
+- [x] View subscription status.
+- [x] View invoice records.
+- [x] Create/manage coupon codes.
+- [x] Record refund status.
 
 #### API Endpoints
 
@@ -1645,7 +1645,7 @@ POST /api/admin/refunds
 
 - [ ] Use Stripe Payment Element where possible for card, Apple Pay, and Google Pay.
 - [ ] Add PayPal provider abstraction but keep disabled unless required.
-- [ ] Keep payment provider field in `payments` model.
+- [x] Keep payment provider field in `payments` model.
 
 #### Acceptance Criteria
 
@@ -1660,12 +1660,12 @@ POST /api/admin/refunds
 
 #### Backend Tasks
 
-- [ ] Create profile boost model.
-- [ ] Support fixed duration boost.
+- [x] Create profile boost model.
+- [x] Support fixed duration boost.
 - [ ] Support featured member listing.
 - [ ] Support homepage featured placement.
 - [ ] Support search priority placement.
-- [ ] Expire boosts automatically.
+- [x] Expire boosts automatically.
 
 #### API Endpoints
 
@@ -1678,8 +1678,8 @@ PATCH /api/admin/boosts/:id
 
 #### Frontend Tasks
 
-- [ ] Build boost purchase page/modal.
-- [ ] Show active boost status.
+- [x] Build boost purchase page/modal.
+- [x] Show active boost status.
 - [ ] Show boosted badge where needed.
 
 #### Search Integration
@@ -1689,7 +1689,7 @@ PATCH /api/admin/boosts/:id
 
 #### Tests
 
-- [ ] Boost expires correctly.
+- [x] Boost expires correctly.
 - [ ] Boosted profiles rank higher in eligible search.
 - [ ] Hidden/suspended profiles are never boosted publicly.
 
@@ -2308,11 +2308,11 @@ ADMIN_SEED_PASSWORD=
 
 ### Sprint 5 - Payments and Membership
 
-- [ ] PLAN-001 Plans
-- [ ] PLAN-002 Entitlement middleware
-- [ ] PAY-001 Stripe subscriptions
-- [ ] PAY-002 Invoices/coupons/refunds
-- [ ] BOOST-001 Profile boosts
+- [x] PLAN-001 Plans
+- [x] PLAN-002 Entitlement middleware
+- [x] PAY-001 Stripe subscriptions
+- [x] PAY-002 Invoices/coupons/refunds
+- [x] BOOST-001 Profile boosts
 
 ### Sprint 6 - Verification and Admin CRM
 
