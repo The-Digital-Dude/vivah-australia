@@ -19,7 +19,9 @@ import { HttpError } from '../auth/auth-errors.js';
 import {
   createVerificationRequest,
   addUserNote,
+  getAnalyticsSummary,
   getDashboardSummary,
+  getModerationDashboard,
   getOwnVerificationRequest,
   getProfileModerationDetail,
   getUserDetail,
@@ -60,6 +62,24 @@ export function createAdminRouter(config: AuthConfig): Router {
     requireAdmin,
     asyncHandler(async (_request, response) => {
       response.status(200).json(await getDashboardSummary());
+    }),
+  );
+
+  router.get(
+    '/admin/moderation/dashboard',
+    requireAuth(config),
+    requireAdmin,
+    asyncHandler(async (_request, response) => {
+      response.status(200).json(await getModerationDashboard());
+    }),
+  );
+
+  router.get(
+    '/admin/analytics/summary',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (_request, response) => {
+      response.status(200).json(await getAnalyticsSummary());
     }),
   );
 

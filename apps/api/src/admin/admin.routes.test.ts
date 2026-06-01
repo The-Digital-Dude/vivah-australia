@@ -141,6 +141,22 @@ describe('admin production readiness routes', () => {
       pendingProfiles: 1,
       openReports: 1,
     });
+
+    const moderationResponse = await request(app)
+      .get('/api/admin/moderation/dashboard')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(moderationResponse.body).toMatchObject({
+      counts: { pendingProfiles: 1, openReports: 1 },
+    });
+
+    const analyticsResponse = await request(app)
+      .get('/api/admin/analytics/summary')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(
+      bodyAs<{ usersByRole: Array<{ _id: string; count: number }> }>(analyticsResponse).usersByRole,
+    ).toContainEqual(expect.objectContaining({ _id: UserRole.ADMIN, count: 1 }));
   });
 
   it('manages users and writes audit logs', async () => {

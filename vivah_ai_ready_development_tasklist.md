@@ -1890,17 +1890,17 @@ Use tasks from `VERIFY-001` and build admin UI.
 
 #### Backend Tasks
 
-- [ ] Admin subscription list.
-- [ ] Admin payment list.
-- [ ] Refund record management.
-- [ ] Coupon management.
+- [x] Admin subscription list.
+- [x] Admin payment list.
+- [x] Refund record management.
+- [x] Coupon management.
 
 #### Frontend Tasks
 
-- [ ] Subscription dashboard.
-- [ ] Revenue table.
-- [ ] Payment detail page.
-- [ ] Coupon CRUD pages.
+- [x] Subscription dashboard.
+- [x] Revenue table.
+- [x] Payment detail page.
+- [x] Coupon CRUD pages.
 
 ---
 
@@ -1930,15 +1930,15 @@ Use tasks from `VERIFY-001` and build admin UI.
 
 #### Backend Tasks
 
-- [ ] Create combined moderation queue.
-- [ ] Include user reports, content reports, chat reports, community reports.
-- [ ] Add status workflow: open, assigned, resolved, dismissed.
-- [ ] Add severity levels.
+- [x] Create combined moderation queue.
+- [x] Include user reports, content reports, chat reports, community reports.
+- [x] Add status workflow: open, assigned, resolved, dismissed.
+- [x] Add severity levels.
 
 #### Frontend Tasks
 
-- [ ] Build moderation dashboard.
-- [ ] Add assignment and status filters.
+- [x] Build moderation dashboard.
+- [x] Add assignment and status filters.
 - [ ] Add action buttons: warn, suspend, ban, remove content, dismiss.
 
 ---
@@ -1949,11 +1949,11 @@ Use tasks from `VERIFY-001` and build admin UI.
 
 Create reporting endpoints for:
 
-- [ ] User statistics
-- [ ] Verification statistics
-- [ ] Revenue reports
-- [ ] Subscription reports
-- [ ] Platform activity reports
+- [x] User statistics
+- [x] Verification statistics
+- [x] Revenue reports
+- [x] Subscription reports
+- [x] Platform activity reports
 - [ ] Match/interest statistics
 - [ ] Messaging activity
 - [ ] Community activity
@@ -1971,7 +1971,7 @@ GET /api/admin/reports/activity
 
 #### Frontend Tasks
 
-- [ ] Build admin dashboard cards.
+- [x] Build admin dashboard cards.
 - [ ] Build charts.
 - [ ] Build date range filters.
 - [ ] Build export CSV buttons.

@@ -24,6 +24,7 @@ import {
   AdminNoteModel,
   AuditLogModel,
   PaymentModel,
+  ProfileMediaModel,
   ProfileApprovalStatus,
   ProfileModel,
   ReportModel,
@@ -127,6 +128,121 @@ export async function getDashboardSummary() {
     monthlyRevenue: monthlyRevenueResult[0]?.total ?? 0,
     recentUsers: recentUsers.map((user) => publicUser(user)),
     recentReports,
+  };
+}
+
+export async function getModerationDashboard() {
+  const [
+    pendingProfiles,
+    pendingVerifications,
+    openReports,
+    assignedReports,
+    pendingMedia,
+    recentProfiles,
+    recentVerifications,
+    recentReports,
+  ] = await Promise.all([
+    ProfileModel.countDocuments({
+      'moderation.approvalStatus': ProfileApprovalStatus.PENDING,
+      isDeleted: false,
+    }),
+    VerificationRequestModel.countDocuments({
+      status: VerificationStatus.PENDING,
+      isDeleted: false,
+    }),
+    ReportModel.countDocuments({ status: ReportStatus.OPEN, isDeleted: false }),
+    ReportModel.countDocuments({ status: ReportStatus.ASSIGNED, isDeleted: false }),
+    ProfileMediaModel.countDocuments({
+      approvalStatus: VerificationStatus.PENDING,
+      isDeleted: false,
+    }),
+    ProfileModel.find({
+      'moderation.approvalStatus': ProfileApprovalStatus.PENDING,
+      isDeleted: false,
+    })
+      .sort({ updatedAt: -1 })
+      .limit(8)
+      .select('displayId personal.firstName personal.lastName moderation updatedAt')
+      .lean(),
+    VerificationRequestModel.find({ status: VerificationStatus.PENDING, isDeleted: false })
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .lean(),
+    ReportModel.find({
+      status: { $in: [ReportStatus.OPEN, ReportStatus.ASSIGNED] },
+      isDeleted: false,
+    })
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .lean(),
+  ]);
+
+  return {
+    counts: { pendingProfiles, pendingVerifications, openReports, assignedReports, pendingMedia },
+    queues: {
+      profiles: recentProfiles,
+      verifications: recentVerifications,
+      reports: recentReports,
+    },
+  };
+}
+
+export async function getAnalyticsSummary() {
+  const since = monthStart();
+  const [
+    usersByRole,
+    usersByStatus,
+    profilesByStatus,
+    reportsByStatus,
+    paymentsByStatus,
+    revenue,
+    subscriptionsByStatus,
+    verificationByStatus,
+  ] = await Promise.all([
+    UserModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false } },
+      { $group: { _id: '$role', count: { $sum: 1 } } },
+    ]),
+    UserModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false } },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]),
+    ProfileModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false } },
+      { $group: { _id: '$moderation.approvalStatus', count: { $sum: 1 } } },
+    ]),
+    ReportModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false } },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]),
+    PaymentModel.aggregate<{ _id: string; count: number; totalCents: number }>([
+      { $match: { isDeleted: false } },
+      { $group: { _id: '$status', count: { $sum: 1 }, totalCents: { $sum: '$amountCents' } } },
+    ]),
+    PaymentModel.aggregate<{ totalCents: number }>([
+      { $match: { status: 'SUCCEEDED', isDeleted: false, createdAt: { $gte: since } } },
+      { $group: { _id: null, totalCents: { $sum: '$amountCents' } } },
+    ]),
+    SubscriptionModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false } },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]),
+    VerificationRequestModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false } },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]),
+  ]);
+
+  return {
+    generatedAt: new Date(),
+    monthlyRevenueCents: revenue[0]?.totalCents ?? 0,
+    usersByRole,
+    usersByStatus,
+    profilesByStatus,
+    reportsByStatus,
+    paymentsByStatus,
+    subscriptionsByStatus,
+    verificationByStatus,
   };
 }
 

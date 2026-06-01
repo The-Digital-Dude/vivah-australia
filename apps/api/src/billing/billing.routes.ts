@@ -20,9 +20,12 @@ import {
   getSubscriptionOverview,
   handleStripeEvent,
   listInvoices,
+  listCoupons,
   listOwnBoosts,
   listPayments,
   listPlans,
+  listRefunds,
+  listSubscriptions,
   updatePlan,
   upsertPlan,
 } from './billing.service.js';
@@ -155,6 +158,24 @@ export function createBillingRouter(config: AuthConfig): Router {
   );
 
   router.get(
+    '/admin/coupons',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdmin(request);
+      response.status(200).json({ coupons: await listCoupons() });
+    }),
+  );
+
+  router.get(
+    '/admin/subscriptions',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdmin(request);
+      response.status(200).json({ subscriptions: await listSubscriptions() });
+    }),
+  );
+
+  router.get(
     '/admin/payments',
     requireAuth(config),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
@@ -163,6 +184,15 @@ export function createBillingRouter(config: AuthConfig): Router {
         payments: await listPayments(),
         invoices: await listInvoices(),
       });
+    }),
+  );
+
+  router.get(
+    '/admin/refunds',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdmin(request);
+      response.status(200).json({ refunds: await listRefunds() });
     }),
   );
 

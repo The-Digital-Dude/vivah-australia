@@ -279,6 +279,34 @@ describe('billing routes and webhooks', () => {
       .send({ paymentId: payment.id, amountCents: 1000, reason: 'Goodwill' })
       .expect(201);
 
+    const monitorResponse = await request(app)
+      .get('/api/admin/subscriptions')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(
+      bodyAs<{ subscriptions: Array<{ userId: string; planCode?: string }> }>(monitorResponse)
+        .subscriptions[0],
+    ).toMatchObject({ userId: String(user.user._id), planCode: 'BOOST' });
+
+    await request(app)
+      .post('/api/admin/coupons')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ code: 'save20', percentOff: 20, active: true })
+      .expect(201);
+    const couponResponse = await request(app)
+      .get('/api/admin/coupons')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ coupons: Array<{ code: string }> }>(couponResponse).coupons[0]?.code).toBe(
+      'SAVE20',
+    );
+
+    const refundsResponse = await request(app)
+      .get('/api/admin/refunds')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ refunds: unknown[] }>(refundsResponse).refunds).toHaveLength(1);
+
     expect(await RefundModel.countDocuments({ paymentId: payment._id })).toBe(1);
     expect((await PaymentModel.findById(payment._id).orFail()).status).toBe(
       PaymentStatus.PARTIALLY_REFUNDED,

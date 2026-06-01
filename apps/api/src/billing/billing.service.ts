@@ -222,12 +222,46 @@ export async function listPayments(userId?: Types.ObjectId) {
   }));
 }
 
+export async function listSubscriptions() {
+  const subscriptions = await SubscriptionModel.find({ isDeleted: false })
+    .sort({ createdAt: -1 })
+    .limit(200)
+    .lean();
+  const planIds = subscriptions.map((subscription) => subscription.planId);
+  const plans = await PlanModel.find({ _id: { $in: planIds } })
+    .select('code name')
+    .lean();
+  const planById = new Map(plans.map((plan) => [String(plan._id), plan]));
+
+  return subscriptions.map((subscription) => {
+    const plan = planById.get(String(subscription.planId));
+    return {
+      id: String(subscription._id),
+      userId: String(subscription.userId),
+      planId: String(subscription.planId),
+      planCode: plan?.code,
+      planName: plan?.name,
+      status: subscription.status,
+      provider: subscription.provider,
+      startsAt: subscription.startsAt,
+      endsAt: subscription.endsAt,
+      currentPeriodEnd: subscription.currentPeriodEnd,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      createdAt: subscription.createdAt,
+    };
+  });
+}
+
 export async function listInvoices(userId?: Types.ObjectId) {
   const invoices = await InvoiceModel.find({ ...(userId ? { userId } : {}), isDeleted: false })
     .sort({ createdAt: -1 })
     .limit(100)
     .lean();
   return invoices;
+}
+
+export async function listCoupons() {
+  return CouponModel.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(100).lean();
 }
 
 export async function createCoupon(input: CouponInput) {
@@ -237,6 +271,10 @@ export async function createCoupon(input: CouponInput) {
     { new: true, upsert: true, setDefaultsOnInsert: true },
   ).lean();
   return coupon;
+}
+
+export async function listRefunds() {
+  return RefundModel.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(100).lean();
 }
 
 export async function createRefund(input: RefundCreateInput) {
