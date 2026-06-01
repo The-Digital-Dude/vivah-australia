@@ -183,6 +183,14 @@ describe('public web routes', () => {
     const publicResponse = await request(app).get('/api/public/pages/about-us').expect(200);
     expect(bodyAs<CmsPageResponse>(publicResponse).page.title).toBe('About Us');
 
+    const listResponse = await request(app)
+      .get('/api/admin/cms/pages')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ pages: Array<{ slug: string }> }>(listResponse).pages).toContainEqual(
+      expect.objectContaining({ slug: 'about-us' }),
+    );
+
     await request(app)
       .patch(`/api/admin/cms/pages/${bodyAs<CmsPageResponse>(createResponse).page._id}`)
       .set('Authorization', `Bearer ${accessToken}`)

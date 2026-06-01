@@ -250,6 +250,20 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     }),
   );
 
+  router.get(
+    '/admin/cms/pages',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const pages = await CmsPageModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .select(pageProjection())
+        .lean();
+
+      response.status(200).json({ pages });
+    }),
+  );
+
   router.post(
     '/admin/cms/pages',
     requireAuth(authConfig),

@@ -21,6 +21,7 @@ const frontendRoutes = [
   '/admin/payments',
   '/admin/audit-logs',
   '/admin/community',
+  '/admin/cms',
   '/member/onboarding',
   '/member/profile/edit',
   '/member/settings',

@@ -1919,10 +1919,10 @@ Use tasks from `VERIFY-001` and build admin UI.
 
 #### Frontend Tasks
 
-- [ ] CMS list/detail editor pages.
+- [x] CMS list/detail editor pages.
 - [ ] Rich text editor.
-- [ ] Publish/unpublish workflow.
-- [ ] Preview mode.
+- [x] Publish/unpublish workflow.
+- [x] Preview mode.
 
 ---
 

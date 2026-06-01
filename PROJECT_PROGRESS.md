@@ -68,13 +68,13 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | NOTIF-002 Email Notifications                              | Complete for sprint scope             | Email provider abstraction supports console local delivery and configurable SendGrid/Mailgun providers, env validation/examples, auth/contact/moderation/verification notification wiring. Template library and preference-gated queueing remain.                                                                                                  |
 | SEC-002 RBAC and Permission Middleware                     | Mostly complete                       | Reusable auth/role/admin/super-admin middleware, admin endpoint enforcement, ownership checks in member APIs, and RBAC tests. Fine-grained permission matrix middleware remains.                                                                                                                                                                   |
 | SEC-003 Audit Logs and Activity Logs                       | Complete for sprint scope             | Audit/activity log services, actor role/target metadata fields, admin user/profile/verification audit records, verification request activity records, admin audit-log browsing endpoint/page with filters, and tests. Sensitive document-view logs remain.                                                                                         |
+| ADMIN-006 CMS Management                                   | Complete for static pages             | Admin CMS page list/create/update/delete APIs, `/admin/cms` editor UI, publish/unpublish workflow, public preview links, admin nav integration, and API tests. Homepage/banner/blog/testimonial/success-story CMS editors and a rich text editor remain future work.                                                                               |
 
 ## Partially Completed / Infrastructure Present
 
 | Module / Area                             | Current State                                                                                                                                                   | Still Needed                                                                                                  |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | WEB-003 Contact Form                      | Contact inquiry model, public POST endpoint, frontend contact form, validation, rate limiting, hCaptcha verification, console email notification, storage test. | Real production email provider integration and stronger CAPTCHA test coverage.                                |
-| ADMIN-006 CMS Management                  | Admin CMS page CRUD API exists with admin role check.                                                                                                           | Admin frontend CMS management screens.                                                                        |
 | SEC-001 Core Security Middleware          | Helmet, CORS, JSON limit, route rate limits, password hashing are in place.                                                                                     | Full security middleware checklist, centralized abuse controls, security tests beyond current route coverage. |
 | TEST-001 / TEST-002 Backend and API Tests | Meaningful backend/API tests exist for implemented modules.                                                                                                     | Coverage for future modules and deeper negative/security cases.                                               |
 
@@ -155,6 +155,7 @@ Live local checks also passed for:
 - `http://localhost:3000/admin/users`
 - `http://localhost:3000/admin/profiles`
 - `http://localhost:3000/admin/verifications`
+- `http://localhost:3000/admin/cms`
 - `http://localhost:3000/admin/audit-logs`
 - `http://localhost:3000/member/verification`
 - `http://localhost:3000/member/notifications`
@@ -163,8 +164,8 @@ Live local checks also passed for:
 ## Recommended Next Build Order
 
 1. Finish WEB-003 gaps: stronger CAPTCHA tests and production email templates/preferences.
-2. Add ADMIN-006 UI so CMS content can be managed from the product.
-3. Add report risk counters and a combined moderation dashboard.
-4. Add signed upload/private signed access for chat attachments.
-5. Add MATCH-003 recently viewed profiles and saved search UX.
+2. Add report risk counters and a combined moderation dashboard.
+3. Add signed upload/private signed access for chat attachments.
+4. Add MATCH-003 recently viewed profiles and saved search UX.
+5. Add rich text editing and CMS editors for homepage, banners, blogs, testimonials, and success stories.
 6. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.
