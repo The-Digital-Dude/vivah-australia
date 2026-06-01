@@ -1,7 +1,14 @@
 import { ProfileVisibility, type ProfileDraftInput } from '@vivah/shared';
 import { Types } from 'mongoose';
+import { recordHighVelocityProfileViews } from '../common/fraud.service.js';
 import { HttpError } from '../auth/auth-errors.js';
-import { BlockModel, ProfileApprovalStatus, ProfileModel, UserModel } from '../models/index.js';
+import {
+  BlockModel,
+  ProfileApprovalStatus,
+  ProfileModel,
+  ProfileViewModel,
+  UserModel,
+} from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';
 
 const COMPLETION_FIELDS = [
@@ -185,7 +192,55 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
     await profile.save();
   }
 
+  if (viewerId && !profile.userId.equals(viewerId)) {
+    await ProfileViewModel.findOneAndUpdate(
+      { viewerId, profileId: profile._id },
+      {
+        $set: {
+          viewerId,
+          profileId: profile._id,
+          profileUserId: profile.userId,
+          viewedAt: new Date(),
+        },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    );
+    const recentViewCount = await ProfileViewModel.countDocuments({
+      viewerId,
+      viewedAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
+      isDeleted: false,
+    });
+    if (recentViewCount >= 20) {
+      await recordHighVelocityProfileViews(viewerId, recentViewCount);
+    }
+  }
+
   return applyPrivacy(profile, viewerId);
+}
+
+export async function listRecentlyViewedProfiles(userId: Types.ObjectId) {
+  const views = await ProfileViewModel.find({ viewerId: userId, isDeleted: false })
+    .sort({ viewedAt: -1 })
+    .limit(30)
+    .lean();
+  const profiles = await ProfileModel.find({
+    _id: { $in: views.map((view) => view.profileId) },
+    isDeleted: false,
+    'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+  });
+  const profileById = new Map(profiles.map((profile) => [String(profile._id), profile]));
+
+  return views
+    .map((view) => {
+      const profile = profileById.get(String(view.profileId));
+      return profile
+        ? {
+            viewedAt: view.viewedAt,
+            profile: applyPrivacy(profile, userId),
+          }
+        : null;
+    })
+    .filter(Boolean);
 }
 
 export function applyPrivacy(profile: ProfileDocument, viewerId?: Types.ObjectId) {

@@ -253,6 +253,29 @@ export interface Report {
   isDeleted: boolean;
 }
 
+export interface ProfileView {
+  viewerId: ObjectId;
+  profileId: ObjectId;
+  profileUserId: ObjectId;
+  viewedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const profileViewSchema = new Schema<ProfileView>(
+  {
+    viewerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    profileId: { type: Schema.Types.ObjectId, ref: 'Profile', required: true, index: true },
+    profileUserId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    viewedAt: { type: Date, default: Date.now, index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'profile_views' },
+);
+
+profileViewSchema.index({ viewerId: 1, profileId: 1 }, { unique: true });
+
 const reportSchema = new Schema<Report>(
   {
     reporterId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -294,6 +317,93 @@ const conversationSchema = new Schema<Conversation>(
 );
 
 conversationSchema.index({ participantIds: 1 });
+
+export interface MobileOtp {
+  userId: ObjectId;
+  mobile: string;
+  codeHash: string;
+  expiresAt: Date;
+  attempts: number;
+  usedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const mobileOtpSchema = new Schema<MobileOtp>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    mobile: { type: String, required: true, trim: true, index: true },
+    codeHash: { type: String, required: true },
+    expiresAt: { type: Date, required: true, index: true },
+    attempts: { type: Number, default: 0, min: 0 },
+    usedAt: { type: Date },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'mobile_otps' },
+);
+
+export interface PushSubscription {
+  userId: ObjectId;
+  endpoint: string;
+  keys?: { p256dh?: string; auth?: string };
+  userAgent?: string;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const pushSubscriptionSchema = new Schema<PushSubscription>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    endpoint: { type: String, required: true, trim: true, index: true },
+    keys: { p256dh: { type: String, trim: true }, auth: { type: String, trim: true } },
+    userAgent: { type: String, trim: true },
+    active: { type: Boolean, default: true, index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'push_subscriptions' },
+);
+
+pushSubscriptionSchema.index({ userId: 1, endpoint: 1 }, { unique: true });
+
+export interface FraudEvent {
+  userId?: ObjectId;
+  rule: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  status: 'OPEN' | 'REVIEWED' | 'DISMISSED';
+  score: number;
+  metadata?: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const fraudEventSchema = new Schema<FraudEvent>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    rule: { type: String, required: true, trim: true, index: true },
+    severity: {
+      type: String,
+      enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+      default: 'LOW',
+      required: true,
+      index: true,
+    },
+    status: {
+      type: String,
+      enum: ['OPEN', 'REVIEWED', 'DISMISSED'],
+      default: 'OPEN',
+      required: true,
+      index: true,
+    },
+    score: { type: Number, default: 0, min: 0 },
+    metadata: { type: Schema.Types.Mixed },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'fraud_events' },
+);
 
 export interface MessageAttachment {
   uploadedBy: ObjectId;
@@ -925,7 +1035,14 @@ export const InterestModel = getOrCreateModel<Interest>('Interest', interestSche
 export const FavouriteModel = getOrCreateModel<UserPair>('Favourite', favouriteSchema);
 export const BlockModel = getOrCreateModel<UserPair>('Block', blockSchema);
 export const ReportModel = getOrCreateModel<Report>('Report', reportSchema);
+export const ProfileViewModel = getOrCreateModel<ProfileView>('ProfileView', profileViewSchema);
 export const ConversationModel = getOrCreateModel<Conversation>('Conversation', conversationSchema);
+export const MobileOtpModel = getOrCreateModel<MobileOtp>('MobileOtp', mobileOtpSchema);
+export const PushSubscriptionModel = getOrCreateModel<PushSubscription>(
+  'PushSubscription',
+  pushSubscriptionSchema,
+);
+export const FraudEventModel = getOrCreateModel<FraudEvent>('FraudEvent', fraudEventSchema);
 export const MessageAttachmentModel = getOrCreateModel<MessageAttachment>(
   'MessageAttachment',
   messageAttachmentSchema,
@@ -978,7 +1095,11 @@ export const phaseOneSchemas = {
   favouriteSchema,
   blockSchema,
   reportSchema,
+  profileViewSchema,
   conversationSchema,
+  mobileOtpSchema,
+  pushSubscriptionSchema,
+  fraudEventSchema,
   messageAttachmentSchema,
   messageSchema,
   communityRoomSchema,
@@ -1014,7 +1135,11 @@ export const phaseOneModels = [
   FavouriteModel,
   BlockModel,
   ReportModel,
+  ProfileViewModel,
   ConversationModel,
+  MobileOtpModel,
+  PushSubscriptionModel,
+  FraudEventModel,
   MessageAttachmentModel,
   MessageModel,
   CommunityRoomModel,

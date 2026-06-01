@@ -13,6 +13,7 @@ const memberLinks = [
   ['Verification', '/member/verification'],
   ['Notifications', '/member/notifications'],
   ['Matches', '/member/matches'],
+  ['Recently viewed', '/member/recently-viewed'],
   ['Interests', '/member/interests'],
   ['Messages', '/member/messages'],
   ['Community', '/member/community'],

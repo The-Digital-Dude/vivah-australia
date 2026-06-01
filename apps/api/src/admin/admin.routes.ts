@@ -21,6 +21,7 @@ import {
   addUserNote,
   getAnalyticsSummary,
   getDashboardSummary,
+  getFraudEvents,
   getModerationDashboard,
   getOwnVerificationRequest,
   getProfileModerationDetail,
@@ -80,6 +81,15 @@ export function createAdminRouter(config: AuthConfig): Router {
     requireRoles(['SUPER_ADMIN', 'ADMIN']),
     asyncHandler(async (_request, response) => {
       response.status(200).json(await getAnalyticsSummary());
+    }),
+  );
+
+  router.get(
+    '/admin/fraud/events',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (_request, response) => {
+      response.status(200).json(await getFraudEvents());
     }),
   );
 

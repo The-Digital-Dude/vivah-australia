@@ -402,6 +402,29 @@ export const notificationListQuerySchema = z.object({
   unreadOnly: z.coerce.boolean().default(false),
 });
 
+export const mobileOtpRequestSchema = z.object({
+  mobile: australianMobileSchema,
+});
+
+export const mobileOtpVerifySchema = z.object({
+  mobile: australianMobileSchema,
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, 'OTP must be a 6 digit code'),
+});
+
+export const pushSubscriptionSchema = z.object({
+  endpoint: z.string().trim().url(),
+  keys: z
+    .object({
+      p256dh: z.string().trim().min(10).max(500),
+      auth: z.string().trim().min(10).max(500),
+    })
+    .optional(),
+  userAgent: z.string().trim().max(500).optional(),
+});
+
 export const auditLogQuerySchema = z.object({
   page: z.coerce.number().int().min(1).max(500).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(25),
@@ -723,6 +746,9 @@ export type ProfileModerationReviewInput = z.infer<typeof profileModerationRevie
 export type VerificationRequestCreateInput = z.infer<typeof verificationRequestCreateSchema>;
 export type VerificationReviewInput = z.infer<typeof verificationReviewSchema>;
 export type NotificationListQueryInput = z.infer<typeof notificationListQuerySchema>;
+export type MobileOtpRequestInput = z.infer<typeof mobileOtpRequestSchema>;
+export type MobileOtpVerifyInput = z.infer<typeof mobileOtpVerifySchema>;
+export type PushSubscriptionInput = z.infer<typeof pushSubscriptionSchema>;
 export type AuditLogQueryInput = z.infer<typeof auditLogQuerySchema>;
 export type MessageAttachmentInput = z.infer<typeof messageAttachmentSchema>;
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;

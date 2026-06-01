@@ -10,6 +10,7 @@ import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   getOwnProfile,
+  listRecentlyViewedProfiles,
   getVisibleProfile,
   submitOwnProfile,
   updateAccountSettings,
@@ -109,6 +110,15 @@ export function createProfileRouter(config: AuthConfig): Router {
     (_request: AuthenticatedRequest, response) => {
       response.status(202).json({ message: 'Delete request accepted.' });
     },
+  );
+
+  router.get(
+    '/me/recently-viewed',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      response.status(200).json({ items: await listRecentlyViewedProfiles(auth.userId) });
+    }),
   );
 
   router.get(

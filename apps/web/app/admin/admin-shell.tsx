@@ -17,6 +17,7 @@ const links = [
   ['CMS', '/admin/cms'],
   ['Payments', '/admin/payments'],
   ['Analytics', '/admin/analytics'],
+  ['Fraud', '/admin/fraud'],
   ['Audit logs', '/admin/audit-logs'],
 ] as const;
 

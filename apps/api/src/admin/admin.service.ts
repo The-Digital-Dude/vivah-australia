@@ -19,6 +19,7 @@ import {
 import type { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
+import { listFraudEvents } from '../common/fraud.service.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import {
   AdminNoteModel,
@@ -244,6 +245,10 @@ export async function getAnalyticsSummary() {
     subscriptionsByStatus,
     verificationByStatus,
   };
+}
+
+export async function getFraudEvents() {
+  return { events: await listFraudEvents() };
 }
 
 export async function listUsers(input: AdminUserQueryInput) {

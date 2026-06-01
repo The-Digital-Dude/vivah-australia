@@ -1160,14 +1160,14 @@ GET /api/matches/highly-compatible
 
 #### Backend Tasks
 
-- [ ] Create profile views collection or embedded view history.
-- [ ] Store viewer, viewed profile, timestamp.
-- [ ] Prevent excessive duplicate views.
-- [ ] Create recently viewed endpoint.
+- [x] Create profile views collection or embedded view history.
+- [x] Store viewer, viewed profile, timestamp.
+- [x] Prevent excessive duplicate views.
+- [x] Create recently viewed endpoint.
 
 #### Frontend Tasks
 
-- [ ] Show recently viewed page/section.
+- [x] Show recently viewed page/section.
 
 #### API Endpoints
 
@@ -1757,10 +1757,10 @@ DELETE /api/me/notifications/:id
 
 #### Backend Tasks
 
-- [ ] Configure SMS provider.
-- [ ] Use SMS for mobile OTP.
-- [ ] Use SMS for important account alerts only.
-- [ ] Add provider failure handling.
+- [x] Configure SMS provider.
+- [x] Use SMS for mobile OTP.
+- [x] Use SMS for important account alerts only.
+- [x] Add provider failure handling.
 
 #### Security
 
@@ -1775,8 +1775,8 @@ DELETE /api/me/notifications/:id
 #### Tasks
 
 - [ ] Add notification channel enum: `IN_APP`, `EMAIL`, `SMS`, `PUSH`.
-- [ ] Keep push disabled for Phase 1 web unless web push is explicitly requested.
-- [ ] Prepare data model for future native apps.
+- [x] Keep push disabled for Phase 1 web unless web push is explicitly requested.
+- [x] Prepare data model for future native apps.
 
 ---
 
@@ -2048,12 +2048,12 @@ GET /api/admin/activity-logs
 
 #### Backend Tasks
 
-- [ ] Add suspicious activity model or score field.
+- [x] Add suspicious activity model or score field.
 - [ ] Track repeated reports.
 - [ ] Track duplicate phone/email attempts.
-- [ ] Track repeated OTP failures.
+- [x] Track repeated OTP failures.
 - [ ] Track unusual message volume.
-- [ ] Flag accounts for admin review.
+- [x] Flag accounts for admin review.
 
 #### Acceptance Criteria
 
@@ -2068,15 +2068,15 @@ GET /api/admin/activity-logs
 
 #### Frontend Tasks
 
-- [ ] Create design tokens.
-- [ ] Create layout components:
+- [x] Create design tokens.
+- [x] Create layout components:
   - Public layout
   - Member dashboard layout
   - Admin layout
   - Auth layout
-- [ ] Build responsive navigation.
+- [x] Build responsive navigation.
 - [ ] Build mobile drawers.
-- [ ] Ensure all pages work on desktop, tablet, and mobile browsers.
+- [x] Ensure all pages work on desktop, tablet, and mobile browsers.
 
 #### Acceptance Criteria
 
@@ -2090,8 +2090,8 @@ GET /api/admin/activity-logs
 
 #### Components
 
-- [ ] Button
-- [ ] Input
+- [x] Button
+- [x] Input
 - [ ] Select
 - [ ] Date picker
 - [ ] Checkbox/radio
@@ -2103,10 +2103,10 @@ GET /api/admin/activity-logs
 - [ ] Avatar
 - [ ] Profile card
 - [ ] Plan card
-- [ ] Empty state
+- [x] Empty state
 - [ ] Loading skeleton
 - [ ] Pagination
-- [ ] Data table
+- [x] Data table
 - [ ] File uploader
 
 #### Acceptance Criteria

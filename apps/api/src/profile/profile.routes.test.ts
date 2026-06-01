@@ -6,7 +6,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { AccountStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
-import { BlockModel, ProfileApprovalStatus, ProfileModel, UserModel } from '../models/index.js';
+import {
+  BlockModel,
+  FraudEventModel,
+  ProfileApprovalStatus,
+  ProfileModel,
+  ProfileViewModel,
+  UserModel,
+} from '../models/index.js';
 import { createTokenPair } from '../auth/token.service.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 
@@ -240,5 +247,53 @@ describe('profile routes', () => {
       .get(`/api/profiles/${profile.id}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(403);
+  });
+
+  it('stores recently viewed profiles and flags high velocity viewing', async () => {
+    const viewer = await createUser('recent-viewer@example.com');
+    const owner = await createUser('recent-owner@example.com');
+    const profile = await createProfile(owner.user._id, 'VA777001');
+    profile.set({
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+      'visibility.status': 'MEMBERS_ONLY',
+    });
+    await profile.save();
+
+    await request(app)
+      .get(`/api/profiles/${profile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const recentResponse = await request(app)
+      .get('/api/me/recently-viewed')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    expect(
+      bodyAs<{ items: Array<{ profile: { displayId: string } }> }>(recentResponse).items[0],
+    ).toMatchObject({ profile: { displayId: 'VA777001' } });
+    expect(await ProfileViewModel.countDocuments({ viewerId: viewer.user._id })).toBe(1);
+
+    const owners = await Promise.all(
+      Array.from({ length: 20 }, async (_, index) => {
+        const nextOwner = await createUser(`velocity-owner-${index}@example.com`);
+        const nextProfile = await createProfile(
+          nextOwner.user._id,
+          `VA88${String(index).padStart(4, '0')}`,
+        );
+        nextProfile.set({
+          'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+          'visibility.status': 'MEMBERS_ONLY',
+        });
+        await nextProfile.save();
+        return nextProfile;
+      }),
+    );
+    for (const nextProfile of owners) {
+      await request(app)
+        .get(`/api/profiles/${nextProfile.id}`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .expect(200);
+    }
+    expect(await FraudEventModel.countDocuments({ userId: viewer.user._id })).toBe(1);
   });
 });

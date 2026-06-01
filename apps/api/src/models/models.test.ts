@@ -7,7 +7,7 @@ function hasIndex(indexes: Array<[Record<string, unknown>, Record<string, unknow
 
 describe('database models', () => {
   it('registers every Phase 1 collection model', () => {
-    expect(phaseOneModels).toHaveLength(33);
+    expect(phaseOneModels).toHaveLength(37);
   });
 
   it('defines required user indexes', () => {
@@ -53,6 +53,14 @@ describe('database models', () => {
     expect(phaseOneSchemas.paymentSchema.indexes()).toContainEqual([
       { userId: 1, createdAt: 1 },
       {},
+    ]);
+    expect(phaseOneSchemas.profileViewSchema.indexes()).toContainEqual([
+      { viewerId: 1, profileId: 1 },
+      expect.objectContaining({ unique: true }),
+    ]);
+    expect(phaseOneSchemas.pushSubscriptionSchema.indexes()).toContainEqual([
+      { userId: 1, endpoint: 1 },
+      expect.objectContaining({ unique: true }),
     ]);
   });
 });

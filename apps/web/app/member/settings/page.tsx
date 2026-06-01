@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { notificationPreferencesSchema, profileDraftSchema } from '@vivah/shared';
+import {
+  mobileOtpRequestSchema,
+  mobileOtpVerifySchema,
+  notificationPreferencesSchema,
+  profileDraftSchema,
+} from '@vivah/shared';
 import MemberShell from '../member-shell';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 
@@ -59,6 +64,52 @@ export default function MemberSettingsPage() {
     setMessage(result.message);
   }
 
+  async function requestOtp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const parsed = mobileOtpRequestSchema.safeParse({ mobile: form.get('mobile') });
+    if (!parsed.success) {
+      setMessage(validationMessage(parsed.error.issues));
+      return;
+    }
+    const result = await memberRequest('/api/me/mobile/request-otp', {
+      method: 'POST',
+      body: parsed.data,
+    });
+    setMessage(result.message);
+  }
+
+  async function verifyOtp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const parsed = mobileOtpVerifySchema.safeParse({
+      mobile: form.get('mobile'),
+      code: form.get('code'),
+    });
+    if (!parsed.success) {
+      setMessage(validationMessage(parsed.error.issues));
+      return;
+    }
+    const result = await memberRequest('/api/me/mobile/verify-otp', {
+      method: 'POST',
+      body: parsed.data,
+    });
+    setMessage(result.message);
+  }
+
+  async function enablePush() {
+    const endpoint = `https://push.local/${crypto.randomUUID()}`;
+    const result = await memberRequest('/api/me/push-subscriptions', {
+      method: 'POST',
+      body: {
+        endpoint,
+        keys: { p256dh: 'local-placeholder-p256dh', auth: 'local-placeholder-auth' },
+        userAgent: navigator.userAgent,
+      },
+    });
+    setMessage(result.ok ? 'Push placeholder subscription saved.' : result.message);
+  }
+
   return (
     <MemberShell
       title="Account settings"
@@ -105,6 +156,50 @@ export default function MemberSettingsPage() {
             Save notifications
           </button>
         </form>
+        <section className="grid gap-4 border-t border-neutral-200 pt-6">
+          <h2 className="text-lg font-semibold">Mobile OTP</h2>
+          <form
+            className="grid gap-3 md:grid-cols-[1fr_auto]"
+            onSubmit={(event) => void requestOtp(event)}
+          >
+            <input
+              name="mobile"
+              placeholder="+61412345678"
+              className="h-11 rounded-md border border-neutral-300 px-3"
+            />
+            <button className="h-11 rounded-md border border-neutral-300 px-5 text-sm font-semibold">
+              Send code
+            </button>
+          </form>
+          <form
+            className="grid gap-3 md:grid-cols-[1fr_140px_auto]"
+            onSubmit={(event) => void verifyOtp(event)}
+          >
+            <input
+              name="mobile"
+              placeholder="+61412345678"
+              className="h-11 rounded-md border border-neutral-300 px-3"
+            />
+            <input
+              name="code"
+              placeholder="123456"
+              className="h-11 rounded-md border border-neutral-300 px-3"
+            />
+            <button className="h-11 rounded-md bg-red-700 px-5 text-sm font-semibold text-white">
+              Verify
+            </button>
+          </form>
+        </section>
+        <section className="grid gap-3 border-t border-neutral-200 pt-6">
+          <h2 className="text-lg font-semibold">Push notifications</h2>
+          <button
+            type="button"
+            onClick={() => void enablePush()}
+            className="h-11 rounded-md border border-neutral-300 px-5 text-sm font-semibold"
+          >
+            Save placeholder subscription
+          </button>
+        </section>
         {message ? (
           <p className="rounded-md bg-neutral-100 p-3 text-sm text-neutral-700">{message}</p>
         ) : null}

@@ -1,5 +1,10 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
-import { notificationListQuerySchema } from '@vivah/shared';
+import {
+  mobileOtpRequestSchema,
+  mobileOtpVerifySchema,
+  notificationListQuerySchema,
+  pushSubscriptionSchema,
+} from '@vivah/shared';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
@@ -8,6 +13,10 @@ import {
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
+  requestMobileOtp,
+  savePushSubscription,
+  sendTestPush,
+  verifyMobileOtp,
   unreadNotificationCount,
 } from './notifications.service.js';
 
@@ -39,6 +48,46 @@ export function createNotificationsRouter(config: AuthConfig): Router {
         notifications: await listNotifications(auth.userId, input.unreadOnly),
         unreadCount: await unreadNotificationCount(auth.userId),
       });
+    }),
+  );
+
+  router.post(
+    '/me/mobile/request-otp',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const input = mobileOtpRequestSchema.parse(request.body);
+      response.status(201).json(await requestMobileOtp(auth.userId, input.mobile));
+    }),
+  );
+
+  router.post(
+    '/me/mobile/verify-otp',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const input = mobileOtpVerifySchema.parse(request.body);
+      response.status(200).json(await verifyMobileOtp(auth.userId, input.mobile, input.code));
+    }),
+  );
+
+  router.post(
+    '/me/push-subscriptions',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const input = pushSubscriptionSchema.parse(request.body);
+      response.status(201).json({ subscription: await savePushSubscription(auth.userId, input) });
+    }),
+  );
+
+  router.post(
+    '/me/push/test',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      await sendTestPush(auth.userId);
+      response.status(200).json({ message: 'Push test queued.' });
     }),
   );
 

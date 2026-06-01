@@ -31,6 +31,13 @@ export const apiEnvSchema = z.object({
   MAILGUN_API_KEY: nonEmptyString.optional(),
   MAILGUN_DOMAIN: nonEmptyString.optional(),
   EMAIL_FROM: z.string().trim().email().default('noreply@vivahaustralia.com.au'),
+  SMS_PROVIDER: z.enum(['console', 'twilio']).default('console'),
+  TWILIO_ACCOUNT_SID: nonEmptyString.optional(),
+  TWILIO_AUTH_TOKEN: nonEmptyString.optional(),
+  TWILIO_FROM_NUMBER: nonEmptyString.optional(),
+  PUSH_PROVIDER: z.enum(['console', 'webpush']).default('console'),
+  WEB_PUSH_PUBLIC_KEY: nonEmptyString.optional(),
+  WEB_PUSH_PRIVATE_KEY: nonEmptyString.optional(),
 });
 
 export const webEnvSchema = z.object({
