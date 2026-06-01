@@ -1308,15 +1308,15 @@ POST /api/admin/reports/:id/dismiss
 
 #### Backend Tasks
 
-- [ ] Create conversation model.
-- [ ] Create message model.
-- [ ] Allow one-to-one conversations only.
-- [ ] Enforce messaging rules:
+- [x] Create conversation model.
+- [x] Create message model.
+- [x] Allow one-to-one conversations only.
+- [x] Enforce messaging rules:
   - Only after accepted interest if configured.
   - Only active users.
   - Not blocked.
   - Subscription restrictions apply.
-- [ ] Add conversation history endpoint.
+- [x] Add conversation history endpoint.
 
 #### API Endpoints
 
@@ -1329,16 +1329,16 @@ DELETE /api/conversations/:id
 
 #### Frontend Tasks
 
-- [ ] Build inbox page.
-- [ ] Build conversation detail page.
-- [ ] Build message composer.
-- [ ] Add empty states and locked states.
+- [x] Build inbox page.
+- [x] Build conversation detail page.
+- [x] Build message composer.
+- [x] Add empty states and locked states.
 
 #### Tests
 
-- [ ] User cannot access conversation they do not belong to.
+- [x] User cannot access conversation they do not belong to.
 - [ ] Free user restrictions apply.
-- [ ] Blocked conversation cannot send new messages.
+- [x] Blocked conversation cannot send new messages.
 
 ---
 
@@ -1346,22 +1346,22 @@ DELETE /api/conversations/:id
 
 #### Backend Tasks
 
-- [ ] Configure Socket.IO server.
-- [ ] Authenticate socket connections with JWT.
-- [ ] Join user-specific room.
-- [ ] Join conversation-specific rooms.
-- [ ] Emit new message events.
-- [ ] Emit typing indicators.
-- [ ] Emit read receipt updates.
-- [ ] Handle reconnect safely.
+- [x] Configure Socket.IO server.
+- [x] Authenticate socket connections with JWT.
+- [x] Join user-specific room.
+- [x] Join conversation-specific rooms.
+- [x] Emit new message events.
+- [x] Emit typing indicators.
+- [x] Emit read receipt updates.
+- [x] Handle reconnect safely.
 
 #### Frontend Tasks
 
-- [ ] Create socket client service.
-- [ ] Show real-time new messages.
-- [ ] Show typing state.
-- [ ] Show read receipts.
-- [ ] Fallback to REST fetch if socket disconnects.
+- [x] Create socket client service.
+- [x] Show real-time new messages.
+- [x] Show typing state.
+- [x] Show read receipts.
+- [x] Fallback to REST fetch if socket disconnects.
 
 #### Events
 
@@ -1381,9 +1381,9 @@ server: error
 
 #### Tests
 
-- [ ] Socket rejects unauthenticated connection.
-- [ ] Message is persisted before event emitted.
-- [ ] Only conversation members receive events.
+- [x] Socket rejects unauthenticated connection.
+- [x] Message is persisted before event emitted.
+- [x] Only conversation members receive events.
 
 ---
 
@@ -1391,16 +1391,16 @@ server: error
 
 #### Backend Tasks
 
-- [ ] Allow image sharing.
-- [ ] Allow document sharing if enabled.
+- [x] Allow image sharing.
+- [x] Allow document sharing if enabled.
 - [ ] Use secure upload flow.
-- [ ] Scan file type and size.
-- [ ] Store attachment metadata.
+- [x] Scan file type and size.
+- [x] Store attachment metadata.
 
 #### Frontend Tasks
 
-- [ ] Add attachment upload button.
-- [ ] Show image previews.
+- [x] Add attachment upload button.
+- [x] Show image previews.
 - [ ] Show document links with signed access.
 
 #### Security
@@ -2300,9 +2300,9 @@ ADMIN_SEED_PASSWORD=
 
 ### Sprint 4 - Messaging and Community
 
-- [ ] MSG-001 Conversations
-- [ ] MSG-002 Socket.IO realtime messaging
-- [ ] MSG-003 Attachments
+- [x] MSG-001 Conversations
+- [x] MSG-002 Socket.IO realtime messaging
+- [x] MSG-003 Attachments
 - [ ] COMMUNITY-001 Rooms
 - [ ] COMMUNITY-002 Posts/comments/reactions
 

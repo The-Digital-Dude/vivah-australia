@@ -260,6 +260,7 @@ const reportSchema = new Schema<Report>(
 export interface Conversation {
   participantIds: ObjectId[];
   lastMessageAt?: Date;
+  deletedFor: ObjectId[];
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -269,6 +270,7 @@ const conversationSchema = new Schema<Conversation>(
   {
     participantIds: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
     lastMessageAt: { type: Date, index: true },
+    deletedFor: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'conversations' },
@@ -276,12 +278,42 @@ const conversationSchema = new Schema<Conversation>(
 
 conversationSchema.index({ participantIds: 1 });
 
+export interface MessageAttachment {
+  uploadedBy: ObjectId;
+  attachmentType: 'IMAGE' | 'DOCUMENT';
+  assetUrl: string;
+  storageKey?: string;
+  fileName: string;
+  mimeType: string;
+  fileSizeBytes: number;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
+}
+
+const messageAttachmentSchema = new Schema<MessageAttachment>(
+  {
+    uploadedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    attachmentType: { type: String, enum: ['IMAGE', 'DOCUMENT'], required: true, index: true },
+    assetUrl: { type: String, required: true, trim: true },
+    storageKey: { type: String, trim: true },
+    fileName: { type: String, required: true, trim: true },
+    mimeType: { type: String, required: true, trim: true },
+    fileSizeBytes: { type: Number, required: true, min: 1 },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'message_attachments' },
+);
+
 export interface Message {
   conversationId: ObjectId;
   senderId: ObjectId;
   body?: string;
   attachmentIds?: ObjectId[];
   readBy: ObjectId[];
+  deletedFor: ObjectId[];
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -292,8 +324,9 @@ const messageSchema = new Schema<Message>(
     conversationId: { type: Schema.Types.ObjectId, ref: 'Conversation', required: true },
     senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     body: { type: String, trim: true, maxlength: 10000 },
-    attachmentIds: [{ type: Schema.Types.ObjectId, ref: 'ProfileMedia' }],
+    attachmentIds: [{ type: Schema.Types.ObjectId, ref: 'MessageAttachment' }],
     readBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    deletedFor: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'messages' },
@@ -659,6 +692,8 @@ const contactInquirySchema = new Schema<ContactInquiry>(
 
 export type PlanDocument = HydratedDocument<Plan>;
 export type ProfileMediaDocument = HydratedDocument<ProfileMedia>;
+export type ConversationDocument = HydratedDocument<Conversation>;
+export type MessageDocument = HydratedDocument<Message>;
 
 export const ProfileMediaModel = getOrCreateModel<ProfileMedia>('ProfileMedia', profileMediaSchema);
 export const VerificationRequestModel = getOrCreateModel<VerificationRequest>(
@@ -674,6 +709,10 @@ export const FavouriteModel = getOrCreateModel<UserPair>('Favourite', favouriteS
 export const BlockModel = getOrCreateModel<UserPair>('Block', blockSchema);
 export const ReportModel = getOrCreateModel<Report>('Report', reportSchema);
 export const ConversationModel = getOrCreateModel<Conversation>('Conversation', conversationSchema);
+export const MessageAttachmentModel = getOrCreateModel<MessageAttachment>(
+  'MessageAttachment',
+  messageAttachmentSchema,
+);
 export const MessageModel = getOrCreateModel<Message>('Message', messageSchema);
 export const CommunityRoomModel = getOrCreateModel<CommunityRoom>(
   'CommunityRoom',
@@ -721,6 +760,7 @@ export const phaseOneSchemas = {
   blockSchema,
   reportSchema,
   conversationSchema,
+  messageAttachmentSchema,
   messageSchema,
   communityRoomSchema,
   communityPostSchema,
@@ -754,6 +794,7 @@ export const phaseOneModels = [
   BlockModel,
   ReportModel,
   ConversationModel,
+  MessageAttachmentModel,
   MessageModel,
   CommunityRoomModel,
   CommunityPostModel,

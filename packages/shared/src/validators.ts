@@ -279,6 +279,44 @@ export const reportAdminReviewSchema = z.object({
   action: z.enum(['ASSIGN', 'RESOLVE', 'DISMISS']),
 });
 
+export const messageAttachmentSchema = z.object({
+  attachmentType: z.enum(['IMAGE', 'DOCUMENT']),
+  assetUrl: z.string().trim().url(),
+  storageKey: z.string().trim().min(1).max(500).optional(),
+  fileName: z.string().trim().min(1).max(180),
+  mimeType: z
+    .string()
+    .trim()
+    .regex(
+      /^(image\/(jpeg|png|webp)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)$/,
+      'Unsupported attachment type',
+    ),
+  fileSizeBytes: z
+    .number()
+    .int()
+    .min(1)
+    .max(10 * 1024 * 1024),
+});
+
+export const messageCreateSchema = z
+  .object({
+    body: z.string().trim().max(10000).optional(),
+    attachments: z.array(messageAttachmentSchema).max(5).default([]),
+  })
+  .refine((input) => Boolean(input.body) || input.attachments.length > 0, {
+    message: 'Message body or attachment is required',
+    path: ['body'],
+  });
+
+export const typingEventSchema = z.object({
+  conversationId: objectIdSchema,
+  typing: z.boolean(),
+});
+
+export const conversationCreateSchema = z.object({
+  profileId: objectIdSchema,
+});
+
 export const profileDraftSchema = z.object({
   personal: z
     .object({
@@ -423,6 +461,10 @@ export type InterestRespondInput = z.infer<typeof interestRespondSchema>;
 export type InterestListQueryInput = z.infer<typeof interestListQuerySchema>;
 export type ReportCreateInput = z.infer<typeof reportCreateSchema>;
 export type ReportAdminReviewInput = z.infer<typeof reportAdminReviewSchema>;
+export type MessageAttachmentInput = z.infer<typeof messageAttachmentSchema>;
+export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
+export type TypingEventInput = z.infer<typeof typingEventSchema>;
+export type ConversationCreateInput = z.infer<typeof conversationCreateSchema>;
 export type ProfileDraftInput = z.infer<typeof profileDraftSchema>;
 export type ProfileSubmitInput = z.infer<typeof profileSubmitSchema>;
 export type NotificationPreferencesInput = z.infer<typeof notificationPreferencesSchema>;

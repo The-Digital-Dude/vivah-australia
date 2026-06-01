@@ -5,6 +5,7 @@ const memberLinks = [
   ['Onboarding', '/member/onboarding'],
   ['Matches', '/member/matches'],
   ['Interests', '/member/interests'],
+  ['Messages', '/member/messages'],
   ['Favourites', '/member/favourites'],
   ['Edit profile', '/member/profile/edit'],
   ['Media', '/member/media'],

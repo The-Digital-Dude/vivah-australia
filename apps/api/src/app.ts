@@ -8,6 +8,7 @@ import type { AuthConfig } from './auth/auth-types.js';
 import { createInteractionsRouter } from './interactions/interactions.routes.js';
 import { createMatchRouter } from './match/match.routes.js';
 import { createMediaRouter } from './media/media.routes.js';
+import { createMessagesRouter } from './messages/messages.routes.js';
 import { createPublicRouter } from './public/public.routes.js';
 import { createProfileRouter } from './profile/profile.routes.js';
 
@@ -54,6 +55,7 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createMediaRouter(options.auth));
   app.use('/api', createMatchRouter(options.auth));
   app.use('/api', createInteractionsRouter(options.auth));
+  app.use('/api', createMessagesRouter(options.auth));
 
   app.use((error: unknown, _request: Request, response: Response, _next: express.NextFunction) => {
     if (isZodValidationError(error)) {

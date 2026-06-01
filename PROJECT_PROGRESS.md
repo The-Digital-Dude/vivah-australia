@@ -46,6 +46,9 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | INTEREST-002 Favourite Profiles                            | Complete                              | Favourite/unfavourite/list APIs, duplicate prevention, blocked-user enforcement, favourites page, match-card save action, and backend tests.                                                                                                                                                                            |
 | SAFETY-001 Block Users                                     | Complete                              | Block/unblock/list APIs, search/profile/interest enforcement, pending interest withdrawal on block, safety page, block modal/actions, and backend tests.                                                                                                                                                                |
 | SAFETY-002 Report Users and Content                        | Mostly complete                       | Member report API for profiles/users/media/messages/posts/comments, report modal, safety page report form, notification record, admin report queue/API/page with assign/resolve/dismiss actions, and backend tests. Auto-risk counters remain outstanding.                                                              |
+| MSG-001 Conversations                                      | Complete                              | One-to-one conversation APIs, accepted-interest gate, participant access checks, blocked-user enforcement, history endpoint, read receipts, delete conversation/message for current user, member inbox UI, chat safety actions, and backend tests.                                                                      |
+| MSG-002 Real-Time Socket.IO Messaging                      | Complete                              | Socket.IO server attached to API HTTP server, JWT socket authentication, conversation room join, realtime message send, typing indicators, read receipt events, frontend socket client, REST fallback fetch, and socket tests.                                                                                          |
+| MSG-003 Message Attachments                                | Mostly complete                       | Image/document attachment metadata, type/size validation, attachment links in chat UI, attachment persistence tests. Full signed upload and private signed access reuse still needs storage integration for chat attachments.                                                                                           |
 
 ## Partially Completed / Infrastructure Present
 
@@ -68,9 +71,6 @@ The following modules do not yet have full business-feature implementations in t
 - VERIFY-002 Verification Badge Logic
 - VERIFY-003 External Provider Extension Points
 - MATCH-003 Recently Viewed Profiles
-- MSG-001 Conversations
-- MSG-002 Real-Time Socket.IO Messaging
-- MSG-003 Message Attachments
 - COMMUNITY-001 Rooms
 - COMMUNITY-002 Posts, Comments, Reactions
 - PLAN-002 Entitlement Middleware
@@ -113,6 +113,7 @@ The following modules do not yet have full business-feature implementations in t
 - Private media access is app-signed for owner/admin flows; accepted-interest private gallery unlock still needs to be wired into media access rules.
 - Match recommendations are calculated on demand; stored recommendation snapshots and dedicated newly joined/recently active/highly compatible endpoints are not implemented yet.
 - Safety reports create moderation records and admin review actions; auto-risk counters are not implemented yet.
+- Chat attachments currently accept already-uploaded HTTPS asset URLs and validate type/size metadata; direct signed chat upload and private signed attachment access should reuse the media storage flow next.
 - Frontend tests and E2E tests are not present.
 - No CI/CD pipeline is configured yet.
 
@@ -135,12 +136,14 @@ Live local checks also passed for:
 - `http://localhost:3000/member/interests`
 - `http://localhost:3000/member/favourites`
 - `http://localhost:3000/member/safety`
+- `http://localhost:3000/member/messages`
+- `http://localhost:3000/admin/reports`
 
 ## Recommended Next Build Order
 
 1. Finish WEB-003 gaps: email notification and CAPTCHA.
 2. Add ADMIN-001 and ADMIN-006 UI so CMS content can be managed from the product.
 3. Add admin report queue/workflow and report risk counters.
-4. Add MATCH-003 recently viewed profiles and saved search UX.
-5. Add MEDIA-002 video introduction upload after photo moderation is stable.
+4. Add signed upload/private signed access for chat attachments.
+5. Add MATCH-003 recently viewed profiles and saved search UX.
 6. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.
