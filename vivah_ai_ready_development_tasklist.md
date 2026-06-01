@@ -2281,10 +2281,10 @@ ADMIN_SEED_PASSWORD=
 
 ### Sprint 2 - Member Profiles
 
-- [ ] PROFILE-001 Profile onboarding wizard
-- [ ] PROFILE-002 Profile view page
-- [ ] PROFILE-003 Edit/settings
-- [ ] MEDIA-001 Photo upload
+- [x] PROFILE-001 Profile onboarding wizard
+- [x] PROFILE-002 Profile view page
+- [x] PROFILE-003 Edit/settings
+- [x] MEDIA-001 Photo upload
 
 ### Sprint 3 - Search and Matchmaking
 
