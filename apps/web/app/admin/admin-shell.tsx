@@ -13,6 +13,7 @@ const links = [
   ['Media', '/admin/media'],
   ['Reports', '/admin/reports'],
   ['Payments', '/admin/payments'],
+  ['Audit logs', '/admin/audit-logs'],
 ] as const;
 
 export default function AdminShell({

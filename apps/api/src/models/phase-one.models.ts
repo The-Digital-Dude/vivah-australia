@@ -108,7 +108,10 @@ export interface VerificationRequest {
   profileId?: ObjectId;
   type: string;
   status: VerificationStatusType;
+  documentUrls: string[];
+  submittedAt: Date;
   reviewReason?: string;
+  adminNote?: string;
   reviewedBy?: ObjectId;
   reviewedAt?: Date;
   createdAt: Date;
@@ -128,7 +131,10 @@ const verificationRequestSchema = new Schema<VerificationRequest>(
       required: true,
       index: true,
     },
+    documentUrls: { type: [String], default: [] },
+    submittedAt: { type: Date, default: Date.now, required: true },
     reviewReason: { type: String, trim: true },
+    adminNote: { type: String, trim: true },
     reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     reviewedAt: { type: Date },
     ...auditedSchemaFields,
@@ -721,6 +727,7 @@ export interface Notification {
   type: string;
   title: string;
   body?: string;
+  data?: unknown;
   readAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -733,6 +740,7 @@ const notificationSchema = new Schema<Notification>(
     type: { type: String, required: true, trim: true, index: true },
     title: { type: String, required: true, trim: true },
     body: { type: String, trim: true },
+    data: { type: Schema.Types.Mixed },
     readAt: { type: Date },
     ...auditedSchemaFields,
   },
@@ -741,10 +749,14 @@ const notificationSchema = new Schema<Notification>(
 
 export interface AuditLog {
   actorId?: ObjectId;
+  actorRole?: string;
   action: string;
   targetType?: string;
   targetId?: ObjectId;
+  targetUserId?: ObjectId;
   metadata?: unknown;
+  ipAddress?: string;
+  userAgent?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -752,10 +764,14 @@ export interface AuditLog {
 const auditLogSchema = new Schema<AuditLog>(
   {
     actorId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    actorRole: { type: String, trim: true, index: true },
     action: { type: String, required: true, trim: true, index: true },
     targetType: { type: String, trim: true },
     targetId: { type: Schema.Types.ObjectId },
+    targetUserId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     metadata: { type: Schema.Types.Mixed },
+    ipAddress: { type: String, trim: true },
+    userAgent: { type: String, trim: true },
   },
   { ...timestampedSchemaOptions, collection: 'audit_logs' },
 );

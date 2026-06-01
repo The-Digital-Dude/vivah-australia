@@ -2,9 +2,10 @@ import {
   AccountStatus,
   ReportStatus,
   SubscriptionStatus,
-  VerificationLevel,
+  UserRole,
   VerificationStatus,
   type VerificationStatus as VerificationStatusType,
+  type AuditLogQueryInput,
   type ProfileModerationQueryInput,
   type AdminUserNoteInput,
   type AdminUserQueryInput,
@@ -21,6 +22,7 @@ import { logActivity, logAudit } from '../common/audit.service.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import {
   AdminNoteModel,
+  AuditLogModel,
   PaymentModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -30,6 +32,22 @@ import {
   VerificationDocumentModel,
   VerificationRequestModel,
 } from '../models/index.js';
+import { calculateVerificationBadge } from '../verification/badge.js';
+
+const roleRank: Record<string, number> = {
+  [UserRole.USER]: 1,
+  [UserRole.PREMIUM_USER]: 2,
+  [UserRole.MODERATOR]: 3,
+  [UserRole.ADMIN]: 4,
+  [UserRole.SUPER_ADMIN]: 5,
+};
+
+const adminRoles = new Set<string>([UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MODERATOR]);
+const selfDestructiveStatuses = [
+  AccountStatus.SUSPENDED,
+  AccountStatus.BANNED,
+  AccountStatus.DELETED,
+] as const;
 
 function monthStart() {
   const now = new Date();
@@ -113,7 +131,9 @@ export async function getDashboardSummary() {
 }
 
 export async function listUsers(input: AdminUserQueryInput) {
-  const filter: Record<string, unknown> = { isDeleted: false };
+  const filter: Record<string, unknown> = {
+    isDeleted: input.status === AccountStatus.DELETED ? true : false,
+  };
   if (input.role) filter.role = input.role;
   if (input.status) filter.status = input.status;
   if (input.q) {
@@ -129,6 +149,13 @@ export async function listUsers(input: AdminUserQueryInput) {
       { email: { $regex: input.q, $options: 'i' } },
       { _id: { $in: matchingProfiles.map((profile) => profile.userId) } },
     ];
+  }
+  if (input.verificationLevel) {
+    const matchingProfiles = await ProfileModel.find({
+      isDeleted: false,
+      'verification.level': input.verificationLevel,
+    }).select('userId');
+    filter._id = { $in: matchingProfiles.map((profile) => profile.userId) };
   }
   const skip = (input.page - 1) * input.pageSize;
   const [users, total] = await Promise.all([
@@ -170,43 +197,87 @@ export async function getUserDetail(targetUserId: string) {
 
 export async function updateUser(
   actorId: Types.ObjectId,
+  actorRole: string,
   targetUserId: string,
   input: AdminUserUpdateInput,
 ) {
-  const user = await UserModel.findOne({ _id: targetUserId, isDeleted: false });
+  const user = await UserModel.findOne({ _id: targetUserId });
   if (!user) {
     throw new HttpError(404, 'User not found');
+  }
+  if (
+    String(actorId) === targetUserId &&
+    input.status &&
+    selfDestructiveStatuses.some((status) => status === input.status)
+  ) {
+    throw new HttpError(403, 'Admins cannot suspend, ban, or delete themselves');
+  }
+  enforceUserManagement(actorRole, user.role, input);
+
+  if (input.status === AccountStatus.DELETED) {
+    user.isDeleted = true;
+    user.deletedAt = new Date();
+    user.deletedBy = actorId;
   }
   user.set(input);
   await user.save();
   await logAudit({
     actorId,
+    actorRole,
     action: 'ADMIN_USER_UPDATED',
     targetType: 'USER',
     targetId: user._id,
+    targetUserId: user._id,
     metadata: input,
   });
   return publicUser(user);
 }
 
+function enforceUserManagement(actorRole: string, targetRole: string, input: AdminUserUpdateInput) {
+  const actorRank = roleRank[actorRole] ?? 0;
+  const targetRank = roleRank[targetRole] ?? 0;
+  if (actorRank <= targetRank && actorRole !== UserRole.SUPER_ADMIN) {
+    throw new HttpError(403, 'Cannot modify a user with an equal or higher role');
+  }
+  if (input.role) {
+    const touchesAdminRole = adminRoles.has(targetRole) || adminRoles.has(input.role);
+    if (touchesAdminRole && actorRole !== UserRole.SUPER_ADMIN) {
+      throw new HttpError(403, 'Only SUPER_ADMIN can change admin roles');
+    }
+    const nextRank = roleRank[input.role] ?? 0;
+    if (actorRank <= nextRank && actorRole !== UserRole.SUPER_ADMIN) {
+      throw new HttpError(403, 'Cannot assign an equal or higher role');
+    }
+  }
+}
+
 export async function updateUserStatus(
   actorId: Types.ObjectId,
+  actorRole: string,
   targetUserId: string,
   input: AdminUserStatusUpdateInput,
 ) {
-  return updateUser(actorId, targetUserId, { status: input.status });
+  if (
+    String(actorId) === targetUserId &&
+    selfDestructiveStatuses.some((status) => status === input.status)
+  ) {
+    throw new HttpError(403, 'Admins cannot suspend, ban, or delete themselves');
+  }
+  return updateUser(actorId, actorRole, targetUserId, { status: input.status });
 }
 
 export async function updateUserRole(
   actorId: Types.ObjectId,
+  actorRole: string,
   targetUserId: string,
   input: AdminUserRoleUpdateInput,
 ) {
-  return updateUser(actorId, targetUserId, { role: input.role });
+  return updateUser(actorId, actorRole, targetUserId, { role: input.role });
 }
 
 export async function addUserNote(
   actorId: Types.ObjectId,
+  actorRole: string,
   targetUserId: string,
   input: AdminUserNoteInput,
 ) {
@@ -219,9 +290,11 @@ export async function addUserNote(
   });
   await logAudit({
     actorId,
+    actorRole,
     action: 'ADMIN_USER_NOTE_ADDED',
     targetType: 'USER',
     targetId: user._id,
+    targetUserId: user._id,
   });
   return {
     id: note.id,
@@ -231,15 +304,43 @@ export async function addUserNote(
   };
 }
 
-export async function listProfilesForModeration(status: ProfileModerationQueryInput['status']) {
-  return ProfileModel.find({ 'moderation.approvalStatus': status, isDeleted: false })
-    .sort({ updatedAt: -1 })
+export async function listProfilesForModeration(input: ProfileModerationQueryInput) {
+  const sort =
+    input.sort === 'NEWEST' ? ({ createdAt: -1 } as const) : ({ updatedAt: -1 } as const);
+  return ProfileModel.find({ 'moderation.approvalStatus': input.status, isDeleted: false })
+    .sort(sort)
     .limit(100)
     .lean();
 }
 
+export async function getProfileModerationDetail(profileId: string) {
+  const profile = await ProfileModel.findOne({ _id: profileId, isDeleted: false }).lean();
+  if (!profile) throw new HttpError(404, 'Profile not found');
+  return profile;
+}
+
+export async function listAuditLogs(input: AuditLogQueryInput) {
+  const filter: Record<string, unknown> = {};
+  if (input.actor) filter.actorId = input.actor;
+  if (input.action) filter.action = { $regex: input.action, $options: 'i' };
+  if (input.entityType) filter.targetType = input.entityType;
+  if (input.from || input.to) {
+    filter.createdAt = {
+      ...(input.from ? { $gte: input.from } : {}),
+      ...(input.to ? { $lte: input.to } : {}),
+    };
+  }
+  const skip = (input.page - 1) * input.pageSize;
+  const [logs, total] = await Promise.all([
+    AuditLogModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(input.pageSize).lean(),
+    AuditLogModel.countDocuments(filter),
+  ]);
+  return { logs, pagination: { page: input.page, pageSize: input.pageSize, total } };
+}
+
 export async function reviewProfile(
   actorId: Types.ObjectId,
+  actorRole: string,
   profileId: string,
   input: ProfileModerationReviewInput,
 ) {
@@ -257,6 +358,7 @@ export async function reviewProfile(
   profile.set('moderation.reviewedBy', actorId);
   profile.set('moderation.reviewedAt', new Date());
   profile.set('moderation.rejectionReason', input.reason);
+  profile.set('moderation.internalNote', input.internalNote);
   await profile.save();
   await createNotification({
     userId: profile.userId,
@@ -268,6 +370,7 @@ export async function reviewProfile(
   });
   await logAudit({
     actorId,
+    actorRole,
     action: 'PROFILE_REVIEWED',
     targetType: 'PROFILE',
     targetId: profile._id,
@@ -276,35 +379,10 @@ export async function reviewProfile(
   return profile;
 }
 
-function applyVerificationBadge(profile: Awaited<ReturnType<typeof ProfileModel.findOne>>) {
-  if (!profile) return;
-  const flags = profile.verification;
-  const count = [
-    flags.emailVerified,
-    flags.mobileVerified,
-    flags.identityVerified,
-    flags.addressVerified,
-    flags.employmentVerified,
-    flags.visaVerified,
-    flags.policeClearanceVerified,
-    flags.facialVerified,
-  ].filter(Boolean).length;
-  profile.verification.level =
-    count >= 6
-      ? VerificationLevel.FULLY_VERIFIED
-      : count >= 4
-        ? VerificationLevel.PLATINUM
-        : count >= 3
-          ? VerificationLevel.GOLD
-          : count >= 2
-            ? VerificationLevel.SILVER
-            : count >= 1
-              ? VerificationLevel.BASIC
-              : VerificationLevel.NONE;
-}
-
 function verificationPath(type: string) {
   const map: Record<string, string> = {
+    EMAIL: 'verification.emailVerified',
+    MOBILE: 'verification.mobileVerified',
     IDENTITY: 'verification.identityVerified',
     ADDRESS: 'verification.addressVerified',
     EMPLOYMENT: 'verification.employmentVerified',
@@ -325,6 +403,8 @@ export async function createVerificationRequest(
     ...(profile ? { profileId: profile._id } : {}),
     type: input.type,
     status: VerificationStatus.PENDING,
+    documentUrls: input.documentUrls,
+    submittedAt: new Date(),
   });
   if (input.documentType && input.storageKey) {
     await VerificationDocumentModel.create({
@@ -347,6 +427,16 @@ export async function listOwnVerificationRequests(userId: Types.ObjectId) {
   return VerificationRequestModel.find({ userId, isDeleted: false }).sort({ createdAt: -1 }).lean();
 }
 
+export async function getOwnVerificationRequest(userId: Types.ObjectId, requestId: string) {
+  const request = await VerificationRequestModel.findOne({
+    _id: requestId,
+    userId,
+    isDeleted: false,
+  }).lean();
+  if (!request) throw new HttpError(404, 'Verification request not found');
+  return request;
+}
+
 export async function listVerificationRequests(
   status: VerificationStatusType = VerificationStatus.PENDING,
 ) {
@@ -356,8 +446,22 @@ export async function listVerificationRequests(
     .lean();
 }
 
+export async function getVerificationRequestDetail(requestId: string) {
+  const request = await VerificationRequestModel.findOne({
+    _id: requestId,
+    isDeleted: false,
+  }).lean();
+  if (!request) throw new HttpError(404, 'Verification request not found');
+  const documents = await VerificationDocumentModel.find({
+    requestId,
+    isDeleted: false,
+  }).lean();
+  return { request, documents };
+}
+
 export async function reviewVerificationRequest(
   actorId: Types.ObjectId,
+  actorRole: string,
   requestId: string,
   input: VerificationReviewInput,
 ) {
@@ -367,6 +471,7 @@ export async function reviewVerificationRequest(
   }
   request.status = input.status;
   request.set('reviewReason', input.reason);
+  request.set('adminNote', input.adminNote);
   request.reviewedBy = actorId;
   request.reviewedAt = new Date();
   await request.save();
@@ -374,9 +479,15 @@ export async function reviewVerificationRequest(
   if (input.status === VerificationStatus.APPROVED) {
     const profile = await ProfileModel.findOne({ userId: request.userId, isDeleted: false });
     const path = verificationPath(request.type);
+    if (request.type === 'EMAIL') {
+      await UserModel.updateOne({ _id: request.userId }, { $set: { emailVerified: true } });
+    }
+    if (request.type === 'MOBILE') {
+      await UserModel.updateOne({ _id: request.userId }, { $set: { mobileVerified: true } });
+    }
     if (profile && path) {
       profile.set(path, true);
-      applyVerificationBadge(profile);
+      profile.verification.level = calculateVerificationBadge(profile);
       await profile.save();
     }
   }
@@ -391,6 +502,7 @@ export async function reviewVerificationRequest(
   });
   await logAudit({
     actorId,
+    actorRole,
     action: 'VERIFICATION_REVIEWED',
     targetType: 'VERIFICATION_REQUEST',
     targetId: request._id,

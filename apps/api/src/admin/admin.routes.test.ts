@@ -190,6 +190,43 @@ describe('admin production readiness routes', () => {
     expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_NOTE_ADDED' })).toBe(1);
   });
 
+  it('protects role hierarchy and self-destructive status changes', async () => {
+    const superAdmin = await createUser('super-admin@example.com', UserRole.SUPER_ADMIN);
+    const admin = await createUser('limited-admin@example.com', UserRole.ADMIN);
+    const moderator = await createUser('moderator@example.com', UserRole.MODERATOR);
+    const member = await createUser('normal-member@example.com');
+
+    await request(app)
+      .patch(`/api/admin/users/${superAdmin.user.id}/status`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ status: AccountStatus.SUSPENDED })
+      .expect(403);
+
+    await request(app)
+      .patch(`/api/admin/users/${admin.user.id}/status`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ status: AccountStatus.BANNED })
+      .expect(403);
+
+    await request(app)
+      .patch(`/api/admin/users/${member.user.id}/role`)
+      .set('Authorization', `Bearer ${moderator.accessToken}`)
+      .send({ role: UserRole.PREMIUM_USER })
+      .expect(403);
+
+    await request(app)
+      .patch(`/api/admin/users/${moderator.user.id}/role`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ role: UserRole.USER })
+      .expect(403);
+
+    await request(app)
+      .patch(`/api/admin/users/${moderator.user.id}/role`)
+      .set('Authorization', `Bearer ${superAdmin.accessToken}`)
+      .send({ role: UserRole.USER })
+      .expect(200);
+  });
+
   it('reviews profiles and sends notification/email records', async () => {
     const admin = await createUser('admin-profiles@example.com', UserRole.MODERATOR);
     const member = await createUser('profile-owner@example.com');
@@ -210,7 +247,9 @@ describe('admin production readiness routes', () => {
   it('creates and reviews verification requests, updating badge logic', async () => {
     const admin = await createUser('admin-verify@example.com', UserRole.ADMIN);
     const member = await createUser('verify@example.com');
-    await createProfile(member.user._id);
+    const profile = await createProfile(member.user._id);
+    profile.verification.mobileVerified = true;
+    await profile.save();
 
     const createResponse = await request(app)
       .post('/api/me/verifications')
@@ -226,14 +265,35 @@ describe('admin production readiness routes', () => {
       .send({ status: VerificationStatus.APPROVED })
       .expect(200);
 
-    const profile = await ProfileModel.findOne({ userId: member.user._id }).orFail();
-    expect(profile.verification.identityVerified).toBe(true);
-    expect(profile.verification.level).toBe('SILVER');
+    const reviewedProfile = await ProfileModel.findOne({ userId: member.user._id }).orFail();
+    expect(reviewedProfile.verification.identityVerified).toBe(true);
+    expect(reviewedProfile.verification.level).toBe('SILVER');
     expect(
       await VerificationRequestModel.countDocuments({ status: VerificationStatus.APPROVED }),
     ).toBe(1);
     expect(await ActivityLogModel.countDocuments({ event: 'VERIFICATION_REQUEST_CREATED' })).toBe(
       1,
+    );
+    expect(await NotificationModel.countDocuments({ type: 'VERIFICATION_REVIEWED' })).toBe(1);
+    expect(await AuditLogModel.countDocuments({ action: 'VERIFICATION_REVIEWED' })).toBe(1);
+  });
+
+  it('lists audit logs for admins', async () => {
+    const admin = await createUser('audit-admin@example.com', UserRole.ADMIN);
+    await AuditLogModel.create({
+      actorId: admin.user._id,
+      actorRole: UserRole.ADMIN,
+      action: 'ADMIN_USER_UPDATED',
+      targetType: 'USER',
+    });
+
+    const response = await request(app)
+      .get('/api/admin/audit-logs?action=ADMIN_USER_UPDATED')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+
+    expect(bodyAs<{ logs: Array<{ action: string }> }>(response).logs[0]?.action).toBe(
+      'ADMIN_USER_UPDATED',
     );
   });
 });

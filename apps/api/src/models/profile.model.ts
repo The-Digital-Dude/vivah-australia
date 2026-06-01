@@ -13,6 +13,7 @@ import { Schema, type HydratedDocument, type Types } from 'mongoose';
 import { auditedSchemaFields, getOrCreateModel, timestampedSchemaOptions } from './common.js';
 
 export const ProfileApprovalStatus = {
+  DRAFT: 'DRAFT',
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
@@ -139,6 +140,7 @@ export interface Profile {
     reviewedBy?: Types.ObjectId;
     reviewedAt?: Date;
     rejectionReason?: string;
+    internalNote?: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -288,6 +290,7 @@ const profileSchema = new Schema<Profile>(
       reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
       reviewedAt: { type: Date },
       rejectionReason: { type: String, trim: true },
+      internalNote: { type: String, trim: true },
     },
     ...auditedSchemaFields,
   },

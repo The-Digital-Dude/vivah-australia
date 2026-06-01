@@ -286,6 +286,7 @@ export const adminUserQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(100).default(25),
   role: userRoleSchema.optional(),
   status: accountStatusSchema.optional(),
+  verificationLevel: verificationLevelSchema.optional(),
   q: z.string().trim().max(120).optional(),
 });
 
@@ -309,16 +310,28 @@ export const adminUserNoteSchema = z.object({
 });
 
 export const profileModerationQuerySchema = z.object({
-  status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'NEEDS_CHANGES']).default('PENDING'),
+  status: z.enum(['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'NEEDS_CHANGES']).default('PENDING'),
+  sort: z.enum(['RECENTLY_UPDATED', 'NEWEST']).default('RECENTLY_UPDATED'),
 });
 
 export const profileModerationReviewSchema = z.object({
   action: z.enum(['APPROVE', 'REJECT', 'NEEDS_CHANGES']),
   reason: z.string().trim().max(1000).optional(),
+  internalNote: z.string().trim().max(2000).optional(),
 });
 
 export const verificationRequestCreateSchema = z.object({
-  type: z.enum(['IDENTITY', 'ADDRESS', 'EMPLOYMENT', 'VISA', 'POLICE_CLEARANCE', 'FACIAL']),
+  type: z.enum([
+    'EMAIL',
+    'MOBILE',
+    'IDENTITY',
+    'ADDRESS',
+    'EMPLOYMENT',
+    'VISA',
+    'POLICE_CLEARANCE',
+    'FACIAL',
+  ]),
+  documentUrls: z.array(z.string().trim().url()).max(10).default([]),
   documentType: z.string().trim().min(2).max(120).optional(),
   storageKey: z.string().trim().min(2).max(500).optional(),
 });
@@ -330,10 +343,21 @@ export const verificationReviewSchema = z.object({
     VerificationStatus.NEEDS_RESUBMISSION,
   ]),
   reason: z.string().trim().max(1000).optional(),
+  adminNote: z.string().trim().max(2000).optional(),
 });
 
 export const notificationListQuerySchema = z.object({
   unreadOnly: z.coerce.boolean().default(false),
+});
+
+export const auditLogQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(500).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(25),
+  actor: objectIdSchema.optional(),
+  action: z.string().trim().max(120).optional(),
+  entityType: z.string().trim().max(80).optional(),
+  from: z.coerce.date().optional(),
+  to: z.coerce.date().optional(),
 });
 
 export const messageAttachmentSchema = z.object({
@@ -603,6 +627,7 @@ export type ProfileModerationReviewInput = z.infer<typeof profileModerationRevie
 export type VerificationRequestCreateInput = z.infer<typeof verificationRequestCreateSchema>;
 export type VerificationReviewInput = z.infer<typeof verificationReviewSchema>;
 export type NotificationListQueryInput = z.infer<typeof notificationListQuerySchema>;
+export type AuditLogQueryInput = z.infer<typeof auditLogQuerySchema>;
 export type MessageAttachmentInput = z.infer<typeof messageAttachmentSchema>;
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
 export type TypingEventInput = z.infer<typeof typingEventSchema>;

@@ -9,6 +9,7 @@ interface ProfileItem {
   displayId: string;
   personal?: { firstName?: string; lastName?: string };
   moderation: { approvalStatus: string; rejectionReason?: string };
+  verification?: { level?: string };
   completionPercentage: number;
   updatedAt: string;
 }
@@ -17,6 +18,7 @@ export default function AdminProfilesPage() {
   const memberRequest = useMemberRequest();
   const [status, setStatus] = useState('PENDING');
   const [profiles, setProfiles] = useState<ProfileItem[]>([]);
+  const [detail, setDetail] = useState<ProfileItem | null>(null);
   const [message, setMessage] = useState('');
 
   async function load(nextStatus = status) {
@@ -28,12 +30,19 @@ export default function AdminProfilesPage() {
   async function review(id: string, action: string) {
     const reason =
       action === 'APPROVE' ? undefined : (window.prompt('Reason for member') ?? undefined);
+    const internalNote = window.prompt('Internal note for audit context') ?? undefined;
     const result = await memberRequest(`/api/admin/profiles/${id}/review`, {
       method: 'PATCH',
-      body: { action, ...(reason ? { reason } : {}) },
+      body: { action, ...(reason ? { reason } : {}), ...(internalNote ? { internalNote } : {}) },
     });
     setMessage(result.message);
     if (result.ok) await load();
+  }
+
+  async function viewProfile(id: string) {
+    const result = await memberRequest(`/api/admin/profiles/${id}`);
+    if (result.ok) setDetail((result.data as { profile?: ProfileItem }).profile ?? null);
+    else setMessage(result.message);
   }
 
   useEffect(() => {
@@ -46,7 +55,7 @@ export default function AdminProfilesPage() {
       subtitle="Review submitted member profiles before they appear in search."
     >
       <div className="mb-4 flex gap-2">
-        {['PENDING', 'APPROVED', 'REJECTED', 'NEEDS_CHANGES'].map((option) => (
+        {['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'NEEDS_CHANGES'].map((option) => (
           <button
             key={option}
             onClick={() => {
@@ -71,8 +80,17 @@ export default function AdminProfilesPage() {
                 <p className="text-sm text-[#5E6470]">
                   {profile.displayId} · {profile.completionPercentage}% complete
                 </p>
+                <p className="text-sm text-[#5E6470]">
+                  {profile.moderation.approvalStatus} · {profile.verification?.level ?? 'NONE'}
+                </p>
               </div>
               <div className="flex gap-2">
+                <button
+                  className="rounded-md border px-3 py-2 text-sm font-semibold"
+                  onClick={() => void viewProfile(profile._id)}
+                >
+                  View
+                </button>
                 <button
                   className="rounded-md bg-green-700 px-3 py-2 text-sm font-semibold text-white"
                   onClick={() => void review(profile._id, 'APPROVE')}
@@ -96,6 +114,29 @@ export default function AdminProfilesPage() {
           </article>
         ))}
       </div>
+      {detail ? (
+        <section className="mt-6 rounded-lg border border-[#7A1E3A]/10 bg-[#FFF8F1] p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="font-semibold">
+                {detail.personal?.firstName ?? 'Member'} {detail.personal?.lastName ?? ''}
+              </h2>
+              <p className="mt-1 text-sm text-[#5E6470]">
+                {detail.displayId} · {detail.moderation.approvalStatus} ·{' '}
+                {detail.completionPercentage}% complete
+              </p>
+            </div>
+            <button className="rounded-md border px-3 py-2 text-sm" onClick={() => setDetail(null)}>
+              Close
+            </button>
+          </div>
+          {detail.moderation.rejectionReason ? (
+            <p className="mt-4 rounded-md bg-white p-3 text-sm text-[#5E6470]">
+              {detail.moderation.rejectionReason}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
     </AdminShell>
   );
 }

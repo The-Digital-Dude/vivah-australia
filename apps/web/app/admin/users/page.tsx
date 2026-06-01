@@ -6,6 +6,7 @@ import { useMemberRequest } from '@/lib/member-api';
 
 const roles = ['USER', 'PREMIUM_USER', 'MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
 const statuses = ['PENDING', 'ACTIVE', 'SUSPENDED', 'BANNED', 'DELETED'];
+const verificationLevels = ['NONE', 'BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED'];
 
 interface UserItem {
   id: string;
@@ -24,6 +25,8 @@ interface UserItem {
 }
 
 interface UserDetail {
+  user?: UserItem;
+  profile?: UserItem['profile'];
   notes?: Array<{ id: string; note: string; authorId: string; createdAt: string }>;
 }
 
@@ -33,21 +36,30 @@ export default function AdminUsersPage() {
   const [query, setQuery] = useState('');
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('');
+  const [verificationLevel, setVerificationLevel] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [detail, setDetail] = useState<UserDetail | null>(null);
   const [message, setMessage] = useState('');
 
-  function path() {
+  function path(nextPage = page) {
     const params = new URLSearchParams();
+    params.set('page', String(nextPage));
+    params.set('pageSize', '25');
     if (query.trim()) params.set('q', query.trim());
     if (role) params.set('role', role);
     if (status) params.set('status', status);
+    if (verificationLevel) params.set('verificationLevel', verificationLevel);
     const suffix = params.toString();
     return `/api/admin/users${suffix ? `?${suffix}` : ''}`;
   }
 
-  async function load() {
-    const result = await memberRequest(path());
+  async function load(nextPage = page) {
+    const result = await memberRequest(path(nextPage));
     if (result.ok) {
-      setUsers((result.data as { users?: UserItem[] }).users ?? []);
+      const data = result.data as { users?: UserItem[]; pagination?: { total?: number } };
+      setUsers(data.users ?? []);
+      setTotal(data.pagination?.total ?? 0);
     } else {
       setMessage(result.message);
     }
@@ -88,18 +100,18 @@ export default function AdminUsersPage() {
       return;
     }
     const detail = result.data as UserDetail;
-    const noteText = detail.notes?.map((item) => `- ${item.note}`).join('\n') || 'No notes yet.';
-    window.alert(noteText);
+    setDetail(detail);
   }
 
   function submitFilters(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void load();
+    setPage(1);
+    void load(1);
   }
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [page]);
 
   return (
     <AdminShell
@@ -108,7 +120,7 @@ export default function AdminUsersPage() {
     >
       <form
         onSubmit={submitFilters}
-        className="mb-5 grid gap-3 rounded-lg border border-[#7A1E3A]/10 bg-[#FFF8F1] p-4 md:grid-cols-[1fr_180px_180px_auto]"
+        className="mb-5 grid gap-3 rounded-lg border border-[#7A1E3A]/10 bg-[#FFF8F1] p-4 md:grid-cols-[1fr_160px_160px_180px_auto]"
       >
         <input
           value={query}
@@ -123,6 +135,18 @@ export default function AdminUsersPage() {
         >
           <option value="">All roles</option>
           {roles.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+        <select
+          value={verificationLevel}
+          onChange={(event) => setVerificationLevel(event.target.value)}
+          className="h-11 rounded-md border border-[#7A1E3A]/20 px-3 text-sm"
+        >
+          <option value="">All verification</option>
+          {verificationLevels.map((item) => (
             <option key={item} value={item}>
               {item}
             </option>
@@ -210,7 +234,7 @@ export default function AdminUsersPage() {
                     className="rounded-md border px-3 py-2"
                     onClick={() => void showNotes(user.id)}
                   >
-                    View
+                    Details
                   </button>
                 </td>
               </tr>
@@ -218,6 +242,58 @@ export default function AdminUsersPage() {
           </tbody>
         </table>
       </div>
+      <div className="mt-4 flex items-center justify-between text-sm text-[#5E6470]">
+        <span>
+          Page {page} · {total} users
+        </span>
+        <div className="flex gap-2">
+          <button
+            className="rounded-md border px-3 py-2 disabled:opacity-50"
+            disabled={page === 1}
+            onClick={() => setPage((value) => Math.max(1, value - 1))}
+          >
+            Previous
+          </button>
+          <button
+            className="rounded-md border px-3 py-2 disabled:opacity-50"
+            disabled={page * 25 >= total}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+      {detail ? (
+        <section className="mt-6 rounded-lg border border-[#7A1E3A]/10 bg-[#FFF8F1] p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="font-semibold">User details</h2>
+              <p className="mt-1 text-sm text-[#5E6470]">
+                {detail.user?.email ?? 'Member'} · {detail.user?.role} · {detail.user?.status}
+              </p>
+              <p className="mt-1 text-sm text-[#5E6470]">
+                {detail.profile?.displayId ?? 'No display ID'} ·{' '}
+                {detail.profile?.verificationLevel ?? 'No badge'}
+              </p>
+            </div>
+            <button className="rounded-md border px-3 py-2 text-sm" onClick={() => setDetail(null)}>
+              Close
+            </button>
+          </div>
+          <div className="mt-4 grid gap-2">
+            <h3 className="text-sm font-semibold">Internal notes</h3>
+            {detail.notes?.length ? (
+              detail.notes.map((note) => (
+                <p key={note.id} className="rounded-md bg-white p-3 text-sm text-[#5E6470]">
+                  {note.note}
+                </p>
+              ))
+            ) : (
+              <p className="text-sm text-[#5E6470]">No notes yet.</p>
+            )}
+          </div>
+        </section>
+      ) : null}
     </AdminShell>
   );
 }

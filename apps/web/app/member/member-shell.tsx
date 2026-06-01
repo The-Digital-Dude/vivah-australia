@@ -1,8 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { Bell } from 'lucide-react';
+import { useMemberRequest } from '@/lib/member-api';
 
 const memberLinks = [
   ['Onboarding', '/member/onboarding'],
+  ['Verification', '/member/verification'],
+  ['Notifications', '/member/notifications'],
   ['Matches', '/member/matches'],
   ['Interests', '/member/interests'],
   ['Messages', '/member/messages'],
@@ -19,6 +26,18 @@ export default function MemberShell({
   subtitle,
   children,
 }: Readonly<{ title: string; subtitle: string; children: ReactNode }>) {
+  const memberRequest = useMemberRequest();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    void (async () => {
+      const result = await memberRequest('/api/me/notifications?unreadOnly=true');
+      if (result.ok) {
+        setUnreadCount((result.data as { unreadCount?: number }).unreadCount ?? 0);
+      }
+    })();
+  }, []);
+
   return (
     <main className="min-h-screen bg-neutral-50 px-4 py-8 text-neutral-950">
       <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[220px_1fr]">
@@ -35,8 +54,24 @@ export default function MemberShell({
           </nav>
         </aside>
         <section className="rounded-lg border border-neutral-200 bg-white p-6">
-          <h1 className="text-3xl font-semibold">{title}</h1>
-          <p className="mt-2 text-sm leading-6 text-neutral-600">{subtitle}</p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-semibold">{title}</h1>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">{subtitle}</p>
+            </div>
+            <Link
+              href="/member/notifications"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-neutral-200 hover:bg-neutral-50"
+              aria-label="Notifications"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount ? (
+                <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-red-700 px-1.5 text-center text-xs font-semibold text-white">
+                  {unreadCount}
+                </span>
+              ) : null}
+            </Link>
+          </div>
           <div className="mt-6">{children}</div>
         </section>
       </div>

@@ -26,6 +26,11 @@ export const apiEnvSchema = z.object({
   STRIPE_SECRET_KEY: nonEmptyString.optional(),
   STRIPE_WEBHOOK_SECRET: nonEmptyString.optional(),
   STRIPE_PRICE_PREFIX: nonEmptyString.default('price_'),
+  EMAIL_PROVIDER: z.enum(['console', 'sendgrid', 'mailgun']).default('console'),
+  SENDGRID_API_KEY: nonEmptyString.optional(),
+  MAILGUN_API_KEY: nonEmptyString.optional(),
+  MAILGUN_DOMAIN: nonEmptyString.optional(),
+  EMAIL_FROM: z.string().trim().email().default('noreply@vivahaustralia.com.au'),
 });
 
 export const webEnvSchema = z.object({

@@ -980,10 +980,10 @@ Allow users to submit verification documents and allow moderators/admins to revi
 
 #### Frontend Tasks
 
-- [ ] Build verification dashboard for members.
-- [ ] Build submit document forms by verification type.
-- [ ] Show current verification level and pending/rejected items.
-- [ ] Show resubmission instructions.
+- [x] Build verification dashboard for members.
+- [x] Build submit document forms by verification type.
+- [x] Show current verification level and pending/rejected items.
+- [x] Show resubmission instructions.
 
 #### API Endpoints
 
@@ -1021,7 +1021,7 @@ POST /api/admin/verifications/:id/request-resubmission
 #### Backend Tasks
 
 - [x] Implement badge calculation service.
-- [ ] Define exact rules:
+- [x] Define exact rules:
   - Basic Verified: email + mobile
   - Silver Verified: basic + identity
   - Gold Verified: silver + address or employment
@@ -1703,13 +1703,13 @@ PATCH /api/admin/boosts/:id
 
 - [x] Create notification model.
 - [x] Create notification service.
-- [ ] Add notification triggers for:
-  - New interest
-  - Accepted interest
+- [x] Add notification triggers for:
+  - [x] New interest
+  - [x] Accepted interest
   - Rejected interest
-  - New message
+  - [x] New message
   - [x] Verification update
-  - Subscription update
+  - [x] Subscription update
   - Subscription reminder
   - [x] Report/moderation outcome
 - [x] Add read/unread status.
@@ -1718,15 +1718,16 @@ PATCH /api/admin/boosts/:id
 
 ```http
 GET /api/me/notifications
-POST /api/me/notifications/:id/read
-POST /api/me/notifications/read-all
+PATCH /api/me/notifications/:id/read
+PATCH /api/me/notifications/read-all
+DELETE /api/me/notifications/:id
 ```
 
 #### Frontend Tasks
 
-- [ ] Build notification dropdown.
-- [ ] Build notifications page.
-- [ ] Show unread count.
+- [x] Build notification dropdown.
+- [x] Build notifications page.
+- [x] Show unread count.
 
 ---
 
@@ -1734,16 +1735,16 @@ POST /api/me/notifications/read-all
 
 #### Backend Tasks
 
-- [ ] Configure email provider.
+- [x] Configure email provider.
 - [x] Create email template system.
-- [ ] Create templates:
+- [x] Create templates:
   - Registration confirmation
-  - Email verification
-  - Password reset
+  - [x] Email verification
+  - [x] Password reset
   - [x] Verification updates
-  - Interest notifications
+  - [x] Interest notifications
   - Message notifications
-  - Subscription updates
+  - [x] Subscription updates
 - [ ] Respect notification preferences.
 
 #### Tests
@@ -1803,7 +1804,7 @@ POST /api/me/notifications/read-all
 - [x] Create admin layout.
 - [x] Create admin login.
 - [x] Create protected admin routes.
-- [ ] Hide pages/actions based on permissions.
+- [x] Hide pages/actions based on permissions.
 
 ---
 
@@ -1837,15 +1838,15 @@ PATCH /api/admin/users/:id/notes
 
 - [x] Build user list table.
 - [x] Build filters/search.
-- [ ] Build user detail page.
-- [ ] Build suspend/ban modal.
+- [x] Build user detail page.
+- [x] Build suspend/ban/reactivate actions.
 - [x] Build notes panel.
 
 #### Tests
 
-- [ ] Moderator cannot delete user.
+- [x] Moderator cannot delete user.
 - [x] Admin actions are audit logged.
-- [ ] Suspended user cannot login or interact.
+- [x] Suspended user cannot login or interact.
 
 ---
 
@@ -1861,7 +1862,7 @@ PATCH /api/admin/users/:id/notes
 #### Frontend Tasks
 
 - [x] Build moderation queue.
-- [ ] Build profile review screen.
+- [x] Build profile review screen.
 - [ ] Add comparison of old/new values for edited profiles.
 
 #### API Endpoints
@@ -1882,11 +1883,11 @@ Use tasks from `VERIFY-001` and build admin UI.
 
 #### Frontend Tasks
 
-- [ ] Queue by verification type.
+- [x] Queue by verification type.
 - [ ] Queue by priority.
 - [ ] Secure document preview.
 - [x] Approve/reject/request resubmission.
-- [ ] Display verification history.
+- [x] Display verification history.
 
 ---
 
@@ -2030,8 +2031,8 @@ GET /api/admin/reports/activity
 - [x] Create audit log service.
 - [x] Log admin actions.
 - [ ] Log verification document access.
-- [ ] Log account status changes.
-- [ ] Log payment/subscription changes.
+- [x] Log account status changes.
+- [x] Log payment/subscription changes.
 - [x] Log user activity events.
 
 #### API Endpoints

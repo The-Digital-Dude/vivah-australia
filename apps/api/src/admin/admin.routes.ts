@@ -1,5 +1,6 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import {
+  auditLogQuerySchema,
   adminUserQuerySchema,
   adminUserNoteSchema,
   adminUserRoleUpdateSchema,
@@ -19,7 +20,11 @@ import {
   createVerificationRequest,
   addUserNote,
   getDashboardSummary,
+  getOwnVerificationRequest,
+  getProfileModerationDetail,
   getUserDetail,
+  getVerificationRequestDetail,
+  listAuditLogs,
   listOwnVerificationRequests,
   listProfilesForModeration,
   listUsers,
@@ -76,7 +81,12 @@ export function createAdminRouter(config: AuthConfig): Router {
       const userId = request.params.id;
       if (!userId) throw new HttpError(404, 'User not found');
       response.status(200).json({
-        user: await updateUser(auth.userId, userId, adminUserUpdateSchema.parse(request.body)),
+        user: await updateUser(
+          auth.userId,
+          auth.role,
+          userId,
+          adminUserUpdateSchema.parse(request.body),
+        ),
       });
     }),
   );
@@ -103,6 +113,7 @@ export function createAdminRouter(config: AuthConfig): Router {
       response.status(200).json({
         user: await updateUserStatus(
           auth.userId,
+          auth.role,
           userId,
           adminUserStatusUpdateSchema.parse(request.body),
         ),
@@ -121,6 +132,7 @@ export function createAdminRouter(config: AuthConfig): Router {
       response.status(200).json({
         user: await updateUserRole(
           auth.userId,
+          auth.role,
           userId,
           adminUserRoleUpdateSchema.parse(request.body),
         ),
@@ -137,8 +149,22 @@ export function createAdminRouter(config: AuthConfig): Router {
       const userId = request.params.id;
       if (!userId) throw new HttpError(404, 'User not found');
       response.status(201).json({
-        note: await addUserNote(auth.userId, userId, adminUserNoteSchema.parse(request.body)),
+        note: await addUserNote(
+          auth.userId,
+          auth.role,
+          userId,
+          adminUserNoteSchema.parse(request.body),
+        ),
       });
+    }),
+  );
+
+  router.get(
+    '/admin/audit-logs',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (request, response) => {
+      response.status(200).json(await listAuditLogs(auditLogQuerySchema.parse(request.query)));
     }),
   );
 
@@ -148,7 +174,18 @@ export function createAdminRouter(config: AuthConfig): Router {
     requireAdmin,
     asyncHandler(async (request, response) => {
       const input = profileModerationQuerySchema.parse(request.query);
-      response.status(200).json({ profiles: await listProfilesForModeration(input.status) });
+      response.status(200).json({ profiles: await listProfilesForModeration(input) });
+    }),
+  );
+
+  router.get(
+    '/admin/profiles/:id',
+    requireAuth(config),
+    requireAdmin,
+    asyncHandler(async (request, response) => {
+      const profileId = request.params.id;
+      if (!profileId) throw new HttpError(404, 'Profile not found');
+      response.status(200).json({ profile: await getProfileModerationDetail(profileId) });
     }),
   );
 
@@ -162,7 +199,7 @@ export function createAdminRouter(config: AuthConfig): Router {
       const profileId = request.params.id;
       if (!profileId) throw new HttpError(404, 'Profile not found');
       response.status(200).json({
-        profile: await reviewProfile(auth.userId, profileId, input),
+        profile: await reviewProfile(auth.userId, auth.role, profileId, input),
         message: 'Profile reviewed',
       });
     }),
@@ -191,6 +228,19 @@ export function createAdminRouter(config: AuthConfig): Router {
   );
 
   router.get(
+    '/me/verifications/:id',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const requestId = request.params.id;
+      if (!requestId) throw new HttpError(404, 'Verification request not found');
+      response
+        .status(200)
+        .json({ request: await getOwnVerificationRequest(auth.userId, requestId) });
+    }),
+  );
+
+  router.get(
     '/admin/verifications',
     requireAuth(config),
     requireAdmin,
@@ -213,9 +263,20 @@ export function createAdminRouter(config: AuthConfig): Router {
       const requestId = request.params.id;
       if (!requestId) throw new HttpError(404, 'Verification request not found');
       response.status(200).json({
-        request: await reviewVerificationRequest(auth.userId, requestId, input),
+        request: await reviewVerificationRequest(auth.userId, auth.role, requestId, input),
         message: 'Verification reviewed',
       });
+    }),
+  );
+
+  router.get(
+    '/admin/verifications/:id',
+    requireAuth(config),
+    requireAdmin,
+    asyncHandler(async (request, response) => {
+      const requestId = request.params.id;
+      if (!requestId) throw new HttpError(404, 'Verification request not found');
+      response.status(200).json(await getVerificationRequestDetail(requestId));
     }),
   );
 

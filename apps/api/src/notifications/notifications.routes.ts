@@ -3,7 +3,13 @@ import { notificationListQuerySchema } from '@vivah/shared';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
-import { listNotifications, markNotificationRead } from './notifications.service.js';
+import {
+  deleteNotification,
+  listNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+  unreadNotificationCount,
+} from './notifications.service.js';
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -31,6 +37,7 @@ export function createNotificationsRouter(config: AuthConfig): Router {
       const input = notificationListQuerySchema.parse(request.query);
       response.status(200).json({
         notifications: await listNotifications(auth.userId, input.unreadOnly),
+        unreadCount: await unreadNotificationCount(auth.userId),
       });
     }),
   );
@@ -44,6 +51,28 @@ export function createNotificationsRouter(config: AuthConfig): Router {
       if (!notificationId) throw new HttpError(404, 'Notification not found');
       const notification = await markNotificationRead(auth.userId, notificationId);
       response.status(200).json({ notification });
+    }),
+  );
+
+  router.patch(
+    '/me/notifications/read-all',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      response.status(200).json({ updated: await markAllNotificationsRead(auth.userId) });
+    }),
+  );
+
+  router.delete(
+    '/me/notifications/:id',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const notificationId = request.params.id;
+      if (!notificationId) throw new HttpError(404, 'Notification not found');
+      const notification = await deleteNotification(auth.userId, notificationId);
+      if (!notification) throw new HttpError(404, 'Notification not found');
+      response.status(200).json({ message: 'Notification deleted' });
     }),
   );
 
