@@ -96,7 +96,7 @@ async function assertNotBlocked(userId: Types.ObjectId, targetUserId: Types.Obje
 }
 
 async function notify(userId: Types.ObjectId, type: string, title: string, body?: string) {
-  await NotificationModel.create({ userId, type, title, body });
+  await NotificationModel.create({ userId, type, title, ...(body ? { body } : {}) });
 }
 
 function monthStart() {

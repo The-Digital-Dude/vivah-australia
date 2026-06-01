@@ -2,6 +2,7 @@ import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import { z } from 'zod';
+import { createAdminRouter } from './admin/admin.routes.js';
 import { createAuthRouter } from './auth/auth.routes.js';
 import { isHttpError } from './auth/auth-errors.js';
 import type { AuthConfig } from './auth/auth-types.js';
@@ -10,6 +11,7 @@ import { createInteractionsRouter } from './interactions/interactions.routes.js'
 import { createMatchRouter } from './match/match.routes.js';
 import { createMediaRouter } from './media/media.routes.js';
 import { createMessagesRouter } from './messages/messages.routes.js';
+import { createNotificationsRouter } from './notifications/notifications.routes.js';
 import { createPublicRouter } from './public/public.routes.js';
 import { createProfileRouter } from './profile/profile.routes.js';
 
@@ -59,6 +61,8 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createInteractionsRouter(options.auth));
   app.use('/api', createMessagesRouter(options.auth));
   app.use('/api', createBillingRouter(options.auth));
+  app.use('/api', createAdminRouter(options.auth));
+  app.use('/api', createNotificationsRouter(options.auth));
 
   app.use((error: unknown, _request: Request, response: Response, _next: express.NextFunction) => {
     if (isZodValidationError(error)) {

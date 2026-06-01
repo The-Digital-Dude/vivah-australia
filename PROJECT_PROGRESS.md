@@ -55,6 +55,16 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | PAY-002 Invoices, Coupons, Refund Records                  | Complete                              | Invoice metadata sync, payment history endpoint, coupon model/admin create API, refund record model/admin refund API, member payment history, admin payments screen, and tests.                                                                                                                                         |
 | PAY-003 Wallet/Provider Placeholders                       | Partial                               | Payments persist provider fields and Stripe checkout supports wallet-capable checkout. PayPal adapter and custom Stripe Payment Element UI are not implemented yet.                                                                                                                                                     |
 | BOOST-001 Boost Products and Active Boosts                 | Mostly complete                       | Profile boost model, fixed-duration boosts, entitlement-backed activation, usage counter enforcement, subscription UI boost action, active boost listing, and tests. Search ranking/homepage featured placement and visible boosted badges remain.                                                                      |
+| ADMIN-001 Admin Authentication and RBAC                    | Complete                              | `/admin/login`, admin client guard, admin dashboard shell, reusable API role middleware, protected admin routes, and RBAC tests.                                                                                                                                                                                        |
+| ADMIN-002 User Management                                  | Mostly complete                       | Admin user list/update APIs, role/status filters, suspend/activate actions, user table, audit logging, and tests. User detail, notes panel, and delete workflow remain.                                                                                                                                                 |
+| ADMIN-003 Profile Moderation                               | Complete                              | Pending profile queue API/UI, approve/reject/needs-changes workflow, reviewer/reason storage, notification/email trigger, audit log, and tests.                                                                                                                                                                         |
+| ADMIN-004 Verification Management                          | Mostly complete                       | Admin verification queue/review API/UI, approve/reject/resubmission workflow, badge updates, notifications, and tests. Secure document preview remains.                                                                                                                                                                 |
+| VERIFY-001 Verification Request System                     | Mostly complete                       | Member verification request API, verification request/document models, admin review workflow, owner/admin access boundaries, notification/email outcomes, and tests. Dedicated member dashboard and signed document upload/viewing remain.                                                                              |
+| VERIFY-002 Verification Badge Logic                        | Mostly complete                       | Badge recalculation on approved verification requests using current profile verification flags. Configurable system-setting rules and revocation downgrade tests remain.                                                                                                                                                |
+| NOTIF-001 In-App Notifications                             | Complete for implemented events       | Typed notification model, notification service, member list/read APIs, triggers for profile/verification/report/interest flows, and tests. Notification dropdown/page remains.                                                                                                                                          |
+| NOTIF-002 Email Notifications                              | Mostly complete                       | Central notification service can send transactional emails via existing email service for moderation and verification outcomes; auth/contact emails already exist. Production provider/templates/preferences remain.                                                                                                    |
+| SEC-002 RBAC and Permission Middleware                     | Mostly complete                       | Reusable auth/role/admin/super-admin middleware, admin endpoint enforcement, ownership checks in member APIs, and RBAC tests. Fine-grained permission matrix middleware remains.                                                                                                                                        |
+| SEC-003 Audit Logs and Activity Logs                       | Mostly complete                       | Audit/activity log services, admin user/profile/verification audit records, verification request activity records, and tests. Admin log browsing endpoints and sensitive document-view logs remain.                                                                                                                     |
 
 ## Partially Completed / Infrastructure Present
 
@@ -72,25 +82,15 @@ The following modules do not yet have full business-feature implementations in t
 - AUTH-002 Mobile Registration and OTP
 - AUTH-003 Social Login
 - MEDIA-002 Video Introduction Upload
-- VERIFY-001 Verification Request System
-- VERIFY-002 Verification Badge Logic
 - VERIFY-003 External Provider Extension Points
 - MATCH-003 Recently Viewed Profiles
 - COMMUNITY-001 Rooms
 - COMMUNITY-002 Posts, Comments, Reactions
-- NOTIF-001 In-App Notifications
-- NOTIF-002 Email Notifications
 - NOTIF-003 SMS Notifications and OTP
 - NOTIF-004 Push Notification Placeholder
-- ADMIN-001 Admin Authentication and RBAC
-- ADMIN-002 User Management
-- ADMIN-003 Profile Moderation
-- ADMIN-004 Verification Management
 - ADMIN-005 Membership and Payment Monitoring
 - ADMIN-007 Moderation Dashboard
 - ADMIN-008 Reporting and Analytics
-- SEC-002 RBAC and Permission Middleware
-- SEC-003 Audit Logs and Activity Logs
 - SEC-004 Fraud Prevention Rules
 - UI-001 Responsive Layout System
 - UI-002 Core Component Library
@@ -117,6 +117,10 @@ The following modules do not yet have full business-feature implementations in t
 - Billing uses Stripe when `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are configured; local development falls back to mock checkout records for plan checkout testing.
 - Payment provider abstraction is limited to persisted provider fields; a PayPal adapter and custom Payment Element wallet UI remain future work.
 - Profile boosts activate and expire by time window, but boosted ranking and public boosted badges still need search/homepage integration.
+- Admin auth is guarded client-side because the current web auth token is stored in localStorage; moving auth to httpOnly cookies would allow server-side Next route protection.
+- Verification documents are represented by encrypted storage metadata, but secure member upload and signed admin preview still need to be connected to the media storage flow.
+- Notification/email delivery currently uses the existing email service abstraction; production provider templates, preferences, and queueing remain future work.
+- Audit/activity services record core admin and verification events; admin log browsing endpoints and sensitive document access logging remain future work.
 - Frontend tests and E2E tests are not present.
 - No CI/CD pipeline is configured yet.
 
@@ -143,6 +147,11 @@ Live local checks also passed for:
 - `http://localhost:3000/pricing`
 - `http://localhost:3000/member/subscription`
 - `http://localhost:3000/admin/payments`
+- `http://localhost:3000/admin/login`
+- `http://localhost:3000/admin/dashboard`
+- `http://localhost:3000/admin/users`
+- `http://localhost:3000/admin/profiles`
+- `http://localhost:3000/admin/verifications`
 - `http://localhost:3000/admin/reports`
 
 ## Recommended Next Build Order

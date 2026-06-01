@@ -1,5 +1,5 @@
 import type { NextFunction, Response } from 'express';
-import { AccountStatus } from '@vivah/shared';
+import { AccountStatus, UserRole, type UserRole as UserRoleType } from '@vivah/shared';
 import { UserModel } from '../models/index.js';
 import type { AuthConfig, AuthenticatedRequest } from './auth-types.js';
 import { HttpError } from './auth-errors.js';
@@ -29,3 +29,26 @@ export function requireAuth(config: AuthConfig) {
     });
   };
 }
+
+export function requireRoles(roles: UserRoleType[]) {
+  return (request: AuthenticatedRequest, _response: Response, next: NextFunction) => {
+    if (!request.auth) {
+      next(new HttpError(401, 'Authentication required'));
+      return;
+    }
+
+    if (!roles.includes(request.auth.role)) {
+      next(new HttpError(403, 'Admin access required'));
+      return;
+    }
+
+    next();
+  };
+}
+
+export const requireAdmin = requireRoles([
+  UserRole.SUPER_ADMIN,
+  UserRole.ADMIN,
+  UserRole.MODERATOR,
+]);
+export const requireSuperAdmin = requireRoles([UserRole.SUPER_ADMIN]);

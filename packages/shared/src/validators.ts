@@ -281,6 +281,49 @@ export const reportAdminReviewSchema = z.object({
   action: z.enum(['ASSIGN', 'RESOLVE', 'DISMISS']),
 });
 
+export const adminUserQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(500).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(25),
+  role: userRoleSchema.optional(),
+  status: accountStatusSchema.optional(),
+  q: z.string().trim().max(120).optional(),
+});
+
+export const adminUserUpdateSchema = z.object({
+  role: userRoleSchema.optional(),
+  status: accountStatusSchema.optional(),
+  emailVerified: z.boolean().optional(),
+  mobileVerified: z.boolean().optional(),
+});
+
+export const profileModerationQuerySchema = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'NEEDS_CHANGES']).default('PENDING'),
+});
+
+export const profileModerationReviewSchema = z.object({
+  action: z.enum(['APPROVE', 'REJECT', 'NEEDS_CHANGES']),
+  reason: z.string().trim().max(1000).optional(),
+});
+
+export const verificationRequestCreateSchema = z.object({
+  type: z.enum(['IDENTITY', 'ADDRESS', 'EMPLOYMENT', 'VISA', 'POLICE_CLEARANCE', 'FACIAL']),
+  documentType: z.string().trim().min(2).max(120).optional(),
+  storageKey: z.string().trim().min(2).max(500).optional(),
+});
+
+export const verificationReviewSchema = z.object({
+  status: z.enum([
+    VerificationStatus.APPROVED,
+    VerificationStatus.REJECTED,
+    VerificationStatus.NEEDS_RESUBMISSION,
+  ]),
+  reason: z.string().trim().max(1000).optional(),
+});
+
+export const notificationListQuerySchema = z.object({
+  unreadOnly: z.coerce.boolean().default(false),
+});
+
 export const messageAttachmentSchema = z.object({
   attachmentType: z.enum(['IMAGE', 'DOCUMENT']),
   assetUrl: z.string().trim().url(),
@@ -538,6 +581,13 @@ export type InterestRespondInput = z.infer<typeof interestRespondSchema>;
 export type InterestListQueryInput = z.infer<typeof interestListQuerySchema>;
 export type ReportCreateInput = z.infer<typeof reportCreateSchema>;
 export type ReportAdminReviewInput = z.infer<typeof reportAdminReviewSchema>;
+export type AdminUserQueryInput = z.infer<typeof adminUserQuerySchema>;
+export type AdminUserUpdateInput = z.infer<typeof adminUserUpdateSchema>;
+export type ProfileModerationQueryInput = z.infer<typeof profileModerationQuerySchema>;
+export type ProfileModerationReviewInput = z.infer<typeof profileModerationReviewSchema>;
+export type VerificationRequestCreateInput = z.infer<typeof verificationRequestCreateSchema>;
+export type VerificationReviewInput = z.infer<typeof verificationReviewSchema>;
+export type NotificationListQueryInput = z.infer<typeof notificationListQuerySchema>;
 export type MessageAttachmentInput = z.infer<typeof messageAttachmentSchema>;
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
 export type TypingEventInput = z.infer<typeof typingEventSchema>;

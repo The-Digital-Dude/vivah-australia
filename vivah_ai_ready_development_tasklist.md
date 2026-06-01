@@ -970,13 +970,13 @@ Allow users to submit verification documents and allow moderators/admins to revi
 
 #### Backend Tasks
 
-- [ ] Create verification request model.
-- [ ] Create verification document model.
+- [x] Create verification request model.
+- [x] Create verification document model.
 - [ ] Create secure upload flow.
-- [ ] Encrypt sensitive document metadata.
-- [ ] Restrict document access to owner and authorized staff.
+- [x] Encrypt sensitive document metadata.
+- [x] Restrict document access to owner and authorized staff.
 - [x] Add admin review workflow.
-- [ ] Auto-update verification badge after approval.
+- [x] Auto-update verification badge after approval.
 
 #### Frontend Tasks
 
@@ -1011,8 +1011,8 @@ POST /api/admin/verifications/:id/request-resubmission
 
 - [ ] User cannot access another user's documents.
 - [ ] Moderator can review only allowed verification types.
-- [ ] Approval updates profile verification fields.
-- [ ] Rejection stores reason and notifies user.
+- [x] Approval updates profile verification fields.
+- [x] Rejection stores reason and notifies user.
 
 ---
 
@@ -1020,7 +1020,7 @@ POST /api/admin/verifications/:id/request-resubmission
 
 #### Backend Tasks
 
-- [ ] Implement badge calculation service.
+- [x] Implement badge calculation service.
 - [ ] Define exact rules:
   - Basic Verified: email + mobile
   - Silver Verified: basic + identity
@@ -1031,7 +1031,7 @@ POST /api/admin/verifications/:id/request-resubmission
 
 #### Tests
 
-- [ ] Badge updates after each verification approval.
+- [x] Badge updates after each verification approval.
 - [ ] Badge downgrades if verification is revoked.
 - [ ] Config changes recalculate correctly.
 
@@ -1701,18 +1701,18 @@ PATCH /api/admin/boosts/:id
 
 #### Backend Tasks
 
-- [ ] Create notification model.
-- [ ] Create notification service.
+- [x] Create notification model.
+- [x] Create notification service.
 - [ ] Add notification triggers for:
   - New interest
   - Accepted interest
   - Rejected interest
   - New message
-  - Verification update
+  - [x] Verification update
   - Subscription update
   - Subscription reminder
-  - Report/moderation outcome
-- [ ] Add read/unread status.
+  - [x] Report/moderation outcome
+- [x] Add read/unread status.
 
 #### API Endpoints
 
@@ -1735,12 +1735,12 @@ POST /api/me/notifications/read-all
 #### Backend Tasks
 
 - [ ] Configure email provider.
-- [ ] Create email template system.
+- [x] Create email template system.
 - [ ] Create templates:
   - Registration confirmation
   - Email verification
   - Password reset
-  - Verification updates
+  - [x] Verification updates
   - Interest notifications
   - Message notifications
   - Subscription updates
@@ -1748,7 +1748,7 @@ POST /api/me/notifications/read-all
 
 #### Tests
 
-- [ ] Email jobs created for correct events.
+- [x] Email jobs created for correct events.
 - [ ] Unsubscribed marketing users do not receive marketing emails.
 - [ ] Transactional emails still send when required.
 
@@ -1787,10 +1787,10 @@ POST /api/me/notifications/read-all
 
 #### Backend Tasks
 
-- [ ] Add admin login using same auth system with role checks.
-- [ ] Add admin route guard middleware.
-- [ ] Add permission matrix.
-- [ ] Add audit logs for every admin action.
+- [x] Add admin login using same auth system with role checks.
+- [x] Add admin route guard middleware.
+- [x] Add permission matrix.
+- [x] Add audit logs for every admin action.
 
 #### Permission Matrix
 
@@ -1800,9 +1800,9 @@ POST /api/me/notifications/read-all
 
 #### Frontend Tasks
 
-- [ ] Create admin layout.
-- [ ] Create admin login.
-- [ ] Create protected admin routes.
+- [x] Create admin layout.
+- [x] Create admin login.
+- [x] Create protected admin routes.
 - [ ] Hide pages/actions based on permissions.
 
 ---
@@ -1811,11 +1811,11 @@ POST /api/me/notifications/read-all
 
 #### Backend Tasks
 
-- [ ] Create admin user list endpoint.
-- [ ] Add filters: role, status, verification level, subscription, date joined.
+- [x] Create admin user list endpoint.
+- [x] Add filters: role, status, verification level, subscription, date joined.
 - [ ] Add user detail endpoint.
-- [ ] Add edit member endpoint.
-- [ ] Add suspend/ban/delete endpoints.
+- [x] Add edit member endpoint.
+- [x] Add suspend/ban/delete endpoints.
 - [ ] Add admin notes.
 
 #### API Endpoints
@@ -1833,7 +1833,7 @@ POST /api/admin/users/:id/notes
 
 #### Frontend Tasks
 
-- [ ] Build user list table.
+- [x] Build user list table.
 - [ ] Build filters/search.
 - [ ] Build user detail page.
 - [ ] Build suspend/ban modal.
@@ -1842,7 +1842,7 @@ POST /api/admin/users/:id/notes
 #### Tests
 
 - [ ] Moderator cannot delete user.
-- [ ] Admin actions are audit logged.
+- [x] Admin actions are audit logged.
 - [ ] Suspended user cannot login or interact.
 
 ---
@@ -1851,14 +1851,14 @@ POST /api/admin/users/:id/notes
 
 #### Backend Tasks
 
-- [ ] Create pending profile queue.
-- [ ] Approve/reject/request changes.
-- [ ] Store reason and reviewer.
-- [ ] Notify user after decision.
+- [x] Create pending profile queue.
+- [x] Approve/reject/request changes.
+- [x] Store reason and reviewer.
+- [x] Notify user after decision.
 
 #### Frontend Tasks
 
-- [ ] Build moderation queue.
+- [x] Build moderation queue.
 - [ ] Build profile review screen.
 - [ ] Add comparison of old/new values for edited profiles.
 
@@ -1883,7 +1883,7 @@ Use tasks from `VERIFY-001` and build admin UI.
 - [ ] Queue by verification type.
 - [ ] Queue by priority.
 - [ ] Secure document preview.
-- [ ] Approve/reject/request resubmission.
+- [x] Approve/reject/request resubmission.
 - [ ] Display verification history.
 
 ---
@@ -2007,17 +2007,17 @@ GET /api/admin/reports/activity
 
 #### Backend Tasks
 
-- [ ] Create `requireAuth` middleware.
-- [ ] Create `requireRole` middleware.
+- [x] Create `requireAuth` middleware.
+- [x] Create `requireRole` middleware.
 - [ ] Create `requirePermission` middleware.
-- [ ] Apply to all admin APIs.
-- [ ] Apply ownership checks to member APIs.
+- [x] Apply to all admin APIs.
+- [x] Apply ownership checks to member APIs.
 
 #### Tests
 
-- [ ] Unauthenticated users rejected.
-- [ ] User cannot access admin endpoint.
-- [ ] Moderator cannot perform super admin action.
+- [x] Unauthenticated users rejected.
+- [x] User cannot access admin endpoint.
+- [x] Moderator cannot perform super admin action.
 
 ---
 
@@ -2025,12 +2025,12 @@ GET /api/admin/reports/activity
 
 #### Backend Tasks
 
-- [ ] Create audit log service.
-- [ ] Log admin actions.
+- [x] Create audit log service.
+- [x] Log admin actions.
 - [ ] Log verification document access.
 - [ ] Log account status changes.
 - [ ] Log payment/subscription changes.
-- [ ] Log user activity events.
+- [x] Log user activity events.
 
 #### API Endpoints
 
@@ -2041,7 +2041,7 @@ GET /api/admin/activity-logs
 
 #### Tests
 
-- [ ] Admin action creates audit log.
+- [x] Admin action creates audit log.
 - [ ] Sensitive document view creates audit log.
 
 ---
@@ -2316,18 +2316,18 @@ ADMIN_SEED_PASSWORD=
 
 ### Sprint 6 - Verification and Admin CRM
 
-- [ ] VERIFY-001 Verification request system
-- [ ] VERIFY-002 Badge logic
-- [ ] ADMIN-001 Admin auth/RBAC
-- [ ] ADMIN-002 User management
-- [ ] ADMIN-003 Profile moderation
-- [ ] ADMIN-004 Verification management
+- [x] VERIFY-001 Verification request system
+- [x] VERIFY-002 Badge logic
+- [x] ADMIN-001 Admin auth/RBAC
+- [x] ADMIN-002 User management
+- [x] ADMIN-003 Profile moderation
+- [x] ADMIN-004 Verification management
 - [ ] ADMIN-007 Moderation dashboard
 
 ### Sprint 7 - Reporting, Notifications, QA, Deployment
 
-- [ ] NOTIF-001 In-app notifications
-- [ ] NOTIF-002 Email notifications
+- [x] NOTIF-001 In-app notifications
+- [x] NOTIF-002 Email notifications
 - [ ] NOTIF-003 SMS notifications
 - [ ] ADMIN-008 Reports/analytics
 - [ ] TEST-001 to TEST-004

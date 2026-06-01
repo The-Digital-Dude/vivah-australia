@@ -108,6 +108,7 @@ export interface VerificationRequest {
   profileId?: ObjectId;
   type: string;
   status: VerificationStatusType;
+  reviewReason?: string;
   reviewedBy?: ObjectId;
   reviewedAt?: Date;
   createdAt: Date;
@@ -127,6 +128,7 @@ const verificationRequestSchema = new Schema<VerificationRequest>(
       required: true,
       index: true,
     },
+    reviewReason: { type: String, trim: true },
     reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     reviewedAt: { type: Date },
     ...auditedSchemaFields,
@@ -161,6 +163,8 @@ const verificationDocumentSchema = new Schema<VerificationDocument>(
   },
   { ...timestampedSchemaOptions, collection: 'verification_documents' },
 );
+
+verificationRequestSchema.index({ status: 1, createdAt: -1 });
 
 export interface Interest {
   senderId: ObjectId;
@@ -712,7 +716,18 @@ const profileBoostSchema = new Schema<ProfileBoost>(
   { ...timestampedSchemaOptions, collection: 'profile_boosts' },
 );
 
-const notificationSchema = new Schema(
+export interface Notification {
+  userId: ObjectId;
+  type: string;
+  title: string;
+  body?: string;
+  readAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const notificationSchema = new Schema<Notification>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     type: { type: String, required: true, trim: true, index: true },
@@ -724,7 +739,17 @@ const notificationSchema = new Schema(
   { ...timestampedSchemaOptions, collection: 'notifications' },
 );
 
-const auditLogSchema = new Schema(
+export interface AuditLog {
+  actorId?: ObjectId;
+  action: string;
+  targetType?: string;
+  targetId?: ObjectId;
+  metadata?: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const auditLogSchema = new Schema<AuditLog>(
   {
     actorId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     action: { type: String, required: true, trim: true, index: true },
@@ -737,7 +762,16 @@ const auditLogSchema = new Schema(
 
 auditLogSchema.index({ actorId: 1, createdAt: 1 });
 
-const activityLogSchema = new Schema(
+export interface ActivityLog {
+  actorId?: ObjectId;
+  event: string;
+  metadata?: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const activityLogSchema = new Schema<ActivityLog>(
   {
     actorId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     event: { type: String, required: true, trim: true, index: true },
@@ -841,6 +875,7 @@ export type CouponDocument = HydratedDocument<Coupon>;
 export type ProfileMediaDocument = HydratedDocument<ProfileMedia>;
 export type ConversationDocument = HydratedDocument<Conversation>;
 export type MessageDocument = HydratedDocument<Message>;
+export type VerificationRequestDocument = HydratedDocument<VerificationRequest>;
 
 export const ProfileMediaModel = getOrCreateModel<ProfileMedia>('ProfileMedia', profileMediaSchema);
 export const VerificationRequestModel = getOrCreateModel<VerificationRequest>(
@@ -885,9 +920,9 @@ export const InvoiceModel = getOrCreateModel<Invoice>('Invoice', invoiceSchema);
 export const CouponModel = getOrCreateModel<Coupon>('Coupon', couponSchema);
 export const RefundModel = getOrCreateModel<Refund>('Refund', refundSchema);
 export const ProfileBoostModel = getOrCreateModel<ProfileBoost>('ProfileBoost', profileBoostSchema);
-export const NotificationModel = getOrCreateModel('Notification', notificationSchema);
-export const AuditLogModel = getOrCreateModel('AuditLog', auditLogSchema);
-export const ActivityLogModel = getOrCreateModel('ActivityLog', activityLogSchema);
+export const NotificationModel = getOrCreateModel<Notification>('Notification', notificationSchema);
+export const AuditLogModel = getOrCreateModel<AuditLog>('AuditLog', auditLogSchema);
+export const ActivityLogModel = getOrCreateModel<ActivityLog>('ActivityLog', activityLogSchema);
 export const CmsPageModel = getOrCreateModel('CmsPage', cmsPageSchema);
 export const BlogPostModel = getOrCreateModel('BlogPost', blogPostSchema);
 export const TestimonialModel = getOrCreateModel('Testimonial', testimonialSchema);
