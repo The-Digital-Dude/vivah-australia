@@ -1,6 +1,9 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import {
   adminUserQuerySchema,
+  adminUserNoteSchema,
+  adminUserRoleUpdateSchema,
+  adminUserStatusUpdateSchema,
   adminUserUpdateSchema,
   profileModerationQuerySchema,
   profileModerationReviewSchema,
@@ -14,13 +17,17 @@ import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   createVerificationRequest,
+  addUserNote,
   getDashboardSummary,
+  getUserDetail,
   listOwnVerificationRequests,
   listProfilesForModeration,
   listUsers,
   listVerificationRequests,
   reviewProfile,
   reviewVerificationRequest,
+  updateUserRole,
+  updateUserStatus,
   updateUser,
 } from './admin.service.js';
 
@@ -70,6 +77,67 @@ export function createAdminRouter(config: AuthConfig): Router {
       if (!userId) throw new HttpError(404, 'User not found');
       response.status(200).json({
         user: await updateUser(auth.userId, userId, adminUserUpdateSchema.parse(request.body)),
+      });
+    }),
+  );
+
+  router.get(
+    '/admin/users/:id',
+    requireAuth(config),
+    requireAdmin,
+    asyncHandler(async (request, response) => {
+      const userId = request.params.id;
+      if (!userId) throw new HttpError(404, 'User not found');
+      response.status(200).json(await getUserDetail(userId));
+    }),
+  );
+
+  router.patch(
+    '/admin/users/:id/status',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const userId = request.params.id;
+      if (!userId) throw new HttpError(404, 'User not found');
+      response.status(200).json({
+        user: await updateUserStatus(
+          auth.userId,
+          userId,
+          adminUserStatusUpdateSchema.parse(request.body),
+        ),
+      });
+    }),
+  );
+
+  router.patch(
+    '/admin/users/:id/role',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const userId = request.params.id;
+      if (!userId) throw new HttpError(404, 'User not found');
+      response.status(200).json({
+        user: await updateUserRole(
+          auth.userId,
+          userId,
+          adminUserRoleUpdateSchema.parse(request.body),
+        ),
+      });
+    }),
+  );
+
+  router.patch(
+    '/admin/users/:id/notes',
+    requireAuth(config),
+    requireAdmin,
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const userId = request.params.id;
+      if (!userId) throw new HttpError(404, 'User not found');
+      response.status(201).json({
+        note: await addUserNote(auth.userId, userId, adminUserNoteSchema.parse(request.body)),
       });
     }),
   );

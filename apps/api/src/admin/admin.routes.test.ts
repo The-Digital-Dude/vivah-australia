@@ -146,17 +146,48 @@ describe('admin production readiness routes', () => {
   it('manages users and writes audit logs', async () => {
     const admin = await createUser('admin-users@example.com', UserRole.ADMIN);
     const member = await createUser('target@example.com');
+    const profile = await createProfile(member.user._id);
+
+    const searchResponse = await request(app)
+      .get(`/api/admin/users?q=${profile.displayId}`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(
+      bodyAs<{ users: Array<{ id: string; profile?: { displayId?: string } }> }>(searchResponse)
+        .users[0],
+    ).toMatchObject({
+      id: member.user.id,
+      profile: { displayId: profile.displayId },
+    });
 
     await request(app)
-      .patch(`/api/admin/users/${member.user.id}`)
+      .patch(`/api/admin/users/${member.user.id}/status`)
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .send({ status: AccountStatus.SUSPENDED })
       .expect(200);
+    await request(app)
+      .patch(`/api/admin/users/${member.user.id}/role`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ role: UserRole.PREMIUM_USER })
+      .expect(200);
+    await request(app)
+      .patch(`/api/admin/users/${member.user.id}/notes`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ note: 'Called member to verify profile details.' })
+      .expect(201);
 
-    expect((await UserModel.findById(member.user._id).orFail()).status).toBe(
-      AccountStatus.SUSPENDED,
+    const updated = await UserModel.findById(member.user._id).orFail();
+    expect(updated.status).toBe(AccountStatus.SUSPENDED);
+    expect(updated.role).toBe(UserRole.PREMIUM_USER);
+    const detailResponse = await request(app)
+      .get(`/api/admin/users/${member.user.id}`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ notes: Array<{ note: string }> }>(detailResponse).notes[0]?.note).toBe(
+      'Called member to verify profile details.',
     );
-    expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_UPDATED' })).toBe(1);
+    expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_UPDATED' })).toBe(2);
+    expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_NOTE_ADDED' })).toBe(1);
   });
 
   it('reviews profiles and sends notification/email records', async () => {

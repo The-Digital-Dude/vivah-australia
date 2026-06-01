@@ -1813,10 +1813,10 @@ POST /api/me/notifications/read-all
 
 - [x] Create admin user list endpoint.
 - [x] Add filters: role, status, verification level, subscription, date joined.
-- [ ] Add user detail endpoint.
+- [x] Add user detail endpoint.
 - [x] Add edit member endpoint.
 - [x] Add suspend/ban/delete endpoints.
-- [ ] Add admin notes.
+- [x] Add admin notes.
 
 #### API Endpoints
 
@@ -1824,20 +1824,22 @@ POST /api/me/notifications/read-all
 GET /api/admin/users
 GET /api/admin/users/:id
 PATCH /api/admin/users/:id
+PATCH /api/admin/users/:id/status
+PATCH /api/admin/users/:id/role
 POST /api/admin/users/:id/suspend
 POST /api/admin/users/:id/ban
 POST /api/admin/users/:id/activate
 DELETE /api/admin/users/:id
-POST /api/admin/users/:id/notes
+PATCH /api/admin/users/:id/notes
 ```
 
 #### Frontend Tasks
 
 - [x] Build user list table.
-- [ ] Build filters/search.
+- [x] Build filters/search.
 - [ ] Build user detail page.
 - [ ] Build suspend/ban modal.
-- [ ] Build notes panel.
+- [x] Build notes panel.
 
 #### Tests
 

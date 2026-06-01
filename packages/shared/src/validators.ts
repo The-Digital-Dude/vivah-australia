@@ -296,6 +296,18 @@ export const adminUserUpdateSchema = z.object({
   mobileVerified: z.boolean().optional(),
 });
 
+export const adminUserStatusUpdateSchema = z.object({
+  status: accountStatusSchema,
+});
+
+export const adminUserRoleUpdateSchema = z.object({
+  role: userRoleSchema,
+});
+
+export const adminUserNoteSchema = z.object({
+  note: z.string().trim().min(2).max(2000),
+});
+
 export const profileModerationQuerySchema = z.object({
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'NEEDS_CHANGES']).default('PENDING'),
 });
@@ -583,6 +595,9 @@ export type ReportCreateInput = z.infer<typeof reportCreateSchema>;
 export type ReportAdminReviewInput = z.infer<typeof reportAdminReviewSchema>;
 export type AdminUserQueryInput = z.infer<typeof adminUserQuerySchema>;
 export type AdminUserUpdateInput = z.infer<typeof adminUserUpdateSchema>;
+export type AdminUserStatusUpdateInput = z.infer<typeof adminUserStatusUpdateSchema>;
+export type AdminUserRoleUpdateInput = z.infer<typeof adminUserRoleUpdateSchema>;
+export type AdminUserNoteInput = z.infer<typeof adminUserNoteSchema>;
 export type ProfileModerationQueryInput = z.infer<typeof profileModerationQuerySchema>;
 export type ProfileModerationReviewInput = z.infer<typeof profileModerationReviewSchema>;
 export type VerificationRequestCreateInput = z.infer<typeof verificationRequestCreateSchema>;

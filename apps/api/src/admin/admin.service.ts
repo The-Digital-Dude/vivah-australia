@@ -6,7 +6,10 @@ import {
   VerificationStatus,
   type VerificationStatus as VerificationStatusType,
   type ProfileModerationQueryInput,
+  type AdminUserNoteInput,
   type AdminUserQueryInput,
+  type AdminUserRoleUpdateInput,
+  type AdminUserStatusUpdateInput,
   type AdminUserUpdateInput,
   type ProfileModerationReviewInput,
   type VerificationRequestCreateInput,
@@ -17,6 +20,7 @@ import { HttpError } from '../auth/auth-errors.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import {
+  AdminNoteModel,
   PaymentModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -45,6 +49,18 @@ function publicUser(user: Awaited<ReturnType<typeof UserModel.findOne>>) {
     mobileVerified: user.mobileVerified,
     createdAt: user.createdAt,
     lastLoginAt: user.lastLoginAt,
+  };
+}
+
+function publicProfileSummary(profile: Awaited<ReturnType<typeof ProfileModel.findOne>>) {
+  if (!profile) return null;
+  return {
+    id: profile.id,
+    displayId: profile.displayId,
+    firstName: profile.personal.firstName,
+    lastName: profile.personal.lastName,
+    verificationLevel: profile.verification.level,
+    approvalStatus: profile.moderation.approvalStatus,
   };
 }
 
@@ -100,15 +116,55 @@ export async function listUsers(input: AdminUserQueryInput) {
   const filter: Record<string, unknown> = { isDeleted: false };
   if (input.role) filter.role = input.role;
   if (input.status) filter.status = input.status;
-  if (input.q) filter.email = { $regex: input.q, $options: 'i' };
+  if (input.q) {
+    const matchingProfiles = await ProfileModel.find({
+      isDeleted: false,
+      $or: [
+        { displayId: { $regex: input.q, $options: 'i' } },
+        { 'personal.firstName': { $regex: input.q, $options: 'i' } },
+        { 'personal.lastName': { $regex: input.q, $options: 'i' } },
+      ],
+    }).select('userId');
+    filter.$or = [
+      { email: { $regex: input.q, $options: 'i' } },
+      { _id: { $in: matchingProfiles.map((profile) => profile.userId) } },
+    ];
+  }
   const skip = (input.page - 1) * input.pageSize;
   const [users, total] = await Promise.all([
     UserModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(input.pageSize),
     UserModel.countDocuments(filter),
   ]);
+  const profiles = await ProfileModel.find({
+    userId: { $in: users.map((user) => user._id) },
+    isDeleted: false,
+  });
+  const profileByUser = new Map(profiles.map((profile) => [String(profile.userId), profile]));
   return {
-    users: users.map((user) => publicUser(user)),
+    users: users.map((user) => ({
+      ...publicUser(user),
+      profile: publicProfileSummary(profileByUser.get(String(user._id)) ?? null),
+    })),
     pagination: { page: input.page, pageSize: input.pageSize, total },
+  };
+}
+
+export async function getUserDetail(targetUserId: string) {
+  const user = await UserModel.findOne({ _id: targetUserId, isDeleted: false });
+  if (!user) throw new HttpError(404, 'User not found');
+  const [profile, notes] = await Promise.all([
+    ProfileModel.findOne({ userId: user._id, isDeleted: false }),
+    AdminNoteModel.find({ userId: user._id, isDeleted: false }).sort({ createdAt: -1 }).limit(25),
+  ]);
+  return {
+    user: publicUser(user),
+    profile: publicProfileSummary(profile),
+    notes: notes.map((note) => ({
+      id: note.id,
+      authorId: String(note.authorId),
+      note: note.note,
+      createdAt: note.createdAt,
+    })),
   };
 }
 
@@ -131,6 +187,48 @@ export async function updateUser(
     metadata: input,
   });
   return publicUser(user);
+}
+
+export async function updateUserStatus(
+  actorId: Types.ObjectId,
+  targetUserId: string,
+  input: AdminUserStatusUpdateInput,
+) {
+  return updateUser(actorId, targetUserId, { status: input.status });
+}
+
+export async function updateUserRole(
+  actorId: Types.ObjectId,
+  targetUserId: string,
+  input: AdminUserRoleUpdateInput,
+) {
+  return updateUser(actorId, targetUserId, { role: input.role });
+}
+
+export async function addUserNote(
+  actorId: Types.ObjectId,
+  targetUserId: string,
+  input: AdminUserNoteInput,
+) {
+  const user = await UserModel.findOne({ _id: targetUserId, isDeleted: false });
+  if (!user) throw new HttpError(404, 'User not found');
+  const note = await AdminNoteModel.create({
+    userId: user._id,
+    authorId: actorId,
+    note: input.note,
+  });
+  await logAudit({
+    actorId,
+    action: 'ADMIN_USER_NOTE_ADDED',
+    targetType: 'USER',
+    targetId: user._id,
+  });
+  return {
+    id: note.id,
+    note: note.note,
+    authorId: String(note.authorId),
+    createdAt: note.createdAt,
+  };
 }
 
 export async function listProfilesForModeration(status: ProfileModerationQueryInput['status']) {

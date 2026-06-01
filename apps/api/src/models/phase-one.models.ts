@@ -833,7 +833,16 @@ const systemSettingSchema = new Schema(
   { ...timestampedSchemaOptions, collection: 'system_settings' },
 );
 
-const adminNoteSchema = new Schema(
+export interface AdminNote {
+  userId: ObjectId;
+  authorId: ObjectId;
+  note: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const adminNoteSchema = new Schema<AdminNote>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -929,7 +938,7 @@ export const TestimonialModel = getOrCreateModel('Testimonial', testimonialSchem
 export const SuccessStoryModel = getOrCreateModel('SuccessStory', successStorySchema);
 export const BannerModel = getOrCreateModel('Banner', bannerSchema);
 export const SystemSettingModel = getOrCreateModel('SystemSetting', systemSettingSchema);
-export const AdminNoteModel = getOrCreateModel('AdminNote', adminNoteSchema);
+export const AdminNoteModel = getOrCreateModel<AdminNote>('AdminNote', adminNoteSchema);
 export const ContactInquiryModel = getOrCreateModel<ContactInquiry>(
   'ContactInquiry',
   contactInquirySchema,
