@@ -7,11 +7,16 @@ import { AccountStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
+  BannerModel,
+  BlogPostModel,
   CmsPageModel,
   ContactInquiryModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
+  SuccessStoryModel,
+  SystemSettingModel,
+  TestimonialModel,
   UserModel,
 } from '../models/index.js';
 import type { AuthConfig } from '../auth/auth-types.js';
@@ -203,6 +208,104 @@ describe('public web routes', () => {
     if (hasTitle(updated)) {
       expect(updated.title).toBe('About Vivah Australia');
     }
+  });
+
+  it('manages homepage and CMS content collections from admin APIs', async () => {
+    const accessToken = await createAdminAccessToken();
+    await request(app)
+      .put('/api/admin/cms/home')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        hero: {
+          title: 'Vivah Australia',
+          subtitle: 'Premium introductions for serious Australian members.',
+          primaryAction: 'Create profile',
+          secondaryAction: 'View plans',
+        },
+        howItWorks: ['Create profile', 'Verify details'],
+        safety: ['Manual moderation', 'Private media'],
+        faq: [{ question: 'Can admins update FAQs?', answer: 'Yes, from the CMS.' }],
+        contact: { email: 'support@vivahaustralia.com.au', location: 'Australia' },
+      })
+      .expect(200);
+
+    const homeResponse = await request(app).get('/api/public/home').expect(200);
+    expect(bodyAs<{ hero: { subtitle: string } }>(homeResponse).hero.subtitle).toContain(
+      'Premium introductions',
+    );
+
+    await request(app)
+      .post('/api/admin/cms/blogs')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        slug: 'profile-guide',
+        title: 'Profile guide',
+        body: 'Useful profile guidance.',
+        published: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .post('/api/admin/cms/success-stories')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        slug: 'melbourne-match',
+        title: 'Melbourne match',
+        body: 'A thoughtful family introduction.',
+        coupleName: 'A & P',
+        published: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .post('/api/admin/cms/testimonials')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        name: 'Member family',
+        quote: 'The service felt considered.',
+        published: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .post('/api/admin/cms/banners')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        key: 'homepage-hero',
+        title: 'Homepage hero',
+        imageUrl: 'https://example.com/hero.jpg',
+        active: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .get('/api/admin/cms/blogs')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    await request(app)
+      .get('/api/admin/cms/success-stories')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    await request(app)
+      .get('/api/admin/cms/testimonials')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    await request(app)
+      .get('/api/admin/cms/banners')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    await expect(
+      SystemSettingModel.findOne({ key: 'homepageContent' }).orFail(),
+    ).resolves.toBeTruthy();
+    await expect(BlogPostModel.findOne({ slug: 'profile-guide' }).orFail()).resolves.toBeTruthy();
+    await expect(
+      SuccessStoryModel.findOne({ slug: 'melbourne-match' }).orFail(),
+    ).resolves.toBeTruthy();
+    await expect(
+      TestimonialModel.findOne({ name: 'Member family' }).orFail(),
+    ).resolves.toBeTruthy();
+    await expect(BannerModel.findOne({ key: 'homepage-hero' }).orFail()).resolves.toBeTruthy();
   });
 
   it('validates and stores contact inquiries', async () => {

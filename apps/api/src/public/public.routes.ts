@@ -1,19 +1,30 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { URLSearchParams } from 'url';
-import { cmsPageInputSchema, contactInquirySchema, UserRole } from '@vivah/shared';
+import {
+  cmsBannerInputSchema,
+  cmsContentInputSchema,
+  cmsHomeContentSchema,
+  cmsPageInputSchema,
+  cmsSuccessStoryInputSchema,
+  cmsTestimonialInputSchema,
+  contactInquirySchema,
+  UserRole,
+} from '@vivah/shared';
 import { requireAuth } from '../auth/auth.middleware.js';
 import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { sendEmail } from '../common/email.service.js';
 import {
   BlogPostModel,
+  BannerModel,
   CmsPageModel,
   ContactInquiryModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
   SuccessStoryModel,
+  SystemSettingModel,
   TestimonialModel,
 } from '../models/index.js';
 
@@ -104,12 +115,43 @@ function pageProjection() {
   return 'slug title body seoTitle seoDescription published updatedAt';
 }
 
+function contentProjection() {
+  return 'slug title body published updatedAt';
+}
+
+function successStoryProjection() {
+  return 'slug title body coupleName published updatedAt';
+}
+
+function testimonialProjection() {
+  return 'name quote published updatedAt';
+}
+
+function bannerProjection() {
+  return 'key title imageUrl active updatedAt';
+}
+
+async function getHomeContent() {
+  const setting = (await SystemSettingModel.findOne({
+    key: 'homepageContent',
+    isDeleted: false,
+  })
+    .select('value')
+    .lean()) as { value?: unknown } | null;
+
+  const parsed = cmsHomeContentSchema.safeParse(setting?.value);
+  return parsed.success ? parsed.data : fallbackHomeContent();
+}
+
 export function createPublicRouter(authConfig: AuthConfig): Router {
   const router = Router();
 
-  router.get('/public/home', (_request, response) => {
-    response.status(200).json(fallbackHomeContent());
-  });
+  router.get(
+    '/public/home',
+    asyncHandler(async (_request, response) => {
+      response.status(200).json(await getHomeContent());
+    }),
+  );
 
   router.get(
     '/public/featured-profiles',
@@ -148,7 +190,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       const stories = await SuccessStoryModel.find({ published: true, isDeleted: false })
         .sort({ updatedAt: -1 })
         .limit(6)
-        .select(pageProjection())
+        .select(successStoryProjection())
         .lean();
 
       response.status(200).json({ stories });
@@ -264,6 +306,31 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     }),
   );
 
+  router.get(
+    '/admin/cms/home',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      response.status(200).json({ content: await getHomeContent() });
+    }),
+  );
+
+  router.put(
+    '/admin/cms/home',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsHomeContentSchema.parse(request.body);
+      await SystemSettingModel.findOneAndUpdate(
+        { key: 'homepageContent' },
+        { key: 'homepageContent', value: input, description: 'Public homepage CMS content' },
+        { upsert: true, returnDocument: 'after', runValidators: true },
+      );
+
+      response.status(200).json({ content: input });
+    }),
+  );
+
   router.post(
     '/admin/cms/pages',
     requireAuth(authConfig),
@@ -308,6 +375,269 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
 
       if (!page) {
         throw new HttpError(404, 'Page not found');
+      }
+
+      response.status(204).send();
+    }),
+  );
+
+  router.get(
+    '/admin/cms/blogs',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const blogs = await BlogPostModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .select(contentProjection())
+        .lean();
+
+      response.status(200).json({ blogs });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/blogs',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsContentInputSchema.parse(request.body);
+      const blog: unknown = await BlogPostModel.create({
+        ...input,
+        authorId: request.auth?.userId,
+      });
+
+      response.status(201).json({ blog });
+    }),
+  );
+
+  router.patch(
+    '/admin/cms/blogs/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsContentInputSchema.partial().parse(request.body);
+      const blog: unknown = await BlogPostModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+
+      if (!blog) {
+        throw new HttpError(404, 'Blog not found');
+      }
+
+      response.status(200).json({ blog });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/blogs/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const blog: unknown = await BlogPostModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+
+      if (!blog) {
+        throw new HttpError(404, 'Blog not found');
+      }
+
+      response.status(204).send();
+    }),
+  );
+
+  router.get(
+    '/admin/cms/success-stories',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const stories = await SuccessStoryModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .select(successStoryProjection())
+        .lean();
+
+      response.status(200).json({ stories });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/success-stories',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsSuccessStoryInputSchema.parse(request.body);
+      const story: unknown = await SuccessStoryModel.create(input);
+
+      response.status(201).json({ story });
+    }),
+  );
+
+  router.patch(
+    '/admin/cms/success-stories/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsSuccessStoryInputSchema.partial().parse(request.body);
+      const story: unknown = await SuccessStoryModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+
+      if (!story) {
+        throw new HttpError(404, 'Success story not found');
+      }
+
+      response.status(200).json({ story });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/success-stories/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const story: unknown = await SuccessStoryModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+
+      if (!story) {
+        throw new HttpError(404, 'Success story not found');
+      }
+
+      response.status(204).send();
+    }),
+  );
+
+  router.get(
+    '/admin/cms/testimonials',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const testimonials = await TestimonialModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .select(testimonialProjection())
+        .lean();
+
+      response.status(200).json({ testimonials });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/testimonials',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsTestimonialInputSchema.parse(request.body);
+      const testimonial: unknown = await TestimonialModel.create(input);
+
+      response.status(201).json({ testimonial });
+    }),
+  );
+
+  router.patch(
+    '/admin/cms/testimonials/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsTestimonialInputSchema.partial().parse(request.body);
+      const testimonial: unknown = await TestimonialModel.findByIdAndUpdate(
+        request.params.id,
+        input,
+        {
+          returnDocument: 'after',
+          runValidators: true,
+        },
+      );
+
+      if (!testimonial) {
+        throw new HttpError(404, 'Testimonial not found');
+      }
+
+      response.status(200).json({ testimonial });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/testimonials/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const testimonial: unknown = await TestimonialModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+
+      if (!testimonial) {
+        throw new HttpError(404, 'Testimonial not found');
+      }
+
+      response.status(204).send();
+    }),
+  );
+
+  router.get(
+    '/admin/cms/banners',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const banners = await BannerModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .select(bannerProjection())
+        .lean();
+
+      response.status(200).json({ banners });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/banners',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsBannerInputSchema.parse(request.body);
+      const banner: unknown = await BannerModel.create(input);
+
+      response.status(201).json({ banner });
+    }),
+  );
+
+  router.patch(
+    '/admin/cms/banners/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsBannerInputSchema.partial().parse(request.body);
+      const banner: unknown = await BannerModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+
+      if (!banner) {
+        throw new HttpError(404, 'Banner not found');
+      }
+
+      response.status(200).json({ banner });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/banners/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const banner: unknown = await BannerModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+
+      if (!banner) {
+        throw new HttpError(404, 'Banner not found');
       }
 
       response.status(204).send();

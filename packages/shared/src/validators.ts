@@ -85,6 +85,57 @@ export const cmsPageInputSchema = z.object({
   published: z.boolean().default(false),
 });
 
+export const cmsContentInputSchema = cmsPageInputSchema.omit({
+  seoTitle: true,
+  seoDescription: true,
+});
+
+export const cmsSuccessStoryInputSchema = cmsContentInputSchema.extend({
+  coupleName: z.string().trim().max(160).optional(),
+});
+
+export const cmsTestimonialInputSchema = z.object({
+  name: z.string().trim().min(2).max(160),
+  quote: z.string().trim().min(5).max(2000),
+  published: z.boolean().default(false),
+});
+
+export const cmsBannerInputSchema = z.object({
+  key: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  title: z.string().trim().max(160).optional(),
+  imageUrl: z.string().trim().url().optional(),
+  active: z.boolean().default(true),
+});
+
+export const cmsHomeContentSchema = z.object({
+  hero: z.object({
+    title: z.string().trim().min(2).max(160),
+    subtitle: z.string().trim().min(2).max(500),
+    primaryAction: z.string().trim().min(2).max(80),
+    secondaryAction: z.string().trim().min(2).max(80),
+  }),
+  howItWorks: z.array(z.string().trim().min(2).max(160)).min(1).max(8),
+  safety: z.array(z.string().trim().min(2).max(160)).min(1).max(8),
+  faq: z
+    .array(
+      z.object({
+        question: z.string().trim().min(2).max(200),
+        answer: z.string().trim().min(2).max(1000),
+      }),
+    )
+    .min(1)
+    .max(20),
+  contact: z.object({
+    email: emailSchema,
+    location: z.string().trim().min(2).max(160),
+  }),
+});
+
 export const contactInquirySchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: emailSchema,
@@ -645,6 +696,11 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type CmsPageInput = z.infer<typeof cmsPageInputSchema>;
+export type CmsContentInput = z.infer<typeof cmsContentInputSchema>;
+export type CmsSuccessStoryInput = z.infer<typeof cmsSuccessStoryInputSchema>;
+export type CmsTestimonialInput = z.infer<typeof cmsTestimonialInputSchema>;
+export type CmsBannerInput = z.infer<typeof cmsBannerInputSchema>;
+export type CmsHomeContentInput = z.infer<typeof cmsHomeContentSchema>;
 export type ContactInquiryInput = z.infer<typeof contactInquirySchema>;
 export type MediaSignUploadInput = z.infer<typeof mediaSignUploadSchema>;
 export type MediaCompleteUploadInput = z.infer<typeof mediaCompleteUploadSchema>;

@@ -615,22 +615,22 @@ Content-Type: application/json
 
 Build responsive homepage sections:
 
-- [ ] Hero banner
-- [ ] Featured profiles
-- [ ] Success stories
-- [ ] Membership plans
-- [ ] How it works
-- [ ] Safety and verification section
-- [ ] Testimonials
-- [ ] Blog highlights
-- [ ] FAQ preview
-- [ ] Contact information
+- [x] Hero banner
+- [x] Featured profiles
+- [x] Success stories
+- [x] Membership plans
+- [x] How it works
+- [x] Safety and verification section
+- [x] Testimonials
+- [x] Blog highlights
+- [x] FAQ preview
+- [x] Contact information
 
 #### Backend Tasks
 
-- [ ] Create public CMS APIs for homepage content.
-- [ ] Create API for featured approved profiles.
-- [ ] Create API for active plans.
+- [x] Create public CMS APIs for homepage content.
+- [x] Create API for featured approved profiles.
+- [x] Create API for active plans.
 
 #### API Endpoints
 
@@ -655,22 +655,22 @@ GET /api/public/blogs?limit=3
 
 #### Pages to Build
 
-- [ ] About Us
-- [ ] Contact Us
-- [ ] Privacy Policy
-- [ ] Terms & Conditions
-- [ ] Refund Policy
-- [ ] Safety Guidelines
-- [ ] Community Guidelines
-- [ ] Verification Policy
-- [ ] Help Centre
-- [ ] FAQ Page
+- [x] About Us
+- [x] Contact Us
+- [x] Privacy Policy
+- [x] Terms & Conditions
+- [x] Refund Policy
+- [x] Safety Guidelines
+- [x] Community Guidelines
+- [x] Verification Policy
+- [x] Help Centre
+- [x] FAQ Page
 
 #### Backend Tasks
 
-- [ ] Create `cms_pages` model.
-- [ ] Create admin CRUD for pages.
-- [ ] Create public page fetch endpoint by slug.
+- [x] Create `cms_pages` model.
+- [x] Create admin CRUD for pages.
+- [x] Create public page fetch endpoint by slug.
 
 #### API Endpoints
 
@@ -1908,7 +1908,7 @@ Use tasks from `VERIFY-001` and build admin UI.
 
 #### Backend Tasks
 
-- [ ] CRUD APIs for:
+- [x] CRUD APIs for:
   - Homepage content
   - Banners
   - Blogs
@@ -1920,7 +1920,7 @@ Use tasks from `VERIFY-001` and build admin UI.
 #### Frontend Tasks
 
 - [x] CMS list/detail editor pages.
-- [ ] Rich text editor.
+- [x] Rich text editor.
 - [x] Publish/unpublish workflow.
 - [x] Preview mode.
 
