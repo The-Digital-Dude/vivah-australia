@@ -19,3 +19,10 @@
 - Fixed FE-005 profile detail lookup so public profile URLs can resolve by slug or display ID as well as Mongo ObjectId.
 - Replaced unauthenticated member-only profile 404s with a premium sign-in-required profile detail state.
 - Made profile detail loading auth-aware so signed-in members can view member-only profile URLs.
+
+### Seed Data
+
+- Added a realistic, deterministic matrimonial demo dataset for admin, public, and member testing.
+- Added `seed:demo` and guarded `seed:reset` API scripts.
+- Seeded demo admin accounts, 40 member profiles, profile media, interactions, verification requests, notifications, payments/subscriptions, CMS/blog/community records, reports, audit/activity logs, and fraud/risk examples.
+- Added `SEEDING_GUIDE.md` with commands, demo credentials, safety notes, and troubleshooting.
