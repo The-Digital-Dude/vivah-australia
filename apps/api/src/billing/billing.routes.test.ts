@@ -325,4 +325,44 @@ describe('billing routes and webhooks', () => {
 
     expect(await ProfileBoostModel.countDocuments({ userId: user.user._id })).toBe(1);
   });
+
+  it('enforces production safety guardrails when NODE_ENV is production', async () => {
+    const { env } = await import('../env.js');
+    const originalNodeEnv = env.NODE_ENV;
+    env.NODE_ENV = 'production';
+
+    try {
+      const user = await createUser('member-prod@example.com');
+      await PlanModel.create({
+        code: 'GOLD_PROD',
+        name: 'Gold Prod',
+        priceCents: 9900,
+        currency: 'AUD',
+        interval: 'MONTH',
+        features: [],
+        limits: { profileBoostsMonthly: 1 },
+        active: true,
+      });
+
+      // 1. Creating checkout session should fail
+      await request(app)
+        .post('/api/me/subscription/checkout')
+        .set('Authorization', `Bearer ${user.accessToken}`)
+        .send({ planCode: 'gold_prod' })
+        .expect(400);
+
+      // 2. Webhook construction without signature should fail
+      await request(app)
+        .post('/api/billing/webhook')
+        .set('Content-Type', 'application/json')
+        .send({
+          id: 'evt_checkout_prod',
+          type: 'checkout.session.completed',
+          data: { object: {} },
+        })
+        .expect(400);
+    } finally {
+      env.NODE_ENV = originalNodeEnv;
+    }
+  });
 });

@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
-import { AdminStatusBadge } from '../components/admin-status-badge';
 import { FileCheck, Sparkles, AlertCircle, Eye, Check, X, ShieldAlert } from 'lucide-react';
 
 interface VerificationItem {

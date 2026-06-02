@@ -14,6 +14,9 @@ export interface EmailProvider {
 
 class ConsoleEmailProvider implements EmailProvider {
   async sendEmail(email: Email): Promise<void> {
+    if (env.NODE_ENV === 'production') {
+      throw new Error('Console email provider cannot be used in a production environment.');
+    }
     console.log('--- Email Sent ---');
     console.log(`To: ${email.to}`);
     console.log(`From: ${email.from ?? env.EMAIL_FROM}`);
@@ -98,6 +101,9 @@ function getEmailProvider(): EmailProvider {
   if (env.EMAIL_PROVIDER === 'mailgun' && env.MAILGUN_API_KEY && env.MAILGUN_DOMAIN) {
     provider = new MailgunEmailProvider(env.MAILGUN_API_KEY, env.MAILGUN_DOMAIN);
     return provider;
+  }
+  if (env.NODE_ENV === 'production') {
+    throw new Error('Console email provider cannot be used in a production environment.');
   }
   provider = new ConsoleEmailProvider();
   return provider;

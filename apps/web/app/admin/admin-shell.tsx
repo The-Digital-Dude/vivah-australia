@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, ReactNode, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { useAuth } from '@/app/auth-context';
 import AdminGuard from './admin-guard';
 import {
@@ -217,15 +218,27 @@ export default function AdminShell({
               </button>
 
               {/* Breadcrumb & Section Name */}
-              <div className="hidden sm:block">
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-                  Operations Console
+              <nav className="hidden md:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-400">
+                <Link href="/admin/dashboard" className="hover:text-[#7A1F2B] transition">Admin</Link>
+                <span>/</span>
+                <span className="text-neutral-750 font-semibold">
+                  {pathname.split('/').filter(Boolean).slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1).replace('-', ' ')).join(' / ') || 'Dashboard'}
                 </span>
-              </div>
+              </nav>
             </div>
 
             {/* HEADER ACTIONS */}
             <div className="flex items-center gap-4">
+              {/* Search Bar */}
+              <div className="relative hidden max-w-xs w-56 sm:block">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+                <input
+                  type="text"
+                  placeholder="Search operations..."
+                  className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-4 text-xs outline-none focus:border-[#7A1F2B] focus:bg-white transition"
+                />
+              </div>
+
               {/* Notification/Queue Indicator */}
               <div className="relative">
                 <button

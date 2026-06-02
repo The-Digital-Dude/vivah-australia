@@ -1,6 +1,7 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Search } from 'lucide-react';
 import { AdminEmptyState } from './admin-primitives';
 

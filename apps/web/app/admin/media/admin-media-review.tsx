@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { mediaReviewSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 import { AdminStatusBadge } from '../components/admin-status-badge';
-import { AlertCircle, ShieldAlert, Check, X, ClipboardSignature } from 'lucide-react';
+import { AlertCircle, ShieldAlert, Check, X } from 'lucide-react';
 
 interface ReviewMediaItem {
   _id: string;

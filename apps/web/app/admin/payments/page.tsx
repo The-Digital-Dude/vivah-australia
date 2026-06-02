@@ -62,13 +62,12 @@ export default function AdminPaymentsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [refunds, setRefunds] = useState<Refund[]>([]);
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(true);
+
 
   // Refund Confirmation state
   const [confirmRefundId, setConfirmRefundId] = useState<string | null>(null);
 
   async function load() {
-    setLoading(true);
     const [paymentResult, subscriptionResult, couponResult, refundResult] = await Promise.all([
       memberRequest('/api/admin/payments'),
       memberRequest('/api/admin/subscriptions'),
@@ -90,7 +89,6 @@ export default function AdminPaymentsPage() {
       (result) => !result.ok,
     );
     if (failed) setMessage(failed.message);
-    setLoading(false);
   }
 
   useEffect(() => {

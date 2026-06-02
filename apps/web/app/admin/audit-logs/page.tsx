@@ -3,8 +3,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
-import { AdminDataTable, Column } from '../components/admin-data-table';
-import { ShieldAlert, AlertCircle, Eye, X } from 'lucide-react';
+import { AdminDataTable } from '../components/admin-data-table';
+import type { Column } from '../components/admin-data-table';
+import { AlertCircle, Eye, X } from 'lucide-react';
 
 interface AuditLogItem {
   _id: string;

@@ -1338,6 +1338,7 @@ function ProfileDetailView({
       : 'Compatibility becomes clearer as profile signals line up';
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
     function handleScroll() {
       const current = MOBILE_SECTION_TABS.find((tab) => {
         const element = document.getElementById(tab.sectionId);
@@ -1346,17 +1347,28 @@ function ProfileDetailView({
         }
 
         const rect = element.getBoundingClientRect();
-        return rect.top <= 180 && rect.bottom > 180;
+        return rect.top <= 190 && rect.bottom > 190;
       });
 
       if (current) {
         setActiveMobileTab(current.key);
+        // Scroll the active tab button into view inside the scrollable tab list container
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          const activeTabEl = document.querySelector(`[data-state="active"]`);
+          if (activeTabEl) {
+            activeTabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }, 100);
       }
     }
 
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (

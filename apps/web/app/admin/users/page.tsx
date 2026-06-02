@@ -3,10 +3,11 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
-import { AdminDataTable, Column } from '../components/admin-data-table';
+import { AdminDataTable } from '../components/admin-data-table';
+import type { Column } from '../components/admin-data-table';
 import { AdminStatusBadge } from '../components/admin-status-badge';
 import { AdminActionMenu } from '../components/admin-primitives';
-import { AlertCircle, UserCog, PlusCircle, StickyNote, ShieldAlert } from 'lucide-react';
+import { AlertCircle, ShieldAlert } from 'lucide-react';
 
 const roles = ['USER', 'PREMIUM_USER', 'MODERATOR', 'ADMIN', 'SUPER_ADMIN'];
 const statuses = ['PENDING', 'ACTIVE', 'SUSPENDED', 'BANNED', 'DELETED'];
@@ -42,7 +43,6 @@ export default function AdminUsersPage() {
   const [status, setStatus] = useState('');
   const [verificationLevel, setVerificationLevel] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const [detail, setDetail] = useState<UserDetail | null>(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -69,7 +69,6 @@ export default function AdminUsersPage() {
     if (result.ok) {
       const data = result.data as { users?: UserItem[]; pagination?: { total?: number } };
       setUsers(data.users ?? []);
-      setTotal(data.pagination?.total ?? 0);
     } else {
       setMessage(result.message);
     }

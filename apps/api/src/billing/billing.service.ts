@@ -140,6 +140,10 @@ export async function createCheckoutSession(userId: Types.ObjectId, input: Check
   }
 
   if (!stripe || !plan.stripePriceId) {
+    if (env.NODE_ENV === 'production') {
+      throw new HttpError(400, 'Stripe billing is not configured in production.');
+    }
+
     const payment = new PaymentModel({
       userId,
       planId: plan._id,
@@ -502,6 +506,9 @@ export async function handleStripeEvent(event: Stripe.Event) {
 
 export function constructStripeEvent(body: Buffer, signature?: string) {
   if (!stripe || !env.STRIPE_WEBHOOK_SECRET) {
+    if (env.NODE_ENV === 'production') {
+      throw new HttpError(400, 'Stripe billing or webhook signature verification is not configured in production.');
+    }
     return JSON.parse(body.toString('utf8')) as unknown as Stripe.Event;
   }
 

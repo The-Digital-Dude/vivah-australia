@@ -12,7 +12,7 @@ import {
 } from '@vivah/shared';
 import AdminShell from '../admin-shell';
 import { formString, optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
-import { Sparkles, AlertCircle, FileEdit, Trash2, Globe, ShieldAlert, Eye } from 'lucide-react';
+import { AlertCircle, FileEdit, Trash2, ShieldAlert, Eye } from 'lucide-react';
 
 type SectionKey = 'home' | 'pages' | 'blogs' | 'stories' | 'testimonials' | 'banners';
 
@@ -1108,7 +1108,7 @@ interface ManagerProps<T> {
   setPending: (pending: boolean) => void;
 }
 
-interface ContentManagerProps extends ManagerProps<CmsContent> {
+export interface ContentManagerProps extends ManagerProps<CmsContent> {
   collectionLabel: string;
   emptyEditor: typeof emptyContent;
   listPath: string;

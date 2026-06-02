@@ -242,7 +242,6 @@ export default function MemberShell({
     })();
   }, [initialized, memberRequest, token]);
 
-  const isApproved = shellProfile?.moderation?.approvalStatus === 'APPROVED';
   const visibleGroups = useMemo(
     () => navGroups,
     []
@@ -434,9 +433,9 @@ export default function MemberShell({
         </section>
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#7A1F2B]/10 bg-white/95 shadow-[0_-12px_32px_rgba(122,31,43,0.08)] backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#7A1F2B]/10 bg-white/95 shadow-[0_-12px_32px_rgba(122,31,43,0.08)] backdrop-blur-md md:hidden">
         <div
-          className="mx-auto grid max-w-7xl grid-cols-5 gap-1 px-2 pt-2"
+          className="mx-auto grid max-w-7xl grid-cols-5 gap-1 px-2 pt-2 pb-2"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
         >
           {visiblePrimary.map((item) => {
@@ -447,14 +446,14 @@ export default function MemberShell({
                 key={`mobile-${item.href}`}
                 href={item.href}
                 className={cx(
-                  'flex min-h-14 flex-col items-center justify-center rounded-2xl px-1.5 text-[10px] font-semibold transition',
+                  'flex min-h-[52px] flex-col items-center justify-center rounded-2xl px-1 text-[10px] font-semibold transition-all duration-200 active:scale-95',
                   active
-                    ? 'bg-[#F8E8E8] text-[#7A1F2B]'
-                    : 'text-[#6B7280] hover:bg-[#FCFAF7] hover:text-[#7A1F2B]',
+                    ? 'bg-[#7A1F2B] text-white shadow-md'
+                    : 'text-[#6B7280] hover:bg-[#F8E8E8]/50 hover:text-[#7A1F2B]',
                 )}
               >
-                <Icon className="mb-1 h-4 w-4" />
-                <span>{item.label}</span>
+                <Icon className={cx('mb-1 h-[18px] w-[18px]', active ? 'text-[#D4AF37]' : 'text-current')} />
+                <span className={cx(active ? 'font-bold' : 'font-medium')}>{item.label}</span>
               </Link>
             );
           })}

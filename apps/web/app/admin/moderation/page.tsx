@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useEffect, useState, type ReactNode } from 'react';
-import { AlertTriangle, BadgeCheck, FileWarning, ImageIcon, UserCheck } from 'lucide-react';
+import { AlertTriangle, BadgeCheck, FileWarning, ImageIcon, UserCheck, ArrowUpRight } from 'lucide-react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
+import { AdminStatusBadge } from '../components/admin-status-badge';
 
 interface ModerationDashboard {
   counts: {
@@ -64,87 +65,105 @@ export default function AdminModerationPage() {
 
   return (
     <AdminShell
-      title="Moderation dashboard"
-      subtitle="Combined queue for profiles, verification requests, reports, and media review."
+      title="Moderation Dashboard"
+      subtitle="Combined overview of pending profiles, verification documents, safety reports, and uploaded media."
     >
-      {message ? (
-        <p className="mb-4 rounded-md bg-[#FFF8F1] p-3 text-sm text-[#7A1E3A]">{message}</p>
-      ) : null}
+      {message && (
+        <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2 mb-4">
+          <AlertTriangle className="h-4 w-4 text-[#7A1F2B]" />
+          <span>{message}</span>
+        </div>
+      )}
 
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
         <Metric
-          icon={<UserCheck className="h-5 w-5" />}
-          label="Pending profiles"
+          icon={<UserCheck className="h-4 w-4" />}
+          label="Pending Profiles"
           value={dashboard?.counts.pendingProfiles ?? 0}
           href="/admin/profiles"
         />
         <Metric
-          icon={<BadgeCheck className="h-5 w-5" />}
+          icon={<BadgeCheck className="h-4 w-4" />}
           label="Verifications"
           value={dashboard?.counts.pendingVerifications ?? 0}
           href="/admin/verifications"
         />
         <Metric
-          icon={<AlertTriangle className="h-5 w-5" />}
-          label="Open reports"
+          icon={<AlertTriangle className="h-4 w-4" />}
+          label="Open Reports"
           value={dashboard?.counts.openReports ?? 0}
           href="/admin/reports"
         />
         <Metric
-          icon={<FileWarning className="h-5 w-5" />}
-          label="Assigned reports"
+          icon={<FileWarning className="h-4 w-4" />}
+          label="Assigned"
           value={dashboard?.counts.assignedReports ?? 0}
           href="/admin/reports"
         />
         <Metric
-          icon={<ImageIcon className="h-5 w-5" />}
-          label="Pending media"
+          icon={<ImageIcon className="h-4 w-4" />}
+          label="Pending Media"
           value={dashboard?.counts.pendingMedia ?? 0}
           href="/admin/media"
         />
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-3">
-        <Queue title="Profiles">
+        <Queue title="Profiles" href="/admin/profiles">
           {dashboard?.queues.profiles.map((profile) => (
             <Link
               key={profile._id}
               href="/admin/profiles"
-              className="block rounded-md border border-[#7A1E3A]/10 p-3 hover:bg-[#FFF8F1]"
+              className="block rounded-xl border border-neutral-150 p-4 transition hover:bg-neutral-50 bg-neutral-50/30"
             >
-              <p className="font-semibold">{profile.displayId}</p>
-              <p className="text-sm text-[#5E6470]">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-neutral-800">{profile.displayId}</span>
+                <ArrowUpRight className="h-3.5 w-3.5 text-neutral-400" />
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">
                 {[profile.personal?.firstName, profile.personal?.lastName]
                   .filter(Boolean)
                   .join(' ') || 'Unnamed profile'}
               </p>
             </Link>
           ))}
+          {(!dashboard?.queues.profiles || dashboard.queues.profiles.length === 0) && (
+            <p className="text-xs text-neutral-450 italic py-4 text-center">Queue is clear</p>
+          )}
         </Queue>
 
-        <Queue title="Verifications">
+        <Queue title="Verifications" href="/admin/verifications">
           {dashboard?.queues.verifications.map((request) => (
             <Link
               key={request._id}
               href="/admin/verifications"
-              className="block rounded-md border border-[#7A1E3A]/10 p-3 hover:bg-[#FFF8F1]"
+              className="block rounded-xl border border-neutral-150 p-4 transition hover:bg-neutral-50 bg-neutral-50/30"
             >
-              <p className="font-semibold">{request.type}</p>
-              <p className="text-sm text-[#5E6470]">{request.status}</p>
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-neutral-800">{request.type}</span>
+                <ArrowUpRight className="h-3.5 w-3.5 text-neutral-400" />
+              </div>
+              <div className="mt-2.5">
+                <AdminStatusBadge status={request.status} />
+              </div>
             </Link>
           ))}
+          {(!dashboard?.queues.verifications || dashboard.queues.verifications.length === 0) && (
+            <p className="text-xs text-neutral-450 italic py-4 text-center">Queue is clear</p>
+          )}
         </Queue>
 
-        <Queue title="Reports">
+        <Queue title="Abuse Reports" href="/admin/reports">
           {dashboard?.queues.reports.map((report) => (
-            <article key={report._id} className="rounded-md border border-[#7A1E3A]/10 p-3">
-              <Link href="/admin/reports" className="block hover:text-[#7A1E3A]">
-                <p className="font-semibold">
+            <article key={report._id} className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3 shadow-sm">
+              <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-2">
+                <p className="text-xs font-bold text-neutral-850 truncate">
                   {report.severity} {report.targetType}
                 </p>
-              </Link>
-              <p className="line-clamp-2 text-sm text-[#5E6470]">{report.reason}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
+                <AdminStatusBadge status={report.status} />
+              </div>
+              <p className="line-clamp-2 text-xs text-neutral-500">{report.reason}</p>
+              <div className="flex flex-wrap gap-1.5 pt-1">
                 <ModerationButton
                   label="Warn"
                   onClick={() => void applyAction(report._id, 'WARN')}
@@ -155,7 +174,7 @@ export default function AdminModerationPage() {
                 />
                 <ModerationButton label="Ban" onClick={() => void applyAction(report._id, 'BAN')} />
                 <ModerationButton
-                  label="Remove content"
+                  label="Remove"
                   onClick={() => void applyAction(report._id, 'REMOVE_CONTENT')}
                 />
                 <ModerationButton
@@ -165,6 +184,9 @@ export default function AdminModerationPage() {
               </div>
             </article>
           ))}
+          {(!dashboard?.queues.reports || dashboard.queues.reports.length === 0) && (
+            <p className="text-xs text-neutral-450 italic py-4 text-center">Queue is clear</p>
+          )}
         </Queue>
       </div>
     </AdminShell>
@@ -176,7 +198,7 @@ function ModerationButton({ label, onClick }: Readonly<{ label: string; onClick:
     <button
       type="button"
       onClick={onClick}
-      className="rounded-md border border-[#7A1E3A]/20 px-2.5 py-1.5 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
+      className="rounded-lg border border-neutral-250 bg-white hover:bg-neutral-50 px-2 py-1 text-[10px] font-bold text-neutral-700 shadow-sm transition"
     >
       {label}
     </button>
@@ -192,22 +214,32 @@ function Metric({
   return (
     <Link
       href={href}
-      className="rounded-lg border border-[#7A1E3A]/10 bg-[#FFF8F1] p-4 hover:border-[#7A1E3A]/30"
+      className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm hover:shadow transition block"
     >
-      <div className="text-[#7A1E3A]">{icon}</div>
-      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#5E6470]">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold">{value}</p>
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 truncate">{label}</span>
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-50 border border-neutral-100 text-neutral-500">
+          {icon}
+        </div>
+      </div>
+      <div className="mt-4">
+        <span className="text-2xl font-extrabold tracking-tight text-neutral-900">{value}</span>
+      </div>
     </Link>
   );
 }
 
-function Queue({ children, title }: Readonly<{ children: ReactNode; title: string }>) {
+function Queue({ children, title, href }: Readonly<{ children: ReactNode; title: string; href: string }>) {
   return (
-    <section className="rounded-lg border border-[#7A1E3A]/10 p-4">
-      <h2 className="font-semibold">{title}</h2>
-      <div className="mt-4 grid gap-3">{children}</div>
+    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm space-y-4">
+      <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <h2 className="text-base font-bold text-neutral-900">{title}</h2>
+        <Link href={href} className="text-xs font-bold text-[#7A1F2B] hover:underline flex items-center gap-0.5">
+          <span>View all</span>
+          <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+      <div className="grid gap-3">{children}</div>
     </section>
   );
 }
