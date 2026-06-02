@@ -692,6 +692,7 @@ export async function createVerificationRequest(
       encrypted: true,
     });
   }
+
   await logActivity({
     actorId: userId,
     event: 'VERIFICATION_REQUEST_CREATED',

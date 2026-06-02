@@ -9,6 +9,10 @@ import { useAuth } from '@/app/auth-context';
 import { PublicFooter, PublicHeader, SectionHeader } from '@/app/components';
 import { useMemberRequest } from '@/lib/member-api';
 
+interface ShellProfileData {
+  moderation?: { approvalStatus: string };
+}
+
 const memberLinks = [
   ['Onboarding', '/member/onboarding'],
   ['Verification', '/member/verification'],
@@ -36,6 +40,7 @@ export default function MemberShell({
   const memberRequest = useMemberRequest();
   const [unreadCount, setUnreadCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shellProfile, setShellProfile] = useState<ShellProfileData | null>(null);
 
   useEffect(() => {
     if (initialized && !token) {
@@ -48,12 +53,24 @@ export default function MemberShell({
       return;
     }
     void (async () => {
-      const result = await memberRequest('/api/me/notifications?unreadOnly=true');
-      if (result.ok) {
-        setUnreadCount((result.data as { unreadCount?: number }).unreadCount ?? 0);
+      const [notifResult, profileResult] = await Promise.all([
+        memberRequest('/api/me/notifications?unreadOnly=true'),
+        memberRequest('/api/me/profile'),
+      ]);
+      if (notifResult.ok) {
+        setUnreadCount((notifResult.data as { unreadCount?: number }).unreadCount ?? 0);
+      }
+      if (profileResult.ok && profileResult.data) {
+        setShellProfile((profileResult.data as { profile: ShellProfileData }).profile);
       }
     })();
   }, [initialized, memberRequest, token]);
+
+  // Approved members have completed verification — hide the submission route from nav
+  const isApproved = shellProfile?.moderation?.approvalStatus === 'APPROVED';
+  const visibleLinks = memberLinks.filter(
+    ([, href]) => !(isApproved && href === '/member/verification'),
+  );
 
   if (!initialized || !token) {
     return (
@@ -76,7 +93,7 @@ export default function MemberShell({
         <aside className="hidden rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.08)] md:block">
           <p className="px-3 text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Member</p>
           <nav className="mt-4 grid gap-1 text-sm">
-            {memberLinks.map(([label, href]) => (
+            {visibleLinks.map(([label, href]) => (
               <Link
                 key={href}
                 href={href}
@@ -108,7 +125,7 @@ export default function MemberShell({
                 </button>
               </div>
               <nav className="mt-6 grid gap-2 text-sm">
-                {memberLinks.map(([label, href]) => (
+                {visibleLinks.map(([label, href]) => (
                   <Link
                     key={href}
                     href={href}

@@ -40,7 +40,7 @@ export default function LoginPage() {
           refreshToken: result.data.refreshToken,
         });
         setMessage('Signed in successfully.');
-        setTimeout(() => router.push('/member/onboarding'), 500);
+        setTimeout(() => router.push('/member'), 500);
       } else {
         setError(result.message || 'Login failed');
         setPending(false);

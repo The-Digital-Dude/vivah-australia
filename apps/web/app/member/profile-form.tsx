@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Check,
@@ -1716,6 +1717,7 @@ function SectionTitle({ icon, title }: { icon: string; title: string }) {
 // ─── Main wizard component ────────────────────────────────────────────────────
 
 export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'edit' }>) {
+  const router = useRouter();
   const memberRequest = useMemberRequest();
   const [step, setStep] = useState(0); // 0-indexed
   const [draft, setDraft] = useState<ProfileDraft>(emptyDraft());
@@ -1732,16 +1734,39 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     async function load() {
       const result = await memberRequest('/api/me/profile');
       if (result.ok && result.data) {
-        const rawProfile = (result.data as { profile?: { id: string } }).profile;
+        interface RawProfile {
+          id: string;
+          verification?: {
+            mobileVerified?: boolean;
+            emailVerified?: boolean;
+          };
+          moderation?: {
+            approvalStatus?: string;
+          };
+        }
+        const rawProfile = (result.data as { profile?: RawProfile }).profile;
         if (rawProfile?.id) {
           setProfileId(rawProfile.id);
         }
+
+        // Guard if onboarding mode is active
+        if (mode === 'onboarding') {
+          if (!rawProfile?.verification?.mobileVerified) {
+            router.replace('/member/verification');
+            return;
+          }
+          if (rawProfile?.moderation?.approvalStatus && rawProfile.moderation.approvalStatus !== 'DRAFT') {
+            router.replace('/member');
+            return;
+          }
+        }
+
         setDraft(apiToDraft(result.data as Record<string, unknown>));
       }
       setLoading(false);
     }
     void load();
-  }, []);
+  }, [mode, router, memberRequest]);
 
   function showToast(text: string, ok: boolean) {
     setToast({ text, ok });
@@ -1829,6 +1854,12 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     });
     setSubmitMsg(result.message);
     setSubmitting(false);
+    if (result.ok) {
+      showToast('Profile onboarding submitted successfully', true);
+      setTimeout(() => {
+        router.push('/member');
+      }, 1500);
+    }
   }
 
   // Patch helpers per section

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import MemberShell from './member-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import {
@@ -106,6 +107,9 @@ interface ProfileData {
   completionPercentage: number;
   verification?: ProfileVerification;
   stats?: ProfileStats;
+  moderation?: {
+    approvalStatus: string;
+  };
 }
 
 interface SubscriptionPlan {
@@ -150,6 +154,7 @@ interface ConversationItem {
 }
 
 export default function MemberDashboardPage() {
+  const router = useRouter();
   const memberRequest = useMemberRequest();
 
   const [loading, setLoading] = useState(true);
@@ -186,7 +191,16 @@ export default function MemberDashboardPage() {
       const convRes = results[6];
 
       if (profileRes.ok && profileRes.data) {
-        setProfile((profileRes.data as { profile: ProfileData }).profile);
+        const rawProfile = (profileRes.data as { profile: ProfileData }).profile;
+        if (!rawProfile.verification?.mobileVerified) {
+          router.replace('/member/verification');
+          return;
+        }
+        if (rawProfile.moderation?.approvalStatus === 'DRAFT') {
+          router.replace('/member/onboarding');
+          return;
+        }
+        setProfile(rawProfile);
       } else {
         setErrorMessage(profileRes.message);
       }

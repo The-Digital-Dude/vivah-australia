@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { verificationRequestCreateSchema } from '@vivah/shared';
+import { useRouter } from 'next/navigation';
+import {
+  verificationRequestCreateSchema,
+  mobileOtpRequestSchema,
+  mobileOtpVerifySchema,
+} from '@vivah/shared';
 import {
   Clock,
   CheckCircle2,
@@ -10,10 +15,22 @@ import {
   Upload,
   Lock,
   FileText,
+  Smartphone,
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { formString, optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
 import { PremiumButton, PremiumCard, VerificationBadge } from '@/app/components';
+
+interface ProfileData {
+  verification?: {
+    mobileVerified: boolean;
+    emailVerified: boolean;
+    level: string;
+  };
+  moderation?: {
+    approvalStatus: string;
+  };
+}
 
 const verificationTypes = [
   { value: 'EMAIL', label: 'Email Address' },
@@ -40,20 +57,83 @@ function cx(...classes: Array<string | false | null | undefined>) {
 }
 
 export default function MemberVerificationPage() {
+  const router = useRouter();
   const memberRequest = useMemberRequest();
   const [requests, setRequests] = useState<VerificationRequestItem[]>([]);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [simulatedUrl, setSimulatedUrl] = useState('');
 
+  const [otpMessage, setOtpMessage] = useState<string | null>(null);
+  const [otpStep, setOtpStep] = useState<'request' | 'verify'>('request');
+  const [mobileNumber, setMobileNumber] = useState('');
+
   async function load() {
-    const result = await memberRequest('/api/me/verifications');
-    if (result.ok) {
-      setRequests((result.data as { requests?: VerificationRequestItem[] }).requests ?? []);
+    const [verifRes, profileRes] = await Promise.all([
+      memberRequest('/api/me/verifications'),
+      memberRequest('/api/me/profile'),
+    ]);
+
+    if (verifRes.ok) {
+      setRequests((verifRes.data as { requests?: VerificationRequestItem[] }).requests ?? []);
     } else {
-      setMessage(result.message);
+      setMessage(verifRes.message);
       setIsSuccess(false);
+    }
+
+    if (profileRes.ok && profileRes.data) {
+      const p = (profileRes.data as { profile: ProfileData }).profile;
+      setProfile(p);
+      // If the member is fully approved, redirect them away — they don't need this page
+      if (p.moderation?.approvalStatus === 'APPROVED') {
+        router.replace('/member');
+      }
+    }
+  }
+
+  async function requestOtp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setOtpMessage(null);
+    const form = new FormData(event.currentTarget);
+    const mobile = form.get('mobile') as string;
+    const parsed = mobileOtpRequestSchema.safeParse({ mobile });
+    if (!parsed.success) {
+      setOtpMessage(validationMessage(parsed.error.issues));
+      return;
+    }
+    const result = await memberRequest('/api/me/mobile/request-otp', {
+      method: 'POST',
+      body: parsed.data,
+    });
+    setOtpMessage(result.message);
+    if (result.ok) {
+      setMobileNumber(mobile);
+      setOtpStep('verify');
+    }
+  }
+
+  async function verifyOtp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setOtpMessage(null);
+    const form = new FormData(event.currentTarget);
+    const code = form.get('code') as string;
+    const parsed = mobileOtpVerifySchema.safeParse({
+      mobile: mobileNumber,
+      code,
+    });
+    if (!parsed.success) {
+      setOtpMessage(validationMessage(parsed.error.issues));
+      return;
+    }
+    const result = await memberRequest('/api/me/mobile/verify-otp', {
+      method: 'POST',
+      body: parsed.data,
+    });
+    setOtpMessage(result.message);
+    if (result.ok) {
+      await load();
     }
   }
 
@@ -104,13 +184,149 @@ export default function MemberVerificationPage() {
     }
   };
 
+  const isPendingReview = profile?.moderation?.approvalStatus === 'PENDING';
+
   return (
     <MemberShell
       title="Trust & Verification"
       subtitle="Submit identity, visa, and background documents to unlock higher trust badges and premium matching tiers."
     >
+      {/* ─── Pending Moderation Banner ───────────────────────────────────── */}
+      {isPendingReview && (
+        <div className="mb-8 flex items-start gap-4 rounded-3xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
+          <div className="size-11 rounded-full bg-amber-100 flex items-center justify-center shrink-0 border border-amber-200">
+            <Clock className="size-5 text-amber-700" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-base font-bold text-amber-900">Your Documents Are Under Review</h2>
+            <p className="text-sm text-amber-800/80 mt-1 leading-relaxed">
+              Our certified Australian moderation team is manually reviewing your submitted
+              documents. This typically takes <strong>2–4 business hours</strong>. You will receive
+              an email notification once your profile is approved. No further action is required
+              from you at this time.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr]">
         <div className="space-y-8">
+          {/* ─── Premium Mobile OTP Verification Card ─────────────────────── */}
+          {profile?.verification?.mobileVerified ? (
+            <PremiumCard className="p-6 border-emerald-200 bg-emerald-50/30">
+              <div className="flex items-start gap-4">
+                <div className="size-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-850 shrink-0 border border-emerald-200">
+                  <CheckCircle2 className="size-6 text-emerald-700" />
+                </div>
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-emerald-900">
+                      Mobile Number Verified
+                    </h2>
+                    <p className="text-sm text-emerald-700/90 mt-1">
+                      Excellent! Your basic level trust verification is now unlocked. You are ready to complete your profile wizard.
+                    </p>
+                  </div>
+                  <PremiumButton
+                    onClick={() => router.push('/member/onboarding')}
+                    variant="gold"
+                    className="shadow-md shadow-[#D4AF37]/20"
+                  >
+                    Proceed to Profile Onboarding
+                  </PremiumButton>
+                </div>
+              </div>
+            </PremiumCard>
+          ) : (
+            <PremiumCard className="p-6">
+              <div className="flex items-center gap-3 border-b border-[#7A1F2B]/10 pb-4 mb-6">
+                <div className="size-10 rounded-full bg-[#F8E8E8] flex items-center justify-center text-[#7A1F2B] border border-[#7A1F2B]/10 shrink-0">
+                  <Smartphone className="size-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-[#1A1A1A]">
+                    Verify Mobile Number via OTP
+                  </h2>
+                  <p className="text-xs text-[#6B7280]">
+                    Verify your phone number to establish basic trust and gain access to the onboarding wizard.
+                  </p>
+                </div>
+              </div>
+
+              {otpStep === 'request' ? (
+                <form onSubmit={(event) => void requestOtp(event)} className="grid gap-4">
+                  <div className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+                    Enter Australian Mobile Number
+                    <div className="relative mt-1">
+                      <input
+                        name="mobile"
+                        type="tel"
+                        required
+                        placeholder="+61412345678"
+                        className="h-12 w-full rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                      />
+                    </div>
+                  </div>
+
+                  {otpMessage && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-[#7A1F2B]">
+                      {otpMessage}
+                    </div>
+                  )}
+
+                  <PremiumButton type="submit" className="w-full">
+                    Request Verification Code
+                  </PremiumButton>
+                </form>
+              ) : (
+                <form onSubmit={(event) => void verifyOtp(event)} className="grid gap-4">
+                  <div className="grid gap-2">
+                    <p className="text-xs font-semibold text-[#6B7280]">
+                      Verification code sent to <strong className="text-[#1A1A1A]">{mobileNumber}</strong>.
+                    </p>
+                  </div>
+                  <div className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+                    6-Digit Verification Code
+                    <input
+                      name="code"
+                      type="text"
+                      required
+                      placeholder="123456"
+                      maxLength={6}
+                      className="h-12 w-full rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-center tracking-widest text-lg font-bold outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-3 border border-amber-200/50 text-[#7A1F2B] text-xs">
+                    <span>💡 <strong>Sandbox Tip:</strong> Enter <strong>123456</strong> to automatically verify.</span>
+                  </div>
+
+                  {otpMessage && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-[#7A1F2B]">
+                      {otpMessage}
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpStep('request');
+                        setOtpMessage(null);
+                      }}
+                      className="inline-flex min-h-11 flex-1 items-center justify-center rounded-2xl border border-[#7A1F2B]/20 bg-white text-sm font-semibold text-[#7A1F2B] hover:bg-[#F8E8E8] transition"
+                    >
+                      Back
+                    </button>
+                    <PremiumButton type="submit" className="flex-1 min-h-11">
+                      Verify OTP Code
+                    </PremiumButton>
+                  </div>
+                </form>
+              )}
+            </PremiumCard>
+          )}
+
           {/* ─── Document Submission Form ────────────────────────────────────── */}
           <PremiumCard className="p-6">
             <div className="flex items-center gap-3 border-b border-[#7A1F2B]/10 pb-4 mb-6">
