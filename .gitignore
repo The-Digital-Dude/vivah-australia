@@ -18,3 +18,5 @@ yarn-error.log*
 .mongo.log
 .mongo.err.log
 .mongo-data
+data
+
