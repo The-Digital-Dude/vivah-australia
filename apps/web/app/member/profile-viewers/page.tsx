@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Eye, Lock, Crown, ShieldCheck, Clock, ChevronRight, Loader2 } from 'lucide-react';
@@ -93,9 +94,11 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
       {/* Avatar */}
       <div className="relative shrink-0">
         {viewer.photoUrl ? (
-          <img
+          <Image
             src={viewer.photoUrl}
             alt={displayName}
+            width={56}
+            height={56}
             className="size-14 rounded-full object-cover border-2 border-[#7A1F2B]/10 group-hover:border-[#7A1F2B]/30 transition"
           />
         ) : (

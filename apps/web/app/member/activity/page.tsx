@@ -442,14 +442,14 @@ export default function ActivityHubPage() {
       title="Activity"
       subtitle="A calmer view of your interest flow, saved profiles, profile attention, and important updates."
     >
-      <div className="grid gap-8">
+      <div className="grid gap-6 sm:gap-8">
         {message ? (
           <p className="rounded-2xl border border-[#7A1F2B]/10 bg-[#FFF8F1] p-4 text-sm font-semibold text-[#7A1F2B]">
             {message}
           </p>
         ) : null}
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
           {summaryCards.map((card) => {
             const Icon = card.icon;
             return (
@@ -473,21 +473,21 @@ export default function ActivityHubPage() {
           })}
         </section>
 
-        <section className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+        <section className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
           <SectionHeader
             eyebrow="Activity hub"
             title="Switch between the moments that matter most"
             subtitle="Use one place to review interest responses, revisit saved profiles, check who viewed you, and stay on top of notifications."
           />
 
-          <div className="mt-6 flex overflow-x-auto gap-2 pb-1 scrollbar-none">
+          <div className="-mx-1 mt-6 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 scrollbar-none">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={cx(
-                  'inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
+                  'inline-flex snap-start items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
                   activeTab === tab.key
                     ? 'bg-[#7A1F2B] text-white'
                     : 'text-[#6B7280] hover:bg-[#F8E8E8] hover:text-[#7A1F2B]',
@@ -506,7 +506,7 @@ export default function ActivityHubPage() {
             ))}
           </div>
 
-          <div className="mt-6 rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-5">
+          <div className="mt-6 rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
@@ -538,7 +538,7 @@ export default function ActivityHubPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <div className="flex items-start gap-3">
               <div className="rounded-2xl bg-[#F8E8E8] p-3 text-[#7A1F2B]">
                 <ShieldCheck className="size-5" />
@@ -554,7 +554,7 @@ export default function ActivityHubPage() {
             </div>
           </PremiumCard>
 
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <div className="flex items-start gap-3">
               <div className="rounded-2xl bg-[#F8E8E8] p-3 text-[#7A1F2B]">
                 <Clock3 className="size-5" />

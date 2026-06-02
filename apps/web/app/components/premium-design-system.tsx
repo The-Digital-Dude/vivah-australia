@@ -388,8 +388,11 @@ export function FilterDrawer({
         type="button"
         onClick={onClose}
       />
-      <aside className="relative ml-auto h-full w-full max-w-md overflow-y-auto bg-[#FCFAF7] p-5 shadow-2xl sm:max-w-lg">
-        <div className="mb-5 flex items-center justify-between gap-4">
+      <aside
+        className="relative ml-auto h-full w-full max-w-md overflow-y-auto bg-[#FCFAF7] p-5 shadow-2xl sm:max-w-lg sm:rounded-l-[28px] sm:border-l sm:border-[#7A1F2B]/10 sm:p-6"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}
+      >
+        <div className="sticky top-0 z-10 -mx-5 -mt-5 mb-5 flex items-center justify-between gap-4 border-b border-[#7A1F2B]/10 bg-[#FCFAF7]/95 px-5 py-4 backdrop-blur sm:-mx-6 sm:-mt-6 sm:px-6">
           <h2 className="text-lg font-semibold text-[#1A1A1A]">{title}</h2>
           <button
             type="button"

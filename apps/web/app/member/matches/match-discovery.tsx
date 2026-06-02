@@ -4,14 +4,12 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   Bookmark,
   Clock3,
-  Heart,
   MapPin,
   Search,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   UserPlus,
-  X,
 } from 'lucide-react';
 import { profileSearchQuerySchema, savedSearchCreateSchema } from '@vivah/shared';
 import {
@@ -245,7 +243,7 @@ export default function MatchDiscovery() {
     setMessage(null);
     setCurrentQuery(query);
     setQuickCity(Array.isArray(query.city) ? String(query.city[0] ?? '') : '');
-    setQuickSort(String(query.sort ?? 'RECOMMENDED'));
+    setQuickSort(typeof query.sort === 'string' ? query.sort : 'RECOMMENDED');
 
     const result = await memberRequest(`/api/matches/search?${queryToParams(query).toString()}`);
     setLoading(false);
@@ -424,7 +422,7 @@ export default function MatchDiscovery() {
             label="Sort results"
             name="sort"
             options={['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED']}
-            defaultValue={String(currentQuery.sort ?? 'RECOMMENDED')}
+            defaultValue={typeof currentQuery.sort === 'string' ? currentQuery.sort : 'RECOMMENDED'}
           />
           <Field label="Age min" name="ageMin" type="number" placeholder="25" />
           <Field label="Age max" name="ageMax" type="number" placeholder="36" />
@@ -506,7 +504,13 @@ export default function MatchDiscovery() {
     return (
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {search.results.map((profile) => (
-          <ProfileCard key={profile.id} profile={profile} onProfileHidden={refreshCurrentView} />
+          <ProfileCard
+            key={profile.id}
+            profile={profile}
+            onProfileHidden={() => {
+              void refreshCurrentView();
+            }}
+          />
         ))}
       </div>
     );
@@ -527,8 +531,8 @@ export default function MatchDiscovery() {
   }
 
   return (
-    <div className="grid gap-8">
-      <section className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+    <div className="grid gap-6 sm:gap-8">
+      <section className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
         <div className="grid gap-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
@@ -544,11 +548,11 @@ export default function MatchDiscovery() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <PremiumButton
                 onClick={() => setDrawerOpen(true)}
                 variant="secondary"
-                className="min-h-11"
+                className="min-h-11 w-full sm:w-auto"
               >
                 <SlidersHorizontal className="size-4" />
                 Advanced filters
@@ -559,7 +563,11 @@ export default function MatchDiscovery() {
                 ) : null}
               </PremiumButton>
               {!isDefaultQuery(currentQuery) ? (
-                <PremiumButton onClick={() => void clearFilters()} variant="ghost" className="min-h-11">
+                <PremiumButton
+                  onClick={() => void clearFilters()}
+                  variant="ghost"
+                  className="min-h-11 w-full sm:w-auto"
+                >
                   Clear filters
                 </PremiumButton>
               ) : null}
@@ -605,13 +613,13 @@ export default function MatchDiscovery() {
             </PremiumButton>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
             {quickFilterDefinitions.map((filter) => (
               <button
                 key={filter.label}
                 type="button"
                 onClick={() => void applyQuickFilter({ ...defaultFilters, ...filter.apply() })}
-                className="rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
+                className="snap-start rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
               >
                 {filter.label}
               </button>
@@ -619,7 +627,7 @@ export default function MatchDiscovery() {
             <button
               type="button"
               onClick={() => void applyPreset('nearby')}
-              className="rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
+              className="snap-start rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
             >
               Near you
             </button>
@@ -640,7 +648,7 @@ export default function MatchDiscovery() {
         </div>
       </section>
 
-      <div className="flex overflow-x-auto gap-2 border-b border-[#7A1F2B]/10 pb-1 scrollbar-none">
+      <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto border-b border-[#7A1F2B]/10 px-1 pb-1 scrollbar-none">
         {[
           { key: 'recommended', label: 'Recommended', icon: Sparkles },
           { key: 'active', label: 'Recently Active', icon: Clock3 },
@@ -657,7 +665,7 @@ export default function MatchDiscovery() {
               type="button"
               onClick={() => void applyPreset(tab.key as DiscoveryTab)}
               className={cx(
-                'inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
+                'inline-flex snap-start items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
                 isActive
                   ? 'bg-[#7A1F2B] text-white'
                   : 'text-[#6B7280] hover:bg-[#F8E8E8] hover:text-[#7A1F2B]',
@@ -722,7 +730,13 @@ export default function MatchDiscovery() {
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {recommended.map((profile) => (
-                <ProfileCard key={profile.id} profile={profile} onProfileHidden={refreshCurrentView} />
+                <ProfileCard
+                  key={profile.id}
+                  profile={profile}
+                  onProfileHidden={() => {
+                    void refreshCurrentView();
+                  }}
+                />
               ))}
             </div>
           )}
@@ -783,7 +797,7 @@ export default function MatchDiscovery() {
                               : 'Alerts currently off'}
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2 sm:flex-row">
                           <PremiumButton
                             onClick={() => {
                               setActiveTab('search');
@@ -815,6 +829,25 @@ export default function MatchDiscovery() {
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="Advanced filters">
         {renderFilterForm()}
       </FilterDrawer>
+
+      <div
+        className="fixed inset-x-0 z-30 px-4 md:hidden"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 5.25rem)' }}
+      >
+        <PremiumButton
+          onClick={() => setDrawerOpen(true)}
+          variant="secondary"
+          className="mx-auto flex w-full max-w-sm items-center justify-center rounded-full border-[#7A1F2B]/20 bg-white/95 shadow-[0_16px_36px_rgba(122,31,43,0.14)] backdrop-blur"
+        >
+          <SlidersHorizontal className="size-4" />
+          Filters
+          {activeFilterCount > 0 ? (
+            <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white">
+              {activeFilterCount}
+            </span>
+          ) : null}
+        </PremiumButton>
+      </div>
     </div>
   );
 }

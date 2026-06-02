@@ -10,7 +10,7 @@
 - [x] Add advanced filter sheet
 - [x] Simplify discovery profile cards
 - [x] Add Activity hub
-- [ ] Polish mobile member experience
+- [x] Polish mobile member experience
 - [ ] Final UX QA and regression pass
 
 ## Notes

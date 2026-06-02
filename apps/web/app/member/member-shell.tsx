@@ -278,15 +278,18 @@ export default function MemberShell({
     <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
       <PublicHeader />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 pb-28 sm:px-6 lg:px-8">
+      <main
+        className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8.5rem)' }}
+      >
         <section className="overflow-hidden rounded-[32px] border border-[#7A1F2B]/10 bg-white shadow-[0_18px_50px_rgba(122,31,43,0.08)]">
-          <div className="border-b border-[#7A1F2B]/10 bg-[linear-gradient(180deg,rgba(252,250,247,0.95)_0%,rgba(255,255,255,1)_100%)] px-5 py-5 sm:px-6">
+          <div className="border-b border-[#7A1F2B]/10 bg-[linear-gradient(180deg,rgba(252,250,247,0.95)_0%,rgba(255,255,255,1)_100%)] px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex flex-col gap-5">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <button
                     aria-label="Open member menu"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#7A1F2B]/15 text-[#7A1F2B] md:hidden"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#7A1F2B]/15 text-[#7A1F2B] md:hidden"
                     type="button"
                     onClick={() => setMenuOpen(true)}
                   >
@@ -306,7 +309,7 @@ export default function MemberShell({
                 <div className="flex items-center gap-3">
                   <Link
                     href="/member/notifications"
-                    className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#7A1F2B]/15 bg-white text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
+                    className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#7A1F2B]/15 bg-white text-[#7A1F2B] transition hover:bg-[#F8E8E8] sm:h-11 sm:w-11"
                     aria-label="Notifications"
                   >
                     <Bell className="h-5 w-5" />
@@ -366,7 +369,10 @@ export default function MemberShell({
                 type="button"
                 onClick={() => setMenuOpen(false)}
               />
-              <aside className="relative ml-auto flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white p-5 shadow-2xl">
+              <aside
+                className="relative ml-auto flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white p-5 shadow-2xl"
+                style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}
+              >
                 <div className="flex items-start justify-between gap-3 border-b border-[#7A1F2B]/10 pb-4">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
@@ -425,14 +431,14 @@ export default function MemberShell({
             </div>
           ) : null}
 
-          <section className="px-5 py-5 sm:px-6 sm:py-6">
+          <section className="px-4 py-5 sm:px-6 sm:py-6">
             <SectionHeader eyebrow="Member" title={title} subtitle={subtitle} />
-            <div className="mt-6">{children}</div>
+            <div className="mt-5 sm:mt-6">{children}</div>
           </section>
         </section>
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#7A1F2B]/10 bg-white/95 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#7A1F2B]/10 bg-white/95 shadow-[0_-12px_32px_rgba(122,31,43,0.08)] backdrop-blur md:hidden">
         <div
           className="mx-auto grid max-w-7xl grid-cols-5 gap-1 px-2 pt-2"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
@@ -445,7 +451,7 @@ export default function MemberShell({
                 key={`mobile-${item.href}`}
                 href={item.href}
                 className={cx(
-                  'flex min-h-14 flex-col items-center justify-center rounded-2xl px-2 text-[11px] font-semibold transition',
+                  'flex min-h-14 flex-col items-center justify-center rounded-2xl px-1.5 text-[10px] font-semibold transition',
                   active
                     ? 'bg-[#F8E8E8] text-[#7A1F2B]'
                     : 'text-[#6B7280] hover:bg-[#FCFAF7] hover:text-[#7A1F2B]',

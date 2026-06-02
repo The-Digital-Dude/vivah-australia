@@ -268,14 +268,16 @@ export default function PhotoRequestsPage() {
     }
   }
 
-  useEffect(() => { void loadData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    void loadData();
+  }, [memberRequest]);
 
   async function handleRespond(requestId: string, action: 'ACCEPT' | 'REJECT') {
     setActionLoading(true);
     try {
       await memberRequest(`/api/me/photo-requests/${requestId}`, {
         method: 'PATCH',
-        body: { action } as Record<string, unknown>,
+        body: { action },
       });
       await loadData();
     } finally {

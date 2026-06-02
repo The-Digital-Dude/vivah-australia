@@ -537,8 +537,8 @@ export default function MemberDashboardPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-8">
-        <PremiumCard className="relative overflow-hidden border border-[#7A1F2B]/10 bg-[linear-gradient(135deg,#7A1F2B_0%,#651925_48%,#4A0A14_100%)] p-6 text-white shadow-[0_24px_70px_rgba(122,31,43,0.24)]">
+      <div className="grid gap-6 sm:gap-8">
+        <PremiumCard className="relative overflow-hidden border border-[#7A1F2B]/10 bg-[linear-gradient(135deg,#7A1F2B_0%,#651925_48%,#4A0A14_100%)] p-5 text-white shadow-[0_24px_70px_rgba(122,31,43,0.24)] sm:p-6">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
           <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
           <div className="relative grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-center">
@@ -546,7 +546,7 @@ export default function MemberDashboardPage() {
               <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D4AF37]">
                 Matchmaking command center
               </p>
-              <h1 className="mt-3 text-3xl font-bold text-[#FCFAF7] sm:text-4xl">
+              <h1 className="mt-3 text-2xl font-bold text-[#FCFAF7] sm:text-4xl">
                 Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-[#FCFAF7]/80 sm:text-base">
@@ -555,21 +555,29 @@ export default function MemberDashboardPage() {
               </p>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <PremiumButton href="/member/matches" variant="gold" className="min-w-[180px]">
+                <PremiumButton
+                  href="/member/matches"
+                  variant="gold"
+                  className="min-w-[180px] w-full sm:w-auto"
+                >
                   Explore Matches
                 </PremiumButton>
-                <PremiumButton href="/member/profile/edit" variant="secondary" className="min-w-[180px]">
+                <PremiumButton
+                  href="/member/profile/edit"
+                  variant="secondary"
+                  className="min-w-[180px] w-full sm:w-auto"
+                >
                   Improve Profile
                 </PremiumButton>
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
                 {heroHighlights.map((item) => {
                   const Icon = item.icon;
                   return (
                     <div
                       key={item.label}
-                      className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur"
+                      className="inline-flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur"
                     >
                       <Icon className="size-4 text-[#D4AF37]" />
                       <div>
@@ -584,8 +592,8 @@ export default function MemberDashboardPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 rounded-[28px] border border-white/10 bg-white/8 p-5 backdrop-blur">
-              <div className="flex items-center justify-between gap-4">
+            <div className="grid gap-4 rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur sm:p-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
                     Today&apos;s signal
@@ -621,7 +629,7 @@ export default function MemberDashboardPage() {
           </div>
         </PremiumCard>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
           {summaryCards.map((card) => {
             const Icon = card.icon;
             return (
@@ -649,8 +657,8 @@ export default function MemberDashboardPage() {
           })}
         </section>
 
-        <div className="grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+        <div className="grid gap-6 sm:gap-8 xl:grid-cols-[1.15fr_0.85fr]">
+          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <SectionHeader
               eyebrow="Your journey"
               title="Progress toward stronger introductions"
@@ -676,7 +684,7 @@ export default function MemberDashboardPage() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <h3 className="text-sm font-semibold text-[#1A1A1A]">{step.label}</h3>
                       <span
                         className={cx(
@@ -697,7 +705,7 @@ export default function MemberDashboardPage() {
           </PremiumCard>
 
           <div className="grid gap-6">
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Recommended next actions"
                 title="What will improve your momentum fastest"
@@ -744,7 +752,7 @@ export default function MemberDashboardPage() {
               </div>
             </PremiumCard>
 
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Spotlight"
                 title="Visibility and plan tools"
@@ -804,8 +812,8 @@ export default function MemberDashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+        <div className="grid gap-6 sm:gap-8 xl:grid-cols-[1.1fr_0.9fr]">
+          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <SectionHeader
               eyebrow="People to discover today"
               title="A smaller, stronger shortlist to review now"
@@ -854,7 +862,7 @@ export default function MemberDashboardPage() {
           </PremiumCard>
 
           <div className="grid gap-6">
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Attention and timing"
                 title="Stay aware of where your momentum is building"
@@ -900,7 +908,7 @@ export default function MemberDashboardPage() {
               </div>
             </PremiumCard>
 
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Plan and trust"
                 title="Your profile is easier to trust when signals stay strong"
@@ -908,55 +916,61 @@ export default function MemberDashboardPage() {
               />
 
               <div className="mt-6 space-y-4">
-                <div className="flex items-center justify-between rounded-3xl bg-[#FCFAF7] px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck className="size-5 text-[#7A1F2B]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#1A1A1A]">Verification level</p>
-                      <p className="text-sm text-[#6B7280]">
-                        Email and mobile verified, with stronger trust when ID is approved.
-                      </p>
+                <div className="rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <ShieldCheck className="size-5 text-[#7A1F2B]" />
+                      <div>
+                        <p className="text-sm font-semibold text-[#1A1A1A]">Verification level</p>
+                        <p className="text-sm text-[#6B7280]">
+                          Email and mobile verified, with stronger trust when ID is approved.
+                        </p>
+                      </div>
                     </div>
+                    <VerificationBadge level={profile?.verification?.level} />
                   </div>
-                  <VerificationBadge level={profile?.verification?.level} />
                 </div>
 
-                <div className="flex items-center justify-between rounded-3xl bg-[#FCFAF7] px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <Zap className="size-5 text-[#7A1F2B]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#1A1A1A]">Interest usage</p>
-                      <p className="text-sm text-[#6B7280]">
-                        {interestLimit === -1
-                          ? 'Unlimited monthly sending on your current tier.'
-                          : `${interestUsed} of ${interestLimit} monthly interests used.`}
-                      </p>
+                <div className="rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <Zap className="size-5 text-[#7A1F2B]" />
+                      <div>
+                        <p className="text-sm font-semibold text-[#1A1A1A]">Interest usage</p>
+                        <p className="text-sm text-[#6B7280]">
+                          {interestLimit === -1
+                            ? 'Unlimited monthly sending on your current tier.'
+                            : `${interestUsed} of ${interestLimit} monthly interests used.`}
+                        </p>
+                      </div>
                     </div>
+                    <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+                      {subscriptionData?.plan?.limits?.advancedFilters ? 'Advanced search' : 'Standard search'}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
-                    {subscriptionData?.plan?.limits?.advancedFilters ? 'Advanced search' : 'Standard search'}
-                  </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-3xl bg-[#FCFAF7] px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <Crown className="size-5 text-[#D4AF37]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#1A1A1A]">Membership tier</p>
-                      <p className="text-sm text-[#6B7280]">
-                        {membershipEndsAt
-                          ? `Coverage visible through around ${membershipEndsAt}.`
-                          : 'Manage membership, billing, and boost access here.'}
-                      </p>
+                <div className="rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <Crown className="size-5 text-[#D4AF37]" />
+                      <div>
+                        <p className="text-sm font-semibold text-[#1A1A1A]">Membership tier</p>
+                        <p className="text-sm text-[#6B7280]">
+                          {membershipEndsAt
+                            ? `Coverage visible through around ${membershipEndsAt}.`
+                            : 'Manage membership, billing, and boost access here.'}
+                        </p>
+                      </div>
                     </div>
+                    <Link
+                      href="/member/subscription"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]"
+                    >
+                      Manage
+                      <ArrowRight className="size-4" />
+                    </Link>
                   </div>
-                  <Link
-                    href="/member/subscription"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]"
-                  >
-                    Manage
-                    <ArrowRight className="size-4" />
-                  </Link>
                 </div>
               </div>
             </PremiumCard>
