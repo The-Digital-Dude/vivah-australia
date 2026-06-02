@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { Ban, Flag, Heart, Send } from 'lucide-react';
+import { Ban, Flag, Heart, Send, X } from 'lucide-react';
 import { reportCreateSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 
 export default function ProfileActions({
   profileId,
   compact = false,
-}: Readonly<{ profileId: string; compact?: boolean }>) {
+  onProfileHidden,
+}: Readonly<{ profileId: string; compact?: boolean; onProfileHidden?: () => void }>) {
   const memberRequest = useMemberRequest();
   const [message, setMessage] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
@@ -26,6 +27,13 @@ export default function ProfileActions({
     setPending(null);
     setMessage(result.message);
     return result.ok;
+  }
+
+  async function hide() {
+    const ok = await action('hide', '/api/me/hidden-profiles', { profileId });
+    if (ok) {
+      onProfileHidden?.();
+    }
   }
 
   async function submitReport(reason: string, severity: string) {
@@ -76,6 +84,11 @@ export default function ProfileActions({
           label="Block"
           icon={<Ban className="size-3.5" />}
           onClick={() => setBlockOpen(true)}
+        />
+        <ActionButton
+          label={pending === 'hide' ? 'Hiding' : 'Ignore'}
+          icon={<X className="size-3.5" />}
+          onClick={() => void hide()}
         />
       </div>
       {message ? <p className="text-xs font-medium text-[#7A1E3A]">{message}</p> : null}

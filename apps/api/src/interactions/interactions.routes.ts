@@ -15,7 +15,9 @@ import {
   addFavourite,
   blockProfile,
   createReport,
+  hideProfile,
   listBlocks,
+  listHiddenProfiles,
   listFavourites,
   listInterests,
   listReports,
@@ -23,6 +25,7 @@ import {
   respondToInterest,
   reviewReport,
   sendInterest,
+  unhideProfile,
   unblockProfile,
 } from './interactions.service.js';
 
@@ -143,6 +146,16 @@ export function createInteractionsRouter(config: AuthConfig): Router {
     }),
   );
 
+  router.get(
+    '/me/hidden-profiles',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const hiddenProfiles = await listHiddenProfiles(auth.userId);
+      response.status(200).json({ hiddenProfiles });
+    }),
+  );
+
   router.post(
     '/me/blocks',
     requireAuth(config),
@@ -151,6 +164,17 @@ export function createInteractionsRouter(config: AuthConfig): Router {
       const input = profileTargetSchema.parse(request.body);
       const block = await blockProfile(auth.userId, input.profileId);
       response.status(201).json({ block, message: 'Member blocked' });
+    }),
+  );
+
+  router.post(
+    '/me/hidden-profiles',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const input = profileTargetSchema.parse(request.body);
+      const hiddenProfile = await hideProfile(auth.userId, input.profileId);
+      response.status(201).json({ hiddenProfile, message: 'Profile hidden' });
     }),
   );
 
@@ -166,6 +190,22 @@ export function createInteractionsRouter(config: AuthConfig): Router {
       }
 
       await unblockProfile(auth.userId, profileId);
+      response.status(204).send();
+    }),
+  );
+
+  router.delete(
+    '/me/hidden-profiles/:profileId',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const profileId = request.params.profileId;
+
+      if (!profileId) {
+        throw new HttpError(404, 'Profile not found');
+      }
+
+      await unhideProfile(auth.userId, profileId);
       response.status(204).send();
     }),
   );

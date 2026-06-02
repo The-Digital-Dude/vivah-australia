@@ -11,6 +11,7 @@ import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   BlockModel,
+  HiddenProfileModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileMediaModel,
@@ -154,6 +155,17 @@ async function getBlockedUserIds(userId: Types.ObjectId) {
     .filter((id): id is Types.ObjectId => Boolean(id));
 }
 
+async function getHiddenUserIds(userId: Types.ObjectId) {
+  const hiddenProfiles = await HiddenProfileModel.find({
+    userId,
+    isDeleted: false,
+  });
+
+  return hiddenProfiles
+    .map((hiddenProfile) => hiddenProfile.hiddenUserId)
+    .filter((id): id is Types.ObjectId => Boolean(id));
+}
+
 async function getProfileIdsWithApprovedPhoto(profileIds?: Types.ObjectId[]) {
   const filter: Record<string, unknown> = {
     uploadStatus: MediaUploadStatus.UPLOADED,
@@ -173,11 +185,11 @@ async function getProfileIdsWithApprovedPhoto(profileIds?: Types.ObjectId[]) {
 
 function buildBaseVisibilityFilter(
   viewerProfile: ProfileDocument,
-  blockedUserIds: Types.ObjectId[],
+  excludedUserIds: Types.ObjectId[],
 ): ProfileFilter {
   return {
     _id: { $ne: viewerProfile._id },
-    userId: { $nin: [viewerProfile.userId, ...blockedUserIds] },
+    userId: { $nin: [viewerProfile.userId, ...excludedUserIds] },
     isDeleted: false,
     'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
     'visibility.status': { $in: [ProfileVisibility.PUBLIC, ProfileVisibility.MEMBERS_ONLY] },
@@ -186,10 +198,10 @@ function buildBaseVisibilityFilter(
 
 async function buildSearchFilter(
   viewerProfile: ProfileDocument,
-  blockedUserIds: Types.ObjectId[],
+  excludedUserIds: Types.ObjectId[],
   input: ProfileSearchQueryInput,
 ) {
-  const filter = buildBaseVisibilityFilter(viewerProfile, blockedUserIds);
+  const filter = buildBaseVisibilityFilter(viewerProfile, excludedUserIds);
 
   if (input.gender) {
     filter['personal.gender'] = input.gender;
@@ -473,9 +485,10 @@ async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]
 }
 
 export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearchQueryInput) {
-  const [viewerProfile, blockedUserIds, limits] = await Promise.all([
+  const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
     getBlockedUserIds(userId),
+    getHiddenUserIds(userId),
     getSubscriptionLimits(userId),
   ]);
 
@@ -484,7 +497,11 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
   }
 
   const pageSize = Math.min(input.pageSize, limits.searchPageSize);
-  const filter = await buildSearchFilter(viewerProfile, blockedUserIds, input);
+  const filter = await buildSearchFilter(
+    viewerProfile,
+    [...blockedUserIds, ...hiddenUserIds],
+    input,
+  );
   const total = await ProfileModel.countDocuments(filter);
 
   if (input.sort === 'RECOMMENDED') {
@@ -536,14 +553,15 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
 }
 
 export async function recommendedMatches(userId: Types.ObjectId, requestedLimit: number) {
-  const [viewerProfile, blockedUserIds, limits] = await Promise.all([
+  const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
     getBlockedUserIds(userId),
+    getHiddenUserIds(userId),
     getSubscriptionLimits(userId),
   ]);
   const limit = Math.min(requestedLimit, limits.recommendationLimit);
   const preference = viewerProfile.partnerPreference ?? {};
-  const filter = buildBaseVisibilityFilter(viewerProfile, blockedUserIds);
+  const filter = buildBaseVisibilityFilter(viewerProfile, [...blockedUserIds, ...hiddenUserIds]);
 
   if (viewerProfile.personal.gender === 'MALE') {
     filter['personal.gender'] = 'FEMALE';

@@ -239,6 +239,29 @@ const blockSchema = new Schema<UserPair>(
 
 blockSchema.index({ blockerId: 1, blockedId: 1 }, { unique: true });
 
+export interface HiddenProfile {
+  userId: ObjectId;
+  profileId: ObjectId;
+  hiddenUserId: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
+}
+
+const hiddenProfileSchema = new Schema<HiddenProfile>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    profileId: { type: Schema.Types.ObjectId, ref: 'Profile', required: true, index: true },
+    hiddenUserId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'hidden_profiles' },
+);
+
+hiddenProfileSchema.index({ userId: 1, profileId: 1 }, { unique: true });
+
 export interface Report {
   reporterId: ObjectId;
   reportedUserId?: ObjectId;
@@ -1111,6 +1134,10 @@ export const VerificationDocumentModel = getOrCreateModel<VerificationDocument>(
 export const InterestModel = getOrCreateModel<Interest>('Interest', interestSchema);
 export const FavouriteModel = getOrCreateModel<UserPair>('Favourite', favouriteSchema);
 export const BlockModel = getOrCreateModel<UserPair>('Block', blockSchema);
+export const HiddenProfileModel = getOrCreateModel<HiddenProfile>(
+  'HiddenProfile',
+  hiddenProfileSchema,
+);
 export const ReportModel = getOrCreateModel<Report>('Report', reportSchema);
 export const ProfileViewModel = getOrCreateModel<ProfileView>('ProfileView', profileViewSchema);
 export const SavedSearchModel = getOrCreateModel<SavedSearch>('SavedSearch', savedSearchSchema);
@@ -1174,6 +1201,7 @@ export const phaseOneSchemas = {
   interestSchema,
   favouriteSchema,
   blockSchema,
+  hiddenProfileSchema,
   reportSchema,
   profileViewSchema,
   savedSearchSchema,
@@ -1217,6 +1245,7 @@ export const phaseOneModels = [
   InterestModel,
   FavouriteModel,
   BlockModel,
+  HiddenProfileModel,
   ReportModel,
   ProfileViewModel,
   SavedSearchModel,
@@ -1251,4 +1280,3 @@ export const phaseOneModels = [
   ContactInquiryModel,
   PhotoRequestModel,
 ] as const;
-

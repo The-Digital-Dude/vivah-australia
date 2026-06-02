@@ -12,6 +12,7 @@ import {
   BlockModel,
   ConversationModel,
   FavouriteModel,
+  HiddenProfileModel,
   InterestModel,
   NotificationModel,
   PlanModel,
@@ -302,7 +303,7 @@ describe('interaction routes', () => {
     expect(await InterestModel.countDocuments({ senderId: sender.user._id })).toBe(6);
   });
 
-  it('adds, lists, removes favourites and blocks/unblocks members', async () => {
+  it('adds, lists, removes favourites, blocks/unblocks, and hides/unhides members', async () => {
     const viewer = await createUser('viewer@example.com');
     const target = await createUser('fav-target@example.com');
     await createProfile(viewer.user._id, 'VA340001', 'Amit', Gender.MALE);
@@ -351,6 +352,25 @@ describe('interaction routes', () => {
     expect(await BlockModel.countDocuments({ blockerId: viewer.user._id, isDeleted: false })).toBe(
       0,
     );
+
+    await request(app)
+      .post('/api/me/hidden-profiles')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .send({ profileId: targetProfile.id })
+      .expect(201);
+    const hiddenProfiles = await request(app)
+      .get('/api/me/hidden-profiles')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ hiddenProfiles: unknown[] }>(hiddenProfiles).hiddenProfiles).toHaveLength(1);
+
+    await request(app)
+      .delete(`/api/me/hidden-profiles/${targetProfile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(204);
+    expect(
+      await HiddenProfileModel.countDocuments({ userId: viewer.user._id, isDeleted: false }),
+    ).toBe(0);
   });
 
   it('creates reports and safety notification records', async () => {

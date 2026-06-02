@@ -127,6 +127,15 @@ export default function MatchDiscovery() {
     }
   }
 
+  async function refreshVisibleResults() {
+    if (activeTab === 'recommended') {
+      await loadRecommended();
+      return;
+    }
+
+    await runSearch(currentQuery);
+  }
+
   async function runSearch(query: Record<string, unknown> = defaultFilters) {
     setLoading(true);
     setMessage(null);
@@ -323,7 +332,12 @@ export default function MatchDiscovery() {
     return (
       <div className={cols}>
         {search.results.map((profile, index) => (
-          <ProfileCard key={profile.id} profile={profile} index={index} />
+            <ProfileCard
+            key={profile.id}
+            profile={profile}
+            index={index}
+            onProfileHidden={refreshVisibleResults}
+          />
         ))}
       </div>
     );
@@ -487,7 +501,12 @@ export default function MatchDiscovery() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {recommended.map((profile, index) => (
-                <ProfileCard key={profile.id} profile={profile} index={index} />
+                <ProfileCard
+                  key={profile.id}
+                  profile={profile}
+                  index={index}
+                  onProfileHidden={refreshVisibleResults}
+                />
               ))}
             </div>
           )}
@@ -610,7 +629,13 @@ export default function MatchDiscovery() {
 function ProfileCard({
   profile,
   compact = false,
-}: Readonly<{ profile: MatchCard; index: number; compact?: boolean }>) {
+  onProfileHidden,
+}: Readonly<{
+  profile: MatchCard;
+  index: number;
+  compact?: boolean;
+  onProfileHidden?: () => void;
+}>) {
   return (
     <ProfileMatchCard
       compact={compact}
@@ -641,10 +666,17 @@ function ProfileCard({
                 </span>
               ))}
             </div>
-            <ProfileActions profileId={profile.id} />
+            <ProfileActions
+              profileId={profile.id}
+              {...(onProfileHidden ? { onProfileHidden } : {})}
+            />
           </div>
         ) : (
-          <ProfileActions profileId={profile.id} compact />
+          <ProfileActions
+            profileId={profile.id}
+            compact
+            {...(onProfileHidden ? { onProfileHidden } : {})}
+          />
         )
       }
     />

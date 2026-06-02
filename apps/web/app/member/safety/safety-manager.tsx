@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { ShieldCheck, Unlock } from 'lucide-react';
+import { EyeOff, ShieldCheck, Undo2, Unlock } from 'lucide-react';
 import { reportCreateSchema } from '@vivah/shared';
 import { optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
 
@@ -15,9 +15,20 @@ interface BlockItem {
   };
 }
 
+interface HiddenItem {
+  id: string;
+  profile: {
+    id: string;
+    firstName?: string;
+    age?: number;
+    city?: string;
+  };
+}
+
 export default function SafetyManager() {
   const memberRequest = useMemberRequest();
   const [blocks, setBlocks] = useState<BlockItem[]>([]);
+  const [hiddenProfiles, setHiddenProfiles] = useState<HiddenItem[]>([]);
   const [message, setMessage] = useState<string | null>(null);
 
   async function loadBlocks() {
@@ -29,8 +40,18 @@ export default function SafetyManager() {
     setBlocks((result.data as { blocks?: BlockItem[] }).blocks ?? []);
   }
 
+  async function loadHiddenProfiles() {
+    const result = await memberRequest('/api/me/hidden-profiles');
+    if (!result.ok) {
+      setMessage(result.message);
+      return;
+    }
+    setHiddenProfiles((result.data as { hiddenProfiles?: HiddenItem[] }).hiddenProfiles ?? []);
+  }
+
   useEffect(() => {
     void loadBlocks();
+    void loadHiddenProfiles();
   }, []);
 
   async function unblock(profileId: string) {
@@ -38,6 +59,16 @@ export default function SafetyManager() {
     setMessage(result.message);
     if (result.ok) {
       await loadBlocks();
+    }
+  }
+
+  async function unhide(profileId: string) {
+    const result = await memberRequest(`/api/me/hidden-profiles/${profileId}`, {
+      method: 'DELETE',
+    });
+    setMessage(result.message);
+    if (result.ok) {
+      await loadHiddenProfiles();
     }
   }
 
@@ -102,36 +133,73 @@ export default function SafetyManager() {
         ) : null}
       </section>
 
-      <section className="rounded-lg border border-[#F0D6DA] bg-white p-5 shadow-sm">
-        <h2 className="text-xl font-semibold text-[#232323]">Blocked members</h2>
-        <div className="mt-5 grid gap-3">
-          {blocks.map((item) => (
-            <article
-              key={item.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#F0D6DA] p-3"
-            >
-              <div>
-                <p className="font-semibold text-[#232323]">
-                  {item.profile.firstName ?? 'Vivah member'}, {item.profile.age ?? 'age hidden'}
-                </p>
-                <p className="text-sm text-[#5E6470]">{item.profile.city}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void unblock(item.profile.id)}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#F0D6DA] px-3 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
+      <section className="grid gap-5">
+        <article className="rounded-lg border border-[#F0D6DA] bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2">
+            <EyeOff className="size-5 text-[#7A1E3A]" />
+            <h2 className="text-xl font-semibold text-[#232323]">Hidden members</h2>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {hiddenProfiles.map((item) => (
+              <article
+                key={item.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#F0D6DA] p-3"
               >
-                <Unlock className="size-3.5" />
-                Unblock
-              </button>
-            </article>
-          ))}
-          {blocks.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-[#D6A84F] p-6 text-center text-sm text-[#5E6470]">
-              No blocked members.
-            </p>
-          ) : null}
-        </div>
+                <div>
+                  <p className="font-semibold text-[#232323]">
+                    {item.profile.firstName ?? 'Vivah member'}, {item.profile.age ?? 'age hidden'}
+                  </p>
+                  <p className="text-sm text-[#5E6470]">{item.profile.city}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void unhide(item.profile.id)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#F0D6DA] px-3 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
+                >
+                  <Undo2 className="size-3.5" />
+                  Show again
+                </button>
+              </article>
+            ))}
+            {hiddenProfiles.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-[#D6A84F] p-6 text-center text-sm text-[#5E6470]">
+                No hidden members.
+              </p>
+            ) : null}
+          </div>
+        </article>
+
+        <article className="rounded-lg border border-[#F0D6DA] bg-white p-5 shadow-sm">
+          <h2 className="text-xl font-semibold text-[#232323]">Blocked members</h2>
+          <div className="mt-5 grid gap-3">
+            {blocks.map((item) => (
+              <article
+                key={item.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#F0D6DA] p-3"
+              >
+                <div>
+                  <p className="font-semibold text-[#232323]">
+                    {item.profile.firstName ?? 'Vivah member'}, {item.profile.age ?? 'age hidden'}
+                  </p>
+                  <p className="text-sm text-[#5E6470]">{item.profile.city}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void unblock(item.profile.id)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#F0D6DA] px-3 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
+                >
+                  <Unlock className="size-3.5" />
+                  Unblock
+                </button>
+              </article>
+            ))}
+            {blocks.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-[#D6A84F] p-6 text-center text-sm text-[#5E6470]">
+                No blocked members.
+              </p>
+            ) : null}
+          </div>
+        </article>
       </section>
     </div>
   );

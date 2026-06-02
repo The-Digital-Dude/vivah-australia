@@ -157,8 +157,10 @@ These are features that directly affect **DAU, retention, and conversion to paid
 **Why:** Without this, rejected profiles keep appearing in search.
 - Shaadi calls it "Ignore", Hinge calls it "Pass"
 - Adds profile ID to a hidden list; excluded from future search/recommendations
-- Backend: Add `HiddenProfileModel` or a field to `blocks` with type `HIDDEN`
-- Frontend: Small "×" button on match cards and profile detail
+- Backend: add a dedicated `HiddenProfileModel` or extend `blocks` with a `HIDDEN` type if we want to reuse the same collection
+- Frontend: small "×" button on match cards and profile detail, separate from the stronger `Block` action
+
+**Note:** The codebase already has a safety-focused block flow that removes members from search and recommendations. This item is about a lighter-weight personal preference action so users can skip profiles without triggering a full block.
 
 **Effort:** 1 day | **UX impact:** HIGH (reduces frustration)
 

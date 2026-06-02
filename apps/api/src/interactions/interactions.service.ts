@@ -13,6 +13,7 @@ import {
   ConversationModel,
   FavouriteModel,
   InterestModel,
+  HiddenProfileModel,
   NotificationModel,
   PlanModel,
   ProfileApprovalStatus,
@@ -93,6 +94,18 @@ async function assertNotBlocked(userId: Types.ObjectId, targetUserId: Types.Obje
 
   if (block) {
     throw new HttpError(403, 'This member is not available');
+  }
+}
+
+async function assertNotHidden(userId: Types.ObjectId, targetUserId: Types.ObjectId) {
+  const hidden = await HiddenProfileModel.findOne({
+    userId,
+    hiddenUserId: targetUserId,
+    isDeleted: false,
+  });
+
+  if (hidden) {
+    throw new HttpError(409, 'Member is already hidden');
   }
 }
 
@@ -397,6 +410,72 @@ export async function listBlocks(userId: Types.ObjectId) {
     .map((block) => {
       const profile = block.blockedId ? byUser.get(String(block.blockedId)) : undefined;
       return profile ? { id: block.id, profile: publicProfile(profile) } : undefined;
+    })
+    .filter(Boolean);
+}
+
+export async function hideProfile(userId: Types.ObjectId, profileId: string) {
+  const profile = await getTargetProfile(profileId);
+  assertNotSelf(userId, profile);
+  await assertNotBlocked(userId, profile.userId);
+  await assertNotHidden(userId, profile.userId);
+
+  const existing = await HiddenProfileModel.findOne({
+    userId,
+    profileId: profile._id,
+  });
+
+  const hiddenProfile =
+    existing ?? (await HiddenProfileModel.create({ userId, profileId: profile._id, hiddenUserId: profile.userId }));
+
+  if (existing?.isDeleted) {
+    existing.isDeleted = false;
+    existing.set('deletedAt', undefined);
+    existing.set('deletedBy', undefined);
+    await existing.save();
+  }
+
+  return { id: hiddenProfile.id, profile: publicProfile(profile) };
+}
+
+export async function unhideProfile(userId: Types.ObjectId, profileId: string) {
+  const profile = await ProfileModel.findOne({ _id: profileId, isDeleted: false });
+  if (!profile) {
+    throw new HttpError(404, 'Profile not found');
+  }
+
+  const hiddenProfile = await HiddenProfileModel.findOne({
+    userId,
+    profileId: profile._id,
+    isDeleted: false,
+  });
+  if (!hiddenProfile) {
+    throw new HttpError(404, 'Hidden profile not found');
+  }
+
+  hiddenProfile.isDeleted = true;
+  hiddenProfile.deletedAt = new Date();
+  hiddenProfile.deletedBy = userId;
+  await hiddenProfile.save();
+}
+
+export async function listHiddenProfiles(userId: Types.ObjectId) {
+  const hiddenProfiles = await HiddenProfileModel.find({ userId, isDeleted: false }).sort({
+    createdAt: -1,
+  });
+  const hiddenIds = hiddenProfiles
+    .map((hiddenProfile) => hiddenProfile.hiddenUserId)
+    .filter((id): id is Types.ObjectId => Boolean(id));
+  const profiles = await ProfileModel.find({
+    userId: { $in: hiddenIds },
+    isDeleted: false,
+  });
+  const byUser = new Map(profiles.map((profile) => [String(profile.userId), profile]));
+
+  return hiddenProfiles
+    .map((hiddenProfile) => {
+      const profile = hiddenProfile.hiddenUserId ? byUser.get(String(hiddenProfile.hiddenUserId)) : undefined;
+      return profile ? { id: hiddenProfile.id, profile: publicProfile(profile) } : undefined;
     })
     .filter(Boolean);
 }

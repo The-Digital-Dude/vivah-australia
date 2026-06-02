@@ -9,7 +9,7 @@ export default function SafetyPage() {
   return (
     <MemberShell
       title="Safety"
-      subtitle="Review blocked members and submit reports for suspicious or unsafe behaviour."
+      subtitle="Review hidden and blocked members, and submit reports for suspicious or unsafe behaviour."
     >
       <SafetyManager />
     </MemberShell>

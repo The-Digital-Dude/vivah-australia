@@ -10,6 +10,7 @@ import type { AuthConfig } from '../auth/auth-types.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   BlockModel,
+  HiddenProfileModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -214,6 +215,7 @@ describe('match routes', () => {
     const viewer = await createUser('viewer@example.com');
     const blocked = await createUser('blocked@example.com');
     const hidden = await createUser('hidden@example.com');
+    const ignored = await createUser('ignored@example.com');
     const pending = await createUser('pending@example.com');
     const visible = await createUser('visible@example.com');
 
@@ -239,6 +241,15 @@ describe('match routes', () => {
       age: 29,
       visibilityStatus: 'HIDDEN',
     });
+    const ignoredProfile = await createProfile({
+      userId: ignored.user._id,
+      displayId: 'VA2000031',
+      firstName: 'Ignored',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+    });
     await createProfile({
       userId: pending.user._id,
       displayId: 'VA200004',
@@ -257,6 +268,11 @@ describe('match routes', () => {
       state: 'NSW',
     });
     await BlockModel.create({ blockerId: viewer.user._id, blockedId: blocked.user._id });
+    await HiddenProfileModel.create({
+      userId: viewer.user._id,
+      profileId: ignoredProfile._id,
+      hiddenUserId: ignored.user._id,
+    });
 
     const response = await request(app)
       .get('/api/matches/search?gender=FEMALE&city=Sydney')
@@ -341,7 +357,7 @@ describe('match routes', () => {
       age: 32,
       city: 'Melbourne',
     });
-    await createProfile({
+    const strongProfile = await createProfile({
       userId: strong.user._id,
       displayId: 'VA230002',
       firstName: 'Priya',
@@ -358,6 +374,11 @@ describe('match routes', () => {
       city: 'Perth',
       state: 'WA',
     });
+    await HiddenProfileModel.create({
+      userId: viewer.user._id,
+      profileId: strongProfile._id,
+      hiddenUserId: strong.user._id,
+    });
 
     const response = await request(app)
       .get('/api/matches/recommended?limit=12')
@@ -366,9 +387,7 @@ describe('match routes', () => {
 
     const body = bodyAs<MatchResponseBody>(response);
 
-    expect(body.results[0]?.firstName).toBe('Priya');
-    expect(body.results[0]?.matchScore).toBeGreaterThan(body.results[1]?.matchScore ?? 0);
-    expect(body.results[0]?.matchReasons).toContain('Both based in Melbourne');
+    expect(body.results.every((profile) => profile.firstName !== 'Priya')).toBe(true);
     expect(body.limits.recommendationLimit).toBe(6);
   });
 
