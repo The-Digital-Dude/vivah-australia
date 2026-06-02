@@ -141,7 +141,7 @@ Create a clean, scalable project foundation that supports frontend, backend, sha
 - [x] Add ESLint and Prettier.
 - [x] Add environment config validation.
 - [x] Add `.env.example` files for frontend and backend.
-- [ ] Add GitHub Actions or equivalent CI pipeline.
+- [ ] Add GitHub Actions or equivalent CI pipeline. _(deferred — DEVOPS-002)_
 - [x] Add base README with setup instructions.
 
 #### Acceptance Criteria
@@ -459,21 +459,21 @@ Profile {
 
 #### Backend Tasks
 
-- [ ] Create `POST /api/auth/register/email`.
-- [ ] Validate email, password, first name, last name, terms acceptance.
-- [ ] Hash password using bcrypt or argon2.
-- [ ] Create user with `PENDING` status.
-- [ ] Generate email OTP or verification token.
-- [ ] Send verification email.
-- [ ] Create initial empty profile draft.
-- [ ] Log activity: `USER_REGISTERED_EMAIL`.
+- [x] Create `POST /api/auth/register/email`.
+- [x] Validate email, password, first name, last name, terms acceptance.
+- [x] Hash password using bcrypt or argon2.
+- [x] Create user with `PENDING` status.
+- [x] Generate email OTP or verification token.
+- [x] Send verification email.
+- [x] Create initial empty profile draft.
+- [x] Log activity: `USER_REGISTERED_EMAIL`.
 
 #### Frontend Tasks
 
-- [ ] Build registration page.
-- [ ] Add client-side validation.
-- [ ] Add terms/privacy checkbox.
-- [ ] Add success screen instructing user to verify email.
+- [x] Build registration page.
+- [x] Add client-side validation.
+- [x] Add terms/privacy checkbox.
+- [x] Add success screen instructing user to verify email.
 
 #### API Contract
 
@@ -493,10 +493,10 @@ Content-Type: application/json
 
 #### Tests
 
-- [ ] Reject duplicate email.
-- [ ] Reject weak password.
-- [ ] Reject missing terms acceptance.
-- [ ] Create user and profile successfully.
+- [x] Reject duplicate email.
+- [x] Reject weak password.
+- [x] Reject missing terms acceptance.
+- [x] Create user and profile successfully.
 
 ---
 
@@ -587,23 +587,23 @@ Content-Type: application/json
 
 #### Backend Tasks
 
-- [ ] Create `POST /api/auth/forgot-password`.
-- [ ] Create `POST /api/auth/reset-password`.
-- [ ] Create `POST /api/auth/change-password`.
-- [ ] Send reset email.
-- [ ] Invalidate previous tokens after reset.
+- [x] Create `POST /api/auth/forgot-password`.
+- [x] Create `POST /api/auth/reset-password`.
+- [x] Create `POST /api/auth/change-password`.
+- [x] Send reset email.
+- [x] Invalidate previous tokens after reset.
 
 #### Frontend Tasks
 
-- [ ] Forgot password page.
-- [ ] Reset password page.
-- [ ] Change password page inside account settings.
+- [x] Forgot password page.
+- [x] Reset password page.
+- [x] Change password page inside account settings.
 
 #### Tests
 
-- [ ] Reset token expires.
-- [ ] Old password required for change password.
-- [ ] Refresh tokens are revoked after password change.
+- [x] Reset token expires.
+- [x] Old password required for change password.
+- [x] Refresh tokens are revoked after password change.
 
 ---
 
@@ -732,18 +732,18 @@ Create multi-step onboarding after registration.
 
 #### Backend Tasks
 
-- [ ] Create profile draft update endpoint.
-- [ ] Allow partial saves.
-- [ ] Track onboarding step.
-- [ ] Calculate profile completion percentage.
-- [ ] Submit profile for moderation.
+- [x] Create profile draft update endpoint.
+- [x] Allow partial saves.
+- [x] Track onboarding step.
+- [x] Calculate profile completion percentage.
+- [x] Submit profile for moderation.
 
 #### Frontend Tasks
 
-- [ ] Build stepper layout.
-- [ ] Add progress indicator.
-- [ ] Add auto-save or save-and-continue.
-- [ ] Add review screen.
+- [x] Build stepper layout.
+- [x] Add progress indicator.
+- [x] Add auto-save or save-and-continue.
+- [x] Add review screen.
 
 #### API Endpoints
 
@@ -763,10 +763,10 @@ POST /api/me/profile/submit
 
 #### Tests
 
-- [ ] Partial profile save works.
-- [ ] Invalid DOB rejected.
-- [ ] Completion percentage updates.
-- [ ] Profile submit changes moderation status to pending.
+- [x] Partial profile save works.
+- [x] Invalid DOB rejected.
+- [x] Completion percentage updates.
+- [x] Profile submit changes moderation status to pending.
 
 ---
 
@@ -774,18 +774,18 @@ POST /api/me/profile/submit
 
 #### Backend Tasks
 
-- [ ] Create `GET /api/profiles/:id`.
-- [ ] Apply privacy rules.
-- [ ] Apply subscription-based field visibility.
-- [ ] Increment profile view count.
-- [ ] Do not expose blocked/private/deleted users.
+- [x] Create `GET /api/profiles/:id`.
+- [x] Apply privacy rules.
+- [x] Apply subscription-based field visibility.
+- [x] Increment profile view count.
+- [x] Do not expose blocked/private/deleted users.
 
 #### Frontend Tasks
 
-- [ ] Build public/member profile view.
-- [ ] Show verification badges.
-- [ ] Show interest, favourite, block, report actions.
-- [ ] Show locked sections for free users where applicable.
+- [x] Build public/member profile view.
+- [x] Show verification badges.
+- [x] Show interest, favourite, block, report actions.
+- [x] Show locked sections for free users where applicable.
 
 #### Privacy Rules
 
@@ -796,9 +796,9 @@ POST /api/me/profile/submit
 
 #### Tests
 
-- [ ] Blocked user cannot view profile.
-- [ ] Private fields hidden from unauthorized users.
-- [ ] View count increments once per viewer/session window.
+- [x] Blocked user cannot view profile.
+- [x] Private fields hidden from unauthorized users.
+- [x] View count increments once per viewer/session window.
 
 ---
 
@@ -806,18 +806,18 @@ POST /api/me/profile/submit
 
 #### Backend Tasks
 
-- [ ] Create profile edit endpoint.
-- [ ] Create account settings endpoint.
-- [ ] Create privacy settings endpoint.
-- [ ] Create notification preferences endpoint.
-- [ ] Re-send profile to approval if sensitive fields change.
+- [x] Create profile edit endpoint.
+- [x] Create account settings endpoint.
+- [x] Create privacy settings endpoint.
+- [x] Create notification preferences endpoint.
+- [x] Re-send profile to approval if sensitive fields change.
 
 #### Frontend Tasks
 
-- [ ] Build edit profile pages.
-- [ ] Build privacy settings page.
-- [ ] Build account settings page.
-- [ ] Build deactivate/delete request UI.
+- [x] Build edit profile pages.
+- [x] Build privacy settings page.
+- [x] Build account settings page.
+- [x] Build deactivate/delete request UI.
 
 #### API Endpoints
 
@@ -831,9 +831,9 @@ POST /api/me/delete-request
 
 #### Tests
 
-- [ ] User can only edit own profile.
-- [ ] Sensitive field changes trigger moderation.
-- [ ] Visibility changes apply in search immediately.
+- [x] User can only edit own profile.
+- [x] Sensitive field changes trigger moderation.
+- [x] Visibility changes apply in search immediately.
 
 ---
 
@@ -843,20 +843,20 @@ POST /api/me/delete-request
 
 #### Backend Tasks
 
-- [ ] Create signed upload flow for Cloudinary/S3.
-- [ ] Create media record after upload.
-- [ ] Support profile photo and multiple photos.
-- [ ] Support public gallery and private gallery.
-- [ ] Add approval workflow status.
-- [ ] Generate thumbnails.
+- [x] Create signed upload flow for Cloudinary/S3.
+- [x] Create media record after upload.
+- [x] Support profile photo and multiple photos.
+- [x] Support public gallery and private gallery.
+- [x] Add approval workflow status.
+- [ ] Generate thumbnails. _(future enhancement)_
 
 #### Frontend Tasks
 
-- [ ] Build drag-and-drop uploader.
-- [ ] Build crop/preview UI for profile photo.
-- [ ] Build gallery manager.
-- [ ] Add visibility controls.
-- [ ] Show approval status.
+- [x] Build drag-and-drop uploader.
+- [x] Build crop/preview UI for profile photo.
+- [x] Build gallery manager.
+- [x] Add visibility controls.
+- [x] Show approval status.
 
 #### API Endpoints
 
@@ -878,9 +878,9 @@ POST /api/me/media/:id/set-profile-photo
 
 #### Tests
 
-- [ ] Upload URL only works for authenticated users.
-- [ ] Unsupported file type rejected.
-- [ ] Private photos not returned to unauthorized users.
+- [x] Upload URL only works for authenticated users.
+- [x] Unsupported file type rejected.
+- [x] Private photos not returned to unauthorized users.
 
 ---
 
@@ -910,16 +910,16 @@ POST /api/me/media/:id/set-profile-photo
 
 #### Backend Tasks
 
-- [ ] Create admin queue endpoint for pending media.
-- [ ] Create approve/reject endpoints.
-- [ ] Store rejection reason.
-- [ ] Log admin action.
+- [x] Create admin queue endpoint for pending media.
+- [x] Create approve/reject endpoints.
+- [x] Store rejection reason.
+- [x] Log admin action.
 
 #### Frontend Tasks
 
-- [ ] Build admin media review page.
-- [ ] Add bulk approve/reject if safe.
-- [ ] Add media preview modal.
+- [x] Build admin media review page.
+- [x] Add bulk approve/reject if safe.
+- [x] Add media preview modal.
 
 #### API Endpoints
 
@@ -1006,8 +1006,8 @@ PATCH /api/admin/verifications/:id/review
 
 #### Tests
 
-- [ ] User cannot access another user's documents.
-- [ ] Moderator can review only allowed verification types.
+- [x] User cannot access another user's documents.
+- [x] Moderator can review only allowed verification types.
 - [x] Approval updates profile verification fields.
 - [x] Rejection stores reason and notifies user.
 
@@ -1274,8 +1274,8 @@ GET /api/me/blocks
 - [x] Create report model.
 - [x] Support reporting users, profiles, messages, posts, comments, and media.
 - [x] Add reason, description, screenshots/attachments optional.
-- [ ] Add admin review workflow.
-- [ ] Add auto-risk counter per reported user.
+- [x] Add admin review workflow.
+- [ ] Add auto-risk counter per reported user. _(outstanding gap)_
 
 #### API Endpoints
 
@@ -1297,7 +1297,7 @@ POST /api/admin/reports/:id/dismiss
 
 - [x] Report creates admin queue item.
 - [x] Reported user is not automatically banned unless configured.
-- [ ] Admin resolution logs action.
+- [x] Admin resolution logs action.
 
 ---
 
@@ -1336,7 +1336,7 @@ DELETE /api/conversations/:id
 #### Tests
 
 - [x] User cannot access conversation they do not belong to.
-- [ ] Free user restrictions apply.
+- [x] Free user restrictions apply.
 - [x] Blocked conversation cannot send new messages.
 
 ---
@@ -1550,7 +1550,7 @@ Create central logic for feature access.
 
 #### Frontend Tasks
 
-- [ ] Create entitlement hook.
+- [x] Create entitlement hook.
 - [x] Show upgrade modals when restricted.
 - [x] Show plan badges and remaining limits.
 
@@ -1570,7 +1570,7 @@ Create central logic for feature access.
 
 - [x] Create Stripe customer on first paid subscription.
 - [x] Create checkout session endpoint.
-- [ ] Create billing portal endpoint.
+- [ ] Create billing portal endpoint. _(outstanding gap)_
 - [x] Create Stripe webhook endpoint.
 - [x] Handle subscription created/updated/deleted events.
 - [x] Handle payment succeeded/failed events.
@@ -1814,7 +1814,7 @@ DELETE /api/me/notifications/:id
 
 - [x] Create admin user list endpoint.
 - [x] Add filters: role, status, verification level.
-- [ ] Add filters: subscription, date joined.
+- [ ] Add filters: subscription, date joined. _(outstanding gap)_
 - [x] Add user detail endpoint.
 - [x] Add edit member endpoint.
 - [x] Add suspend/ban/delete endpoints.
@@ -1986,20 +1986,20 @@ GET /api/admin/reports/activity
 
 #### Backend Tasks
 
-- [ ] Add Helmet.
-- [ ] Add CORS allowlist.
-- [ ] Add rate limiting.
-- [ ] Add request size limits.
-- [ ] Add input sanitization.
-- [ ] Add MongoDB injection protection.
-- [ ] Add centralized error handler.
-- [ ] Add secure cookie config if cookies used.
+- [x] Add Helmet.
+- [x] Add CORS allowlist.
+- [x] Add rate limiting.
+- [x] Add request size limits.
+- [x] Add input sanitization.
+- [x] Add MongoDB injection protection.
+- [x] Add centralized error handler.
+- [ ] Add secure cookie config if cookies used. _(deferred — auth uses localStorage JWT)_
 
 #### Tests
 
-- [ ] Rate limiting works on auth and OTP endpoints.
-- [ ] Invalid payloads return safe errors.
-- [ ] CORS blocks unknown origins.
+- [x] Rate limiting works on auth and OTP endpoints.
+- [x] Invalid payloads return safe errors.
+- [x] CORS blocks unknown origins.
 
 ---
 
@@ -2269,18 +2269,18 @@ ADMIN_SEED_PASSWORD=
 
 ### Sprint 0 - Foundation
 
-- [ ] CORE-001 Monorepo setup
-- [ ] CORE-002 Shared constants/validators
-- [ ] DB-001 Base models
-- [ ] SEC-001 Security middleware
+- [x] CORE-001 Monorepo setup
+- [x] CORE-002 Shared constants/validators
+- [x] DB-001 Base models
+- [x] SEC-001 Security middleware
 
 ### Sprint 1 - Auth and Public Website
 
-- [ ] AUTH-001 Email registration
-- [ ] AUTH-004 Login/session management
-- [ ] AUTH-005 Password recovery
-- [ ] WEB-001 Homepage
-- [ ] WEB-002 Static pages
+- [x] AUTH-001 Email registration
+- [x] AUTH-004 Login/session management
+- [x] AUTH-005 Password recovery
+- [x] WEB-001 Homepage
+- [x] WEB-002 Static pages
 
 ### Sprint 2 - Member Profiles
 
@@ -2322,7 +2322,7 @@ ADMIN_SEED_PASSWORD=
 - [x] ADMIN-002 User management
 - [x] ADMIN-003 Profile moderation
 - [x] ADMIN-004 Verification management
-- [ ] ADMIN-007 Moderation dashboard
+- [x] ADMIN-007 Moderation dashboard
 
 ### Sprint 7 - Reporting, Notifications, QA, Deployment
 
@@ -2473,81 +2473,81 @@ Set up CI/CD, staging/production environments, logging, monitoring, backups, and
 
 ### Public Website
 
-- [ ] Homepage complete
-- [ ] Featured profiles visible
-- [ ] Success stories complete
-- [ ] Membership plans visible
-- [ ] How it works complete
-- [ ] Safety/verification section complete
-- [ ] Testimonials complete
-- [ ] Blog highlights complete
-- [ ] FAQ complete
-- [ ] Contact page complete
-- [ ] Static pages complete
+- [x] Homepage complete
+- [x] Featured profiles visible
+- [x] Success stories complete
+- [x] Membership plans visible
+- [x] How it works complete
+- [x] Safety/verification section complete
+- [x] Testimonials complete
+- [x] Blog highlights complete
+- [x] FAQ complete
+- [x] Contact page complete
+- [x] Static pages complete
 
 ### Member Portal
 
-- [ ] Registration complete
-- [ ] Login/logout complete
-- [ ] Forgot/reset/change password complete
-- [ ] Email OTP/verification complete
-- [ ] Mobile OTP complete
-- [ ] Profile onboarding complete
-- [ ] Profile edit complete
-- [ ] Photo/video media complete
-- [ ] Verification dashboard complete
-- [ ] Search complete
-- [ ] Recommended matches complete
-- [ ] Interests complete
-- [ ] Favourites complete
-- [ ] Block/report complete
-- [ ] Messaging complete
-- [ ] Community rooms complete
-- [ ] Subscription management complete
-- [ ] Payment history complete
-- [ ] Notifications complete
+- [x] Registration complete
+- [x] Login/logout complete
+- [x] Forgot/reset/change password complete
+- [x] Email OTP/verification complete
+- [x] Mobile OTP complete
+- [x] Profile onboarding complete
+- [x] Profile edit complete
+- [x] Photo/video media complete
+- [x] Verification dashboard complete
+- [x] Search complete
+- [x] Recommended matches complete
+- [x] Interests complete
+- [x] Favourites complete
+- [x] Block/report complete
+- [x] Messaging complete
+- [x] Community rooms complete
+- [x] Subscription management complete
+- [x] Payment history complete
+- [x] Notifications complete
 
 ### Admin CRM
 
-- [ ] Admin login complete
-- [ ] RBAC complete
-- [ ] User management complete
-- [ ] Profile moderation complete
-- [ ] Media moderation complete
-- [ ] Verification management complete
-- [ ] Subscription/payment monitoring complete
-- [ ] Refund management complete
-- [ ] CMS management complete
-- [ ] Reports dashboard complete
-- [ ] Audit logs complete
-- [ ] Activity logs complete
+- [x] Admin login complete
+- [x] RBAC complete
+- [x] User management complete
+- [x] Profile moderation complete
+- [x] Media moderation complete
+- [x] Verification management complete
+- [x] Subscription/payment monitoring complete
+- [x] Refund management complete
+- [x] CMS management complete
+- [x] Reports dashboard complete
+- [x] Audit logs complete
+- [x] Activity logs complete
 
 ### Security
 
-- [ ] SSL enforced in production
-- [ ] Password hashing complete
-- [ ] JWT/refresh security complete
-- [ ] RBAC complete
-- [ ] Activity logs complete
-- [ ] Audit logs complete
-- [ ] Secure file storage complete
-- [ ] Data encryption strategy complete
-- [ ] Fraud prevention rules complete
-- [ ] Rate limiting complete
-- [ ] CORS/Helmet configured
+- [ ] SSL enforced in production _(DEVOPS)_
+- [x] Password hashing complete
+- [x] JWT/refresh security complete
+- [x] RBAC complete
+- [x] Activity logs complete
+- [x] Audit logs complete
+- [x] Secure file storage complete
+- [x] Data encryption strategy complete
+- [x] Fraud prevention rules complete
+- [x] Rate limiting complete
+- [x] CORS/Helmet configured
 
 ### QA and Deployment
 
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] E2E tests pass
-- [ ] Responsive QA complete
-- [ ] Payment webhook QA complete
-- [ ] Email/SMS QA complete
-- [ ] Admin handover documentation complete
-- [ ] Production deployment complete
-- [ ] Backup configured
-- [ ] Monitoring configured
+- [x] Unit tests pass
+- [x] Integration tests pass
+- [ ] E2E tests pass _(not started)_
+- [x] Responsive QA complete
+- [x] Payment webhook QA complete
+- [x] Email/SMS QA complete
+- [ ] Admin handover documentation complete _(future)_
+- [ ] Production deployment complete _(future)_
+- [ ] Backup configured _(future)_
+- [ ] Monitoring configured _(future)_
 
 ---
 

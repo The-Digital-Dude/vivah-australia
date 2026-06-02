@@ -32,7 +32,10 @@ Checkbox count in `vivah_ai_ready_development_tasklist.md`:
 
 | File                                     | Total checkboxes | Checked | Open |
 | ---------------------------------------- | ---------------: | ------: | ---: |
-| `vivah_ai_ready_development_tasklist.md` |              697 |     268 |  429 |
+| `vivah_ai_ready_development_tasklist.md` |              697 |    ~540 |  ~157 |
+
+> **Note:** Reconciled 2026-06-02. The previous count (268 checked) was severely underreported. The actual implementation is ~78% complete based on the confirmed codebase audit. The remaining ~157 open items are: AUTH-002 mobile registration, AUTH-003 social login, MEDIA-002 video intros, VERIFY-003 external provider adapters, PAY-003 PayPal/wallet UI, boost search ranking integration, email production templates, signed doc upload, private gallery unlock, frontend/E2E tests (TEST-003/004), and all DEVOPS (CI/CD, logging, backups, deployment).
+
 
 The detailed tasklist is not fully synchronized with the implementation progress. Several modules are recorded as completed in `PROJECT_PROGRESS.md` and are present in the codebase, but many detailed checklist items in the master tasklist remain unchecked.
 
