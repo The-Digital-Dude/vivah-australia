@@ -234,7 +234,34 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
     }
   }
 
-  return applyPrivacy(profile, viewerId);
+  const visibleProfile = applyPrivacy(profile, viewerId) as unknown as Record<string, unknown>;
+
+  if (profile.visibility.showPhoto) {
+    const media = await ProfileMediaModel.find({
+      profileId: profile._id,
+      uploadStatus: MediaUploadStatus.UPLOADED,
+      approvalStatus: VerificationStatus.APPROVED,
+      mediaType: 'PHOTO',
+      category: { $in: [MediaCategory.PROFILE_PHOTO, MediaCategory.PUBLIC_GALLERY] },
+      visibility: { $in: [MediaVisibility.PUBLIC, MediaVisibility.MATCHES_ONLY] },
+      isDeleted: false,
+    })
+      .sort({ isPrimary: -1, createdAt: -1 })
+      .lean();
+
+    visibleProfile.photoUrl = media[0]?.assetUrl;
+    visibleProfile.publicGallery = media.map((item) => ({
+      id: String(item._id),
+      assetUrl: item.assetUrl,
+      isPrimary: item.isPrimary,
+      category: item.category,
+    }));
+  } else {
+    visibleProfile.photoUrl = undefined;
+    visibleProfile.publicGallery = [];
+  }
+
+  return visibleProfile;
 }
 
 export async function listRecentlyViewedProfiles(userId: Types.ObjectId) {

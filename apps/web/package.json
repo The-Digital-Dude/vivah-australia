@@ -13,6 +13,10 @@
   },
   "dependencies": {
     "@hcaptcha/react-hcaptcha": "^1.10.1",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-progress": "^1.1.8",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@vivah/shared": "file:../../packages/shared",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.17.0",

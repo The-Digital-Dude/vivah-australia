@@ -18,8 +18,7 @@ import {
   updateNotificationPreferences,
   updateOwnProfile,
 } from './profile.service.js';
-import { SubscriptionModel, PlanModel, ProfileModel } from '../models/index.js';
-import { SubscriptionStatus } from '@vivah/shared';
+import { ProfileModel } from '../models/index.js';
 import { isPaidMember } from '../billing/billing.service.js';
 import { calculateMatchScore } from '../match/match.service.js';
 
@@ -172,6 +171,7 @@ export function createProfileRouter(config: AuthConfig): Router {
       let matchScore: number | undefined;
       let matchReasons: string[] | undefined;
       let isPaid = false;
+      let isPremiumProfile = false;
 
       if (viewerId) {
         const [viewerProfile, rawCandidateProfile] = await Promise.all([
@@ -186,9 +186,19 @@ export function createProfileRouter(config: AuthConfig): Router {
         }
 
         isPaid = await isPaidMember(viewerId);
+        if (rawCandidateProfile) {
+          isPremiumProfile = await isPaidMember(rawCandidateProfile.userId);
+        }
+      } else if (profile._id) {
+        const rawCandidateProfile = await ProfileModel.findOne({ _id: profile._id, isDeleted: false });
+        if (rawCandidateProfile) {
+          isPremiumProfile = await isPaidMember(rawCandidateProfile.userId);
+        }
       }
 
-      response.status(200).json({ profile, matchScore, matchReasons, isPaidMember: isPaid });
+      response
+        .status(200)
+        .json({ profile, matchScore, matchReasons, isPaidMember: isPaid, isPremiumProfile });
     }),
   );
 
