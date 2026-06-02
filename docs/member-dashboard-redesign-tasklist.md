@@ -9,7 +9,7 @@
 - [x] Simplify match discovery layout
 - [x] Add advanced filter sheet
 - [x] Simplify discovery profile cards
-- [ ] Add Activity hub
+- [x] Add Activity hub
 - [ ] Polish mobile member experience
 - [ ] Final UX QA and regression pass
 

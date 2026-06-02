@@ -53,9 +53,10 @@ const primaryNav: NavItem[] = [
   },
   {
     label: 'Activity',
-    href: '/member/interests',
+    href: '/member/activity',
     icon: Heart,
     matches: [
+      '/member/activity',
       '/member/interests',
       '/member/favourites',
       '/member/recently-viewed',
@@ -106,6 +107,12 @@ const navGroups: NavGroup[] = [
   {
     title: 'Activity',
     items: [
+      {
+        label: 'Activity hub',
+        href: '/member/activity',
+        icon: Heart,
+        matches: ['/member/activity'],
+      },
       {
         label: 'Received interests',
         href: '/member/interests',
