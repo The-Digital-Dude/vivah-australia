@@ -20,20 +20,6 @@ const ACCESS_GRANT_DAYS = 30;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-async function getOwnerProfileOrFail(ownerId: Types.ObjectId) {
-  const profile = await ProfileModel.findOne({
-    userId: ownerId,
-    isDeleted: false,
-    'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
-  }).lean();
-
-  if (!profile) {
-    throw new HttpError(404, 'Profile not found');
-  }
-
-  return profile;
-}
-
 async function assertNoBlock(requesterId: Types.ObjectId, ownerId: Types.ObjectId) {
   const block = await BlockModel.findOne({
     isDeleted: false,

@@ -761,7 +761,7 @@ export default function PricingClient() {
                         onClick={() =>
                           handleRecommendationAnswer(
                             question.key,
-                            option.value as RecommendationAnswers[typeof question.key],
+                            option.value,
                           )
                         }
                         className={cx(
