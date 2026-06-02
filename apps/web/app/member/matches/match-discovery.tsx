@@ -3,20 +3,24 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   Bookmark,
+  Clock3,
   Heart,
+  MapPin,
   Search,
   ShieldCheck,
   SlidersHorizontal,
-  Clock,
+  Sparkles,
   UserPlus,
+  X,
 } from 'lucide-react';
 import { profileSearchQuerySchema, savedSearchCreateSchema } from '@vivah/shared';
 import {
-  ProfileMatchCard,
+  EmptyState,
   FilterDrawer,
   PremiumButton,
   PremiumCard,
-  EmptyState,
+  ProfileMatchCard,
+  SectionHeader,
 } from '@/app/components';
 import { csvList, optionalNumber, optionalString, useMemberRequest } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
@@ -66,14 +70,116 @@ interface SavedSearch {
   updatedAt: string;
 }
 
+interface ProfileLocation {
+  city?: string;
+  state?: string;
+}
+
+type DiscoveryTab = 'recommended' | 'active' | 'verified' | 'newest' | 'nearby' | 'search' | 'saved';
+
 const defaultFilters = {
   page: 1,
   pageSize: 12,
   sort: 'RECOMMENDED',
 };
 
+const quickFilterDefinitions = [
+  {
+    key: 'recentlyActive',
+    label: 'Recently active',
+    apply: () => ({ recentlyActive: true, sort: 'RECENTLY_ACTIVE' }),
+  },
+  {
+    key: 'verificationLevel',
+    label: 'Verified only',
+    apply: () => ({ verificationLevel: 'GOLD', sort: 'VERIFIED' }),
+  },
+  {
+    key: 'maritalStatus',
+    label: 'Never married',
+    apply: () => ({ maritalStatus: ['NEVER_MARRIED'] }),
+  },
+  {
+    key: 'motherTongue',
+    label: 'Hindi speaking',
+    apply: () => ({ motherTongue: ['Hindi'] }),
+  },
+] as const;
+
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
+}
+
+function isDefaultQuery(query: Record<string, unknown>) {
+  const entries = Object.entries(query).filter(([, value]) => {
+    if (value === undefined || value === null || value === '') {
+      return false;
+    }
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+    return true;
+  });
+
+  return entries.every(([key, value]) => {
+    const defaultValue = defaultFilters[key as keyof typeof defaultFilters];
+    if (defaultValue === undefined) {
+      return false;
+    }
+    return value === defaultValue;
+  });
+}
+
+function countActiveFilters(query: Record<string, unknown>) {
+  return Object.entries(query).filter(([key, value]) => {
+    if (key === 'page' || key === 'pageSize' || key === 'sort') {
+      return false;
+    }
+    if (value === undefined || value === null || value === '') {
+      return false;
+    }
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+    return true;
+  }).length;
+}
+
+function queryToParams(query: Record<string, unknown>) {
+  const params = new URLSearchParams();
+
+  Object.entries(query).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach((item) => params.append(key, String(item)));
+      return;
+    }
+
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      params.set(key, String(value));
+    }
+  });
+
+  return params;
+}
+
+function normalizeQuickFilterLabel(key: string, value: unknown) {
+  if (key === 'verificationLevel' && typeof value === 'string') {
+    return `Verification: ${value}`;
+  }
+  if (key === 'maritalStatus' && Array.isArray(value)) {
+    return `Status: ${value.join(', ').replaceAll('_', ' ')}`;
+  }
+  if (key === 'motherTongue' && Array.isArray(value)) {
+    return `Language: ${value.join(', ')}`;
+  }
+  if (key === 'city' && Array.isArray(value)) {
+    return `Near: ${value.join(', ')}`;
+  }
+  if (key === 'recentlyActive' && value === true) {
+    return 'Recently active';
+  }
+
+  return `${key}: ${String(value)}`;
 }
 
 export default function MatchDiscovery() {
@@ -84,23 +190,30 @@ export default function MatchDiscovery() {
   const [recommended, setRecommended] = useState<MatchCard[]>([]);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [currentQuery, setCurrentQuery] = useState<Record<string, unknown>>(defaultFilters);
-  const [activeTab, setActiveTab] = useState<
-    'search' | 'recommended' | 'active' | 'newest' | 'saved'
-  >('search');
+  const [activeTab, setActiveTab] = useState<DiscoveryTab>('recommended');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profileLocation, setProfileLocation] = useState<ProfileLocation | null>(null);
+  const [quickCity, setQuickCity] = useState('');
+  const [quickSort, setQuickSort] = useState('RECOMMENDED');
 
-  const activeChips = useMemo(() => {
-    if (!search?.pagination) {
-      return [];
-    }
+  const activeFilterCount = useMemo(() => countActiveFilters(currentQuery), [currentQuery]);
 
-    return [
-      `${search.pagination.total} approved profiles`,
-      `${search.limits.planCode} search`,
-      `Page size ${search.pagination.pageSize}`,
-      search.limits.advancedFilters ? 'Advanced filters enabled' : 'Basic filters only',
-    ];
-  }, [search]);
+  const visibleQueryChips = useMemo(() => {
+    return Object.entries(currentQuery)
+      .filter(([key, value]) => {
+        if (key === 'page' || key === 'pageSize' || key === 'sort') {
+          return false;
+        }
+        if (value === undefined || value === null || value === '') {
+          return false;
+        }
+        if (Array.isArray(value)) {
+          return value.length > 0;
+        }
+        return true;
+      })
+      .map(([key, value]) => ({ key, label: normalizeQuickFilterLabel(key, value) }));
+  }, [currentQuery]);
 
   async function loadRecommended() {
     setLoading(true);
@@ -127,33 +240,14 @@ export default function MatchDiscovery() {
     }
   }
 
-  async function refreshVisibleResults() {
-    if (activeTab === 'recommended') {
-      await loadRecommended();
-      return;
-    }
-
-    await runSearch(currentQuery);
-  }
-
   async function runSearch(query: Record<string, unknown> = defaultFilters) {
     setLoading(true);
     setMessage(null);
     setCurrentQuery(query);
-    const params = new URLSearchParams();
-    Object.entries(query).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.forEach((item) => params.append(key, String(item)));
-      } else if (
-        typeof value === 'string' ||
-        typeof value === 'number' ||
-        typeof value === 'boolean'
-      ) {
-        params.set(key, String(value));
-      }
-    });
+    setQuickCity(Array.isArray(query.city) ? String(query.city[0] ?? '') : '');
+    setQuickSort(String(query.sort ?? 'RECOMMENDED'));
 
-    const result = await memberRequest(`/api/matches/search?${params.toString()}`);
+    const result = await memberRequest(`/api/matches/search?${queryToParams(query).toString()}`);
     setLoading(false);
 
     if (!result.ok) {
@@ -164,10 +258,19 @@ export default function MatchDiscovery() {
     setSearch(result.data as MatchResponse);
   }
 
+  async function loadProfileLocation() {
+    const result = await memberRequest('/api/me/profile');
+    if (result.ok && result.data) {
+      const profile = result.data as { profile?: { location?: ProfileLocation } };
+      setProfileLocation(profile.profile?.location ?? null);
+    }
+  }
+
   useEffect(() => {
-    void runSearch();
     void loadRecommended();
     void loadSavedSearches();
+    void loadProfileLocation();
+    void runSearch(defaultFilters);
   }, []);
 
   async function saveSearch(event: FormEvent<HTMLFormElement>) {
@@ -203,7 +306,7 @@ export default function MatchDiscovery() {
     }
   }
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function handleFilterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const payload = {
@@ -235,56 +338,116 @@ export default function MatchDiscovery() {
       return;
     }
 
+    setActiveTab('search');
+    setDrawerOpen(false);
     await runSearch(parsed.data);
   }
 
-  const renderFilterForm = (isMobile = false) => {
+  async function applyPreset(tab: DiscoveryTab) {
+    setActiveTab(tab);
+
+    if (tab === 'recommended') {
+      await loadRecommended();
+      return;
+    }
+
+    if (tab === 'active') {
+      await runSearch({ page: 1, pageSize: 12, sort: 'RECENTLY_ACTIVE', recentlyActive: true });
+      return;
+    }
+
+    if (tab === 'verified') {
+      await runSearch({ page: 1, pageSize: 12, sort: 'VERIFIED', verificationLevel: 'GOLD' });
+      return;
+    }
+
+    if (tab === 'newest') {
+      await runSearch({ page: 1, pageSize: 12, sort: 'NEWEST' });
+      return;
+    }
+
+    if (tab === 'nearby') {
+      const city = profileLocation?.city;
+      const state = profileLocation?.state;
+      await runSearch({
+        page: 1,
+        pageSize: 12,
+        sort: 'RECOMMENDED',
+        ...(city ? { city: [city] } : {}),
+        ...(state ? { state: [state] } : {}),
+      });
+      return;
+    }
+
+    if (tab === 'saved') {
+      await loadSavedSearches();
+    }
+  }
+
+  async function applyQuickFilter(queryPatch: Record<string, unknown>) {
+    setActiveTab('search');
+    await runSearch({
+      ...defaultFilters,
+      ...queryPatch,
+    });
+  }
+
+  async function clearFilters() {
+    setActiveTab('search');
+    await runSearch(defaultFilters);
+  }
+
+  function renderFilterForm() {
     return (
-      <form
-        onSubmit={(event) => {
-          if (isMobile) {
-            setDrawerOpen(false);
-          }
-          void submit(event);
-        }}
-        className="grid gap-4"
-      >
-        <div className="flex items-center justify-between gap-3">
+      <form onSubmit={(event) => void handleFilterSubmit(event)} className="grid gap-5">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">Discovery</p>
-            <h2 className="mt-1 text-lg font-semibold text-[#1A1A1A]">Search Filters</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              Advanced filters
+            </p>
+            <h2 className="mt-1 text-xl font-semibold text-[#1A1A1A]">Refine your discovery</h2>
+            <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+              Focus your search by age, location, community, education, profession, and trust
+              signals.
+            </p>
           </div>
-          {!isMobile && <SlidersHorizontal className="size-5 text-[#D6A84F]" />}
+          {activeFilterCount > 0 ? (
+            <span className="rounded-full bg-[#7A1F2B] px-2.5 py-1 text-xs font-bold text-white">
+              {activeFilterCount} active
+            </span>
+          ) : null}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Select label="Looking for" name="gender" options={['FEMALE', 'MALE']} />
           <Select
-            label="Sort"
+            label="Sort results"
             name="sort"
             options={['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED']}
-            defaultValue="RECOMMENDED"
+            defaultValue={String(currentQuery.sort ?? 'RECOMMENDED')}
           />
           <Field label="Age min" name="ageMin" type="number" placeholder="25" />
           <Field label="Age max" name="ageMax" type="number" placeholder="36" />
           <Field label="City" name="city" placeholder="Melbourne, Sydney" />
           <Field label="State" name="state" placeholder="VIC, NSW" />
           <Field label="Religion" name="religion" placeholder="Hindu" />
-          <Field label="Community" name="community" placeholder="Indian" />
-          <Field label="Mother tongue" name="motherTongue" placeholder="Hindi" />
-          <Field label="Occupation" name="occupation" placeholder="Engineer" />
+          <Field label="Community" name="community" placeholder="Punjabi, Tamil" />
+          <Field label="Mother tongue" name="motherTongue" placeholder="Hindi, Gujarati" />
+          <Field label="Occupation" name="occupation" placeholder="Engineer, Doctor" />
         </div>
 
-        <details className="rounded-2xl border border-[#7A1F2B]/10 bg-[#FCFAF7]/50 p-4">
+        <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
           <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
-            Advanced filters
+            More filters
           </summary>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <Field label="Education" name="education" placeholder="Masters, MBA" />
+            <Field label="Marital status" name="maritalStatus" placeholder="NEVER_MARRIED" />
             <Field label="Height min" name="heightMinCm" type="number" placeholder="155" />
             <Field label="Height max" name="heightMaxCm" type="number" placeholder="185" />
             <Field label="Income min" name="incomeMin" type="number" placeholder="90000" />
             <Select
-              label="Verification"
+              label="Verification level"
               name="verificationLevel"
               options={['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED']}
             />
@@ -294,26 +457,37 @@ export default function MatchDiscovery() {
                 type="checkbox"
                 className="size-4 rounded accent-[#7A1F2B]"
               />
-              Recently active
+              Recently active only
             </label>
           </div>
         </details>
 
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto] lg:grid-cols-1">
+        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
           <Field label="Results per page" name="pageSize" type="number" defaultValue="12" />
-          <PremiumButton type="submit" className="w-full lg:mt-2">
+          <PremiumButton
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              void clearFilters();
+              setDrawerOpen(false);
+            }}
+            className="w-full self-end"
+          >
+            Clear all
+          </PremiumButton>
+          <PremiumButton type="submit" className="w-full self-end">
             <Search className="size-4" />
-            Search Matches
+            Apply filters
           </PremiumButton>
         </div>
       </form>
     );
-  };
+  }
 
-  const renderResultsGrid = (cols = 'grid gap-4 md:grid-cols-2') => {
+  function renderSearchResultsGrid() {
     if (loading) {
       return (
-        <div className={cols}>
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <SkeletonCard key={index} />
           ))}
@@ -324,233 +498,249 @@ export default function MatchDiscovery() {
     if (!search || search.results.length === 0) {
       return (
         <EmptyState title="No matches found">
-          Try broadening age, city, or community filters to discover more profiles.
+          Try broadening your city, age, or community filters to discover more compatible members.
         </EmptyState>
       );
     }
 
     return (
-      <div className={cols}>
-        {search.results.map((profile, index) => (
-            <ProfileCard
-            key={profile.id}
-            profile={profile}
-            index={index}
-            onProfileHidden={refreshVisibleResults}
-          />
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {search.results.map((profile) => (
+          <ProfileCard key={profile.id} profile={profile} onProfileHidden={refreshCurrentView} />
         ))}
       </div>
     );
-  };
+  }
+
+  async function refreshCurrentView() {
+    if (activeTab === 'recommended') {
+      await loadRecommended();
+      return;
+    }
+
+    if (activeTab === 'saved') {
+      await loadSavedSearches();
+      return;
+    }
+
+    await runSearch(currentQuery);
+  }
 
   return (
     <div className="grid gap-8">
-      {/* ─── Premium Tabs ──────────────────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto border-b border-[#7A1F2B]/10 pb-px scrollbar-none gap-2">
-        <button
-          onClick={() => {
-            setActiveTab('search');
-            void runSearch(defaultFilters);
-          }}
-          className={cx(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-            activeTab === 'search'
-              ? 'border-[#7A1F2B] text-[#7A1F2B]'
-              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
-          )}
-        >
-          <Search className="size-4" />
-          Search & Browse
-        </button>
+      <section className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+        <div className="grid gap-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+                Discover matches
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#1A1A1A] sm:text-3xl">
+                Search with clarity, then go deeper only when needed
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-[#6B7280]">
+                We&apos;ve moved discovery controls to the top so you can browse matches without a
+                second sidebar competing for attention.
+              </p>
+            </div>
 
-        <button
-          onClick={() => {
-            setActiveTab('recommended');
-            void loadRecommended();
-          }}
-          className={cx(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-            activeTab === 'recommended'
-              ? 'border-[#7A1F2B] text-[#7A1F2B]'
-              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
-          )}
-        >
-          <Heart className="size-4" />
-          Recommended
-        </button>
+            <div className="flex flex-wrap gap-3">
+              <PremiumButton
+                onClick={() => setDrawerOpen(true)}
+                variant="secondary"
+                className="min-h-11"
+              >
+                <SlidersHorizontal className="size-4" />
+                Advanced filters
+                {activeFilterCount > 0 ? (
+                  <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                ) : null}
+              </PremiumButton>
+              {!isDefaultQuery(currentQuery) ? (
+                <PremiumButton onClick={() => void clearFilters()} variant="ghost" className="min-h-11">
+                  Clear filters
+                </PremiumButton>
+              ) : null}
+            </div>
+          </div>
 
-        <button
-          onClick={() => {
-            setActiveTab('active');
-            void runSearch({ sort: 'RECENTLY_ACTIVE', page: 1, pageSize: 12 });
-          }}
-          className={cx(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-            activeTab === 'active'
-              ? 'border-[#7A1F2B] text-[#7A1F2B]'
-              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
-          )}
-        >
-          <Clock className="size-4" />
-          Recently Active
-        </button>
+          <div className="grid gap-4 rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4 lg:grid-cols-[1.1fr_0.9fr_auto] lg:items-end">
+            <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+              City or suburb
+              <input
+                value={quickCity}
+                onChange={(event) => setQuickCity(event.target.value)}
+                placeholder="Melbourne, Parramatta"
+                className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+              Sort
+              <select
+                value={quickSort}
+                onChange={(event) => setQuickSort(event.target.value)}
+                className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+              >
+                {['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED'].map((option) => (
+                  <option key={option} value={option}>
+                    {option.replaceAll('_', ' ')}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <PremiumButton
+              onClick={() =>
+                void applyQuickFilter({
+                  ...defaultFilters,
+                  sort: quickSort,
+                  ...(quickCity.trim() ? { city: [quickCity.trim()] } : {}),
+                })
+              }
+              className="w-full lg:w-auto"
+            >
+              <Search className="size-4" />
+              Refresh results
+            </PremiumButton>
+          </div>
 
-        <button
-          onClick={() => {
-            setActiveTab('newest');
-            void runSearch({ sort: 'NEWEST', page: 1, pageSize: 12 });
-          }}
-          className={cx(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-            activeTab === 'newest'
-              ? 'border-[#7A1F2B] text-[#7A1F2B]'
-              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
-          )}
-        >
-          <UserPlus className="size-4" />
-          New Members
-        </button>
+          <div className="flex flex-wrap gap-2">
+            {quickFilterDefinitions.map((filter) => (
+              <button
+                key={filter.label}
+                type="button"
+                onClick={() => void applyQuickFilter({ ...defaultFilters, ...filter.apply() })}
+                className="rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
+              >
+                {filter.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => void applyPreset('nearby')}
+              className="rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
+            >
+              Near you
+            </button>
+          </div>
 
-        <button
-          onClick={() => {
-            setActiveTab('saved');
-            void loadSavedSearches();
-          }}
-          className={cx(
-            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-            activeTab === 'saved'
-              ? 'border-[#7A1F2B] text-[#7A1F2B]'
-              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
-          )}
-        >
-          <Bookmark className="size-4" />
-          Saved Searches
-        </button>
-      </div>
-
-      {/* ─── Tab Content ───────────────────────────────────────────────────────── */}
-      {activeTab === 'search' && (
-        <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-          {/* Desktop Filter Panel */}
-          <aside className="hidden lg:block">
-            <PremiumCard className="p-5">{renderFilterForm()}</PremiumCard>
-          </aside>
-
-          {/* Search Result Listing */}
-          <div className="grid content-start gap-5">
+          {visibleQueryChips.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {activeChips.map((chip) => (
+              {visibleQueryChips.map((chip) => (
                 <span
-                  key={chip}
-                  className="rounded-full border border-[#7A1F2B]/10 bg-white px-3 py-1 text-xs font-semibold text-[#6B7280]"
+                  key={`${chip.key}-${chip.label}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#7A1F2B]"
                 >
-                  {chip}
+                  {chip.label}
                 </span>
               ))}
             </div>
-
-            {message ? (
-              <p className="rounded-2xl border border-[#7A1F2B]/10 bg-[#F8E8E8] p-4 text-sm text-[#7A1F2B]">
-                {message}
-              </p>
-            ) : null}
-
-            {renderResultsGrid('grid gap-4 md:grid-cols-2')}
-
-            {/* Mobile Filter Drawer Overlay */}
-            <FilterDrawer
-              open={drawerOpen}
-              onClose={() => setDrawerOpen(false)}
-              title="Search Filters"
-            >
-              {renderFilterForm(true)}
-            </FilterDrawer>
-
-            {/* Floating Mobile Filter Button */}
-            <div className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 lg:hidden">
-              <PremiumButton onClick={() => setDrawerOpen(true)} className="shadow-2xl">
-                <SlidersHorizontal className="size-4" />
-                Show Filters
-              </PremiumButton>
-            </div>
-          </div>
+          ) : null}
         </div>
+      </section>
+
+      <div className="flex overflow-x-auto gap-2 border-b border-[#7A1F2B]/10 pb-1 scrollbar-none">
+        {[
+          { key: 'recommended', label: 'Recommended', icon: Sparkles },
+          { key: 'active', label: 'Recently Active', icon: Clock3 },
+          { key: 'verified', label: 'Verified', icon: ShieldCheck },
+          { key: 'newest', label: 'New Members', icon: UserPlus },
+          { key: 'nearby', label: 'Near You', icon: MapPin },
+          { key: 'saved', label: 'Saved Searches', icon: Bookmark },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => void applyPreset(tab.key as DiscoveryTab)}
+              className={cx(
+                'inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
+                isActive
+                  ? 'bg-[#7A1F2B] text-white'
+                  : 'text-[#6B7280] hover:bg-[#F8E8E8] hover:text-[#7A1F2B]',
+              )}
+            >
+              <Icon className="size-4" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {message ? (
+        <p className="rounded-2xl border border-[#7A1F2B]/10 bg-[#F8E8E8] p-4 text-sm text-[#7A1F2B]">
+          {message}
+        </p>
+      ) : null}
+
+      {(activeTab === 'search' || activeTab === 'active' || activeTab === 'verified' || activeTab === 'newest' || activeTab === 'nearby') && (
+        <section className="grid gap-6">
+          <SectionHeader
+            eyebrow="Discovery results"
+            title={
+              activeTab === 'active'
+                ? 'Recently active members'
+                : activeTab === 'verified'
+                  ? 'Verified members'
+                  : activeTab === 'newest'
+                    ? 'New members'
+                    : activeTab === 'nearby'
+                      ? 'Members near you'
+                      : 'Search results'
+            }
+            subtitle={
+              activeTab === 'nearby'
+                ? 'Profiles closer to your current city and state, when that information is available.'
+                : 'A calmer browsing grid with quick actions and less card congestion.'
+            }
+          />
+          {renderSearchResultsGrid()}
+        </section>
       )}
 
       {activeTab === 'recommended' && (
-        <div className="grid gap-6">
-          <div className="max-w-2xl">
-            <h2 className="text-xl font-semibold text-[#1A1A1A]">Compatible Matches</h2>
-            <p className="mt-1 text-sm text-[#6B7280]">
-              Calculated automatically based on your profile preferences and background
-              expectations.
-            </p>
-          </div>
+        <section className="grid gap-6">
+          <SectionHeader
+            eyebrow="Recommended"
+            title="Profiles worth your attention today"
+            subtitle="These recommendations use your profile details and partner preferences to surface stronger fits first."
+          />
 
           {loading ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
                 <SkeletonCard key={index} />
               ))}
             </div>
           ) : recommended.length === 0 ? (
             <EmptyState title="No recommendations available">
-              Update your partner preferences in your profile wizard to help us find matches for
-              you.
+              Update your partner preferences in your profile to unlock stronger recommendations.
             </EmptyState>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {recommended.map((profile, index) => (
-                <ProfileCard
-                  key={profile.id}
-                  profile={profile}
-                  index={index}
-                  onProfileHidden={refreshVisibleResults}
-                />
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {recommended.map((profile) => (
+                <ProfileCard key={profile.id} profile={profile} onProfileHidden={refreshCurrentView} />
               ))}
             </div>
           )}
-        </div>
-      )}
-
-      {activeTab === 'active' && (
-        <div className="grid gap-6">
-          <div className="max-w-2xl">
-            <h2 className="text-xl font-semibold text-[#1A1A1A]">Recently Active</h2>
-            <p className="mt-1 text-sm text-[#6B7280]">
-              Members active within the last 24 hours, ordered by communication readiness.
-            </p>
-          </div>
-          {renderResultsGrid('grid gap-4 md:grid-cols-2 lg:grid-cols-3')}
-        </div>
-      )}
-
-      {activeTab === 'newest' && (
-        <div className="grid gap-6">
-          <div className="max-w-2xl">
-            <h2 className="text-xl font-semibold text-[#1A1A1A]">New Members</h2>
-            <p className="mt-1 text-sm text-[#6B7280]">
-              Freshly joined members who recently completed their registration and verification.
-            </p>
-          </div>
-          {renderResultsGrid('grid gap-4 md:grid-cols-2 lg:grid-cols-3')}
-        </div>
+        </section>
       )}
 
       {activeTab === 'saved' && (
-        <div className="grid gap-6">
-          <div className="max-w-2xl">
-            <h2 className="text-xl font-semibold text-[#1A1A1A]">Saved Searches</h2>
-            <p className="mt-1 text-sm text-[#6B7280]">
-              Manage and rerun your preferred filter combinations for targeted search.
-            </p>
-          </div>
+        <section className="grid gap-6">
+          <SectionHeader
+            eyebrow="Saved searches"
+            title="Reuse your favourite discovery setups"
+            subtitle="Save filter combinations for the kinds of introductions you want to revisit quickly."
+          />
 
-          <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-            {/* Save Search Form on left */}
+          <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
             <aside className="h-fit">
-              <PremiumCard className="p-5 space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#7A1F2B]">
+              <PremiumCard className="space-y-4 p-5">
+                <h3 className="text-sm font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
                   Save current query
                 </h3>
                 <form className="grid gap-3" onSubmit={(event) => void saveSearch(event)}>
@@ -574,11 +764,10 @@ export default function MatchDiscovery() {
               </PremiumCard>
             </aside>
 
-            {/* Saved Searches list on right */}
             <div className="space-y-4">
               {savedSearches.length === 0 ? (
-                <EmptyState title="No saved searches">
-                  Your saved search configurations will appear here.
+                <EmptyState title="No saved searches yet">
+                  Your saved discovery setups will appear here once you save them.
                 </EmptyState>
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
@@ -590,8 +779,8 @@ export default function MatchDiscovery() {
                           <h4 className="font-semibold text-[#1A1A1A]">{savedSearch.name}</h4>
                           <p className="mt-1 text-xs text-[#6B7280]">
                             {savedSearch.notifyOnNewMatches
-                              ? '📧 Daily email alerts enabled'
-                              : '📧 Alerts off'}
+                              ? 'Daily email alerts enabled'
+                              : 'Alerts currently off'}
                           </p>
                         </div>
                         <div className="flex gap-2">
@@ -603,7 +792,7 @@ export default function MatchDiscovery() {
                             className="h-9 px-4 text-xs"
                             variant="primary"
                           >
-                            Run Search
+                            Run search
                           </PremiumButton>
                           <PremiumButton
                             onClick={() => void deleteSavedSearch(id)}
@@ -620,64 +809,55 @@ export default function MatchDiscovery() {
               )}
             </div>
           </div>
-        </div>
+        </section>
       )}
+
+      <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="Advanced filters">
+        {renderFilterForm()}
+      </FilterDrawer>
     </div>
   );
 }
 
 function ProfileCard({
   profile,
-  compact = false,
   onProfileHidden,
 }: Readonly<{
   profile: MatchCard;
-  index: number;
-  compact?: boolean;
   onProfileHidden?: () => void;
 }>) {
   return (
     <ProfileMatchCard
-      compact={compact}
       profile={{
         age: profile.age ?? 'Age hidden',
         city: [profile.city, profile.state, profile.country].filter(Boolean).join(', '),
         community: profile.community ?? profile.motherTongue,
-        education: profile.education,
         id: profile.id,
         matchScore: profile.matchScore,
         name: profile.firstName ?? 'Vivah member',
         occupation: profile.occupation,
         photoUrl: profile.photoUrl,
-        religion: profile.religion,
         verificationLevel: profile.verificationLevel,
+        slug: profile.id,
       }}
       actions={
-        !compact ? (
-          <div className="grid gap-3">
-            <div className="flex flex-wrap gap-2">
-              {profile.matchReasons.slice(0, 3).map((reason) => (
-                <span
-                  key={reason}
-                  className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-semibold text-[#1F6F4A]"
-                >
-                  <ShieldCheck className="size-3.5" />
-                  {reason}
-                </span>
-              ))}
-            </div>
-            <ProfileActions
-              profileId={profile.id}
-              {...(onProfileHidden ? { onProfileHidden } : {})}
-            />
+        <div className="grid gap-3">
+          <div className="flex flex-wrap gap-2">
+            {profile.matchReasons.slice(0, 2).map((reason) => (
+              <span
+                key={reason}
+                className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-semibold text-[#1F6F4A]"
+              >
+                <ShieldCheck className="size-3.5" />
+                {reason}
+              </span>
+            ))}
           </div>
-        ) : (
           <ProfileActions
             profileId={profile.id}
-            compact
             {...(onProfileHidden ? { onProfileHidden } : {})}
           />
-        )
+        </div>
       }
     />
   );
@@ -685,9 +865,9 @@ function ProfileCard({
 
 function SkeletonCard() {
   return (
-    <div className="grid grid-cols-[96px_1fr] gap-4 rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm animate-pulse">
-      <div className="aspect-[3/4] rounded-2xl bg-[#F8E8E8]" />
-      <div className="grid content-start gap-3">
+    <div className="overflow-hidden rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm animate-pulse">
+      <div className="aspect-[4/4.8] rounded-2xl bg-[#F8E8E8]" />
+      <div className="mt-4 grid content-start gap-3">
         <div className="h-5 w-2/3 rounded-lg bg-[#F8E8E8]" />
         <div className="h-4 w-1/2 rounded-lg bg-[#F8E8E8]" />
         <div className="h-4 w-5/6 rounded-lg bg-[#F8E8E8]" />

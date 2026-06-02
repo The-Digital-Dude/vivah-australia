@@ -370,14 +370,14 @@ export function FilterDrawer({
 }: Readonly<{ children: ReactNode; onClose: () => void; open: boolean; title?: string }>) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
+    <div className="fixed inset-0 z-50">
       <button
         aria-label="Close filters"
         className="absolute inset-0 bg-black/35"
         type="button"
         onClick={onClose}
       />
-      <aside className="relative ml-auto h-full w-full max-w-sm overflow-y-auto bg-[#FCFAF7] p-5 shadow-2xl">
+      <aside className="relative ml-auto h-full w-full max-w-md overflow-y-auto bg-[#FCFAF7] p-5 shadow-2xl sm:max-w-lg">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-[#1A1A1A]">{title}</h2>
           <button

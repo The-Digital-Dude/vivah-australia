@@ -6,8 +6,8 @@
 - [x] Create redesign plan document
 - [x] Redesign member shell navigation
 - [x] Redesign member dashboard command center
-- [ ] Simplify match discovery layout
-- [ ] Add advanced filter sheet
+- [x] Simplify match discovery layout
+- [x] Add advanced filter sheet
 - [ ] Simplify discovery profile cards
 - [ ] Add Activity hub
 - [ ] Polish mobile member experience
