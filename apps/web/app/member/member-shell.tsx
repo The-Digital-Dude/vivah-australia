@@ -73,7 +73,7 @@ const primaryNav: NavItem[] = [
   },
   {
     label: 'Profile',
-    href: '/member/profile/edit',
+    href: '/member/profile',
     icon: UserCircle2,
     matches: [
       '/member/profile',
@@ -244,17 +244,13 @@ export default function MemberShell({
 
   const isApproved = shellProfile?.moderation?.approvalStatus === 'APPROVED';
   const visibleGroups = useMemo(
-    () =>
-      navGroups.map((group) => ({
-        ...group,
-        items: group.items.filter((item) => !(isApproved && item.href === '/member/verification')),
-      })),
-    [isApproved],
+    () => navGroups,
+    []
   );
 
   const visiblePrimary = useMemo(
-    () => primaryNav.filter((item) => !(isApproved && item.href === '/member/verification')),
-    [isApproved],
+    () => primaryNav,
+    []
   );
 
   const firstName = shellProfile?.personal?.firstName ?? 'Member';

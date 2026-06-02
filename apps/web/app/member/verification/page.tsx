@@ -86,10 +86,6 @@ export default function MemberVerificationPage() {
     if (profileRes.ok && profileRes.data) {
       const p = (profileRes.data as { profile: ProfileData }).profile;
       setProfile(p);
-      // If the member is fully approved, redirect them away — they don't need this page
-      if (p.moderation?.approvalStatus === 'APPROVED') {
-        router.replace('/member');
-      }
     }
   }
 

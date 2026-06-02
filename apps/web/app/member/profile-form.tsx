@@ -1751,10 +1751,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
 
         // Guard if onboarding mode is active
         if (mode === 'onboarding') {
-          if (!rawProfile?.verification?.mobileVerified) {
-            router.replace('/member/verification');
-            return;
-          }
           if (rawProfile?.moderation?.approvalStatus && rawProfile.moderation.approvalStatus !== 'DRAFT') {
             router.replace('/member');
             return;

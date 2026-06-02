@@ -454,7 +454,7 @@ const memberLinks = [
   ['Matches', '/member/matches'],
   ['Messages', '/member/messages'],
   ['Notifications', '/member/notifications'],
-  ['Profile', '/member/profile/edit'],
+  ['Profile', '/member/profile'],
 ] as const;
 
 export function PublicHeader() {

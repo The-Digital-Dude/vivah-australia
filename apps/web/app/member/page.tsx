@@ -234,10 +234,6 @@ export default function MemberDashboardPage() {
 
       if (profileRes.ok && profileRes.data) {
         const rawProfile = (profileRes.data as { profile: ProfileData }).profile;
-        if (!rawProfile.verification?.mobileVerified) {
-          router.replace('/member/verification');
-          return;
-        }
         if (rawProfile.moderation?.approvalStatus === 'DRAFT') {
           router.replace('/member/onboarding');
           return;
