@@ -196,18 +196,18 @@ export function ProfileMatchCard({
   return (
     <article
       className={cx(
-        'overflow-hidden rounded-3xl border border-[#7A1F2B]/10 bg-white shadow-[0_18px_45px_rgba(122,31,43,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(122,31,43,0.12)]',
+        'overflow-hidden rounded-[30px] border border-[#7A1F2B]/10 bg-white shadow-[0_18px_45px_rgba(122,31,43,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(122,31,43,0.12)]',
         className,
       )}
     >
-      <Link href={href} className={cx('grid gap-4 p-4', compact ? '' : 'sm:grid-cols-[120px_1fr]')}>
-        <div className="relative grid aspect-[3/4] place-items-center overflow-hidden rounded-2xl bg-[#F8E8E8] text-3xl font-semibold text-[#7A1F2B]">
+      <Link href={href} className={cx('grid gap-4 p-4', compact ? '' : '')}>
+        <div className="relative grid aspect-[4/4.8] place-items-center overflow-hidden rounded-[24px] bg-[#F8E8E8] text-3xl font-semibold text-[#7A1F2B]">
           {profile.photoUrl ? (
             <Image
               src={profile.photoUrl}
               alt={`${profile.name ?? 'Vivah member'} profile`}
               fill
-              sizes="(min-width: 640px) 120px, 100vw"
+              sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
               className="object-cover"
               priority
             />
@@ -218,42 +218,53 @@ export function ProfileMatchCard({
             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D6A84F] to-[#C0923C] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2C1707] shadow-md">
               <Sparkles className="size-3" /> Boosted
             </div>
-          ) : null}
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold text-[#1A1A1A]">
-                {profile.name ?? 'Vivah member'}
-                {profile.age ? `, ${profile.age}` : ''}
-              </h3>
-              <p className="mt-1 text-sm text-[#6B7280]">
-                {[profile.city, profile.occupation].filter(Boolean).join(' | ') || 'Australia'}
-              </p>
-            </div>
-            {typeof profile.matchScore === 'number' ? (
-              <MatchScoreBadge score={profile.matchScore} />
             ) : null}
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <VerificationBadge level={profile.verificationLevel} />
-            {[profile.religion, profile.community, profile.education]
-              .filter(Boolean)
-              .map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full bg-[#FCFAF7] px-3 py-1 text-xs font-semibold text-[#6B7280]"
-                >
-                  {item}
+          <div className="min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-xl font-semibold text-[#1A1A1A]">
+                  {profile.name ?? 'Vivah member'}
+                  {profile.age ? `, ${profile.age}` : ''}
+                </h3>
+                <p className="mt-1 text-sm text-[#6B7280]">
+                  {profile.city || 'Australia'}
+                </p>
+              </div>
+              {typeof profile.matchScore === 'number' ? (
+                <MatchScoreBadge score={profile.matchScore} />
+              ) : null}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <VerificationBadge level={profile.verificationLevel} />
+              {profile.occupation ? (
+                <span className="rounded-full bg-[#FCFAF7] px-3 py-1 text-xs font-semibold text-[#6B7280]">
+                  {profile.occupation}
                 </span>
-              ))}
+              ) : null}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {[profile.community, profile.education, profile.religion]
+                .filter(Boolean)
+                .slice(0, compact ? 2 : 3)
+                .map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-full border border-[#7A1F2B]/10 bg-white px-3 py-1 text-xs font-semibold text-[#6B7280]"
+                  >
+                    {item}
+                  </span>
+                ))}
+            </div>
+
+            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#7A1F2B]">
+              View profile <ChevronRight className="size-4" />
+            </span>
           </div>
-          <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#7A1F2B]">
-            View profile <ChevronRight className="size-4" />
-          </span>
-        </div>
-      </Link>
-      {actions ? <div className="border-t border-[#7A1F2B]/10 px-4 py-3">{actions}</div> : null}
+        </Link>
+        {actions ? <div className="border-t border-[#7A1F2B]/10 px-4 py-3">{actions}</div> : null}
     </article>
   );
 }

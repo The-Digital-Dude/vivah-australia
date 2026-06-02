@@ -8,7 +8,7 @@
 - [x] Redesign member dashboard command center
 - [x] Simplify match discovery layout
 - [x] Add advanced filter sheet
-- [ ] Simplify discovery profile cards
+- [x] Simplify discovery profile cards
 - [ ] Add Activity hub
 - [ ] Polish mobile member experience
 - [ ] Final UX QA and regression pass
