@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2, Lock } from 'lucide-react';
 import { useMemberRequest } from '@/lib/member-api';
+import { PremiumButton } from '@/app/components';
 
 interface Plan {
   code: string;
@@ -56,12 +57,15 @@ export default function UpgradeModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <section className="w-full max-w-md rounded-lg bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <section className="w-full max-w-md rounded-[32px] bg-white p-7 shadow-2xl border border-[#7A1F2B]/10 space-y-6 animate-in fade-in zoom-in duration-200">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-[#241c15]">Upgrade to {plan.name}</h2>
-            <p className="mt-2 text-sm text-[#6f665b]">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#7A1F2B] bg-[#F8E8E8] px-2.5 py-1 rounded-full">
+              Matrimonial Tier Upgrade
+            </span>
+            <h2 className="text-2xl font-bold text-[#1A1A1A] mt-2.5">Upgrade to {plan.name}</h2>
+            <p className="mt-1 text-sm font-semibold text-[#6B7280]">
               {plan.currency} ${(plan.priceCents / 100).toFixed(2)} per{' '}
               {plan.interval.toLowerCase()}
             </p>
@@ -69,35 +73,53 @@ export default function UpgradeModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-2 text-[#6f665b] hover:bg-[#f3eee5]"
+            className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B] hover:bg-[#F8E8E8] transition duration-200"
             aria-label="Close upgrade modal"
           >
-            <X className="h-5 w-5" />
+            <X className="size-4" />
           </button>
         </div>
 
-        <label className="mt-6 block text-sm font-semibold text-[#3d352d]">
-          Coupon code
+        <label className="block text-sm font-semibold text-[#1A1A1A]">
+          Coupon Code
           <input
             value={couponCode}
             onChange={(event) => setCouponCode(event.target.value)}
-            className="mt-2 w-full rounded-md border border-[#ded3c2] px-3 py-3 text-sm outline-none focus:border-[#b9821f]"
-            placeholder="Optional"
+            className="mt-2 w-full rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 h-12 text-sm outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+            placeholder="e.g. SAVE20 (Optional)"
           />
         </label>
 
-        {message ? <p className="mt-4 text-sm text-red-700">{message}</p> : null}
+        {message ? (
+          <p className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-[#7A1F2B]">
+            {message}
+          </p>
+        ) : null}
 
-        <button
-          type="button"
+        <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-4 border border-amber-200/50 text-[#7A1F2B] text-xs">
+          <Lock className="size-4 text-[#7A1F2B]/70 shrink-0" />
+          <p className="leading-5">
+            Checkout operates via fully secure Stripe processing. You can manage, cancel, or
+            download receipts directly from your Billing dashboard.
+          </p>
+        </div>
+
+        <PremiumButton
           onClick={() => {
             void startCheckout();
           }}
           disabled={submitting || plan.code === 'FREE'}
-          className="mt-6 w-full rounded-md bg-[#241c15] px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#9b948c]"
+          className="w-full h-12"
         >
-          {submitting ? 'Opening checkout...' : 'Continue to checkout'}
-        </button>
+          {submitting ? (
+            <>
+              <Loader2 className="size-4 animate-spin shrink-0" />
+              Connecting secure Stripe checkout...
+            </>
+          ) : (
+            'Continue to Checkout'
+          )}
+        </PremiumButton>
       </section>
     </div>
   );
