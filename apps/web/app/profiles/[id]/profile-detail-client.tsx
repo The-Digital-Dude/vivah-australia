@@ -166,7 +166,12 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
   }
 
   if (state.status === 'not-found') {
-    return <ProfileMessage title="Profile not found" message="This profile is unavailable or no longer visible." />;
+    return (
+      <ProfileMessage
+        title="Profile not found"
+        message="This profile is unavailable or no longer visible."
+      />
+    );
   }
 
   if (state.status === 'error') {
@@ -292,7 +297,9 @@ function ProfileDetailView({
           </div>
 
           <ProfileDetailSection title="Partner Expectations">
-            <p>{profile.about?.partnerExpectations ?? 'Partner expectations have not been shared.'}</p>
+            <p>
+              {profile.about?.partnerExpectations ?? 'Partner expectations have not been shared.'}
+            </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Detail
                 label="Preferred age"
@@ -304,9 +311,18 @@ function ProfileDetailView({
                     : undefined
                 }
               />
-              <Detail label="Preferred countries" value={joinList(profile.partnerPreference?.countries)} />
-              <Detail label="Preferred cities" value={joinList(profile.partnerPreference?.cities)} />
-              <Detail label="Preferred religions" value={joinList(profile.partnerPreference?.religions)} />
+              <Detail
+                label="Preferred countries"
+                value={joinList(profile.partnerPreference?.countries)}
+              />
+              <Detail
+                label="Preferred cities"
+                value={joinList(profile.partnerPreference?.cities)}
+              />
+              <Detail
+                label="Preferred religions"
+                value={joinList(profile.partnerPreference?.religions)}
+              />
               <Detail
                 label="Preferred communities"
                 value={joinList(profile.partnerPreference?.communities)}

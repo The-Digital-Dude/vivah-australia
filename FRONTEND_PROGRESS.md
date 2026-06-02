@@ -239,3 +239,29 @@ Verification:
 - `pnpm lint`
 - `pnpm test`
 - `pnpm --filter @vivah/api test -- src/profile/profile.routes.test.ts`
+
+### FE-006 - Static Pages Alignment
+
+Status: Complete
+
+Aligned and modernized all public static, contact, help, blog, and pricing pages under root-level clean paths, using brand-new premium reusable components with dynamic CMS integration and local fallback data recovery.
+
+Updated Routes & Integration:
+- **Clean Root Paths**: Aligned all static public routes directly to `/about`, `/contact`, `/privacy`, `/terms`, `/refund-policy`, `/safety`, `/community-guidelines`, `/verification-policy`, `/help`, `/faq`, `/blog`, and `/membership`.
+- **Dynamic CMS Fetch**: Integrated all dynamic pages with the backend CMS API, resolving content by slug (e.g., `about-us`, `privacy-policy`, `terms-and-conditions`, etc.) and automatically falling back to localized robust content if the DB is unseeded or offline.
+- **Header & Footer Updates**: Updated all navigation links site-wide in `PublicHeader` and `PublicFooter` to route directly to clean root paths.
+- **Legacy Fallback**: Aligned the legacy `[slug]` page loader to perform direct structured rendering via aligned components when old slugs are invoked.
+
+Premium Reusable Component Suite:
+- `StaticPageHero`: Header component featuring a rich burgundy design with a gold divider accent line.
+- `StaticPageContainer`: Centered responsive grid panel layout max-width (`max-w-5xl`) wrapper.
+- `PolicyContentCard`: Dedicated rounded card designed for long policy texts and legal articles with high readability.
+- `FAQAccordion`: Smooth expand/collapse accordion with chevron toggles for questions.
+- `ContactCard`: Dedicated customer care support card using dynamic `lucide-react` icons (Mail, Phone, MapPin).
+- `HelpCategoryCard`: Multi-column categorized support grid panel with custom type-safe Lucide icon support.
+
+Verification:
+- `pnpm typecheck` compiled cleanly.
+- `pnpm lint` and `pnpm format:check` fully passing.
+- `pnpm test` verified 65 of 65 backend tests successfully.
+

@@ -63,22 +63,22 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 
 ## Task Status
 
-| Task | Status | Notes |
-| --- | --- | --- |
-| FE-001 | Complete | Frontend route/component audit completed; no UI changed. |
-| FE-002 | Complete | Added web-local reusable public/member premium component module. |
-| FE-003 | Complete | Shared public/member header, footer, container spacing, ivory background, and mobile drawer applied to non-admin layout surfaces. |
-| FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate. |
+| Task   | Status   | Notes                                                                                                                                                         |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FE-001 | Complete | Frontend route/component audit completed; no UI changed.                                                                                                      |
+| FE-002 | Complete | Added web-local reusable public/member premium component module.                                                                                              |
+| FE-003 | Complete | Shared public/member header, footer, container spacing, ivory background, and mobile drawer applied to non-admin layout surfaces.                             |
+| FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate.   |
 | FE-005 | Complete | Premium public profile detail page now includes hero, sticky/mobile actions, full profile sections, verification state, and locked private gallery messaging. |
-| FE-006 | Pending | Align static public pages. |
-| FE-007 | Pending | Align auth pages. |
-| FE-008 | Pending | Redesign member dashboard UX. |
-| FE-009 | Pending | Improve onboarding/profile editing UX. |
-| FE-010 | Pending | Improve match discovery UX. |
-| FE-011 | Pending | Polish verification page UX. |
-| FE-012 | Pending | Polish notifications page UX. |
-| FE-013 | Pending | Polish membership/pricing page. |
-| FE-014 | Pending | Final frontend QA and fixes. |
+| FE-006 | Complete | Aligned static public pages using the premium brand layout and reusable components (StaticPageHero, FAQAccordion, ContactCard, etc.) with dynamic CMS API integration. |
+| FE-007 | Pending  | Align auth pages.                                                                                                                                             |
+| FE-008 | Pending  | Redesign member dashboard UX.                                                                                                                                 |
+| FE-009 | Pending  | Improve onboarding/profile editing UX.                                                                                                                        |
+| FE-010 | Pending  | Improve match discovery UX.                                                                                                                                   |
+| FE-011 | Pending  | Polish verification page UX.                                                                                                                                  |
+| FE-012 | Pending  | Polish notifications page UX.                                                                                                                                 |
+| FE-013 | Pending  | Polish membership/pricing page.                                                                                                                               |
+| FE-014 | Pending  | Final frontend QA and fixes.                                                                                                                                  |
 
 ## Implementation Order
 
@@ -124,3 +124,12 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 - Unauthenticated member-only profile views now show a premium sign-in-required screen rather than the default 404 page.
 - Signed-in member profile views now fetch profile detail data with the active client auth token.
 - Admin profile/detail surfaces were not modified.
+
+## FE-006 Static Pages Alignment
+
+- Created root public routes: `/about`, `/contact`, `/privacy`, `/terms`, `/refund-policy`, `/safety`, `/community-guidelines`, `/verification-policy`, `/help`, `/faq`, `/blog`, and `/membership` (pricing).
+- Implemented and exported reusable UI helper components: `StaticPageHero`, `StaticPageContainer`, `PolicyContentCard`, `FAQAccordion`, `ContactCard`, and `HelpCategoryCard`.
+- Redesigned existing `/contact` and `/pricing` with matching brand layouts.
+- Updated all site header and footer paths to link directly to clean root paths.
+- Configured dynamic CMS fetching with robust offline-safe local fallback structures.
+- Verified route structures, accessibility, responsive flows, linting, formatting, and build status.

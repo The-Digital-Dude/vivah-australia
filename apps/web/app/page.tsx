@@ -1,6 +1,7 @@
 import {
   getBlogs,
   getFeaturedProfiles,
+  getHomeContent,
   getPlans,
   getSuccessStories,
   getTestimonials,
@@ -13,7 +14,7 @@ import HomeClient from './home-client';
 const fallbackProfiles: FeaturedProfile[] = [
   {
     displayId: 'VA100001',
-    personal: { firstName: 'Amit', age: 34 },
+    personal: { firstName: 'Amit', age: 34, gender: 'MALE' },
     location: { city: 'Melbourne', state: 'VIC' },
     religion: { religion: 'Hindu' },
     employment: { occupation: 'Software Engineer' },
@@ -21,7 +22,7 @@ const fallbackProfiles: FeaturedProfile[] = [
   },
   {
     displayId: 'VA100002',
-    personal: { firstName: 'Priya', age: 31 },
+    personal: { firstName: 'Priya', age: 31, gender: 'FEMALE' },
     location: { city: 'Sydney', state: 'NSW' },
     religion: { religion: 'Hindu' },
     employment: { occupation: 'Accountant' },
@@ -29,7 +30,7 @@ const fallbackProfiles: FeaturedProfile[] = [
   },
   {
     displayId: 'VA100003',
-    personal: { firstName: 'Neha', age: 29 },
+    personal: { firstName: 'Neha', age: 29, gender: 'FEMALE' },
     location: { city: 'Brisbane', state: 'QLD' },
     religion: { religion: 'Sikh' },
     employment: { occupation: 'Doctor' },
@@ -117,13 +118,15 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [{ profiles }, { plans }, { stories }, { testimonials }, { blogs }] = await Promise.all([
-    getFeaturedProfiles(),
-    getPlans(),
-    getSuccessStories(),
-    getTestimonials(),
-    getBlogs(3),
-  ]);
+  const [home, { profiles }, { plans }, { stories }, { testimonials }, { blogs }] =
+    await Promise.all([
+      getHomeContent(),
+      getFeaturedProfiles(),
+      getPlans(),
+      getSuccessStories(),
+      getTestimonials(),
+      getBlogs(3),
+    ]);
 
   const profileItems = profiles.length ? profiles : fallbackProfiles;
   const planItems = plans.length ? plans : fallbackPlans;
@@ -133,6 +136,7 @@ export default async function HomePage() {
 
   return (
     <HomeClient
+      home={home}
       profiles={profileItems}
       plans={planItems}
       stories={storyItems}

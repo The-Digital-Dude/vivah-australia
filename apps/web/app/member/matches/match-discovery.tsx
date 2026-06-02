@@ -423,19 +423,19 @@ function ProfileCard({
       actions={
         !compact ? (
           <div className="grid gap-3">
-          <div className="flex flex-wrap gap-2">
-            {profile.matchReasons.slice(0, 3).map((reason) => (
-              <span
-                key={reason}
-                className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-medium text-[#1F6F4A]"
-              >
-                <ShieldCheck className="size-3.5" />
-                {reason}
-              </span>
-            ))}
+            <div className="flex flex-wrap gap-2">
+              {profile.matchReasons.slice(0, 3).map((reason) => (
+                <span
+                  key={reason}
+                  className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-medium text-[#1F6F4A]"
+                >
+                  <ShieldCheck className="size-3.5" />
+                  {reason}
+                </span>
+              ))}
+            </div>
+            <ProfileActions profileId={profile.id} />
           </div>
-          <ProfileActions profileId={profile.id} />
-        </div>
         ) : (
           <ProfileActions profileId={profile.id} compact />
         )

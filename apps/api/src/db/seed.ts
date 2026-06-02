@@ -95,7 +95,7 @@ interface DemoMember {
   status: (typeof AccountStatus)[keyof typeof AccountStatus];
   planCode: string;
   verificationLevel: (typeof VerificationLevel)[keyof typeof VerificationLevel];
-  approvalStatus: typeof ProfileApprovalStatus[keyof typeof ProfileApprovalStatus];
+  approvalStatus: (typeof ProfileApprovalStatus)[keyof typeof ProfileApprovalStatus];
   visibility: (typeof ProfileVisibility)[keyof typeof ProfileVisibility];
 }
 
@@ -262,8 +262,30 @@ const visaStatuses = [
 const familyValues = ['Traditional', 'Moderate', 'Liberal'] as const;
 const familyTypes = ['Nuclear', 'Joint', 'Extended'] as const;
 const diets = ['Vegetarian', 'Non-vegetarian', 'Eggetarian', 'Vegan', 'Halal'] as const;
-const fitness = ['Gym', 'Yoga', 'Walking', 'Cricket', 'Badminton', 'Swimming', 'Hiking', 'Pilates', 'Running', 'Cycling'] as const;
-const hobbies = ['Travel', 'Cooking', 'Music', 'Reading', 'Movies', 'Volunteering', 'Photography', 'Food', 'Fitness', 'Gardening'] as const;
+const fitness = [
+  'Gym',
+  'Yoga',
+  'Walking',
+  'Cricket',
+  'Badminton',
+  'Swimming',
+  'Hiking',
+  'Pilates',
+  'Running',
+  'Cycling',
+] as const;
+const hobbies = [
+  'Travel',
+  'Cooking',
+  'Music',
+  'Reading',
+  'Movies',
+  'Volunteering',
+  'Photography',
+  'Food',
+  'Fitness',
+  'Gardening',
+] as const;
 const identityVerifiedLevels = [
   VerificationLevel.SILVER,
   VerificationLevel.GOLD,
@@ -435,7 +457,9 @@ function seedMetadata(extra: Record<string, unknown> = {}) {
 }
 
 async function syncModelIndexes() {
-  await Promise.all([UserModel, ProfileModel, ...phaseOneModels].map((model) => model.syncIndexes()));
+  await Promise.all(
+    [UserModel, ProfileModel, ...phaseOneModels].map((model) => model.syncIndexes()),
+  );
 }
 
 async function upsertUser(
@@ -556,7 +580,10 @@ function profilePayload(member: DemoMember, userId: ObjectId) {
     employment: {
       occupation: member.occupation,
       industry: member.industry,
-      employmentStatus: pick(['Employed', 'Self-employed', 'Business Owner', 'Student', 'Looking for Work'], member.index),
+      employmentStatus: pick(
+        ['Employed', 'Self-employed', 'Business Owner', 'Student', 'Looking for Work'],
+        member.index,
+      ),
       employerName: `Demo ${member.industry} Group`,
       annualIncome: pick([48000, 62000, 84000, 118000, 155000, 0], member.index),
       annualIncomeVisibility: member.index % 5 === 0 ? 'MATCHES_ONLY' : 'PRIVATE',
@@ -573,13 +600,24 @@ function profilePayload(member: DemoMember, userId: ObjectId) {
       drinkingHabits: pick(['Never', 'No', 'Socially'], member.index + 1),
       dietaryPreferences: pick(diets, member.index),
       fitnessInterests: [pick(fitness, member.index), pick(fitness, member.index + 3)],
-      religiousPractices: pick(['Regular', 'Occasional', 'Cultural', 'Spiritual', 'Prefer not to say'], member.index),
+      religiousPractices: pick(
+        ['Regular', 'Occasional', 'Cultural', 'Spiritual', 'Prefer not to say'],
+        member.index,
+      ),
     },
     about: {
       aboutMe,
-      hobbies: [pick(hobbies, member.index), pick(hobbies, member.index + 2), pick(hobbies, member.index + 5)],
-      interests: [member.industry, pick(['Culture', 'Family', 'Community', 'Travel', 'Wellbeing'], member.index)],
-      personalGoals: 'To build a balanced family life in Australia while continuing to grow professionally.',
+      hobbies: [
+        pick(hobbies, member.index),
+        pick(hobbies, member.index + 2),
+        pick(hobbies, member.index + 5),
+      ],
+      interests: [
+        member.industry,
+        pick(['Culture', 'Family', 'Community', 'Travel', 'Wellbeing'], member.index),
+      ],
+      personalGoals:
+        'To build a balanced family life in Australia while continuing to grow professionally.',
       partnerExpectations,
     },
     partnerPreference: {
@@ -608,7 +646,9 @@ function profilePayload(member: DemoMember, userId: ObjectId) {
       mobileVerified: member.verificationLevel !== VerificationLevel.NONE,
       identityVerified: identityVerifiedLevels.some((level) => level === member.verificationLevel),
       addressVerified: goldVerifiedLevels.some((level) => level === member.verificationLevel),
-      employmentVerified: platinumVerifiedLevels.some((level) => level === member.verificationLevel),
+      employmentVerified: platinumVerifiedLevels.some(
+        (level) => level === member.verificationLevel,
+      ),
       visaVerified: platinumVerifiedLevels.some((level) => level === member.verificationLevel),
       policeClearanceVerified: member.verificationLevel === VerificationLevel.FULLY_VERIFIED,
       facialVerified: platinumVerifiedLevels.some((level) => level === member.verificationLevel),
@@ -663,10 +703,12 @@ async function seedMembers(passwordHash: string) {
   return result;
 }
 
-async function seedMedia(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedMedia(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   for (const { userId, profileId, member } of records.values()) {
     const genderPath = member.gender === Gender.FEMALE ? 'female' : 'male';
-    const base = member.index % 4 + 1;
+    const base = (member.index % 4) + 1;
     const mediaItems = [
       {
         storageKey: `demo/profiles/${member.slug}/profile.jpg`,
@@ -682,7 +724,8 @@ async function seedMedia(records: Map<string, { userId: ObjectId; profileId: Obj
         category: MediaCategory.PUBLIC_GALLERY,
         visibility: MediaVisibility.PUBLIC,
         isPrimary: false,
-        approvalStatus: member.index % 9 === 0 ? VerificationStatus.PENDING : VerificationStatus.APPROVED,
+        approvalStatus:
+          member.index % 9 === 0 ? VerificationStatus.PENDING : VerificationStatus.APPROVED,
       },
       {
         storageKey: `demo/profiles/${member.slug}/public-2.jpg`,
@@ -690,7 +733,8 @@ async function seedMedia(records: Map<string, { userId: ObjectId; profileId: Obj
         category: MediaCategory.PUBLIC_GALLERY,
         visibility: MediaVisibility.PUBLIC,
         isPrimary: false,
-        approvalStatus: member.index % 13 === 0 ? VerificationStatus.REJECTED : VerificationStatus.APPROVED,
+        approvalStatus:
+          member.index % 13 === 0 ? VerificationStatus.REJECTED : VerificationStatus.APPROVED,
       },
       ...(member.index % 3 === 0
         ? [
@@ -738,15 +782,24 @@ async function seedMedia(records: Map<string, { userId: ObjectId; profileId: Obj
   }
 }
 
-function activeMembers(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+function activeMembers(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   return [...records.values()].filter((item) => item.member.status === AccountStatus.ACTIVE);
 }
 
-async function seedInteractions(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedInteractions(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records);
   const males = active.filter((item) => item.member.gender === Gender.MALE);
   const females = active.filter((item) => item.member.gender === Gender.FEMALE);
-  const statuses = [InterestStatus.PENDING, InterestStatus.ACCEPTED, InterestStatus.REJECTED, InterestStatus.WITHDRAWN];
+  const statuses = [
+    InterestStatus.PENDING,
+    InterestStatus.ACCEPTED,
+    InterestStatus.REJECTED,
+    InterestStatus.WITHDRAWN,
+  ];
 
   for (let index = 0; index < 80; index += 1) {
     const sender = index % 2 === 0 ? pick(males, index) : pick(females, index);
@@ -760,7 +813,10 @@ async function seedInteractions(records: Map<string, { userId: ObjectId; profile
           senderId: sender.userId,
           receiverId: receiver.userId,
           status,
-          respondedAt: status === InterestStatus.PENDING ? undefined : new Date(now.getTime() - index * 3600000),
+          respondedAt:
+            status === InterestStatus.PENDING
+              ? undefined
+              : new Date(now.getTime() - index * 3600000),
           isDeleted: false,
         },
       },
@@ -790,10 +846,24 @@ async function seedInteractions(records: Map<string, { userId: ObjectId; profile
   }
 }
 
-async function seedReports(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedReports(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records);
-  const reasons = ['Fake profile', 'Inappropriate message', 'Suspicious activity', 'Harassment', 'Wrong information', 'Spam'];
-  const statuses = [ReportStatus.OPEN, ReportStatus.ASSIGNED, ReportStatus.RESOLVED, ReportStatus.DISMISSED];
+  const reasons = [
+    'Fake profile',
+    'Inappropriate message',
+    'Suspicious activity',
+    'Harassment',
+    'Wrong information',
+    'Spam',
+  ];
+  const statuses = [
+    ReportStatus.OPEN,
+    ReportStatus.ASSIGNED,
+    ReportStatus.RESOLVED,
+    ReportStatus.DISMISSED,
+  ];
   const admin = await UserModel.findOne({ email: 'moderator@vivahaustralia.com' }).orFail();
   for (let index = 0; index < 12; index += 1) {
     const reporter = pick(active, index);
@@ -818,7 +888,9 @@ async function seedReports(records: Map<string, { userId: ObjectId; profileId: O
   }
 }
 
-async function seedMessages(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedMessages(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records);
   const males = active.filter((item) => item.member.gender === Gender.MALE);
   const females = active.filter((item) => item.member.gender === Gender.FEMALE);
@@ -836,7 +908,9 @@ async function seedMessages(records: Map<string, { userId: ObjectId; profileId: 
   for (let index = 0; index < 10; index += 1) {
     const first = pick(males, index);
     const second = pick(females, index + 1);
-    const participantIds = [first.userId, second.userId].sort((a, b) => String(a).localeCompare(String(b)));
+    const participantIds = [first.userId, second.userId].sort((a, b) =>
+      String(a).localeCompare(String(b)),
+    );
     const existingConversation = await ConversationModel.findOne({
       participantIds: { $all: participantIds, $size: 2 },
     });
@@ -881,7 +955,9 @@ async function seedMessages(records: Map<string, { userId: ObjectId; profileId: 
   }
 }
 
-async function seedVerifications(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedVerifications(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records);
   const reviewer = await UserModel.findOne({ email: 'moderator@vivahaustralia.com' }).orFail();
   const types = ['IDENTITY', 'ADDRESS', 'EMPLOYMENT', 'VISA', 'POLICE_CLEARANCE', 'FACIAL'];
@@ -910,9 +986,13 @@ async function seedVerifications(records: Map<string, { userId: ObjectId; profil
             statuses[index] === VerificationStatus.REJECTED
               ? 'Demo request rejected for clearer document copy.'
               : undefined,
-          adminNote: 'Demo document metadata: demo-identity-document.pdf, application/pdf, 245000 bytes.',
+          adminNote:
+            'Demo document metadata: demo-identity-document.pdf, application/pdf, 245000 bytes.',
           reviewedBy: statuses[index] === VerificationStatus.PENDING ? undefined : reviewer._id,
-          reviewedAt: statuses[index] === VerificationStatus.PENDING ? undefined : new Date(now.getTime() - index * dayMs),
+          reviewedAt:
+            statuses[index] === VerificationStatus.PENDING
+              ? undefined
+              : new Date(now.getTime() - index * dayMs),
           isDeleted: false,
         },
       },
@@ -925,7 +1005,8 @@ async function seedVerifications(records: Map<string, { userId: ObjectId; profil
         $set: {
           requestId: request._id,
           userId: target.userId,
-          documentType: type === 'IDENTITY' ? 'Driver Licence' : `${title(type.toLowerCase())} Document`,
+          documentType:
+            type === 'IDENTITY' ? 'Driver Licence' : `${title(type.toLowerCase())} Document`,
           storageKey,
           encrypted: true,
           isDeleted: false,
@@ -936,7 +1017,9 @@ async function seedVerifications(records: Map<string, { userId: ObjectId; profil
   }
 }
 
-async function seedNotifications(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedNotifications(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records).slice(0, 18);
   const types = [
     ['INTEREST_RECEIVED', 'New interest received'],
@@ -953,7 +1036,11 @@ async function seedNotifications(records: Map<string, { userId: ObjectId; profil
     for (let index = 0; index < 6; index += 1) {
       const [typeValue, titleValue] = pick(types, memberIndex + index);
       await NotificationModel.updateOne(
-        { userId: member.userId, type: typeValue, title: `${titleValue} (${member.member.displayId})` },
+        {
+          userId: member.userId,
+          type: typeValue,
+          title: `${titleValue} (${member.member.displayId})`,
+        },
         {
           $set: {
             userId: member.userId,
@@ -971,8 +1058,15 @@ async function seedNotifications(records: Map<string, { userId: ObjectId; profil
   }
 }
 
-async function seedBilling(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
-  const planDocs = new Map((await PlanModel.find({ code: { $in: plans.map((plan) => plan.code) } })).map((plan) => [plan.code, plan]));
+async function seedBilling(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
+  const planDocs = new Map(
+    (await PlanModel.find({ code: { $in: plans.map((plan) => plan.code) } })).map((plan) => [
+      plan.code,
+      plan,
+    ]),
+  );
   const active = activeMembers(records);
   const coupons = [
     { code: 'WELCOME20', percentOff: 20 },
@@ -999,12 +1093,13 @@ async function seedBilling(records: Map<string, { userId: ObjectId; profileId: O
     );
   }
 
-  const subscriptionStatuses: Array<(typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]> = [
-    ...repeat(SubscriptionStatus.ACTIVE, 10),
-    ...repeat(SubscriptionStatus.CANCELED, 3),
-    ...repeat(SubscriptionStatus.EXPIRED, 2),
-    ...repeat(SubscriptionStatus.PAST_DUE, 2),
-  ];
+  const subscriptionStatuses: Array<(typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]> =
+    [
+      ...repeat(SubscriptionStatus.ACTIVE, 10),
+      ...repeat(SubscriptionStatus.CANCELED, 3),
+      ...repeat(SubscriptionStatus.EXPIRED, 2),
+      ...repeat(SubscriptionStatus.PAST_DUE, 2),
+    ];
   for (let index = 0; index < subscriptionStatuses.length; index += 1) {
     const member = pick(active, index);
     const plan = planDocs.get(member.member.planCode) ?? planDocs.get('PREMIUM_MONTHLY');
@@ -1035,7 +1130,12 @@ async function seedBilling(records: Map<string, { userId: ObjectId; profileId: O
     );
   }
 
-  const paymentStatuses = [PaymentStatus.SUCCEEDED, PaymentStatus.FAILED, PaymentStatus.REFUNDED, PaymentStatus.PARTIALLY_REFUNDED];
+  const paymentStatuses = [
+    PaymentStatus.SUCCEEDED,
+    PaymentStatus.FAILED,
+    PaymentStatus.REFUNDED,
+    PaymentStatus.PARTIALLY_REFUNDED,
+  ];
   for (let index = 0; index < 24; index += 1) {
     const member = pick(active, index);
     const plan = planDocs.get(member.member.planCode) ?? planDocs.get('PREMIUM_MONTHLY');
@@ -1110,7 +1210,10 @@ async function seedBilling(records: Map<string, { userId: ObjectId; profileId: O
   for (let index = 0; index < 13; index += 1) {
     const member = pick(active, index + 4);
     await ProfileBoostModel.updateOne(
-      { profileId: member.profileId, source: pick(['ENTITLEMENT', 'PURCHASE', 'ADMIN'] as const, index) },
+      {
+        profileId: member.profileId,
+        source: pick(['ENTITLEMENT', 'PURCHASE', 'ADMIN'] as const, index),
+      },
       {
         $set: {
           userId: member.userId,
@@ -1180,7 +1283,10 @@ async function seedCmsAndBlog() {
   ];
   const author = await UserModel.findOne({ email: 'manager@vivahaustralia.com' }).orFail();
   for (const [index, titleValue] of blogTitles.entries()) {
-    const slug = titleValue.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const slug = titleValue
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
     await BlogPostModel.updateOne(
       { slug },
       {
@@ -1223,7 +1329,11 @@ async function seedCmsAndBlog() {
             primaryAction: 'Create Free Profile',
             secondaryAction: 'Browse Membership',
           },
-          howItWorks: ['Create your profile', 'Verify your details', 'Connect with compatible matches'],
+          howItWorks: [
+            'Create your profile',
+            'Verify your details',
+            'Connect with compatible matches',
+          ],
           safety: ['Manual moderation', 'Verification badges', 'Private gallery controls'],
           faq: [
             {
@@ -1232,7 +1342,8 @@ async function seedCmsAndBlog() {
             },
             {
               question: 'Can I control profile visibility?',
-              answer: 'Yes, member visibility and private fields can be managed from profile settings.',
+              answer:
+                'Yes, member visibility and private fields can be managed from profile settings.',
             },
           ],
           contact: { email: 'support@vivahaustralia.com.au', location: 'Australia' },
@@ -1248,7 +1359,8 @@ async function seedCmsAndBlog() {
     {
       $set: {
         name: 'Demo Family',
-        quote: 'Vivah Australia gave our family a calm, respectful way to explore compatible introductions.',
+        quote:
+          'Vivah Australia gave our family a calm, respectful way to explore compatible introductions.',
         published: true,
         isDeleted: false,
       },
@@ -1271,7 +1383,9 @@ async function seedCmsAndBlog() {
   );
 }
 
-async function seedCommunity(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedCommunity(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records);
   const rooms = [
     ['general-discussions', 'General Discussions'],
@@ -1314,7 +1428,11 @@ async function seedCommunity(records: Map<string, { userId: ObjectId; profileId:
       for (let commentIndex = 0; commentIndex < 3; commentIndex += 1) {
         const commenter = pick(active, roomIndex + postIndex + commentIndex + 2);
         await CommunityCommentModel.updateOne(
-          { postId: post._id, authorId: commenter.userId, body: `Demo comment ${commentIndex + 1}` },
+          {
+            postId: post._id,
+            authorId: commenter.userId,
+            body: `Demo comment ${commentIndex + 1}`,
+          },
           {
             $set: {
               postId: post._id,
@@ -1344,7 +1462,9 @@ async function seedCommunity(records: Map<string, { userId: ObjectId; profileId:
   }
 }
 
-async function seedLogsAndRisk(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedLogsAndRisk(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records);
   const admin = await UserModel.findOne({ email: 'admin@vivahaustralia.com' }).orFail();
   const auditActions = [
@@ -1362,7 +1482,11 @@ async function seedLogsAndRisk(records: Map<string, { userId: ObjectId; profileI
   for (let index = 0; index < 50; index += 1) {
     const target = pick(active, index);
     await AuditLogModel.updateOne(
-      { action: pick(auditActions, index), targetUserId: target.userId, 'metadata.sequence': index },
+      {
+        action: pick(auditActions, index),
+        targetUserId: target.userId,
+        'metadata.sequence': index,
+      },
       {
         $set: {
           actorId: admin._id,
@@ -1436,7 +1560,9 @@ async function seedLogsAndRisk(records: Map<string, { userId: ObjectId; profileI
   }
 }
 
-async function seedSupportingRecords(records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>) {
+async function seedSupportingRecords(
+  records: Map<string, { userId: ObjectId; profileId: ObjectId; member: DemoMember }>,
+) {
   const active = activeMembers(records);
   for (let index = 0; index < 12; index += 1) {
     const member = pick(active, index);
@@ -1468,7 +1594,10 @@ async function seedSupportingRecords(records: Map<string, { userId: ObjectId; pr
       { upsert: true },
     );
     await PushSubscriptionModel.updateOne(
-      { userId: member.userId, endpoint: `https://push.demo.vivahaustralia.com.au/${member.member.displayId}` },
+      {
+        userId: member.userId,
+        endpoint: `https://push.demo.vivahaustralia.com.au/${member.member.displayId}`,
+      },
       {
         $set: {
           userId: member.userId,
@@ -1519,25 +1648,41 @@ async function seedSupportingRecords(records: Map<string, { userId: ObjectId; pr
 
 async function resetDemoData() {
   if (process.env.NODE_ENV === 'production' && process.env.ALLOW_PRODUCTION_SEED !== 'true') {
-    throw new Error('Refusing to reset seed data in production without ALLOW_PRODUCTION_SEED=true.');
+    throw new Error(
+      'Refusing to reset seed data in production without ALLOW_PRODUCTION_SEED=true.',
+    );
   }
 
   const memberEmails = members.map((member) => member.email);
   const adminEmails = admins.map((admin) => admin.email);
-  const demoUsers = await UserModel.find({ email: { $in: [...memberEmails, ...adminEmails] } }).select('_id');
+  const demoUsers = await UserModel.find({
+    email: { $in: [...memberEmails, ...adminEmails] },
+  }).select('_id');
   const demoUserIds = demoUsers.map((user) => user._id);
-  const demoProfiles = await ProfileModel.find({ displayId: { $in: members.map((member) => member.displayId) } }).select('_id');
+  const demoProfiles = await ProfileModel.find({
+    displayId: { $in: members.map((member) => member.displayId) },
+  }).select('_id');
   const demoProfileIds = demoProfiles.map((profile) => profile._id);
 
   await Promise.all([
-    ProfileMediaModel.deleteMany({ $or: [{ userId: { $in: demoUserIds } }, { profileId: { $in: demoProfileIds } }] }),
+    ProfileMediaModel.deleteMany({
+      $or: [{ userId: { $in: demoUserIds } }, { profileId: { $in: demoProfileIds } }],
+    }),
     VerificationRequestModel.deleteMany({ userId: { $in: demoUserIds } }),
     VerificationDocumentModel.deleteMany({ userId: { $in: demoUserIds } }),
-    InterestModel.deleteMany({ $or: [{ senderId: { $in: demoUserIds } }, { receiverId: { $in: demoUserIds } }] }),
+    InterestModel.deleteMany({
+      $or: [{ senderId: { $in: demoUserIds } }, { receiverId: { $in: demoUserIds } }],
+    }),
     FavouriteModel.deleteMany({ userId: { $in: demoUserIds } }),
-    BlockModel.deleteMany({ $or: [{ blockerId: { $in: demoUserIds } }, { blockedId: { $in: demoUserIds } }] }),
-    ReportModel.deleteMany({ $or: [{ reporterId: { $in: demoUserIds } }, { reportedUserId: { $in: demoUserIds } }] }),
-    ProfileViewModel.deleteMany({ $or: [{ viewerId: { $in: demoUserIds } }, { profileId: { $in: demoProfileIds } }] }),
+    BlockModel.deleteMany({
+      $or: [{ blockerId: { $in: demoUserIds } }, { blockedId: { $in: demoUserIds } }],
+    }),
+    ReportModel.deleteMany({
+      $or: [{ reporterId: { $in: demoUserIds } }, { reportedUserId: { $in: demoUserIds } }],
+    }),
+    ProfileViewModel.deleteMany({
+      $or: [{ viewerId: { $in: demoUserIds } }, { profileId: { $in: demoProfileIds } }],
+    }),
     SavedSearchModel.deleteMany({ userId: { $in: demoUserIds } }),
     ConversationModel.deleteMany({ participantIds: { $in: demoUserIds } }),
     MessageModel.deleteMany({ senderId: { $in: demoUserIds } }),
@@ -1549,8 +1694,16 @@ async function resetDemoData() {
     ProfileBoostModel.deleteMany({ userId: { $in: demoUserIds } }),
     PushSubscriptionModel.deleteMany({ userId: { $in: demoUserIds } }),
     FraudEventModel.deleteMany({ userId: { $in: demoUserIds } }),
-    AuditLogModel.deleteMany({ $or: [{ actorId: { $in: demoUserIds } }, { targetUserId: { $in: demoUserIds } }, { 'metadata.seedTag': DEMO_TAG }] }),
-    ActivityLogModel.deleteMany({ $or: [{ actorId: { $in: demoUserIds } }, { 'metadata.seedTag': DEMO_TAG }] }),
+    AuditLogModel.deleteMany({
+      $or: [
+        { actorId: { $in: demoUserIds } },
+        { targetUserId: { $in: demoUserIds } },
+        { 'metadata.seedTag': DEMO_TAG },
+      ],
+    }),
+    ActivityLogModel.deleteMany({
+      $or: [{ actorId: { $in: demoUserIds } }, { 'metadata.seedTag': DEMO_TAG }],
+    }),
     AdminNoteModel.deleteMany({ userId: { $in: demoUserIds } }),
     CommunityReactionModel.deleteMany({ userId: { $in: demoUserIds } }),
     CommunityCommentModel.deleteMany({ authorId: { $in: demoUserIds } }),
@@ -1559,12 +1712,43 @@ async function resetDemoData() {
     UserModel.deleteMany({ email: { $in: [...memberEmails, ...adminEmails] } }),
     PlanModel.deleteMany({ code: { $in: plans.map((plan) => plan.code) } }),
     CouponModel.deleteMany({ code: { $in: ['WELCOME20', 'VERIFIED10', 'PLATINUM50'] } }),
-    CmsPageModel.deleteMany({ slug: { $in: ['about', 'contact', 'privacy', 'terms', 'refund-policy', 'safety', 'community-guidelines', 'verification-policy', 'help', 'faq'] } }),
-    BlogPostModel.deleteMany({ slug: { $regex: /^(how-to-create|online-safety|what-families|understanding-verification|how-to-start|choosing-the-right|matrimony-for|privacy-tips)/ } }),
+    CmsPageModel.deleteMany({
+      slug: {
+        $in: [
+          'about',
+          'contact',
+          'privacy',
+          'terms',
+          'refund-policy',
+          'safety',
+          'community-guidelines',
+          'verification-policy',
+          'help',
+          'faq',
+        ],
+      },
+    }),
+    BlogPostModel.deleteMany({
+      slug: {
+        $regex:
+          /^(how-to-create|online-safety|what-families|understanding-verification|how-to-start|choosing-the-right|matrimony-for|privacy-tips)/,
+      },
+    }),
     TestimonialModel.deleteMany({ name: 'Demo Family' }),
     SuccessStoryModel.deleteMany({ slug: 'melbourne-demo-match' }),
     BannerModel.deleteMany({ key: { $regex: /^blog-\d+$/ } }),
-    CommunityRoomModel.deleteMany({ slug: { $in: ['general-discussions', 'new-members', 'success-stories', 'community-support', 'cultural-discussions', 'platform-announcements'] } }),
+    CommunityRoomModel.deleteMany({
+      slug: {
+        $in: [
+          'general-discussions',
+          'new-members',
+          'success-stories',
+          'community-support',
+          'cultural-discussions',
+          'platform-announcements',
+        ],
+      },
+    }),
     SystemSettingModel.deleteMany({ key: 'homepageContent' }),
     ContactInquiryModel.deleteMany({ email: 'demo.contact@example.com' }),
   ]);
@@ -1607,7 +1791,9 @@ async function runSeed() {
   console.log('Members:');
   console.log(`  ${members.length} demo members / ${MEMBER_PASSWORD}`);
   console.log('  Demo members: priya.sharma@example.com, arjun.patel@example.com');
-  console.log('Data: profiles, media, matches, messages, verification, notifications, billing, CMS, community, reports, logs.');
+  console.log(
+    'Data: profiles, media, matches, messages, verification, notifications, billing, CMS, community, reports, logs.',
+  );
   console.log('='.repeat(72) + '\n');
 
   await disconnectDatabase();

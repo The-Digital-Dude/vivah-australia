@@ -248,7 +248,9 @@ describe('profile routes', () => {
 
     const response = await request(app).get('/api/profiles/amit-sharma-va100001').expect(200);
 
-    expect(bodyAs<{ profile: { displayId: string; slug: string } }>(response).profile).toMatchObject({
+    expect(
+      bodyAs<{ profile: { displayId: string; slug: string } }>(response).profile,
+    ).toMatchObject({
       displayId: 'VA100001',
       slug: 'amit-sharma-va100001',
     });

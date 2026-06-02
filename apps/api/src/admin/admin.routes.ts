@@ -157,10 +157,7 @@ export function createAdminRouter(config: AuthConfig): Router {
       const reportId = request.params.id;
       const body = request.body as { action?: unknown };
       const action = typeof body.action === 'string' ? body.action : '';
-      if (
-        !reportId ||
-        !['WARN', 'SUSPEND', 'BAN', 'REMOVE_CONTENT', 'DISMISS'].includes(action)
-      ) {
+      if (!reportId || !['WARN', 'SUSPEND', 'BAN', 'REMOVE_CONTENT', 'DISMISS'].includes(action)) {
         throw new HttpError(400, 'Valid moderation action is required');
       }
       response.status(200).json({
@@ -416,7 +413,12 @@ export function createAdminRouter(config: AuthConfig): Router {
       const documentId = request.params.documentId;
       if (!requestId || !documentId) throw new HttpError(404, 'Verification document not found');
       response.status(200).json({
-        preview: await getVerificationDocumentPreview(auth.userId, auth.role, requestId, documentId),
+        preview: await getVerificationDocumentPreview(
+          auth.userId,
+          auth.role,
+          requestId,
+          documentId,
+        ),
       });
     }),
   );

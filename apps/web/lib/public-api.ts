@@ -51,6 +51,22 @@ export interface PublicPage {
   seoDescription?: string;
 }
 
+export interface HomeContent {
+  hero?: {
+    title?: string;
+    subtitle?: string;
+    primaryAction?: string;
+    secondaryAction?: string;
+  };
+  howItWorks?: string[];
+  safety?: string[];
+  faq?: Array<{ question?: string; answer?: string }>;
+  contact?: {
+    email?: string;
+    location?: string;
+  };
+}
+
 async function getJson<T>(path: string, fallback: T): Promise<T> {
   try {
     const response = await fetch(`${apiBaseUrl}${path}`, {
@@ -65,6 +81,10 @@ async function getJson<T>(path: string, fallback: T): Promise<T> {
   } catch {
     return fallback;
   }
+}
+
+export async function getHomeContent() {
+  return getJson<HomeContent>('/api/public/home', {});
 }
 
 export async function getFeaturedProfiles() {

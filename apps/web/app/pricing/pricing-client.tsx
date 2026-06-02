@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Check, Crown } from 'lucide-react';
-import { PageHero, PublicFooter, PublicHeader } from '@/app/components';
+import { PublicFooter, PublicHeader, StaticPageHero } from '@/app/components';
 import UpgradeModal from '../member/upgrade-modal';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -33,13 +33,11 @@ export default function PricingClient() {
   return (
     <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
       <PublicHeader />
-      <PageHero
+      <StaticPageHero
         eyebrow="Premium matchmaking access"
         title="Choose the visibility and connection tools that match your search."
-      >
-            Upgrade for deeper search, higher recommendation limits, profile boosts, and full
-            payment history from your member dashboard.
-      </PageHero>
+        subtitle="Upgrade for deeper search, higher recommendation limits, profile boosts, and full payment history from your member dashboard."
+      />
       <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-3">
           {plans.map((plan) => (

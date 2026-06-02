@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
-import { PageHero, PremiumCard, StaticPageLayout } from '@/app/components';
+import {
+  PolicyContentCard,
+  StaticPageContainer,
+  StaticPageHero,
+  StaticPageLayout,
+} from '@/app/components';
 import { getCmsPage } from '@/lib/public-api';
 
 const fallbackPages: Record<string, { title: string; body: string; description: string }> = {
@@ -75,13 +80,13 @@ export default async function StaticPage({ params }: PageProps) {
 
   return (
     <StaticPageLayout
-      hero={<PageHero eyebrow="Vivah Australia" title={page?.title ?? fallback.title} />}
+      hero={<StaticPageHero eyebrow="Vivah Australia Info" title={page?.title ?? fallback.title} />}
     >
-      <PremiumCard className="mx-auto max-w-3xl">
-        <div className="whitespace-pre-line text-base leading-8 text-[#6B7280]">
-          {page?.body ?? fallback.body}
-        </div>
-      </PremiumCard>
+      <StaticPageContainer>
+        <PolicyContentCard className="mx-auto max-w-3xl">
+          <div className="whitespace-pre-line text-[#1A1A1A]">{page?.body ?? fallback.body}</div>
+        </PolicyContentCard>
+      </StaticPageContainer>
     </StaticPageLayout>
   );
 }

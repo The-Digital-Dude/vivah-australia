@@ -41,8 +41,8 @@ export default function AdminAnalyticsPage() {
   async function load() {
     const params = new URLSearchParams({ from, to });
     const result = await memberRequest(`/api/admin/analytics/summary?${params.toString()}`);
-      if (result.ok) setSummary(result.data as AnalyticsSummary);
-      else setMessage(result.message);
+    if (result.ok) setSummary(result.data as AnalyticsSummary);
+    else setMessage(result.message);
   }
 
   async function exportCsv() {

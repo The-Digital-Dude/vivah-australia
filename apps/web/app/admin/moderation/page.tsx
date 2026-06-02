@@ -42,8 +42,8 @@ export default function AdminModerationPage() {
 
   async function loadDashboard() {
     const result = await memberRequest('/api/admin/moderation/dashboard');
-      if (result.ok) setDashboard(result.data as ModerationDashboard);
-      else setMessage(result.message);
+    if (result.ok) setDashboard(result.data as ModerationDashboard);
+    else setMessage(result.message);
   }
 
   async function applyAction(
@@ -137,10 +137,7 @@ export default function AdminModerationPage() {
 
         <Queue title="Reports">
           {dashboard?.queues.reports.map((report) => (
-            <article
-              key={report._id}
-              className="rounded-md border border-[#7A1E3A]/10 p-3"
-            >
+            <article key={report._id} className="rounded-md border border-[#7A1E3A]/10 p-3">
               <Link href="/admin/reports" className="block hover:text-[#7A1E3A]">
                 <p className="font-semibold">
                   {report.severity} {report.targetType}
@@ -148,7 +145,10 @@ export default function AdminModerationPage() {
               </Link>
               <p className="line-clamp-2 text-sm text-[#5E6470]">{report.reason}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <ModerationButton label="Warn" onClick={() => void applyAction(report._id, 'WARN')} />
+                <ModerationButton
+                  label="Warn"
+                  onClick={() => void applyAction(report._id, 'WARN')}
+                />
                 <ModerationButton
                   label="Suspend"
                   onClick={() => void applyAction(report._id, 'SUSPEND')}

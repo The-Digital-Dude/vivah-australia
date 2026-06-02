@@ -2,8 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useState, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode, type FormEvent } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight,
@@ -20,7 +21,7 @@ import {
   PlayCircle,
 } from 'lucide-react';
 import { PremiumButton, ProfileMatchCard, PublicFooter, PublicHeader } from '@/app/components';
-import type { FeaturedProfile, PublicContentItem, PublicPlan } from '@/lib/public-api';
+import type { FeaturedProfile, HomeContent, PublicContentItem, PublicPlan } from '@/lib/public-api';
 
 const communities = [
   'Indian Matrimony in Melbourne',
@@ -97,19 +98,48 @@ function formatMoney(cents: number, currency: string) {
 }
 
 export default function HomeClient({
+  home,
   profiles,
   plans,
   stories,
   testimonials,
   blogs,
 }: {
+  home: HomeContent;
   profiles: FeaturedProfile[];
   plans: PublicPlan[];
   stories: PublicContentItem[];
   testimonials: PublicContentItem[];
   blogs: PublicContentItem[];
 }) {
+  const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [genderFilter, setGenderFilter] = useState<'ALL' | 'FEMALE' | 'MALE'>('ALL');
+
+  // Hero Search Widget State
+  const [lookingFor, setLookingFor] = useState<'MALE' | 'FEMALE'>('FEMALE');
+  const [ageRange, setAgeRange] = useState('25-30');
+  const [city, setCity] = useState('Sydney');
+  const [religion, setReligion] = useState('Any');
+
+  const filteredProfiles = useMemo(() => {
+    return profiles.filter((p) => {
+      if (genderFilter === 'ALL') return true;
+      const pGender = p.personal?.gender?.toUpperCase();
+      return pGender === genderFilter;
+    });
+  }, [profiles, genderFilter]);
+
+  function handleSearchSubmit(e: FormEvent) {
+    e.preventDefault();
+    const query = new URLSearchParams({
+      gender: lookingFor,
+      ageRange,
+      city,
+      religion,
+    });
+    router.push(`/register?${query.toString()}`);
+  }
 
   return (
     <div className="bg-[#FFF8F1] text-[#232323] font-sans selection:bg-[#7A1E3A] selection:text-white">
@@ -129,11 +159,11 @@ export default function HomeClient({
               Australia&apos;s Premium Matrimonial Platform
             </p>
             <h1 className="text-5xl lg:text-6xl xl:text-7xl font-serif font-bold text-[#7A1E3A] leading-[1.1] mb-6">
-              Find a life partner who truly matches your values.
+              {home.hero?.title || 'Find a life partner who truly matches your values.'}
             </h1>
             <p className="text-lg text-[#5E6470] leading-relaxed mb-8 max-w-xl">
-              Vivah Australia helps serious singles and families discover verified, compatible
-              matrimonial matches across Australia&apos;s Indian and South Asian community.
+              {home.hero?.subtitle ||
+                "Vivah Australia helps serious singles and families discover verified, compatible matrimonial matches across Australia's Indian and South Asian community."}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mb-10">
@@ -141,14 +171,14 @@ export default function HomeClient({
                 href="/register"
                 className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-[#7A1E3A] to-[#9B2A4E] px-8 py-4 text-sm font-bold text-white shadow-xl shadow-[#7A1E3A]/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
               >
-                Create Free Profile
+                {home.hero?.primaryAction || 'Create Free Profile'}
                 <ChevronRight className="size-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="#matches"
                 className="rounded-full border border-[#7A1E3A]/20 bg-white/50 px-8 py-4 text-sm font-bold text-[#7A1E3A] backdrop-blur-sm transition-all duration-300 hover:bg-white hover:border-[#7A1E3A]/40"
               >
-                Explore Matches
+                {home.hero?.secondaryAction || 'Explore Matches'}
               </Link>
             </div>
 
@@ -219,32 +249,54 @@ export default function HomeClient({
           className="absolute bottom-0 w-full px-5 lg:px-8 translate-y-1/2 z-30"
         >
           <div className="max-w-5xl mx-auto bg-white rounded-2xl lg:rounded-full shadow-2xl shadow-[#7A1E3A]/10 border border-[#7A1E3A]/5 p-4 lg:p-3">
-            <form className="flex flex-col lg:flex-row items-center gap-3 w-full">
+            <form
+              onSubmit={handleSearchSubmit}
+              className="flex flex-col lg:flex-row items-center gap-3 w-full"
+            >
               <span className="hidden lg:block pl-4 text-sm font-bold text-[#232323]">
                 I am looking for
               </span>
-              <select className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20">
-                <option>A Man</option>
-                <option>A Woman</option>
+              <select
+                value={lookingFor}
+                onChange={(e) => setLookingFor(e.target.value as 'MALE' | 'FEMALE')}
+                className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20"
+              >
+                <option value="FEMALE">A Woman</option>
+                <option value="MALE">A Man</option>
               </select>
-              <select className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20">
-                <option>Age 25 - 30</option>
-                <option>Age 30 - 35</option>
-                <option>Age 35 - 40</option>
+              <select
+                value={ageRange}
+                onChange={(e) => setAgeRange(e.target.value)}
+                className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20"
+              >
+                <option value="25-30">Age 25 - 30</option>
+                <option value="30-35">Age 30 - 35</option>
+                <option value="35-40">Age 35 - 40</option>
               </select>
-              <select className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20">
-                <option>In Sydney</option>
-                <option>In Melbourne</option>
-                <option>In Brisbane</option>
-                <option>Anywhere in AU</option>
+              <select
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20"
+              >
+                <option value="Sydney">In Sydney</option>
+                <option value="Melbourne">In Melbourne</option>
+                <option value="Brisbane">In Brisbane</option>
+                <option value="Anywhere">Anywhere in AU</option>
               </select>
-              <select className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20">
-                <option>Any Community</option>
-                <option>Hindu</option>
-                <option>Sikh</option>
-                <option>Muslim</option>
+              <select
+                value={religion}
+                onChange={(e) => setReligion(e.target.value)}
+                className="w-full lg:w-auto h-12 bg-[#FFF8F1] rounded-full px-4 text-sm font-medium text-[#5E6470] border-none outline-none focus:ring-2 focus:ring-[#7A1E3A]/20"
+              >
+                <option value="Any">Any Community</option>
+                <option value="Hindu">Hindu</option>
+                <option value="Sikh">Sikh</option>
+                <option value="Muslim">Muslim</option>
               </select>
-              <button className="w-full lg:w-auto flex-1 h-12 bg-[#D6A84F] text-[#2C1707] font-bold text-sm rounded-full shadow-md hover:bg-[#edc164] transition-colors ml-auto">
+              <button
+                type="submit"
+                className="w-full lg:w-auto flex-1 h-12 bg-[#D6A84F] text-[#2C1707] font-bold text-sm rounded-full shadow-md hover:bg-[#edc164] transition-colors ml-auto"
+              >
                 Start Matching
               </button>
             </form>
@@ -301,22 +353,30 @@ export default function HomeClient({
             {[
               {
                 title: 'Create Your Profile',
-                body: 'Add your personal, family, education, and partner preferences in a guided setup.',
+                body:
+                  home.howItWorks?.[0] ||
+                  'Add your personal, family, education, and partner preferences in a guided setup.',
                 icon: UserPlus,
               },
               {
                 title: 'Get Verified',
-                body: 'Build trust with email, mobile, ID, address, and employment document reviews.',
+                body:
+                  home.howItWorks?.[1] ||
+                  'Build trust with email, mobile, ID, address, and employment document reviews.',
                 icon: ShieldCheck,
               },
               {
                 title: 'Discover Matches',
-                body: 'Search by age, religion, community, education, profession, and verification status.',
+                body:
+                  home.howItWorks?.[2] ||
+                  'Search by age, religion, community, education, profession, and verification status.',
                 icon: Search,
               },
               {
                 title: 'Connect Confidently',
-                body: 'Send interests and start private conversations only when both sides are comfortable.',
+                body:
+                  home.howItWorks?.[3] ||
+                  'Send interests and start private conversations only when both sides are comfortable.',
                 icon: Heart,
               },
             ].map((step, idx) => (
@@ -347,46 +407,81 @@ export default function HomeClient({
                 Meet our featured verified members.
               </h3>
             </div>
-            <div className="flex gap-3">
-              <button className="px-5 py-2 rounded-full border border-[#7A1E3A]/20 text-sm font-bold text-[#7A1E3A] hover:bg-[#FFF8F1] transition-colors">
-                Filters
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setGenderFilter('ALL')}
+                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                  genderFilter === 'ALL'
+                    ? 'bg-[#7A1E3A] text-white shadow-md'
+                    : 'border border-[#7A1E3A]/20 text-[#7A1E3A] hover:bg-[#FFF8F1]'
+                }`}
+              >
+                All Matches
               </button>
-              <button className="px-5 py-2 rounded-full bg-[#7A1E3A] text-sm font-bold text-white shadow-md hover:bg-[#64172f] transition-colors">
-                View All
+              <button
+                type="button"
+                onClick={() => setGenderFilter('FEMALE')}
+                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                  genderFilter === 'FEMALE'
+                    ? 'bg-[#7A1E3A] text-white shadow-md'
+                    : 'border border-[#7A1E3A]/20 text-[#7A1E3A] hover:bg-[#FFF8F1]'
+                }`}
+              >
+                Brides (Female)
+              </button>
+              <button
+                type="button"
+                onClick={() => setGenderFilter('MALE')}
+                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                  genderFilter === 'MALE'
+                    ? 'bg-[#7A1E3A] text-white shadow-md'
+                    : 'border border-[#7A1E3A]/20 text-[#7A1E3A] hover:bg-[#FFF8F1]'
+                }`}
+              >
+                Grooms (Male)
               </button>
             </div>
           </FadeIn>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {profiles.slice(0, 3).map((profile, i) => (
-              <FadeIn key={profile.displayId} delay={i * 0.1}>
-                <ProfileMatchCard
-                  compact
-                  profile={{
-                    age: profile.personal?.age,
-                    city: profile.location?.city ?? profile.location?.state,
-                    id: profile._id ?? profile.displayId,
-                    matchScore: 90,
-                    name: profile.personal?.firstName ?? 'Vivah member',
-                    occupation: profile.employment?.occupation ?? 'Professional',
-                    religion: profile.religion?.religion,
-                    slug: profile.slug,
-                    verificationLevel: profile.verification?.level ?? 'VERIFIED',
-                  }}
-                  actions={
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <PremiumButton
-                        href={`/profiles/${profile.slug || profile._id || profile.displayId}`}
-                        variant="secondary"
-                      >
-                        View Profile
-                      </PremiumButton>
-                      <PremiumButton href="/register">Send Interest</PremiumButton>
-                    </div>
-                  }
-                />
-              </FadeIn>
-            ))}
+            {filteredProfiles.length > 0 ? (
+              filteredProfiles.slice(0, 3).map((profile, i) => (
+                <FadeIn key={profile.displayId} delay={i * 0.1}>
+                  <ProfileMatchCard
+                    compact
+                    profile={{
+                      age: profile.personal?.age,
+                      city: profile.location?.city ?? profile.location?.state,
+                      id: profile._id ?? profile.displayId,
+                      matchScore: 95,
+                      name: profile.personal?.firstName ?? 'Vivah member',
+                      occupation: profile.employment?.occupation ?? 'Professional',
+                      religion: profile.religion?.religion,
+                      slug: profile.slug,
+                      verificationLevel: profile.verification?.level ?? 'VERIFIED',
+                    }}
+                    actions={
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <PremiumButton
+                          href={`/profiles/${profile.slug || profile._id || profile.displayId}`}
+                          variant="secondary"
+                        >
+                          View Profile
+                        </PremiumButton>
+                        <PremiumButton href="/register">Send Interest</PremiumButton>
+                      </div>
+                    }
+                  />
+                </FadeIn>
+              ))
+            ) : (
+              <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-[#7A1E3A]/5">
+                <p className="text-sm font-semibold text-[#5E6470]">
+                  No featured matches found for the selected gender filter.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -469,10 +564,22 @@ export default function HomeClient({
             <h3 className="text-3xl lg:text-4xl font-serif font-bold mb-6">
               Trust is built into every step.
             </h3>
-            <p className="text-lg text-white/70 leading-relaxed">
+            <p className="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto mb-6">
               Vivah Australia gives members control over visibility, privacy, verification, and
               communication so every connection feels safer and more intentional.
             </p>
+            {home.safety?.length ? (
+              <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm font-medium text-white/80">
+                {home.safety.map((point) => (
+                  <span
+                    key={point}
+                    className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full"
+                  >
+                    <ShieldCheck className="size-4 text-[#1F9D68]" /> {point}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </FadeIn>
 
           <div className="grid md:grid-cols-5 gap-4">
@@ -700,7 +807,10 @@ export default function HomeClient({
             </h3>
           </FadeIn>
           <div className="space-y-4">
-            {faqs.map((faq, i) => (
+            {(home.faq?.length
+              ? home.faq.map((item) => ({ q: item.question ?? '', a: item.answer ?? '' }))
+              : faqs
+            ).map((faq, i) => (
               <FadeIn key={i} delay={i * 0.05}>
                 <div className="bg-white rounded-2xl border border-[#7A1E3A]/10 overflow-hidden">
                   <button

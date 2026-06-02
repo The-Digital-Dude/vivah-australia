@@ -9,7 +9,20 @@ import {
   type ReactNode,
   type SelectHTMLAttributes,
 } from 'react';
-import { Bell, CheckCircle2, ChevronRight, Loader2, Menu, Search, ShieldCheck, X } from 'lucide-react';
+import {
+  Bell,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Loader2,
+  Mail,
+  MapPin,
+  Menu,
+  Phone,
+  Search,
+  ShieldCheck,
+  X,
+} from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
 
 export const premiumTokens = {
@@ -102,14 +115,14 @@ export function PageHero({
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           {eyebrow ? (
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-              {eyebrow}
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">{eyebrow}</p>
           ) : null}
           <h1 className="mt-4 text-4xl font-semibold leading-tight text-[#1A1A1A] md:text-5xl">
             {title}
           </h1>
-          {children ? <div className="mt-5 text-base leading-7 text-[#6B7280]">{children}</div> : null}
+          {children ? (
+            <div className="mt-5 text-base leading-7 text-[#6B7280]">{children}</div>
+          ) : null}
           {actions ? <div className="mt-8 flex flex-wrap gap-3">{actions}</div> : null}
         </div>
       </div>
@@ -217,11 +230,16 @@ export function ProfileMatchCard({
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <VerificationBadge level={profile.verificationLevel} />
-            {[profile.religion, profile.community, profile.education].filter(Boolean).map((item) => (
-              <span key={item} className="rounded-full bg-[#FCFAF7] px-3 py-1 text-xs font-semibold text-[#6B7280]">
-                {item}
-              </span>
-            ))}
+            {[profile.religion, profile.community, profile.education]
+              .filter(Boolean)
+              .map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full bg-[#FCFAF7] px-3 py-1 text-xs font-semibold text-[#6B7280]"
+                >
+                  {item}
+                </span>
+              ))}
           </div>
           <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#7A1F2B]">
             View profile <ChevronRight className="size-4" />
@@ -273,7 +291,9 @@ export function EmptyState({
     <div className="rounded-3xl border border-dashed border-[#D4AF37]/70 bg-white p-8 text-center">
       <Search className="mx-auto size-7 text-[#D4AF37]" />
       <h3 className="mt-4 text-lg font-semibold text-[#1A1A1A]">{title}</h3>
-      {children ? <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6B7280]">{children}</p> : null}
+      {children ? (
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6B7280]">{children}</p>
+      ) : null}
       {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
     </div>
   );
@@ -344,11 +364,21 @@ export function FilterDrawer({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
-      <button aria-label="Close filters" className="absolute inset-0 bg-black/35" type="button" onClick={onClose} />
+      <button
+        aria-label="Close filters"
+        className="absolute inset-0 bg-black/35"
+        type="button"
+        onClick={onClose}
+      />
       <aside className="relative ml-auto h-full w-full max-w-sm overflow-y-auto bg-[#FCFAF7] p-5 shadow-2xl">
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-[#1A1A1A]">{title}</h2>
-          <button type="button" aria-label="Close filters" onClick={onClose} className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B]">
+          <button
+            type="button"
+            aria-label="Close filters"
+            onClick={onClose}
+            className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B]"
+          >
             <X className="size-4" />
           </button>
         </div>
@@ -393,9 +423,9 @@ const publicLinks = [
   ['Home', '/'],
   ['Matches', '/member/matches'],
   ['Membership', '/pricing'],
-  ['Verification', '/pages/verification-policy'],
-  ['Blog', '/pages/blog'],
-  ['Help', '/pages/help-centre'],
+  ['Verification', '/verification-policy'],
+  ['Blog', '/blog'],
+  ['Help', '/help'],
 ] as const;
 
 const memberLinks = [
@@ -427,48 +457,88 @@ export function PublicHeader() {
         <div className="hidden items-center gap-3 lg:flex">
           {initialized && token ? (
             <>
-              <PremiumButton href="/member/notifications" variant="secondary" className="min-h-10 px-3">
+              <PremiumButton
+                href="/member/notifications"
+                variant="secondary"
+                className="min-h-10 px-3"
+              >
                 <Bell className="size-4" />
               </PremiumButton>
-              <PremiumButton variant="ghost" onClick={clearToken}>Logout</PremiumButton>
+              <PremiumButton variant="ghost" onClick={clearToken}>
+                Logout
+              </PremiumButton>
             </>
           ) : (
             <>
-              <PremiumButton href="/login" variant="ghost">Login</PremiumButton>
-              <PremiumButton href="/register" variant="gold">Create Free Profile</PremiumButton>
+              <PremiumButton href="/login" variant="ghost">
+                Login
+              </PremiumButton>
+              <PremiumButton href="/register" variant="gold">
+                Create Free Profile
+              </PremiumButton>
             </>
           )}
         </div>
-        <button type="button" aria-label="Open menu" className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B] lg:hidden" onClick={() => setOpen(true)}>
+        <button
+          type="button"
+          aria-label="Open menu"
+          className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B] lg:hidden"
+          onClick={() => setOpen(true)}
+        >
           <Menu className="size-5" />
         </button>
       </div>
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <button aria-label="Close menu" className="absolute inset-0 bg-black/35" type="button" onClick={() => setOpen(false)} />
+          <button
+            aria-label="Close menu"
+            className="absolute inset-0 bg-black/35"
+            type="button"
+            onClick={() => setOpen(false)}
+          />
           <aside className="relative ml-auto h-full w-80 max-w-[85vw] bg-white p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-4">
-              <Link href="/" className="font-semibold text-[#7A1F2B]" onClick={() => setOpen(false)}>
+              <Link
+                href="/"
+                className="font-semibold text-[#7A1F2B]"
+                onClick={() => setOpen(false)}
+              >
                 Vivah Australia
               </Link>
-              <button type="button" aria-label="Close menu" className="rounded-full border border-[#7A1F2B]/15 p-2 text-[#7A1F2B]" onClick={() => setOpen(false)}>
+              <button
+                type="button"
+                aria-label="Close menu"
+                className="rounded-full border border-[#7A1F2B]/15 p-2 text-[#7A1F2B]"
+                onClick={() => setOpen(false)}
+              >
                 <X className="size-4" />
               </button>
             </div>
             <nav className="mt-8 grid gap-3">
               {links.map(([label, href]) => (
-                <Link key={href} href={href} onClick={() => setOpen(false)} className="rounded-2xl px-3 py-3 text-sm font-semibold text-[#1A1A1A] hover:bg-[#F8E8E8]">
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-[#1A1A1A] hover:bg-[#F8E8E8]"
+                >
                   {label}
                 </Link>
               ))}
             </nav>
             <div className="mt-8 grid gap-3">
               {initialized && token ? (
-                <PremiumButton variant="secondary" onClick={clearToken}>Logout</PremiumButton>
+                <PremiumButton variant="secondary" onClick={clearToken}>
+                  Logout
+                </PremiumButton>
               ) : (
                 <>
-                  <PremiumButton href="/login" variant="secondary">Login</PremiumButton>
-                  <PremiumButton href="/register" variant="gold">Create Free Profile</PremiumButton>
+                  <PremiumButton href="/login" variant="secondary">
+                    Login
+                  </PremiumButton>
+                  <PremiumButton href="/register" variant="gold">
+                    Create Free Profile
+                  </PremiumButton>
                 </>
               )}
             </div>
@@ -489,9 +559,30 @@ export function PublicFooter() {
             Premium matrimonial matchmaking for serious Australian singles and families.
           </p>
         </div>
-        <FooterList title="Explore" links={[['Matches', '/member/matches'], ['Membership', '/pricing'], ['Verification', '/pages/verification-policy']]} />
-        <FooterList title="Support" links={[['Help', '/pages/help-centre'], ['Contact', '/contact'], ['Safety', '/pages/safety-guidelines']]} />
-        <FooterList title="Legal" links={[['Privacy', '/pages/privacy-policy'], ['Terms', '/pages/terms-and-conditions'], ['Refunds', '/pages/refund-policy']]} />
+        <FooterList
+          title="Explore"
+          links={[
+            ['Matches', '/member/matches'],
+            ['Membership', '/pricing'],
+            ['Verification', '/verification-policy'],
+          ]}
+        />
+        <FooterList
+          title="Support"
+          links={[
+            ['Help', '/help'],
+            ['Contact', '/contact'],
+            ['Safety', '/safety'],
+          ]}
+        />
+        <FooterList
+          title="Legal"
+          links={[
+            ['Privacy', '/privacy'],
+            ['Terms', '/terms'],
+            ['Refunds', '/refund-policy'],
+          ]}
+        />
       </div>
       <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-xs text-white/50">
         Copyright {new Date().getFullYear()} Vivah Australia. All rights reserved.
@@ -526,5 +617,180 @@ export function SuccessLine({ children }: Readonly<{ children: ReactNode }>) {
       <CheckCircle2 className="size-4" />
       {children}
     </span>
+  );
+}
+
+export function StaticPageHero({
+  eyebrow,
+  title,
+  subtitle,
+  align = 'center',
+}: Readonly<{
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  align?: 'left' | 'center';
+}>) {
+  return (
+    <section className="bg-[#FCFAF7] pt-16 pb-12 overflow-hidden relative">
+      <div className="absolute inset-x-0 bottom-0 h-px bg-[#7A1F2B]/10" />
+      <div
+        className={cx(
+          'mx-auto max-w-5xl px-4 sm:px-6 lg:px-8',
+          align === 'center' ? 'text-center' : 'text-left',
+        )}
+      >
+        {eyebrow ? (
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37] mb-3">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#7A1F2B] leading-tight mb-4">
+          {title}
+        </h1>
+        <div
+          className={cx('h-1 w-16 bg-[#D4AF37] rounded mb-4', align === 'center' ? 'mx-auto' : '')}
+        />
+        {subtitle ? (
+          <p className="max-w-2xl mx-auto text-base text-[#6B7280] leading-relaxed">{subtitle}</p>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+export function StaticPageContainer({
+  children,
+  className,
+}: Readonly<{
+  children: ReactNode;
+  className?: string;
+}>) {
+  return (
+    <div className={cx('mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8', className)}>{children}</div>
+  );
+}
+
+export function PolicyContentCard({
+  children,
+  className,
+}: Readonly<{
+  children: ReactNode;
+  className?: string;
+}>) {
+  return (
+    <PremiumCard className={cx('p-8 sm:p-10', className)}>
+      <div className="max-w-none text-[#1A1A1A] leading-8 text-base space-y-6">{children}</div>
+    </PremiumCard>
+  );
+}
+
+export function FAQAccordion({
+  items,
+}: Readonly<{
+  items: Array<{ question: string; answer: string }>;
+}>) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-4">
+      {items.map((item, idx) => {
+        const isOpen = openIdx === idx;
+        return (
+          <div
+            key={idx}
+            className="overflow-hidden rounded-2xl border border-[#7A1F2B]/10 bg-white transition shadow-sm hover:shadow-md animate-fade-in"
+          >
+            <button
+              type="button"
+              onClick={() => setOpenIdx(isOpen ? null : idx)}
+              className="flex w-full items-center justify-between px-6 py-5 text-left font-semibold text-[#1A1A1A] outline-none transition duration-200"
+            >
+              <span>{item.question}</span>
+              <ChevronDown
+                className={cx(
+                  'size-5 text-[#7A1F2B] transition-transform duration-300',
+                  isOpen && 'rotate-180',
+                )}
+              />
+            </button>
+            {isOpen ? (
+              <div className="px-6 pb-5 text-sm leading-relaxed text-[#6B7280] border-t border-[#7A1F2B]/5 pt-4">
+                {item.answer}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function ContactCard({
+  title,
+  icon: iconKey,
+  value,
+  description,
+  href,
+}: Readonly<{
+  title: string;
+  icon: 'email' | 'phone' | 'location';
+  value: string;
+  description?: string;
+  href?: string;
+}>) {
+  const icons = {
+    email: Mail,
+    phone: Phone,
+    location: MapPin,
+  };
+  const Icon = icons[iconKey];
+
+  const cardContent = (
+    <div className="flex flex-col items-center text-center p-6 bg-white border border-[#7A1F2B]/10 rounded-2xl shadow-sm hover:shadow-md transition duration-300">
+      <div className="size-12 rounded-xl bg-[#F8E8E8] flex items-center justify-center text-[#7A1F2B] mb-4">
+        <Icon className="size-6" />
+      </div>
+      <h4 className="font-bold text-[#1A1A1A] mb-1">{title}</h4>
+      <p className="text-sm font-semibold text-[#7A1F2B] mb-2">{value}</p>
+      {description ? <p className="text-xs text-[#6B7280]">{description}</p> : null}
+    </div>
+  );
+
+  if (href) {
+    return (
+      <a href={href} className="block group">
+        {cardContent}
+      </a>
+    );
+  }
+
+  return cardContent;
+}
+
+export function HelpCategoryCard({
+  title,
+  description,
+  href,
+  icon: IconComponent,
+}: Readonly<{
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+}>) {
+  return (
+    <Link
+      href={href}
+      className="flex gap-4 p-6 bg-white border border-[#7A1F2B]/10 rounded-3xl shadow-sm hover:shadow-md transition hover:-translate-y-0.5"
+    >
+      <div className="size-12 rounded-2xl bg-[#F8E8E8] flex items-center justify-center text-[#7A1F2B] shrink-0">
+        <IconComponent className="size-6" />
+      </div>
+      <div className="min-w-0">
+        <h4 className="font-bold text-[#1A1A1A] mb-1 text-base">{title}</h4>
+        <p className="text-sm text-[#6B7280] leading-relaxed">{description}</p>
+      </div>
+    </Link>
   );
 }

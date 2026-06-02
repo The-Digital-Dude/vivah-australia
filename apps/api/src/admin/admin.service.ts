@@ -327,7 +327,12 @@ export async function getAnalyticsSummary(input: DateRangeInput = {}) {
     ]),
     MessageModel.aggregate<{ _id: string; count: number }>([
       { $match: { isDeleted: false, ...rangeMatch } },
-      { $group: { _id: { $dateToString: { date: '$createdAt', format: '%Y-%m-%d' } }, count: { $sum: 1 } } },
+      {
+        $group: {
+          _id: { $dateToString: { date: '$createdAt', format: '%Y-%m-%d' } },
+          count: { $sum: 1 },
+        },
+      },
       { $sort: { _id: 1 } },
     ]),
     Promise.all([

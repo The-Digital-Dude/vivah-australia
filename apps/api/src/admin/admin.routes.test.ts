@@ -326,9 +326,9 @@ describe('admin production readiness routes', () => {
     );
     expect(await NotificationModel.countDocuments({ type: 'VERIFICATION_REVIEWED' })).toBe(1);
     expect(await AuditLogModel.countDocuments({ action: 'VERIFICATION_REVIEWED' })).toBe(1);
-    expect(
-      await AuditLogModel.countDocuments({ action: 'VERIFICATION_DOCUMENT_PREVIEWED' }),
-    ).toBe(1);
+    expect(await AuditLogModel.countDocuments({ action: 'VERIFICATION_DOCUMENT_PREVIEWED' })).toBe(
+      1,
+    );
 
     await request(app)
       .patch(`/api/admin/verifications/${created.request._id}/review`)

@@ -32,13 +32,13 @@ Do not run demo seeding against production data.
 
 ## Demo Credentials
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Super Admin | `admin@vivahaustralia.com` | `ChangeMeStrong123!` |
-| Admin | `manager@vivahaustralia.com` | `ChangeMeStrong123!` |
-| Moderator | `moderator@vivahaustralia.com` | `ChangeMeStrong123!` |
-| Demo Member | `priya.sharma@example.com` | `TestUserStrong123!` |
-| Demo Member | `arjun.patel@example.com` | `TestUserStrong123!` |
+| Role        | Email                          | Password             |
+| ----------- | ------------------------------ | -------------------- |
+| Super Admin | `admin@vivahaustralia.com`     | `ChangeMeStrong123!` |
+| Admin       | `manager@vivahaustralia.com`   | `ChangeMeStrong123!` |
+| Moderator   | `moderator@vivahaustralia.com` | `ChangeMeStrong123!` |
+| Demo Member | `priya.sharma@example.com`     | `TestUserStrong123!` |
+| Demo Member | `arjun.patel@example.com`      | `TestUserStrong123!` |
 
 All seeded demo members use:
 

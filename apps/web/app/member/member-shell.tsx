@@ -74,9 +74,7 @@ export default function MemberShell({
       <PublicHeader />
       <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 md:grid-cols-[240px_1fr] lg:px-8">
         <aside className="hidden rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.08)] md:block">
-          <p className="px-3 text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-            Member
-          </p>
+          <p className="px-3 text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Member</p>
           <nav className="mt-4 grid gap-1 text-sm">
             {memberLinks.map(([label, href]) => (
               <Link
