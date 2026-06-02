@@ -292,11 +292,8 @@ export default function AdminDashboardPage() {
         </div>
 
       </div>
-    </AdminDashboardPageLayout>
+    </AdminShell>
   );
 }
 
-// Wrapper to prevent Layout name conflicts
-function AdminDashboardPageLayout({ children }: { children: ReactNode }) {
-  return <div className="space-y-6">{children}</div>;
-}
+

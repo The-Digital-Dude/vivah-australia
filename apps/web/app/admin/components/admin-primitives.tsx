@@ -54,10 +54,10 @@ export function AdminMetricCard({
 }: {
   label: string;
   value: string | number;
-  icon?: React.ComponentType<{ className?: string }>;
-  description?: string;
-  trend?: string;
-  trendType?: 'positive' | 'negative' | 'neutral';
+  icon?: React.ComponentType<{ className?: string }> | undefined;
+  description?: string | undefined;
+  trend?: string | undefined;
+  trendType?: 'positive' | 'negative' | 'neutral' | undefined;
 }) {
   const trendColors = {
     positive: 'bg-emerald-50 text-emerald-700 border-emerald-100',
