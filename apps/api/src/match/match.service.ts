@@ -72,6 +72,7 @@ export interface MatchCard {
   photoUrl?: string;
   matchScore: number;
   matchReasons: string[];
+  isBoosted?: boolean;
 }
 
 export interface ScoredMatch {
@@ -446,6 +447,9 @@ async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]
       verificationLevel: profile.verification.level,
       matchScore: scored.score,
       matchReasons: scored.reasons,
+      ...(profile.stats?.activeBoostEndsAt && profile.stats.activeBoostEndsAt > new Date()
+        ? { isBoosted: true }
+        : {}),
       ...(profile.personal.firstName ? { firstName: profile.personal.firstName } : {}),
       ...(profile.personal.age ? { age: profile.personal.age } : {}),
       ...(profile.personal.heightCm ? { heightCm: profile.personal.heightCm } : {}),
@@ -489,7 +493,11 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
       .limit(RECOMMENDED_CANDIDATE_LIMIT);
     const cards = await toMatchCards(viewerProfile, candidates);
     const results = cards
-      .sort((left, right) => right.matchScore - left.matchScore)
+      .sort((left, right) => {
+        if (left.isBoosted && !right.isBoosted) return -1;
+        if (!left.isBoosted && right.isBoosted) return 1;
+        return right.matchScore - left.matchScore;
+      })
       .slice((input.page - 1) * pageSize, input.page * pageSize);
 
     return {
@@ -499,10 +507,26 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
     };
   }
 
-  const profiles = await ProfileModel.find(filter)
-    .sort(sortFor(input))
-    .skip((input.page - 1) * pageSize)
-    .limit(pageSize);
+  const now = new Date();
+  const boostedFilter = { ...filter, 'stats.activeBoostEndsAt': { $gt: now } };
+  const standardFilter = { ...filter, $or: [{ 'stats.activeBoostEndsAt': { $lte: now } }, { 'stats.activeBoostEndsAt': { $exists: false } }] };
+
+  const totalBoosted = await ProfileModel.countDocuments(boostedFilter);
+  const skip = (input.page - 1) * pageSize;
+
+  let profiles: ProfileDocument[] = [];
+
+  if (skip < totalBoosted) {
+    const boosted = await ProfileModel.find(boostedFilter).sort(sortFor(input)).skip(skip).limit(pageSize);
+    profiles = profiles.concat(boosted);
+  }
+
+  if (profiles.length < pageSize) {
+    const standardSkip = Math.max(0, skip - totalBoosted);
+    const standardLimit = pageSize - profiles.length;
+    const standard = await ProfileModel.find(standardFilter).sort(sortFor(input)).skip(standardSkip).limit(standardLimit);
+    profiles = profiles.concat(standard);
+  }
 
   return {
     results: await toMatchCards(viewerProfile, profiles),
@@ -540,7 +564,11 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
 
   const results = (await toMatchCards(viewerProfile, candidates))
     .filter((profile) => profile.matchScore > 0)
-    .sort((left, right) => right.matchScore - left.matchScore)
+    .sort((left, right) => {
+      if (left.isBoosted && !right.isBoosted) return -1;
+      if (!left.isBoosted && right.isBoosted) return 1;
+      return right.matchScore - left.matchScore;
+    })
     .slice(0, limit);
 
   return { results, limits };

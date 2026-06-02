@@ -362,6 +362,12 @@ export async function createProfileBoost(userId: Types.ObjectId, input: BoostCre
     endsAt,
     active: true,
   });
+
+  await ProfileModel.updateOne(
+    { _id: profile._id },
+    { $set: { 'stats.activeBoostEndsAt': endsAt } }
+  );
+
   await incrementUsage(userId, 'profileBoostsMonthly');
 
   return boost.toObject();

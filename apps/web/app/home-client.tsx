@@ -401,10 +401,10 @@ export default function HomeClient({
           <FadeIn className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="max-w-2xl">
               <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#C94F7C] mb-3">
-                Premium Community
+                Featured Today
               </h2>
               <h3 className="text-3xl lg:text-4xl font-serif font-bold text-[#232323]">
-                Meet our featured verified members.
+                Meet our actively boosted members.
               </h3>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -460,6 +460,7 @@ export default function HomeClient({
                       religion: profile.religion?.religion,
                       slug: profile.slug,
                       verificationLevel: profile.verification?.level ?? 'VERIFIED',
+                      isBoosted: profile.isBoosted,
                     }}
                     actions={
                       <div className="grid gap-3 sm:grid-cols-2">

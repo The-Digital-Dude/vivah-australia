@@ -13,6 +13,7 @@ export interface FeaturedProfile {
   _id?: string;
   displayId: string;
   slug?: string;
+  isBoosted?: boolean;
   personal?: {
     firstName?: string;
     age?: number;

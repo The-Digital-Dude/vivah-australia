@@ -157,17 +157,35 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   router.get(
     '/public/featured-profiles',
     asyncHandler(async (_request, response) => {
-      const profiles = await ProfileModel.find({
+      const baseFilter: Record<string, unknown> = {
         isDeleted: false,
         'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
         'visibility.status': { $ne: 'HIDDEN' },
-      })
+      };
+      
+      const now = new Date();
+      const selectFields = 'displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt';
+
+      const boosted = await ProfileModel.find({ ...baseFilter, 'stats.activeBoostEndsAt': { $gt: now } })
         .sort({ 'stats.lastActiveAt': -1, updatedAt: -1 })
         .limit(PUBLIC_PROFILE_LIMIT)
-        .select(
-          'displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level',
-        )
+        .select(selectFields)
         .lean();
+
+      let profiles = boosted.map(p => ({ ...p, isBoosted: true }));
+
+      if (profiles.length < PUBLIC_PROFILE_LIMIT) {
+        const standard = await ProfileModel.find({
+          ...baseFilter,
+          $or: [{ 'stats.activeBoostEndsAt': { $lte: now } }, { 'stats.activeBoostEndsAt': { $exists: false } }]
+        })
+          .sort({ 'stats.lastActiveAt': -1, updatedAt: -1 })
+          .limit(PUBLIC_PROFILE_LIMIT - profiles.length)
+          .select(selectFields)
+          .lean();
+
+        profiles = profiles.concat(standard.map(p => ({ ...p, isBoosted: false })));
+      }
 
       response.status(200).json({ profiles });
     }),

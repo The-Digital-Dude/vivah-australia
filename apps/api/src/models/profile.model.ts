@@ -134,6 +134,7 @@ export interface Profile {
     interestsSent: number;
     favouritesCount: number;
     lastActiveAt?: Date;
+    activeBoostEndsAt?: Date;
   };
   moderation: {
     approvalStatus: ProfileApprovalStatus;
@@ -283,6 +284,7 @@ const profileSchema = new Schema<Profile>(
       interestsSent: { type: Number, default: 0, min: 0 },
       favouritesCount: { type: Number, default: 0, min: 0 },
       lastActiveAt: { type: Date },
+      activeBoostEndsAt: { type: Date },
     },
     moderation: {
       approvalStatus: {

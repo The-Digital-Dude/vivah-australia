@@ -21,6 +21,7 @@ import {
   Phone,
   Search,
   ShieldCheck,
+  Sparkles,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
@@ -175,6 +176,7 @@ export type ProfileMatchCardProfile = {
   religion?: string | undefined;
   slug?: string | undefined;
   verificationLevel?: string | undefined;
+  isBoosted?: boolean | undefined;
 };
 
 export function ProfileMatchCard({
@@ -207,11 +209,16 @@ export function ProfileMatchCard({
               fill
               sizes="(min-width: 640px) 120px, 100vw"
               className="object-cover"
-              unoptimized
+              priority
             />
           ) : (
             initials
           )}
+          {profile.isBoosted ? (
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D6A84F] to-[#C0923C] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2C1707] shadow-md">
+              <Sparkles className="size-3" /> Boosted
+            </div>
+          ) : null}
         </div>
         <div className="min-w-0">
           <div className="flex items-start justify-between gap-3">
