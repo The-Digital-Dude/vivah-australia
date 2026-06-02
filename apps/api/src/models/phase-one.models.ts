@@ -740,6 +740,7 @@ const subscriptionSchema = new Schema<Subscription>(
 );
 
 subscriptionSchema.index({ userId: 1, status: 1 });
+subscriptionSchema.index({ providerSubscriptionId: 1 }, { unique: true, sparse: true });
 
 export interface Payment {
   userId: ObjectId;
@@ -785,6 +786,8 @@ const paymentSchema = new Schema<Payment>(
 );
 
 paymentSchema.index({ userId: 1, createdAt: 1 });
+paymentSchema.index({ providerPaymentId: 1 }, { unique: true, sparse: true });
+paymentSchema.index({ subscriptionId: 1, createdAt: -1 });
 
 export interface UsageCounter {
   userId: ObjectId;
@@ -999,6 +1002,7 @@ const auditLogSchema = new Schema<AuditLog>(
 );
 
 auditLogSchema.index({ actorId: 1, createdAt: 1 });
+auditLogSchema.index({ targetType: 1, targetId: 1, createdAt: -1 });
 
 export interface ActivityLog {
   actorId?: ObjectId;
@@ -1115,6 +1119,27 @@ const contactInquirySchema = new Schema<ContactInquiry>(
   { ...timestampedSchemaOptions, collection: 'contact_inquiries' },
 );
 
+// ── Stripe Event Log (idempotency) ─────────────────────────────────────────
+
+export interface StripeEventLog {
+  stripeEventId: string;
+  type: string;
+  processedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const stripeEventLogSchema = new Schema<StripeEventLog>(
+  {
+    stripeEventId: { type: String, required: true, unique: true, trim: true },
+    type: { type: String, required: true, trim: true },
+    processedAt: { type: Date, required: true, default: Date.now },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'stripe_event_logs' },
+);
+
 export type PlanDocument = HydratedDocument<Plan>;
 export type SubscriptionDocument = HydratedDocument<Subscription>;
 export type PaymentDocument = HydratedDocument<Payment>;
@@ -1194,6 +1219,7 @@ export const ContactInquiryModel = getOrCreateModel<ContactInquiry>(
   contactInquirySchema,
 );
 export const PhotoRequestModel = getOrCreateModel<PhotoRequest>('PhotoRequest', photoRequestSchema);
+export const StripeEventLogModel = getOrCreateModel<StripeEventLog>('StripeEventLog', stripeEventLogSchema);
 
 
 export const phaseOneSchemas = {
@@ -1237,6 +1263,7 @@ export const phaseOneSchemas = {
   adminNoteSchema,
   contactInquirySchema,
   photoRequestSchema,
+  stripeEventLogSchema,
 } as const;
 
 
@@ -1281,4 +1308,5 @@ export const phaseOneModels = [
   AdminNoteModel,
   ContactInquiryModel,
   PhotoRequestModel,
+  StripeEventLogModel,
 ] as const;

@@ -22,6 +22,7 @@ import {
   ProfileBoostModel,
   ProfileModel,
   RefundModel,
+  StripeEventLogModel,
   SubscriptionModel,
   UsageCounterModel,
   type PlanDocument,
@@ -391,7 +392,52 @@ export async function listOwnBoosts(userId: Types.ObjectId) {
   return boosts;
 }
 
+export async function cancelSubscription(userId: Types.ObjectId) {
+  const subscription = await activeSubscription(userId);
+  if (!subscription) {
+    throw new HttpError(404, 'No active subscription found');
+  }
+
+  if (stripe && subscription.providerSubscriptionId) {
+    const stripeSubscription = (await stripe.subscriptions.update(subscription.providerSubscriptionId, {
+      cancel_at_period_end: true,
+    })) as Stripe.Subscription;
+    subscription.cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
+    const periodEnd = (stripeSubscription as unknown as { current_period_end?: number }).current_period_end;
+    if (periodEnd) {
+      subscription.currentPeriodEnd = new Date(periodEnd * 1000);
+    }
+  } else {
+    // No Stripe configured – cancel immediately in local records
+    subscription.status = SubscriptionStatus.CANCELED;
+    subscription.endsAt = new Date();
+    subscription.cancelAtPeriodEnd = false;
+  }
+
+  await subscription.save();
+  return {
+    status: subscription.status,
+    cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+    currentPeriodEnd: subscription.currentPeriodEnd,
+    message: stripe && subscription.providerSubscriptionId
+      ? 'Your subscription will cancel at the end of the current period.'
+      : 'Your subscription has been cancelled.',
+  };
+}
+
 export async function handleStripeEvent(event: Stripe.Event) {
+  // Idempotency guard — skip if we have already processed this event
+  try {
+    await StripeEventLogModel.create({
+      stripeEventId: event.id,
+      type: event.type,
+      processedAt: new Date(),
+    });
+  } catch {
+    // Duplicate key error → already processed, skip silently
+    return;
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const userId = session.metadata?.userId;
@@ -501,6 +547,43 @@ export async function handleStripeEvent(event: Stripe.Event) {
       { providerSubscriptionId: subscription.id },
       { $set: { status: SubscriptionStatus.CANCELED, endsAt: new Date() } },
     );
+  }
+
+  if (event.type === 'customer.subscription.updated') {
+    const stripeSubscription = event.data.object as Stripe.Subscription;
+    const periodEnd = (stripeSubscription as unknown as { current_period_end?: number }).current_period_end;
+    const update: Record<string, unknown> = {
+      cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+      ...(periodEnd ? { currentPeriodEnd: new Date(periodEnd * 1000) } : {}),
+    };
+    if (stripeSubscription.status === 'active') {
+      update.status = SubscriptionStatus.ACTIVE;
+    } else if (stripeSubscription.status === 'past_due') {
+      update.status = SubscriptionStatus.PAST_DUE;
+    } else if (stripeSubscription.status === 'canceled') {
+      update.status = SubscriptionStatus.CANCELED;
+      update.endsAt = new Date();
+    } else if (stripeSubscription.status === 'trialing') {
+      update.status = SubscriptionStatus.TRIALING;
+    }
+    await SubscriptionModel.findOneAndUpdate(
+      { providerSubscriptionId: stripeSubscription.id },
+      { $set: update },
+    );
+  }
+
+  if (event.type === 'invoice.payment_failed') {
+    const invoice = event.data.object as Stripe.Invoice & {
+      subscription?: string | { id: string };
+    };
+    const subscriptionId =
+      typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+    if (subscriptionId) {
+      await SubscriptionModel.findOneAndUpdate(
+        { providerSubscriptionId: subscriptionId },
+        { $set: { status: SubscriptionStatus.PAST_DUE } },
+      );
+    }
   }
 }
 
