@@ -267,3 +267,23 @@ Verification:
 - `pnpm typecheck` compiled cleanly.
 - `pnpm lint` and `pnpm format:check` fully passing.
 - `pnpm test` verified 65 of 65 backend tests successfully.
+
+### FE-007 - Auth Pages Alignment
+
+Status: Complete
+
+Aligned all authentication, password management, and email verification pages under a premium dynamic split-screen layout with an emotional brand panel, responsive form card, and fully standardized controls.
+
+Updated Pages & Visual Shell:
+- **Premium Split Layout Wrapper**: Refactored `AuthShell` inside `apps/web/app/(auth)/auth-shell.tsx` into a dynamic desktop grid (`lg:grid-cols-[1.1fr_1fr]`).
+- **Left Emotional Brand Panel**: Desktop-only panel with deep burgundy-to-blush brand gradients, decorative lighting, gold checkmarked value propositions, and a glassmorphic matrimonial success testimonial block.
+- **Right Form Panel**: Integrates `PublicHeader`, centers a rounded white form card (`max-w-md bg-white border rounded-3xl p-8`), and appends `PublicFooter` seamlessly.
+- **Login (`/login`)**: Updated copy to `"Welcome back to Vivah Australia"`, adopting standard `FormField` structures.
+- **Register (`/register`)**: Aligned copy to `"Create your free matrimonial profile"`, adding premium validation error banners and customized checkbox styling.
+- **Password Recovery (`/forgot-password` & `/reset-password`)**: Updated copy to `"Reset your password securely"`, standardizing email input focus rings and recovery controls.
+- **Email Verification (`/verify-email`)**: Implemented a new dynamic route using `Suspense` that extracts query string tokens and automatically triggers the backend `POST /api/auth/verify-email` endpoint, rendering interactive Loading, Success, and Failure states.
+
+Verification:
+- `pnpm typecheck` compiled cleanly with zero errors.
+- `pnpm lint` and formatting checks fully passing.
+- All backend authentication route tests pass successfully.

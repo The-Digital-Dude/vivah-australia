@@ -54,7 +54,7 @@ export default async function HelpPage() {
       href: '/refund-policy',
       icon: 'mail',
     },
-  ];
+  ] as const;
 
   return (
     <StaticPageLayout

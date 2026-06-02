@@ -71,7 +71,7 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 | FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate.            |
 | FE-005 | Complete | Premium public profile detail page now includes hero, sticky/mobile actions, full profile sections, verification state, and locked private gallery messaging.          |
 | FE-006 | Complete | Aligned static public pages using the premium brand layout and reusable components (StaticPageHero, FAQAccordion, ContactCard, etc.) with dynamic CMS API integration. |
-| FE-007 | Pending  | Align auth pages.                                                                                                                                                      |
+| FE-007 | Complete | Aligned authentication and password recovery pages under the premium dynamic split-screen layout, and created a dedicated auto-verifying /verify-email route.           |
 | FE-008 | Pending  | Redesign member dashboard UX.                                                                                                                                          |
 | FE-009 | Pending  | Improve onboarding/profile editing UX.                                                                                                                                 |
 | FE-010 | Pending  | Improve match discovery UX.                                                                                                                                            |
@@ -133,3 +133,12 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 - Updated all site header and footer paths to link directly to clean root paths.
 - Configured dynamic CMS fetching with robust offline-safe local fallback structures.
 - Verified route structures, accessibility, responsive flows, linting, formatting, and build status.
+
+## FE-007 Auth Pages Alignment
+
+- Redesigned `AuthShell` into a premium full-screen dynamic split-pane grid layout.
+- Implemented left-hand emotional brand pane with deep burgundy-to-blush gradient, decorative lighting, gold checkmarked value propositions, and success testimonial block.
+- Standardized inputs and form button elements using brand design tokens (`h-12 rounded-2xl` focus rings and primary burgundy background).
+- Refactored `/login`, `/register`, `/forgot-password`, and `/reset-password` routes to inherit the new premium shell.
+- Created `/verify-email` dynamic route that reads query string tokens, automatically POSTs to the backend verification endpoint, and displays loading/success/error statuses.
+- Verified type safety, formatting guidelines, clean linting, and complete build status.

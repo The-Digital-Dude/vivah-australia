@@ -3,7 +3,9 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PublicFooter, PublicHeader } from '@/app/components';
+import AuthShell from '../auth-shell';
+import FormField from '../form-field';
+import SubmitButton from '../submit-button';
 import { postAuth } from '@/lib/auth-api';
 import { useAuth } from '@/app/auth-context';
 
@@ -50,82 +52,61 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
-      <PublicHeader />
-      <main className="flex min-h-[70vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8 rounded-3xl border border-[#7A1F2B]/10 bg-white p-8 shadow-[0_18px_50px_rgba(122,31,43,0.08)] sm:p-10">
-          <div>
-            <h2 className="mt-2 text-center text-3xl font-bold text-[#1A1A1A]">Welcome back</h2>
-            <p className="mt-2 text-center text-sm text-[#6B7280]">
-              Sign in to your Vivah Australia account
-            </p>
+    <AuthShell
+      title="Welcome back to Vivah Australia"
+      subtitle="Sign in to your Vivah Australia account to discover your perfect match."
+    >
+      <form className="grid gap-5" onSubmit={(event) => void handleSubmit(event)}>
+        {error && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700">
+            {error}
           </div>
-          <form className="mt-8 space-y-6" onSubmit={(event) => void handleSubmit(event)}>
-            {error && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-700">
-                {error}
-              </div>
-            )}
-            {message && (
-              <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-center text-sm text-green-700">
-                {message}
-              </div>
-            )}
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="email-address" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="email-address"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="relative block w-full appearance-none rounded-2xl border border-[#7A1F2B]/20 px-4 py-3 text-[#1A1A1A] placeholder-[#6B7280] transition-colors focus:border-[#7A1F2B] focus:outline-none focus:ring-4 focus:ring-[#F8E8E8] sm:text-sm"
-                  placeholder="Email address"
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="relative block w-full appearance-none rounded-2xl border border-[#7A1F2B]/20 px-4 py-3 text-[#1A1A1A] placeholder-[#6B7280] transition-colors focus:border-[#7A1F2B] focus:outline-none focus:ring-4 focus:ring-[#F8E8E8] sm:text-sm"
-                  placeholder="Password"
-                />
-              </div>
-            </div>
+        )}
+        {message && (
+          <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-center text-sm font-semibold text-green-700">
+            {message}
+          </div>
+        )}
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <Link
-                  href="/forgot-password"
-                  className="font-medium text-[#7A1F2B] hover:text-[#64172f]"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={pending}
-                className="relative flex w-full justify-center rounded-2xl border border-transparent bg-[#7A1F2B] px-4 py-3 text-sm font-bold text-white transition-opacity hover:bg-[#651925] disabled:opacity-50"
+        <div className="grid gap-4">
+          <FormField label="Email Address" name="email" type="email" autoComplete="email" />
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="password" className="text-sm font-bold text-[#1A1A1A]">
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-semibold text-[#7A1F2B] hover:text-[#651925]"
               >
-                {pending ? 'Signing in...' : 'Sign In'}
-              </button>
+                Forgot your password?
+              </Link>
             </div>
-          </form>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              className="h-12 w-full rounded-2xl border border-[#7A1F2B]/20 bg-white px-4 text-[#1A1A1A] placeholder-[#6B7280] outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8] text-sm"
+              placeholder="••••••••"
+            />
+          </div>
         </div>
-      </main>
-      <PublicFooter />
-    </div>
+
+        <div className="mt-2">
+          <SubmitButton label="Sign In" pendingLabel="Signing in..." pending={pending} />
+        </div>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-[#6B7280]">
+            Don't have an account?{' '}
+            <Link href="/register" className="font-bold text-[#7A1F2B] hover:text-[#651925]">
+              Create free profile
+            </Link>
+          </p>
+        </div>
+      </form>
+    </AuthShell>
   );
 }

@@ -9,7 +9,7 @@ export default function SubmitButton({
     <button
       type="submit"
       disabled={pending}
-      className="h-11 rounded-md bg-red-700 px-4 text-sm font-semibold text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:bg-neutral-400"
+      className="h-12 rounded-2xl bg-[#7A1F2B] px-6 text-sm font-bold text-white transition hover:bg-[#651925] disabled:cursor-not-allowed disabled:bg-neutral-300 w-full flex items-center justify-center shadow-sm"
     >
       {pending ? pendingLabel : label}
     </button>
