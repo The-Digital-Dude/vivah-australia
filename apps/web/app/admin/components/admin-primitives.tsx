@@ -245,3 +245,32 @@ export function AdminActionMenu({
     </div>
   );
 }
+
+// ─── ADMIN ERROR STATE ───────────────────────────────────────────────────────
+export function AdminErrorState({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry?: () => void;
+}) {
+  return (
+    <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-rose-100 p-8 text-center bg-rose-50/20 shadow-sm">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 border border-rose-200 text-rose-650">
+        ⚠️
+      </div>
+      <h3 className="mt-4 text-base font-bold text-neutral-900">Operational Error</h3>
+      <p className="mt-2 text-sm text-neutral-500 max-w-sm">{message}</p>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="mt-6 rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4.5 py-2 text-xs font-bold text-white shadow-sm transition"
+          type="button"
+        >
+          Retry Request
+        </button>
+      )}
+    </div>
+  );
+}
+
