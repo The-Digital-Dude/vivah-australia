@@ -1,34 +1,34 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MemberShell from './member-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import {
+  EmptyState,
   PremiumButton,
   PremiumCard,
   ProfileMatchCard,
-  VerificationBadge,
   SectionHeader,
-  EmptyState,
+  VerificationBadge,
 } from '@/app/components';
 import {
-  CheckCircle2,
-  Heart,
-  Eye,
-  Crown,
-  ChevronRight,
-  Loader2,
   AlertCircle,
-  X,
-  Rocket,
+  ArrowRight,
+  CheckCircle2,
+  Clock3,
+  Crown,
+  Eye,
+  Heart,
+  Loader2,
   MessageSquare,
+  Rocket,
   ShieldCheck,
-  Zap,
   Sparkles,
-  Clock,
-  Lock,
+  Star,
+  UserRoundCheck,
+  Zap,
 } from 'lucide-react';
 
 interface InterestProfile {
@@ -154,6 +154,44 @@ interface ConversationItem {
   lastMessageAt?: string;
 }
 
+interface SummaryCard {
+  label: string;
+  value: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+}
+
+interface JourneyStep {
+  label: string;
+  complete: boolean;
+  description: string;
+}
+
+interface ActionCard {
+  title: string;
+  body: string;
+  href: string;
+  cta: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tone: 'gold' | 'burgundy' | 'emerald';
+}
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
+
+function formatDate(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat('en-AU', {
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(value));
+}
+
 export default function MemberDashboardPage() {
   const router = useRouter();
   const memberRequest = useMemberRequest();
@@ -168,7 +206,6 @@ export default function MemberDashboardPage() {
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [profileViewersTotal, setProfileViewersTotal] = useState<number | null>(null);
   const [profileViewersIsPaid, setProfileViewersIsPaid] = useState(false);
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activatingBoost, setActivatingBoost] = useState(false);
   const [boostMessage, setBoostMessage] = useState<string | null>(null);
@@ -177,8 +214,8 @@ export default function MemberDashboardPage() {
     try {
       const results = await Promise.all([
         memberRequest('/api/me/profile'),
-        memberRequest('/api/matches/recommended?limit=2'),
-        memberRequest('/api/matches/search?limit=2&sort=RECENTLY_ACTIVE'),
+        memberRequest('/api/matches/recommended?limit=4'),
+        memberRequest('/api/matches/search?limit=4&sort=RECENTLY_ACTIVE'),
         memberRequest('/api/me/interests?box=received'),
         memberRequest('/api/me/subscription'),
         memberRequest('/api/me/boosts'),
@@ -236,17 +273,17 @@ export default function MemberDashboardPage() {
         );
       }
 
-      if (viewersRes?.ok && viewersRes.data) {
-        const vd = viewersRes.data as { total: number; isPaid: boolean };
-        setProfileViewersTotal(vd.total);
-        setProfileViewersIsPaid(vd.isPaid);
+      if (viewersRes.ok && viewersRes.data) {
+        const viewersData = viewersRes.data as { total: number; isPaid: boolean };
+        setProfileViewersTotal(viewersData.total);
+        setProfileViewersIsPaid(viewersData.isPaid);
       }
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
           : 'An unexpected error occurred while loading your dashboard.';
-      setErrorMessage(msg);
+      setErrorMessage(message);
     } finally {
       setLoading(false);
     }
@@ -255,39 +292,6 @@ export default function MemberDashboardPage() {
   useEffect(() => {
     void loadDashboardData();
   }, []);
-
-  async function handleInterestResponse(id: string, action: 'ACCEPT' | 'REJECT') {
-    const result = await memberRequest(`/api/interests/${id}`, {
-      method: 'PATCH',
-      body: { action },
-    });
-
-    if (result.ok) {
-      const results = await Promise.all([
-        memberRequest('/api/me/interests?box=received'),
-        memberRequest('/api/me/profile'),
-        memberRequest('/api/me/conversations'),
-      ]);
-
-      const interestsRes = results[0];
-      const profileRes = results[1];
-      const convRes = results[2];
-
-      if (interestsRes.ok && interestsRes.data) {
-        setInterests((interestsRes.data as { interests: InterestItem[] }).interests ?? []);
-      }
-      if (profileRes.ok && profileRes.data) {
-        setProfile((profileRes.data as { profile: ProfileData }).profile);
-      }
-      if (convRes.ok && convRes.data) {
-        setConversations(
-          (convRes.data as { conversations: ConversationItem[] }).conversations ?? [],
-        );
-      }
-    } else {
-      setErrorMessage(result.message);
-    }
-  }
 
   async function handleActivateBoost() {
     setActivatingBoost(true);
@@ -308,6 +312,205 @@ export default function MemberDashboardPage() {
     }
   }
 
+  const activeBoost = boosts.find((boost) => new Date(boost.endsAt) > new Date() && boost.active);
+  const boostHoursLeft = activeBoost
+    ? Math.ceil((new Date(activeBoost.endsAt).getTime() - Date.now()) / (1000 * 60 * 60))
+    : 0;
+
+  const boostLimit = subscriptionData?.plan?.limits?.profileBoostsMonthly ?? 0;
+  const boostUsed =
+    subscriptionData?.usage?.find((entry) => entry.key === 'profileBoostsMonthly')?.count ?? 0;
+  const boostsRemaining = boostLimit === -1 ? Infinity : Math.max(0, boostLimit - boostUsed);
+
+  const completionPercentage = profile?.completionPercentage ?? 0;
+  const interestLimit = subscriptionData?.plan?.limits?.interestsMonthly ?? 5;
+  const interestUsed =
+    subscriptionData?.usage?.find((entry) => entry.key === 'interestsMonthly')?.count ?? 0;
+
+  const newMatchesCount = recommended.length + recentlyActive.length;
+  const receivedInterestCount = profile?.stats?.interestsReceived ?? interests.length;
+  const unreadMessagesCount = conversations.length;
+  const profileViewsCount = profileViewersTotal ?? profile?.stats?.profileViews ?? 0;
+
+  const summaryCards: SummaryCard[] = [
+    {
+      label: 'New matches',
+      value: String(newMatchesCount),
+      description: 'Fresh profiles with stronger alignment to your preferences.',
+      icon: Sparkles,
+      href: '/member/matches',
+    },
+    {
+      label: 'Received interests',
+      value: String(receivedInterestCount),
+      description: 'People who have already shown intention toward your profile.',
+      icon: Heart,
+      href: '/member/interests',
+    },
+    {
+      label: 'Unread messages',
+      value: String(unreadMessagesCount),
+      description: 'Open conversations ready for your next thoughtful reply.',
+      icon: MessageSquare,
+      href: '/member/messages',
+    },
+    {
+      label: 'Profile views',
+      value: String(profileViewsCount),
+      description: profileViewersIsPaid
+        ? 'See who is taking a closer look at your profile.'
+        : 'Profile attention is building as members discover you.',
+      icon: Eye,
+      href: '/member/profile-viewers',
+    },
+  ];
+
+  const journeySteps: JourneyStep[] = [
+    {
+      label: 'Profile completed',
+      complete: completionPercentage >= 90,
+      description: `${completionPercentage}% complete`,
+    },
+    {
+      label: 'Verified',
+      complete: Boolean(profile?.verification?.identityVerified || profile?.verification?.level),
+      description: profile?.verification?.level
+        ? `${profile.verification.level.replaceAll('_', ' ')} trust level`
+        : 'Verification pending',
+    },
+    {
+      label: 'First interest sent',
+      complete: (profile?.stats?.interestsSent ?? 0) > 0,
+      description: `${profile?.stats?.interestsSent ?? 0} sent`,
+    },
+    {
+      label: 'First conversation',
+      complete: conversations.length > 0,
+      description: `${conversations.length} active chats`,
+    },
+    {
+      label: 'Contact exchanged',
+      complete:
+        conversations.length > 0 && interests.some((interest) => interest.status === 'ACCEPTED'),
+      description: 'Mutual trust and progress milestone',
+    },
+  ];
+
+  const nextActions: ActionCard[] = [
+    {
+      title: 'Complete verification',
+      body: profile?.verification?.identityVerified
+        ? 'Your verification is already strengthening trust signals.'
+        : 'Verified profiles feel safer and are easier for serious members to trust quickly.',
+      href: '/member/verification',
+      cta: profile?.verification?.identityVerified ? 'Review trust status' : 'Get verified',
+      icon: ShieldCheck,
+      tone: 'gold',
+    },
+    {
+      title: 'Improve profile photos',
+      body: 'Refresh your gallery and privacy settings so the right people see a stronger first impression.',
+      href: '/member/media',
+      cta: 'Manage photos',
+      icon: Star,
+      tone: 'burgundy',
+    },
+    {
+      title: "View today's matches",
+      body: 'Spend a few minutes on your best recommendations while they are newly active.',
+      href: '/member/matches',
+      cta: 'Explore matches',
+      icon: UserRoundCheck,
+      tone: 'emerald',
+    },
+    {
+      title: 'Reply to pending interests',
+      body:
+        interests.filter((interest) => interest.status === 'PENDING').length > 0
+          ? 'You have people waiting on a response. Moving quickly can keep the momentum warm.'
+          : 'No pending replies right now. Keep your profile strong so new interest keeps coming.',
+      href: '/member/interests',
+      cta: 'Open interests',
+      icon: Heart,
+      tone: 'gold',
+    },
+  ];
+
+  const discoverToday = [...recommended, ...recentlyActive].reduce<MatchCard[]>((items, match) => {
+    if (items.some((item) => item.id === match.id) || items.length >= 4) {
+      return items;
+    }
+    items.push(match);
+    return items;
+  }, []);
+
+  const pendingInterests = interests.filter((interest) => interest.status === 'PENDING').length;
+  const acceptedInterests = interests.filter((interest) => interest.status === 'ACCEPTED').length;
+  const membershipName = subscriptionData?.plan?.name ?? 'Free';
+  const membershipEndsAt = formatDate(subscriptionData?.subscription?.endsAt);
+
+  const heroHighlights = [
+    {
+      label: 'Profile completion',
+      value: `${completionPercentage}%`,
+      icon: CheckCircle2,
+    },
+    {
+      label: 'Verification',
+      value: profile?.verification?.level?.replaceAll('_', ' ') ?? 'Unverified',
+      icon: ShieldCheck,
+    },
+    {
+      label: 'Membership',
+      value: membershipName,
+      icon: Crown,
+    },
+  ];
+
+  const spotlightCards = [
+    {
+      title: 'Boost visibility',
+      description: activeBoost
+        ? `Your profile boost is active for another ${boostHoursLeft}h.`
+        : boostsRemaining === Infinity
+          ? 'Unlimited boosts available with your current tier.'
+          : `${boostsRemaining} boost credit${boostsRemaining === 1 ? '' : 's'} available right now.`,
+      cta: activeBoost ? 'Boost running' : 'Activate 24h boost',
+      disabled: Boolean(activeBoost) || boostsRemaining === 0,
+      icon: Rocket,
+      onClick: () => {
+        void handleActivateBoost();
+      },
+    },
+    {
+      title: 'Membership usage',
+      description:
+        interestLimit === -1
+          ? 'Unlimited interest sending on your current plan.'
+          : `${interestUsed} of ${interestLimit} monthly interests used so far.`,
+      cta: 'Manage membership',
+      href: '/member/subscription',
+      icon: Crown,
+    },
+  ];
+
+  const recommendedForYouCount = discoverToday.filter((match) => match.matchScore >= 80).length;
+  const dashboardInsight = useMemo(() => {
+    if (pendingInterests > 0) {
+      return `${pendingInterests} pending interest${pendingInterests === 1 ? '' : 's'} could become your next conversation if you reply today.`;
+    }
+
+    if (recommendedForYouCount > 0) {
+      return `${recommendedForYouCount} strong matches are sitting above an 80% score right now.`;
+    }
+
+    if (activeBoost) {
+      return 'Your boosted profile is already positioned for higher discovery today.';
+    }
+
+    return 'A complete, verified profile will keep improving the quality of your introductions.';
+  }, [activeBoost, pendingInterests, recommendedForYouCount]);
+
   if (loading) {
     return (
       <MemberShell
@@ -322,626 +525,442 @@ export default function MemberDashboardPage() {
     );
   }
 
-  // Active boost calculations
-  const activeBoost = boosts.find((b) => new Date(b.endsAt) > new Date() && b.active);
-  const isBoosted = !!activeBoost;
-  const activeBoostEndsAt = activeBoost ? new Date(activeBoost.endsAt) : null;
-  const boostHoursLeft = activeBoostEndsAt
-    ? Math.ceil((activeBoostEndsAt.getTime() - Date.now()) / (1000 * 60 * 60))
-    : 0;
-
-  // Boost allowance calculations
-  const boostLimit = subscriptionData?.plan?.limits?.profileBoostsMonthly ?? 0;
-  const boostUsed =
-    subscriptionData?.usage?.find((u) => u.key === 'profileBoostsMonthly')?.count ?? 0;
-  const boostsRemaining = boostLimit === -1 ? Infinity : Math.max(0, boostLimit - boostUsed);
-
-  // Interest limit usage calculations
-  const interestLimit = subscriptionData?.plan?.limits?.interestsMonthly ?? 5;
-  const interestUsed =
-    subscriptionData?.usage?.find((u) => u.key === 'interestsMonthly')?.count ?? 0;
-
-  // Completion Checklist calculations
-  const missingSteps = [];
-  if (!profile?.personal?.lastName) {
-    missingSteps.push({ label: 'Add your last name', path: '/member/profile/edit' });
-  }
-  if (!profile?.personal?.maritalStatus) {
-    missingSteps.push({ label: 'Set your marital status', path: '/member/profile/edit' });
-  }
-  if (!profile?.religion?.religion) {
-    missingSteps.push({ label: 'Select your religion', path: '/member/profile/edit' });
-  }
-  if (!profile?.religion?.community) {
-    missingSteps.push({ label: 'Select your community background', path: '/member/profile/edit' });
-  }
-  if (!profile?.location?.city) {
-    missingSteps.push({ label: 'Add your current city', path: '/member/profile/edit' });
-  }
-  if (!profile?.education?.highestQualification) {
-    missingSteps.push({
-      label: 'Add your educational qualification',
-      path: '/member/profile/edit',
-    });
-  }
-  if (!profile?.employment?.occupation) {
-    missingSteps.push({ label: 'Specify your occupation', path: '/member/profile/edit' });
-  }
-  if (!profile?.about?.aboutMe) {
-    missingSteps.push({ label: 'Write a warm "About Me" section', path: '/member/profile/edit' });
-  }
-  if (!profile?.about?.partnerExpectations) {
-    missingSteps.push({ label: 'Specify your partner expectations', path: '/member/profile/edit' });
-  }
-  if (!profile?.verification?.mobileVerified) {
-    missingSteps.push({ label: 'Verify your mobile number via OTP', path: '/member/verification' });
-  }
-
-  // Circular progress calculations
-  const completionPercentage = profile?.completionPercentage ?? 0;
-  const radius = 36;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (completionPercentage / 100) * circumference;
-
   return (
     <MemberShell
       title="Dashboard"
-      subtitle="Overview of your matrimonial status, dynamic interests, and verified suggestions."
+      subtitle="Your matchmaking command center for discovery, trust, and momentum."
     >
       {errorMessage ? (
-        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 animate-fade-in">
+        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           <AlertCircle className="size-5 shrink-0" />
           <p className="font-semibold">{errorMessage}</p>
         </div>
       ) : null}
 
-      {/* Grid wrapper for entire page */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Main Content Area (Spans 2 columns on desktop) */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Welcome Banner */}
-          <PremiumCard className="relative overflow-hidden bg-gradient-to-br from-[#7A1F2B] via-[#651925] to-[#4A0A14] p-6 text-white shadow-xl">
-            <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
-            <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-                  Matrimonial Hub
-                </span>
-                <h1 className="mt-2 text-3xl font-bold text-[#FCFAF7] md:text-4xl">
-                  Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
-                </h1>
-                <p className="mt-2 text-sm leading-relaxed text-[#FCFAF7]/80 max-w-xl">
-                  Manage your matrimonial activity in real time. Connect with genuine, verified
-                  South Asian singles who are committed to a serious marriage journey in Australia.
-                </p>
+      <div className="grid gap-8">
+        <PremiumCard className="relative overflow-hidden border border-[#7A1F2B]/10 bg-[linear-gradient(135deg,#7A1F2B_0%,#651925_48%,#4A0A14_100%)] p-6 text-white shadow-[0_24px_70px_rgba(122,31,43,0.24)]">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
+          <div className="relative grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-center">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D4AF37]">
+                Matchmaking command center
+              </p>
+              <h1 className="mt-3 text-3xl font-bold text-[#FCFAF7] sm:text-4xl">
+                Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#FCFAF7]/80 sm:text-base">
+                Focus on the next best move for your search. We have surfaced your profile strength,
+                trust status, conversation momentum, and best matches in one calmer place.
+              </p>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <PremiumButton href="/member/matches" variant="gold" className="min-w-[180px]">
+                  Explore Matches
+                </PremiumButton>
+                <PremiumButton href="/member/profile/edit" variant="secondary" className="min-w-[180px]">
+                  Improve Profile
+                </PremiumButton>
               </div>
-                <div className="flex gap-4">
-                  <Link
-                    href="/member/profile-viewers"
-                    className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px] hover:bg-white/20 transition group"
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                {heroHighlights.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.label}
+                      className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur"
+                    >
+                      <Icon className="size-4 text-[#D4AF37]" />
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">
+                          {item.label}
+                        </p>
+                        <p className="text-sm font-semibold text-white">{item.value}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid gap-4 rounded-[28px] border border-white/10 bg-white/8 p-5 backdrop-blur">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                    Today&apos;s signal
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-white">{dashboardInsight}</p>
+                </div>
+                <VerificationBadge level={profile?.verification?.level} />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">
+                    Membership status
+                  </p>
+                  <p className="mt-2 text-base font-semibold text-white">{membershipName}</p>
+                  <p className="mt-1 text-sm text-white/70">
+                    {membershipEndsAt ? `Renews or ends around ${membershipEndsAt}` : 'Manage your plan anytime'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">
+                    Conversation momentum
+                  </p>
+                  <p className="mt-2 text-base font-semibold text-white">{conversations.length} active</p>
+                  <p className="mt-1 text-sm text-white/70">
+                    {acceptedInterests > 0
+                      ? `${acceptedInterests} accepted interest${acceptedInterests === 1 ? '' : 's'} already opened the door.`
+                      : 'Responding to interests is the fastest way to unlock momentum.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </PremiumCard>
+
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {summaryCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link key={card.label} href={card.href} className="group">
+                <PremiumCard className="h-full rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(122,31,43,0.12)]">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                        {card.label}
+                      </p>
+                      <p className="mt-3 text-3xl font-bold text-[#1A1A1A]">{card.value}</p>
+                    </div>
+                    <div className="rounded-2xl bg-[#F8E8E8] p-3 text-[#7A1F2B]">
+                      <Icon className="size-5" />
+                    </div>
+                  </div>
+                  <p className="mt-4 text-sm leading-6 text-[#6B7280]">{card.description}</p>
+                  <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]">
+                    Open
+                    <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
+                  </p>
+                </PremiumCard>
+              </Link>
+            );
+          })}
+        </section>
+
+        <div className="grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
+          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+            <SectionHeader
+              eyebrow="Your journey"
+              title="Progress toward stronger introductions"
+              subtitle="These milestones help move your profile from being visible to being trusted and actively engaged."
+            />
+
+            <div className="mt-6 grid gap-4">
+              {journeySteps.map((step, index) => (
+                <div
+                  key={step.label}
+                  className="flex items-start gap-4 rounded-3xl bg-[#FCFAF7] p-4"
+                >
+                  <div
+                    className={cx(
+                      'mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                      step.complete ? 'bg-[#7A1F2B] text-white' : 'bg-white text-[#D4AF37]',
+                    )}
                   >
-                    <Eye className="mx-auto size-5 text-[#D4AF37]" />
-                    <span className="mt-2 block text-2xl font-bold">
-                      {profileViewersTotal ?? profile?.stats?.profileViews ?? 0}
-                    </span>
-                    <span className="text-xs text-[#FCFAF7]/70">Viewed Me</span>
-                    <span className="block text-[10px] text-[#D4AF37]/70 mt-0.5 group-hover:text-[#D4AF37] transition">
-                      See who →
-                    </span>
-                  </Link>
-                  <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
-                    <Heart className="mx-auto size-5 text-[#D4AF37]" />
-                    <span className="mt-2 block text-2xl font-bold">
-                      {profile?.stats?.interestsReceived ?? 0}
-                    </span>
-                    <span className="text-xs text-[#FCFAF7]/70">Interests Recd</span>
+                    {step.complete ? (
+                      <CheckCircle2 className="size-5" />
+                    ) : (
+                      <span className="text-sm font-bold">{index + 1}</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-sm font-semibold text-[#1A1A1A]">{step.label}</h3>
+                      <span
+                        className={cx(
+                          'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em]',
+                          step.complete
+                            ? 'bg-[#E8F7EF] text-[#1F6F4A]'
+                            : 'bg-[#FFF2CD] text-[#7A1F2B]',
+                        )}
+                      >
+                        {step.complete ? 'Done' : 'Next up'}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-[#6B7280]">{step.description}</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </PremiumCard>
+
+          <div className="grid gap-6">
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+              <SectionHeader
+                eyebrow="Recommended next actions"
+                title="What will improve your momentum fastest"
+                subtitle="Small actions here usually have the biggest impact on response quality."
+              />
+
+              <div className="mt-6 grid gap-4">
+                {nextActions.map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <Link
+                      key={action.title}
+                      href={action.href}
+                      className={cx(
+                        'rounded-3xl border p-4 transition duration-200 hover:-translate-y-0.5',
+                        action.tone === 'gold' && 'border-[#D4AF37]/30 bg-[#FFF8EC]',
+                        action.tone === 'burgundy' && 'border-[#7A1F2B]/10 bg-[#FCFAF7]',
+                        action.tone === 'emerald' && 'border-[#DDEFE7] bg-[#F7FBF8]',
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={cx(
+                            'rounded-2xl p-3',
+                            action.tone === 'gold' && 'bg-white text-[#D4AF37]',
+                            action.tone === 'burgundy' && 'bg-white text-[#7A1F2B]',
+                            action.tone === 'emerald' && 'bg-white text-[#1F6F4A]',
+                          )}
+                        >
+                          <Icon className="size-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-sm font-semibold text-[#1A1A1A]">{action.title}</h3>
+                          <p className="mt-2 text-sm leading-6 text-[#6B7280]">{action.body}</p>
+                          <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]">
+                            {action.cta}
+                            <ArrowRight className="size-4" />
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </PremiumCard>
 
-          {/* Pending Actions & Conversations Grid */}
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Received Interests Widget */}
-            <PremiumCard className="flex flex-col justify-between p-5 min-h-[300px]">
-              <div>
-                <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
-                  <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                    <Heart className="size-5 text-[#7A1F2B]" /> Interests Received
-                  </h3>
-                  {interests.filter((i) => i.status === 'PENDING').length > 0 && (
-                    <span className="rounded-full bg-[#F8E8E8] px-2.5 py-0.5 text-xs font-bold text-[#7A1F2B]">
-                      {interests.filter((i) => i.status === 'PENDING').length} Pending
-                    </span>
-                  )}
-                </div>
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+              <SectionHeader
+                eyebrow="Spotlight"
+                title="Visibility and plan tools"
+                subtitle="Keep your profile discoverable while staying in control of your pace."
+              />
 
-                <div className="divide-y divide-[#7A1F2B]/5">
-                  {interests.length > 0 ? (
-                    interests.slice(0, 3).map((interest) => {
-                      const sender = interest.sender;
-                      return (
-                        <div key={interest.id} className="py-3 first:pt-0 last:pb-0 animate-hover">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0">
-                              <Link
-                                href={`/profiles/${sender?.id}`}
-                                className="font-semibold text-[#1A1A1A] hover:text-[#7A1F2B] hover:underline text-sm truncate block"
-                              >
-                                {sender?.firstName ?? 'Member'}, {sender?.age ?? 'Age hidden'}
-                              </Link>
-                              <p className="text-xs text-[#6B7280] mt-0.5 truncate">
-                                {[sender?.city, sender?.occupation].filter(Boolean).join(' | ') ||
-                                  'Australia'}
-                              </p>
-                            </div>
-                            {interest.status === 'PENDING' ? (
-                              <div className="flex gap-1.5 shrink-0">
-                                <button
-                                  type="button"
-                                  onClick={() => void handleInterestResponse(interest.id, 'ACCEPT')}
-                                  className="rounded-full bg-[#7A1F2B]/10 p-2 text-[#7A1F2B] hover:bg-[#7A1F2B] hover:text-white transition flex items-center justify-center"
-                                  title="Accept Interest"
-                                >
-                                  <CheckCircle2 className="size-4" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => void handleInterestResponse(interest.id, 'REJECT')}
-                                  className="rounded-full bg-[#6B7280]/10 p-2 text-[#6B7280] hover:bg-[#6B7280] hover:text-white transition flex items-center justify-center"
-                                  title="Decline Interest"
-                                >
-                                  <X className="size-4" />
-                                </button>
-                              </div>
+              <div className="mt-6 grid gap-4">
+                {spotlightCards.map((card) => {
+                  const Icon = card.icon;
+                  return (
+                    <div key={card.title} className="rounded-3xl bg-[#FCFAF7] p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-2xl bg-white p-3 text-[#7A1F2B]">
+                          <Icon className="size-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-sm font-semibold text-[#1A1A1A]">{card.title}</h3>
+                          <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+                            {card.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        {'href' in card ? (
+                          <PremiumButton href={card.href} variant="secondary" className="w-full">
+                            {card.cta}
+                          </PremiumButton>
+                        ) : (
+                          <PremiumButton
+                            onClick={card.onClick}
+                            disabled={card.disabled || activatingBoost}
+                            className="w-full"
+                          >
+                            {activatingBoost && card.title === 'Boost visibility' ? (
+                              <>
+                                <Loader2 className="size-4 animate-spin" />
+                                Activating...
+                              </>
                             ) : (
-                              <span className="text-xs font-bold shrink-0 rounded-full px-2.5 py-0.5 bg-[#FCFAF7] text-[#6B7280] border border-[#7A1F2B]/5 uppercase tracking-wider text-[9px]">
-                                {interest.status.toLowerCase()}
-                              </span>
+                              card.cta
                             )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-8 text-center">
-                      <Heart className="size-7 text-[#7A1F2B]/35 mx-auto mb-2" />
-                      <p className="text-xs text-[#6B7280] max-w-[200px] mx-auto">
-                        No received interests yet. Complete your profile to attract other
-                        matrimonial members.
-                      </p>
+                          </PremiumButton>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
+                  );
+                })}
               </div>
 
-              <PremiumButton
-                href="/member/interests"
-                variant="ghost"
-                className="w-full mt-4 min-h-[38px]"
-              >
-                Manage Interests
-              </PremiumButton>
+              {boostMessage ? (
+                <p className="mt-4 rounded-2xl border border-[#D4AF37]/30 bg-[#FFF8EC] p-3 text-sm font-semibold text-[#7A1F2B]">
+                  {boostMessage}
+                </p>
+              ) : null}
             </PremiumCard>
-
-            {/* Recent Conversations Widget */}
-            <PremiumCard className="flex flex-col justify-between p-5 min-h-[300px]">
-              <div>
-                <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
-                  <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                    <MessageSquare className="size-5 text-[#7A1F2B]" /> Active Chats
-                  </h3>
-                  {conversations.length > 0 && (
-                    <span className="rounded-full bg-[#F8E8E8] px-2.5 py-0.5 text-xs font-bold text-[#7A1F2B]">
-                      {conversations.length} Active
-                    </span>
-                  )}
-                </div>
-
-                <div className="divide-y divide-[#7A1F2B]/5">
-                  {conversations.length > 0 ? (
-                    conversations.slice(0, 3).map((conv) => {
-                      const other = conv.otherProfile;
-                      const initial = (other?.firstName ?? 'V').slice(0, 1).toUpperCase();
-                      return (
-                        <div key={conv.id} className="py-3 first:pt-0 last:pb-0">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <div className="size-8 rounded-full bg-[#F8E8E8] text-[#7A1F2B] font-bold text-sm flex items-center justify-center shrink-0 border border-[#7A1F2B]/10">
-                                {initial}
-                              </div>
-                              <div className="min-w-0">
-                                <Link
-                                  href={`/member/messages`}
-                                  className="font-semibold text-[#1A1A1A] hover:text-[#7A1F2B] hover:underline text-sm truncate block"
-                                >
-                                  {other?.firstName ?? 'Member'}
-                                </Link>
-                                <p className="text-xs text-[#6B7280] truncate mt-0.5">
-                                  {other?.occupation ? `${other.occupation} | ` : ''}
-                                  {other?.city ?? 'Australia'}
-                                </p>
-                              </div>
-                            </div>
-                            <Link
-                              href="/member/messages"
-                              className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B] hover:bg-[#F8E8E8] shrink-0 transition"
-                              title="Go to messages"
-                            >
-                              <ChevronRight className="size-4" />
-                            </Link>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-8 text-center">
-                      <MessageSquare className="size-7 text-[#7A1F2B]/35 mx-auto mb-2" />
-                      <p className="text-xs text-[#6B7280] max-w-[200px] mx-auto">
-                        No active conversations yet. Accept received interests to start chatting.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <PremiumButton
-                href="/member/messages"
-                variant="ghost"
-                className="w-full mt-4 min-h-[38px]"
-              >
-                Open Inbox
-              </PremiumButton>
-            </PremiumCard>
-          </div>
-
-          {/* Discovery: Recommended Matches */}
-          <div className="space-y-6">
-            <SectionHeader
-              title="Recommended Matches"
-              subtitle="Handpicked profiles matching your specific partner preferences"
-              action={
-                <Link
-                  href="/member/matches"
-                  className="text-sm font-semibold text-[#7A1F2B] hover:text-[#651925] flex items-center gap-1"
-                >
-                  Explore all <ChevronRight className="size-4" />
-                </Link>
-              }
-            />
-            <div className="grid gap-6 md:grid-cols-2">
-              {recommended.length > 0 ? (
-                recommended.map((match) => (
-                  <ProfileMatchCard
-                    key={match.id}
-                    profile={{
-                      id: match.id,
-                      name: match.firstName ?? 'Member',
-                      age: match.age,
-                      city: match.city || match.state || match.country || 'Australia',
-                      community: match.community,
-                      education: match.education,
-                      matchScore: match.matchScore,
-                      occupation: match.occupation,
-                      photoUrl: match.photoUrl,
-                      religion: match.religion,
-                      verificationLevel: match.verificationLevel,
-                      slug: match.id,
-                    }}
-                  />
-                ))
-              ) : (
-                <div className="md:col-span-2">
-                  <EmptyState title="No custom recommendations yet">
-                    Complete your partner preferences in edit profile to get matches tailored for
-                    you.
-                  </EmptyState>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Discovery: Recently Active */}
-          <div className="space-y-6">
-            <SectionHeader
-              title="Recently Active Members"
-              subtitle="Serious matrimonial members active within the last 30 days"
-              action={
-                <Link
-                  href="/member/matches"
-                  className="text-sm font-semibold text-[#7A1F2B] hover:text-[#651925] flex items-center gap-1"
-                >
-                  Search all <ChevronRight className="size-4" />
-                </Link>
-              }
-            />
-            <div className="grid gap-6 md:grid-cols-2">
-              {recentlyActive.length > 0 ? (
-                recentlyActive.map((match) => (
-                  <ProfileMatchCard
-                    key={match.id}
-                    profile={{
-                      id: match.id,
-                      name: match.firstName ?? 'Member',
-                      age: match.age,
-                      city: match.city || match.state || match.country || 'Australia',
-                      community: match.community,
-                      education: match.education,
-                      matchScore: match.matchScore,
-                      occupation: match.occupation,
-                      photoUrl: match.photoUrl,
-                      religion: match.religion,
-                      verificationLevel: match.verificationLevel,
-                      slug: match.id,
-                    }}
-                  />
-                ))
-              ) : (
-                <div className="md:col-span-2">
-                  <EmptyState title="No recently active members found">
-                    Check back later to discover newly active South Asian matrimonial profiles in
-                    Australia.
-                  </EmptyState>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
-        {/* Right Sidebar (Trust & Conversion Hub - 1 column) */}
-        <div className="space-y-6">
-          {/* Profile Strength Checklist */}
-          <PremiumCard className="p-5">
-            <h3 className="font-semibold text-[#1A1A1A] border-b border-[#7A1F2B]/10 pb-3">
-              Profile Strength
-            </h3>
+        <div className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
+          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+            <SectionHeader
+              eyebrow="People to discover today"
+              title="A smaller, stronger shortlist to review now"
+              subtitle="These profiles are surfaced to help you move from browsing into serious conversations."
+              action={
+                <Link
+                  href="/member/matches"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]"
+                >
+                  Explore all
+                  <ArrowRight className="size-4" />
+                </Link>
+              }
+            />
 
-            <div className="flex flex-col items-center mt-5">
-              {/* Circular SVG Progress */}
-              <div className="relative size-24 flex items-center justify-center">
-                <svg className="size-24 transform -rotate-90">
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r={radius}
-                    className="stroke-[#F8E8E8]"
-                    strokeWidth="7"
-                    fill="transparent"
-                  />
-                  <circle
-                    cx="48"
-                    cy="48"
-                    r={radius}
-                    className="stroke-[#7A1F2B] transition-all duration-500 ease-out"
-                    strokeWidth="7"
-                    fill="transparent"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute flex flex-col items-center justify-center">
-                  <span className="text-xl font-bold text-[#7A1F2B]">{completionPercentage}%</span>
-                  <span className="text-[8px] font-bold text-[#6B7280] uppercase tracking-wider">
-                    Complete
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-xs text-[#6B7280] text-center mt-4 max-w-[200px] leading-relaxed">
-                Complete profiles get 3x more visibility and higher verification scores.
-              </p>
-            </div>
-
-            {/* Checklist items */}
-            {missingSteps.length > 0 ? (
-              <div className="mt-5 space-y-2 bg-[#FCFAF7] p-3.5 rounded-2xl border border-[#7A1F2B]/5">
-                <p className="text-[10px] font-bold text-[#7A1F2B] uppercase tracking-wider mb-2">
-                  Next steps to 100%:
-                </p>
-                {missingSteps.slice(0, 3).map((step, idx) => (
-                  <Link
-                    key={idx}
-                    href={step.path}
-                    className="flex items-center gap-2 text-xs font-semibold text-[#1A1A1A] hover:text-[#7A1F2B] transition py-1 group"
-                  >
-                    <div className="size-1.5 rounded-full bg-[#D4AF37] shrink-0 group-hover:scale-125 transition" />
-                    <span className="truncate flex-1">{step.label}</span>
-                    <ChevronRight className="size-3.5 opacity-0 group-hover:opacity-100 transition" />
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="mt-5 flex items-center gap-2 bg-green-50 text-green-800 p-3 rounded-2xl text-xs font-semibold border border-green-200">
-                <CheckCircle2 className="size-4 text-green-600 shrink-0" />
-                <span>Your profile is fully complete. Great job.</span>
-              </div>
-            )}
-
-            <PremiumButton href="/member/profile/edit" variant="secondary" className="w-full mt-5">
-              Complete Profile
-            </PremiumButton>
-          </PremiumCard>
-
-          {/* Trust Verification Hub */}
-          <PremiumCard className="p-5">
-            <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
-              <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                <ShieldCheck className="size-5 text-[#7A1F2B]" /> Trust Verification
-              </h3>
-              <VerificationBadge level={profile?.verification?.level} />
-            </div>
-
-            <div className="space-y-3 mt-4">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-[#6B7280]">Email ID Verified:</span>
-                <span className="font-semibold text-green-700 flex items-center gap-1">
-                  <CheckCircle2 className="size-3.5" /> Yes
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-[#6B7280]">Mobile OTP Verified:</span>
-                {profile?.verification?.mobileVerified ? (
-                  <span className="font-semibold text-green-700 flex items-center gap-1">
-                    <CheckCircle2 className="size-3.5" /> Yes
-                  </span>
-                ) : (
-                  <Link
-                    href="/member/verification"
-                    className="text-[#7A1F2B] font-semibold hover:underline"
-                  >
-                    Verify now
-                  </Link>
-                )}
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-[#6B7280]">ID & Residency:</span>
-                {profile?.verification?.identityVerified ? (
-                  <span className="font-semibold text-green-700 flex items-center gap-1">
-                    <CheckCircle2 className="size-3.5" /> Yes
-                  </span>
-                ) : (
-                  <Link
-                    href="/member/verification"
-                    className="text-[#7A1F2B] font-semibold hover:underline"
-                  >
-                    Submit document
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            <p className="text-[10px] text-[#6B7280] leading-relaxed mt-4 bg-[#FCFAF7] p-3 rounded-2xl border border-[#7A1F2B]/5">
-              Secure a verified gold badge to gain trust. Verification filters allow serious members
-              to find you easily.
-            </p>
-
-            <PremiumButton href="/member/verification" variant="gold" className="w-full mt-4">
-              Get Verified
-            </PremiumButton>
-          </PremiumCard>
-
-          {/* Profile Booster widget */}
-          <PremiumCard className="p-5 relative overflow-hidden">
-            {isBoosted && (
-              <div className="absolute right-0 top-0 bg-[#D4AF37] text-[#7A1F2B] px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-bl-2xl">
-                Boosted
-              </div>
-            )}
-
-            <h3 className="font-semibold text-[#1A1A1A] border-b border-[#7A1F2B]/10 pb-3 flex items-center gap-2">
-              <Rocket className="size-5 text-[#D4AF37]" /> Profile Booster
-            </h3>
-
-            {isBoosted ? (
-              <div className="mt-4 space-y-3">
-                <div className="bg-[#FCFAF7] p-4 rounded-2xl border border-[#D4AF37]/30 flex items-start gap-3">
-                  <Sparkles className="size-5 text-[#D4AF37] shrink-0 mt-0.5 animate-pulse" />
-                  <div>
-                    <h4 className="text-xs font-bold text-[#7A1F2B] uppercase tracking-wider">
-                      Active Boost
-                    </h4>
-                    <p className="text-[11px] text-[#6B7280] mt-1 leading-relaxed">
-                      Your profile is placed at the top of matrimonial searches for Australian
-                      singles.
-                    </p>
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#D4AF37] mt-3">
-                      <Clock className="size-3.5" /> {boostHoursLeft} hours remaining
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 space-y-3">
-                <p className="text-xs leading-relaxed text-[#6B7280]">
-                  Boost your matrimonial profile to get **3x higher search rankings** and priority
-                  featured recommendation slots.
-                </p>
-                <div className="bg-[#FCFAF7] p-3 rounded-2xl border border-[#7A1F2B]/5 text-xs text-[#1A1A1A] font-semibold flex items-center gap-2">
-                  <Zap className="size-4 text-[#D4AF37]" />
-                  <span>
-                    {boostsRemaining === Infinity ? 'Unlimited' : boostsRemaining} boost credits
-                    available
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <div className="mt-4">
-              <PremiumButton
-                onClick={() => {
-                  void handleActivateBoost();
-                }}
-                disabled={activatingBoost || boostsRemaining === 0 || isBoosted}
-                variant="primary"
-                className="w-full"
-              >
-                {activatingBoost ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" /> Activating...
-                  </>
-                ) : isBoosted ? (
-                  'Currently Boosted'
-                ) : boostsRemaining > 0 ? (
-                  'Activate 24h Boost'
-                ) : (
-                  'Buy Boost Credits'
-                )}
-              </PremiumButton>
-            </div>
-
-            {boostMessage ? (
-              <p className="mt-3 text-xs font-semibold text-[#7A1F2B] text-center animate-fade-in">
-                {boostMessage}
-              </p>
-            ) : null}
-          </PremiumCard>
-
-          {/* Membership & Limit Usage status */}
-          <PremiumCard className="p-5">
-            <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
-              <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                <Crown className="size-5 text-[#D4AF37]" /> Member Tier
-              </h3>
-              <span className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#7A1F2B] uppercase tracking-wider">
-                {subscriptionData?.plan?.name ?? 'Free Tier'}
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-4">
-              {/* Interest quota limit indicator */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-[#6B7280]">Interests sent:</span>
-                  <span className="text-[#1A1A1A]">
-                    {interestUsed} / {interestLimit === -1 ? 'Unlimited' : interestLimit}
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-[#F8E8E8]">
-                  <div
-                    className="h-2 rounded-full bg-[#7A1F2B] transition-all duration-500"
-                    style={{
-                      width: `${interestLimit === -1 ? 0 : Math.min(100, (interestUsed / interestLimit) * 100)}%`,
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {discoverToday.length > 0 ? (
+                discoverToday.map((match) => (
+                  <ProfileMatchCard
+                    key={match.id}
+                    compact
+                    profile={{
+                      id: match.id,
+                      name: match.firstName ?? 'Vivah member',
+                      age: match.age,
+                      city: match.city || match.state || match.country || 'Australia',
+                      community: match.community ?? match.motherTongue,
+                      education: match.education,
+                      matchScore: match.matchScore,
+                      occupation: match.occupation,
+                      photoUrl: match.photoUrl,
+                      religion: match.religion,
+                      verificationLevel: match.verificationLevel,
+                      slug: match.id,
                     }}
                   />
+                ))
+              ) : (
+                <div className="md:col-span-2">
+                  <EmptyState title="No discovery picks yet">
+                    Complete your profile and partner preferences to unlock better recommendations.
+                  </EmptyState>
+                </div>
+              )}
+            </div>
+          </PremiumCard>
+
+          <div className="grid gap-6">
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+              <SectionHeader
+                eyebrow="Attention and timing"
+                title="Stay aware of where your momentum is building"
+                subtitle="A quick glance at profile attention and conversation readiness."
+              />
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-3xl bg-[#FCFAF7] p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-2xl bg-white p-3 text-[#7A1F2B]">
+                      <Eye className="size-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                        Viewed me
+                      </p>
+                      <p className="mt-1 text-2xl font-bold text-[#1A1A1A]">{profileViewsCount}</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-[#6B7280]">
+                    {profileViewersIsPaid
+                      ? 'Your paid viewer insights are active.'
+                      : 'Upgrade for clearer visibility into profile attention.'}
+                  </p>
+                </div>
+
+                <div className="rounded-3xl bg-[#FCFAF7] p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-2xl bg-white p-3 text-[#7A1F2B]">
+                      <Clock3 className="size-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                        Pending replies
+                      </p>
+                      <p className="mt-1 text-2xl font-bold text-[#1A1A1A]">{pendingInterests}</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-[#6B7280]">
+                    Responding while interest is fresh usually improves conversation momentum.
+                  </p>
                 </div>
               </div>
+            </PremiumCard>
 
-              {/* Search capability indicator */}
-              <div className="flex justify-between items-center text-xs bg-[#FCFAF7] p-3 rounded-2xl border border-[#7A1F2B]/5">
-                <span className="text-[#6B7280]">Search Level:</span>
-                <span className="font-bold text-[#7A1F2B]">
-                  {subscriptionData?.plan?.limits?.advancedFilters
-                    ? 'Advanced Filters'
-                    : 'Standard Filters'}
-                </span>
+            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+              <SectionHeader
+                eyebrow="Plan and trust"
+                title="Your profile is easier to trust when signals stay strong"
+                subtitle="A compact view of the core things members notice first."
+              />
+
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center justify-between rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck className="size-5 text-[#7A1F2B]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#1A1A1A]">Verification level</p>
+                      <p className="text-sm text-[#6B7280]">
+                        Email and mobile verified, with stronger trust when ID is approved.
+                      </p>
+                    </div>
+                  </div>
+                  <VerificationBadge level={profile?.verification?.level} />
+                </div>
+
+                <div className="flex items-center justify-between rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <Zap className="size-5 text-[#7A1F2B]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#1A1A1A]">Interest usage</p>
+                      <p className="text-sm text-[#6B7280]">
+                        {interestLimit === -1
+                          ? 'Unlimited monthly sending on your current tier.'
+                          : `${interestUsed} of ${interestLimit} monthly interests used.`}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+                    {subscriptionData?.plan?.limits?.advancedFilters ? 'Advanced search' : 'Standard search'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <Crown className="size-5 text-[#D4AF37]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#1A1A1A]">Membership tier</p>
+                      <p className="text-sm text-[#6B7280]">
+                        {membershipEndsAt
+                          ? `Coverage visible through around ${membershipEndsAt}.`
+                          : 'Manage membership, billing, and boost access here.'}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/member/subscription"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]"
+                  >
+                    Manage
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </div>
               </div>
-            </div>
-
-            <PremiumButton href="/member/subscription" variant="secondary" className="w-full mt-5">
-              Manage Membership
-            </PremiumButton>
-          </PremiumCard>
+            </PremiumCard>
+          </div>
         </div>
       </div>
     </MemberShell>
