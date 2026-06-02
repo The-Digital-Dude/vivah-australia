@@ -1,10 +1,13 @@
 import AdminMediaReview from './admin-media-review';
-import AdminGuard from '../admin-guard';
+import AdminShell from '../admin-shell';
 
 export default function AdminMediaPage() {
   return (
-    <AdminGuard>
+    <AdminShell
+      title="Media Approval Queue"
+      subtitle="Review uploaded profile photos, public gallery media, and private gallery media before member-facing display."
+    >
       <AdminMediaReview />
-    </AdminGuard>
+    </AdminShell>
   );
 }
