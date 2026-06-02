@@ -3,15 +3,18 @@ import type { Response } from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { AccountStatus, UserRole } from '@vivah/shared';
+import { AccountStatus, SubscriptionStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   BlockModel,
   FraudEventModel,
+  NotificationModel,
+  PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
   ProfileViewModel,
+  SubscriptionModel,
   UserModel,
 } from '../models/index.js';
 import { createTokenPair } from '../auth/token.service.js';
@@ -109,6 +112,26 @@ async function createProfile(userId: mongoose.Types.ObjectId, displayId = 'VA123
     },
     stats: { profileViews: 0, interestsReceived: 0, interestsSent: 0, favouritesCount: 0 },
     moderation: { approvalStatus: ProfileApprovalStatus.PENDING },
+  });
+}
+
+async function addPremiumSubscription(userId: mongoose.Types.ObjectId) {
+  const plan = await PlanModel.create({
+    code: 'PREMIUM',
+    name: 'Premium',
+    priceCents: 4900,
+    currency: 'AUD',
+    interval: 'MONTH',
+    features: ['Who viewed my profile'],
+    limits: { profileViewers: 50 },
+    active: true,
+  });
+
+  await SubscriptionModel.create({
+    userId,
+    planId: plan._id,
+    status: SubscriptionStatus.ACTIVE,
+    startsAt: new Date(Date.now() - 1000),
   });
 }
 
@@ -319,5 +342,151 @@ describe('profile routes', () => {
         .expect(200);
     }
     expect(await FraudEventModel.countDocuments({ userId: viewer.user._id })).toBe(1);
+  });
+
+  it('creates a paid-only profile view notification with viewer payload', async () => {
+    const viewer = await createUser('notify-viewer@example.com');
+    const owner = await createUser('notify-owner@example.com');
+    await addPremiumSubscription(owner.user._id);
+
+    const viewerProfile = await createProfile(viewer.user._id, 'VA990001');
+    viewerProfile.set({
+      'personal.firstName': 'Priya',
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+      'visibility.status': 'MEMBERS_ONLY',
+    });
+    await viewerProfile.save();
+
+    const ownerProfile = await createProfile(owner.user._id, 'VA990002');
+    ownerProfile.set({
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+      'visibility.status': 'MEMBERS_ONLY',
+    });
+    await ownerProfile.save();
+
+    await request(app)
+      .get(`/api/profiles/${ownerProfile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const notification = await NotificationModel.findOne({
+      userId: owner.user._id,
+      type: 'PROFILE_VIEWED',
+      isDeleted: false,
+    }).lean();
+
+    expect(notification).toBeTruthy();
+    expect(notification?.title).toBe('Priya viewed your profile');
+    expect(notification?.body).toBe('See who viewed your profile and continue the conversation.');
+    expect(notification?.data).toMatchObject({
+      viewerUserId: String(viewer.user._id),
+      viewerProfileId: String(viewerProfile._id),
+      viewerDisplayId: viewerProfile.displayId,
+      viewedProfileId: ownerProfile.id,
+    });
+    expect(typeof (notification?.data as { viewedAt?: unknown } | undefined)?.viewedAt).toBe(
+      'string',
+    );
+  });
+
+  it('does not create a profile view notification for free recipients', async () => {
+    const viewer = await createUser('free-viewer@example.com');
+    const owner = await createUser('free-owner@example.com');
+
+    const viewerProfile = await createProfile(viewer.user._id, 'VA991001');
+    viewerProfile.set('moderation.approvalStatus', ProfileApprovalStatus.APPROVED);
+    await viewerProfile.save();
+
+    const ownerProfile = await createProfile(owner.user._id, 'VA991002');
+    ownerProfile.set('moderation.approvalStatus', ProfileApprovalStatus.APPROVED);
+    await ownerProfile.save();
+
+    await request(app)
+      .get(`/api/profiles/${ownerProfile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    expect(
+      await NotificationModel.countDocuments({
+        userId: owner.user._id,
+        type: 'PROFILE_VIEWED',
+        isDeleted: false,
+      }),
+    ).toBe(0);
+  });
+
+  it('does not create a profile view notification on self-view', async () => {
+    const member = await createUser('self-view@example.com');
+    await addPremiumSubscription(member.user._id);
+
+    const profile = await createProfile(member.user._id, 'VA991500');
+    profile.set('moderation.approvalStatus', ProfileApprovalStatus.APPROVED);
+    await profile.save();
+
+    await request(app)
+      .get(`/api/profiles/${profile.id}`)
+      .set('Authorization', `Bearer ${member.accessToken}`)
+      .expect(200);
+
+    expect(
+      await NotificationModel.countDocuments({
+        userId: member.user._id,
+        type: 'PROFILE_VIEWED',
+        isDeleted: false,
+      }),
+    ).toBe(0);
+  });
+
+  it('deduplicates repeated profile view notifications for 24 hours and allows later re-notify', async () => {
+    const viewer = await createUser('repeat-viewer@example.com');
+    const owner = await createUser('repeat-owner@example.com');
+    await addPremiumSubscription(owner.user._id);
+
+    const viewerProfile = await createProfile(viewer.user._id, 'VA992001');
+    viewerProfile.set({
+      'personal.firstName': 'Neha',
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+    });
+    await viewerProfile.save();
+
+    const ownerProfile = await createProfile(owner.user._id, 'VA992002');
+    ownerProfile.set('moderation.approvalStatus', ProfileApprovalStatus.APPROVED);
+    await ownerProfile.save();
+
+    await request(app)
+      .get(`/api/profiles/${ownerProfile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    await request(app)
+      .get(`/api/profiles/${ownerProfile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    expect(
+      await NotificationModel.countDocuments({
+        userId: owner.user._id,
+        type: 'PROFILE_VIEWED',
+        isDeleted: false,
+      }),
+    ).toBe(1);
+
+    await NotificationModel.collection.updateOne(
+      { userId: owner.user._id, type: 'PROFILE_VIEWED', isDeleted: false },
+      { $set: { createdAt: new Date(Date.now() - 25 * 60 * 60 * 1000) } },
+    );
+
+    await request(app)
+      .get(`/api/profiles/${ownerProfile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    expect(
+      await NotificationModel.countDocuments({
+        userId: owner.user._id,
+        type: 'PROFILE_VIEWED',
+        isDeleted: false,
+      }),
+    ).toBe(2);
+    expect(await ProfileViewModel.countDocuments({ viewerId: viewer.user._id })).toBe(1);
   });
 });

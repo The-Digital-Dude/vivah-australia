@@ -9,14 +9,17 @@ import {
 import { Types } from 'mongoose';
 import { recordHighVelocityProfileViews } from '../common/fraud.service.js';
 import { HttpError } from '../auth/auth-errors.js';
+import { isPaidMember } from '../billing/billing.service.js';
 import {
   BlockModel,
+  NotificationModel,
   ProfileApprovalStatus,
   ProfileMediaModel,
   ProfileModel,
   ProfileViewModel,
   UserModel,
 } from '../models/index.js';
+import { createNotification } from '../notifications/notifications.service.js';
 import type { ProfileDocument } from '../models/profile.model.js';
 
 const COMPLETION_FIELDS = [
@@ -207,6 +210,7 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
   }
 
   if (viewerId && !profile.userId.equals(viewerId)) {
+    const viewedAt = new Date();
     await ProfileViewModel.findOneAndUpdate(
       { viewerId, profileId: profile._id },
       {
@@ -214,11 +218,12 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
           viewerId,
           profileId: profile._id,
           profileUserId: profile.userId,
-          viewedAt: new Date(),
+          viewedAt,
         },
       },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
     );
+    await notifyPaidProfileView(viewerId, profile, viewedAt);
     const recentViewCount = await ProfileViewModel.countDocuments({
       viewerId,
       viewedAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
@@ -261,6 +266,56 @@ export async function listRecentlyViewedProfiles(userId: Types.ObjectId) {
 
 const FREE_VIEWERS_LIMIT = 5; // free users see at most 5 blurred viewers
 const PAID_VIEWERS_LIMIT = 50;
+const PROFILE_VIEW_NOTIFICATION_TYPE = 'PROFILE_VIEWED';
+const PROFILE_VIEW_NOTIFICATION_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+async function notifyPaidProfileView(
+  viewerId: Types.ObjectId,
+  viewedProfile: ProfileDocument,
+  viewedAt: Date,
+) {
+  if (!(await isPaidMember(viewedProfile.userId))) {
+    return;
+  }
+
+  const cooldownSince = new Date(viewedAt.getTime() - PROFILE_VIEW_NOTIFICATION_COOLDOWN_MS);
+  const existing = await NotificationModel.findOne({
+    userId: viewedProfile.userId,
+    type: PROFILE_VIEW_NOTIFICATION_TYPE,
+    createdAt: { $gte: cooldownSince },
+    'data.viewerUserId': String(viewerId),
+    'data.viewedProfileId': viewedProfile.id,
+    isDeleted: false,
+  }).lean();
+
+  if (existing) {
+    return;
+  }
+
+  const viewerProfile = await ProfileModel.findOne({
+    userId: viewerId,
+    isDeleted: false,
+    'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+    'visibility.status': { $ne: ProfileVisibility.HIDDEN },
+  }).lean();
+
+  const viewerDisplayName =
+    viewerProfile?.personal?.firstName ?? viewerProfile?.displayId ?? 'Someone';
+
+  await createNotification({
+    userId: viewedProfile.userId,
+    type: PROFILE_VIEW_NOTIFICATION_TYPE,
+    title: `${viewerDisplayName} viewed your profile`,
+    body: 'See who viewed your profile and continue the conversation.',
+    data: {
+      viewerUserId: String(viewerId),
+      viewerProfileId: viewerProfile ? String(viewerProfile._id) : null,
+      viewerDisplayId: viewerProfile?.displayId ?? null,
+      viewedProfileId: viewedProfile.id,
+      viewedAt: viewedAt.toISOString(),
+    },
+  });
+}
 
 export async function listProfileViewersReceived(userId: Types.ObjectId, isPaidMember: boolean) {
   // First get own profile id so we can look up views by profileUserId

@@ -16,9 +16,11 @@ interface Plan {
 export default function UpgradeModal({
   plan,
   onClose,
+  displayIntervalLabel,
 }: {
   plan: Plan | null;
   onClose: () => void;
+  displayIntervalLabel?: string;
 }) {
   const memberRequest = useMemberRequest();
   const [couponCode, setCouponCode] = useState('');
@@ -67,7 +69,7 @@ export default function UpgradeModal({
             <h2 className="text-2xl font-bold text-[#1A1A1A] mt-2.5">Upgrade to {plan.name}</h2>
             <p className="mt-1 text-sm font-semibold text-[#6B7280]">
               {plan.currency} ${(plan.priceCents / 100).toFixed(2)} per{' '}
-              {plan.interval.toLowerCase()}
+              {displayIntervalLabel ?? plan.interval.toLowerCase()}
             </p>
           </div>
           <button
