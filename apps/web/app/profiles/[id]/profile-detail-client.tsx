@@ -29,6 +29,9 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:400
 
 interface PublicProfileResponse {
   profile?: ProfileDetail;
+  matchScore?: number;
+  matchReasons?: string[];
+  isPaidMember?: boolean;
 }
 
 interface ProfileDetail {
@@ -120,7 +123,13 @@ type LoadState =
   | { status: 'restricted' }
   | { status: 'not-found' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; profile: ProfileDetail };
+  | {
+      status: 'ready';
+      profile: ProfileDetail;
+      matchScore?: number | undefined;
+      matchReasons?: string[] | undefined;
+      isPaidMember?: boolean | undefined;
+    };
 
 // ── Photo Gallery Section ─────────────────────────────────────────────────────
 
@@ -409,7 +418,13 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
         return;
       }
 
-      setState({ status: 'ready', profile: data.profile });
+      setState({
+        status: 'ready',
+        profile: data.profile,
+        matchScore: data.matchScore,
+        matchReasons: data.matchReasons,
+        isPaidMember: data.isPaidMember,
+      });
     }
 
     setState({ status: 'loading' });
@@ -447,7 +462,68 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
     return <ProfileMessage title="Unable to load profile" message={state.message} />;
   }
 
-  return <ProfileDetailView profile={state.profile} profileId={profileId} token={token} />;
+  return (
+    <ProfileDetailView
+      profile={state.profile}
+      profileId={profileId}
+      token={token}
+      matchScore={state.matchScore}
+      matchReasons={state.matchReasons}
+      isPaidMember={state.isPaidMember}
+    />
+  );
+}
+
+// ── Compatibility Section ─────────────────────────────────────────────────────
+
+function CompatibilitySection({
+  score,
+  reasons,
+  isPaidMember,
+}: Readonly<{ score?: number | undefined; reasons?: string[] | undefined; isPaidMember?: boolean | undefined }>) {
+  if (typeof score !== 'number') return null;
+
+  return (
+    <ProfileDetailSection title="Compatibility">
+      <div className="mb-6 flex items-center gap-3">
+        <MatchScoreBadge score={score} />
+        <p className="text-sm text-[#6B7280]">Based on your partner preferences</p>
+      </div>
+
+      {isPaidMember ? (
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {reasons?.map((reason, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-[#1A1A1A]">
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-green-600" />
+              <span>{reason}</span>
+            </li>
+          ))}
+          {(!reasons || reasons.length === 0) && (
+            <li className="text-sm text-[#6B7280]">No specific match reasons identified.</li>
+          )}
+        </ul>
+      ) : (
+        <div className="relative overflow-hidden rounded-2xl bg-white p-6 shadow-inner ring-1 ring-black/5">
+          <ul className="grid gap-3 opacity-30 blur-[4px] sm:grid-cols-2 select-none">
+            {['Matches your preferred age', 'Matches your city', 'Matches your religion'].map((reason, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-[#1A1A1A]">
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-green-600" />
+                <span>{reason}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 p-4 text-center">
+            <Lock className="mb-2 size-6 text-[#7A1F2B]" />
+            <h3 className="mb-1 font-semibold text-[#1A1A1A]">Unlock Match Details</h3>
+            <p className="mb-4 text-xs text-[#6B7280]">Upgrade to Premium to see why you match with this member.</p>
+            <PremiumButton href="/member/subscription" variant="primary">
+              Upgrade to Premium
+            </PremiumButton>
+          </div>
+        </div>
+      )}
+    </ProfileDetailSection>
+  );
 }
 
 // ── Profile detail view ───────────────────────────────────────────────────────
@@ -456,7 +532,17 @@ function ProfileDetailView({
   profile,
   profileId,
   token,
-}: Readonly<{ profile: ProfileDetail; profileId: string; token: string | null }>) {
+  matchScore,
+  matchReasons,
+  isPaidMember,
+}: Readonly<{
+  profile: ProfileDetail;
+  profileId: string;
+  token: string | null;
+  matchScore?: number | undefined;
+  matchReasons?: string[] | undefined;
+  isPaidMember?: boolean | undefined;
+}>) {
   const actionProfileId = profile._id ?? profileId;
   const fullName =
     [profile.personal?.firstName, profile.personal?.lastName].filter(Boolean).join(' ') ||
@@ -518,6 +604,12 @@ function ProfileDetailView({
               </div>
             </div>
           </PremiumCard>
+
+          <CompatibilitySection
+            score={matchScore}
+            reasons={matchReasons}
+            isPaidMember={isPaidMember}
+          />
 
           <ProfileDetailSection title="About Me">
             <p>{profile.about?.aboutMe ?? 'No profile summary has been shared yet.'}</p>

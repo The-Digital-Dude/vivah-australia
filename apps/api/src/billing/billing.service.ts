@@ -81,6 +81,13 @@ async function activeSubscription(userId: Types.ObjectId) {
   }).sort({ createdAt: -1 });
 }
 
+export async function isPaidMember(userId: Types.ObjectId): Promise<boolean> {
+  const subscription = await activeSubscription(userId);
+  if (!subscription) return false;
+  const plan = await PlanModel.findOne({ _id: subscription.planId, active: true, isDeleted: false }).lean();
+  return plan?.code !== 'FREE' && !!plan;
+}
+
 export async function listPlans(includeInactive = false) {
   const plans = await PlanModel.find({
     isDeleted: false,

@@ -283,8 +283,8 @@ export function VerificationBadge({ level }: Readonly<{ level?: string | undefin
 export function MatchScoreBadge({ score }: Readonly<{ score?: number }>) {
   if (typeof score !== 'number') return null;
   return (
-    <span className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#7A1F2B]">
-      {score}% match
+    <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D6A84F]/20 to-[#7A1F2B]/10 px-3 py-1 text-xs font-bold text-[#7A1F2B] border border-[#D6A84F]/30 shadow-sm">
+      <span className="text-sm leading-none">🔥</span> {score}% Match
     </span>
   );
 }

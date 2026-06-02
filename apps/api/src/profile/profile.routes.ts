@@ -18,8 +18,10 @@ import {
   updateNotificationPreferences,
   updateOwnProfile,
 } from './profile.service.js';
-import { SubscriptionModel, PlanModel } from '../models/index.js';
+import { SubscriptionModel, PlanModel, ProfileModel } from '../models/index.js';
 import { SubscriptionStatus } from '@vivah/shared';
+import { isPaidMember } from '../billing/billing.service.js';
+import { calculateMatchScore } from '../match/match.service.js';
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -133,28 +135,7 @@ export function createProfileRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
 
-      // Resolve subscription tier
-      const now = new Date();
-      const subscription = await SubscriptionModel.findOne({
-        userId: auth.userId,
-        status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
-        startsAt: { $lte: now },
-        isDeleted: false,
-        $or: [{ endsAt: { $exists: false } }, { endsAt: { $gt: now } }],
-      })
-        .sort({ createdAt: -1 })
-        .lean();
-
-      let isPaid = false;
-      if (subscription) {
-        const plan = await PlanModel.findOne({
-          _id: subscription.planId,
-          active: true,
-          isDeleted: false,
-        }).lean();
-        isPaid = plan?.code !== 'FREE' && !!plan;
-      }
-
+      const isPaid = await isPaidMember(auth.userId);
       const result = await listProfileViewersReceived(auth.userId, isPaid);
       response.status(200).json(result);
     }),
@@ -187,7 +168,27 @@ export function createProfileRouter(config: AuthConfig): Router {
       }
 
       const profile = await getVisibleProfile(profileId, viewerId);
-      response.status(200).json({ profile });
+      
+      let matchScore: number | undefined;
+      let matchReasons: string[] | undefined;
+      let isPaid = false;
+
+      if (viewerId) {
+        const [viewerProfile, rawCandidateProfile] = await Promise.all([
+          ProfileModel.findOne({ userId: viewerId, isDeleted: false }),
+          ProfileModel.findOne({ _id: profile._id, isDeleted: false }),
+        ]);
+
+        if (viewerProfile && rawCandidateProfile && String(viewerProfile._id) !== String(rawCandidateProfile._id)) {
+          const scored = calculateMatchScore(viewerProfile, rawCandidateProfile);
+          matchScore = scored.score;
+          matchReasons = scored.reasons;
+        }
+
+        isPaid = await isPaidMember(viewerId);
+      }
+
+      response.status(200).json({ profile, matchScore, matchReasons, isPaidMember: isPaid });
     }),
   );
 
