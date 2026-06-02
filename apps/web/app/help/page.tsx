@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Mail, Phone, Search, ShieldCheck } from 'lucide-react';
 import {
   HelpCategoryCard,
   StaticPageContainer,
@@ -32,28 +31,28 @@ export default async function HelpPage() {
       description:
         'Learn how to create a premium matrimonial profile, save draft details, and configure granular privacy controls.',
       href: '/pages/about-us',
-      icon: Phone,
+      icon: 'phone',
     },
     {
       title: 'Trust & Verification Badges',
       description:
         'Understand the document upload process, verification standards, and how silver, gold, and platinum badges are approved.',
       href: '/verification-policy',
-      icon: ShieldCheck,
+      icon: 'shield',
     },
     {
       title: 'Matches & Communications',
       description:
         'Discover how compatibility scores are calculated, search filters, sending interests, and unlocking chat rooms.',
       href: '/safety',
-      icon: Search,
+      icon: 'search',
     },
     {
       title: 'Billing & Premium Invoices',
       description:
         'Get support for checkout issues, payment history downloads, refunds, coupons, and plan subscription cancellations.',
       href: '/refund-policy',
-      icon: Mail,
+      icon: 'mail',
     },
   ];
 

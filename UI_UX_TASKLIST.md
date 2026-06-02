@@ -63,22 +63,22 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 
 ## Task Status
 
-| Task   | Status   | Notes                                                                                                                                                         |
-| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FE-001 | Complete | Frontend route/component audit completed; no UI changed.                                                                                                      |
-| FE-002 | Complete | Added web-local reusable public/member premium component module.                                                                                              |
-| FE-003 | Complete | Shared public/member header, footer, container spacing, ivory background, and mobile drawer applied to non-admin layout surfaces.                             |
-| FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate.   |
-| FE-005 | Complete | Premium public profile detail page now includes hero, sticky/mobile actions, full profile sections, verification state, and locked private gallery messaging. |
+| Task   | Status   | Notes                                                                                                                                                                  |
+| ------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FE-001 | Complete | Frontend route/component audit completed; no UI changed.                                                                                                               |
+| FE-002 | Complete | Added web-local reusable public/member premium component module.                                                                                                       |
+| FE-003 | Complete | Shared public/member header, footer, container spacing, ivory background, and mobile drawer applied to non-admin layout surfaces.                                      |
+| FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate.            |
+| FE-005 | Complete | Premium public profile detail page now includes hero, sticky/mobile actions, full profile sections, verification state, and locked private gallery messaging.          |
 | FE-006 | Complete | Aligned static public pages using the premium brand layout and reusable components (StaticPageHero, FAQAccordion, ContactCard, etc.) with dynamic CMS API integration. |
-| FE-007 | Pending  | Align auth pages.                                                                                                                                             |
-| FE-008 | Pending  | Redesign member dashboard UX.                                                                                                                                 |
-| FE-009 | Pending  | Improve onboarding/profile editing UX.                                                                                                                        |
-| FE-010 | Pending  | Improve match discovery UX.                                                                                                                                   |
-| FE-011 | Pending  | Polish verification page UX.                                                                                                                                  |
-| FE-012 | Pending  | Polish notifications page UX.                                                                                                                                 |
-| FE-013 | Pending  | Polish membership/pricing page.                                                                                                                               |
-| FE-014 | Pending  | Final frontend QA and fixes.                                                                                                                                  |
+| FE-007 | Pending  | Align auth pages.                                                                                                                                                      |
+| FE-008 | Pending  | Redesign member dashboard UX.                                                                                                                                          |
+| FE-009 | Pending  | Improve onboarding/profile editing UX.                                                                                                                                 |
+| FE-010 | Pending  | Improve match discovery UX.                                                                                                                                            |
+| FE-011 | Pending  | Polish verification page UX.                                                                                                                                           |
+| FE-012 | Pending  | Polish notifications page UX.                                                                                                                                          |
+| FE-013 | Pending  | Polish membership/pricing page.                                                                                                                                        |
+| FE-014 | Pending  | Final frontend QA and fixes.                                                                                                                                           |
 
 ## Implementation Order
 

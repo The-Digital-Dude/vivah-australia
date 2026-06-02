@@ -772,13 +772,27 @@ export function HelpCategoryCard({
   title,
   description,
   href,
-  icon: IconComponent,
+  icon,
 }: Readonly<{
   title: string;
   description: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: 'phone' | 'shield' | 'search' | 'mail';
 }>) {
+  const IconComponent = (() => {
+    switch (icon) {
+      case 'phone':
+        return Phone;
+      case 'shield':
+        return ShieldCheck;
+      case 'search':
+        return Search;
+      case 'mail':
+      default:
+        return Mail;
+    }
+  })();
+
   return (
     <Link
       href={href}
