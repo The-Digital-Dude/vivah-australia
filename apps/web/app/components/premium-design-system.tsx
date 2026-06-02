@@ -777,7 +777,7 @@ export function HelpCategoryCard({
   title: string;
   description: string;
   href: string;
-  icon: 'phone' | 'shield' | 'search' | 'mail';
+  icon: 'phone' | 'shield' | 'search' | 'mail' | (string & {});
 }>) {
   const IconComponent = (() => {
     switch (icon) {

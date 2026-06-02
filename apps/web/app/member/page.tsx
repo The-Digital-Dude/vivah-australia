@@ -13,7 +13,6 @@ import {
   EmptyState,
 } from '@/app/components';
 import {
-  Bell,
   CheckCircle2,
   Heart,
   Eye,
@@ -21,17 +20,14 @@ import {
   ChevronRight,
   Loader2,
   AlertCircle,
-  X
+  X,
+  Rocket,
+  MessageSquare,
+  ShieldCheck,
+  Zap,
+  Sparkles,
+  Clock,
 } from 'lucide-react';
-
-interface NotificationItem {
-  _id: string;
-  type: string;
-  title: string;
-  body?: string;
-  readAt?: string;
-  createdAt: string;
-}
 
 interface InterestProfile {
   id: string;
@@ -84,17 +80,29 @@ interface ProfilePersonal {
   lastName?: string;
   age?: number;
   gender?: string;
+  maritalStatus?: string;
 }
 
 interface ProfileVerification {
   level: string;
   emailVerified: boolean;
   mobileVerified: boolean;
+  identityVerified: boolean;
+  addressVerified: boolean;
+  employmentVerified: boolean;
+  visaVerified: boolean;
+  policeClearanceVerified: boolean;
+  facialVerified: boolean;
 }
 
 interface ProfileData {
   id: string;
   personal?: ProfilePersonal;
+  religion?: { religion?: string; community?: string };
+  location?: { city?: string; country?: string };
+  education?: { highestQualification?: string };
+  employment?: { occupation?: string };
+  about?: { aboutMe?: string; partnerExpectations?: string };
   completionPercentage: number;
   verification?: ProfileVerification;
   stats?: ProfileStats;
@@ -102,9 +110,11 @@ interface ProfileData {
 
 interface SubscriptionPlan {
   name: string;
+  code: string;
   limits?: {
     interestsMonthly?: number;
     advancedFilters?: boolean;
+    profileBoostsMonthly?: number;
   };
 }
 
@@ -114,19 +124,46 @@ interface SubscriptionOverview {
     endsAt?: string;
   } | null;
   plan?: SubscriptionPlan | null;
+  usage?: Array<{ key: string; count: number }>;
+}
+
+interface BoostItem {
+  id: string;
+  startsAt: string;
+  endsAt: string;
+  active: boolean;
+  source: string;
+}
+
+interface ConversationItem {
+  id: string;
+  participantIds: string[];
+  otherUserId?: string;
+  otherProfile?: {
+    id: string;
+    firstName?: string;
+    age?: number;
+    city?: string;
+    occupation?: string;
+  };
+  lastMessageAt?: string;
 }
 
 export default function MemberDashboardPage() {
   const memberRequest = useMemberRequest();
-  
+
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [recommended, setRecommended] = useState<MatchCard[]>([]);
   const [recentlyActive, setRecentlyActive] = useState<MatchCard[]>([]);
   const [interests, setInterests] = useState<InterestItem[]>([]);
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionOverview | null>(null);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [boosts, setBoosts] = useState<BoostItem[]>([]);
+  const [conversations, setConversations] = useState<ConversationItem[]>([]);
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [activatingBoost, setActivatingBoost] = useState(false);
+  const [boostMessage, setBoostMessage] = useState<string | null>(null);
 
   async function loadDashboardData() {
     try {
@@ -136,7 +173,8 @@ export default function MemberDashboardPage() {
         memberRequest('/api/matches/search?limit=2&sort=RECENTLY_ACTIVE'),
         memberRequest('/api/me/interests?box=received'),
         memberRequest('/api/me/subscription'),
-        memberRequest('/api/me/notifications'),
+        memberRequest('/api/me/boosts'),
+        memberRequest('/api/me/conversations'),
       ]);
 
       const profileRes = results[0];
@@ -144,7 +182,8 @@ export default function MemberDashboardPage() {
       const activeRes = results[2];
       const interestsRes = results[3];
       const subRes = results[4];
-      const notifRes = results[5];
+      const boostsRes = results[5];
+      const convRes = results[6];
 
       if (profileRes.ok && profileRes.data) {
         setProfile((profileRes.data as { profile: ProfileData }).profile);
@@ -168,11 +207,20 @@ export default function MemberDashboardPage() {
         setSubscriptionData(subRes.data);
       }
 
-      if (notifRes.ok && notifRes.data) {
-        setNotifications((notifRes.data as { notifications: NotificationItem[] }).notifications ?? []);
+      if (boostsRes.ok && boostsRes.data) {
+        setBoosts((boostsRes.data as { boosts: BoostItem[] }).boosts ?? []);
+      }
+
+      if (convRes.ok && convRes.data) {
+        setConversations(
+          (convRes.data as { conversations: ConversationItem[] }).conversations ?? [],
+        );
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'An unexpected error occurred while loading your dashboard.';
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'An unexpected error occurred while loading your dashboard.';
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -188,29 +236,50 @@ export default function MemberDashboardPage() {
       method: 'PATCH',
       body: { action },
     });
-    
+
     if (result.ok) {
       const results = await Promise.all([
         memberRequest('/api/me/interests?box=received'),
-        memberRequest('/api/me/notifications'),
         memberRequest('/api/me/profile'),
+        memberRequest('/api/me/conversations'),
       ]);
 
       const interestsRes = results[0];
-      const notifRes = results[1];
-      const profileRes = results[2];
-      
+      const profileRes = results[1];
+      const convRes = results[2];
+
       if (interestsRes.ok && interestsRes.data) {
         setInterests((interestsRes.data as { interests: InterestItem[] }).interests ?? []);
-      }
-      if (notifRes.ok && notifRes.data) {
-        setNotifications((notifRes.data as { notifications: NotificationItem[] }).notifications ?? []);
       }
       if (profileRes.ok && profileRes.data) {
         setProfile((profileRes.data as { profile: ProfileData }).profile);
       }
+      if (convRes.ok && convRes.data) {
+        setConversations(
+          (convRes.data as { conversations: ConversationItem[] }).conversations ?? [],
+        );
+      }
     } else {
       setErrorMessage(result.message);
+    }
+  }
+
+  async function handleActivateBoost() {
+    setActivatingBoost(true);
+    setBoostMessage(null);
+    try {
+      const result = await memberRequest('/api/me/boosts', {
+        method: 'POST',
+        body: { durationHours: 24 },
+      });
+      setBoostMessage(result.message);
+      if (result.ok) {
+        await loadDashboardData();
+      }
+    } catch {
+      setBoostMessage('Failed to activate profile boost. Please try again.');
+    } finally {
+      setActivatingBoost(false);
     }
   }
 
@@ -228,321 +297,621 @@ export default function MemberDashboardPage() {
     );
   }
 
+  // Active boost calculations
+  const activeBoost = boosts.find((b) => new Date(b.endsAt) > new Date() && b.active);
+  const isBoosted = !!activeBoost;
+  const activeBoostEndsAt = activeBoost ? new Date(activeBoost.endsAt) : null;
+  const boostHoursLeft = activeBoostEndsAt
+    ? Math.ceil((activeBoostEndsAt.getTime() - Date.now()) / (1000 * 60 * 60))
+    : 0;
+
+  // Boost allowance calculations
+  const boostLimit = subscriptionData?.plan?.limits?.profileBoostsMonthly ?? 0;
+  const boostUsed =
+    subscriptionData?.usage?.find((u) => u.key === 'profileBoostsMonthly')?.count ?? 0;
+  const boostsRemaining = boostLimit === -1 ? Infinity : Math.max(0, boostLimit - boostUsed);
+
+  // Interest limit usage calculations
+  const interestLimit = subscriptionData?.plan?.limits?.interestsMonthly ?? 5;
+  const interestUsed =
+    subscriptionData?.usage?.find((u) => u.key === 'interestsMonthly')?.count ?? 0;
+
+  // Completion Checklist calculations
+  const missingSteps = [];
+  if (!profile?.personal?.lastName) {
+    missingSteps.push({ label: 'Add your last name', path: '/member/profile/edit' });
+  }
+  if (!profile?.personal?.maritalStatus) {
+    missingSteps.push({ label: 'Set your marital status', path: '/member/profile/edit' });
+  }
+  if (!profile?.religion?.religion) {
+    missingSteps.push({ label: 'Select your religion', path: '/member/profile/edit' });
+  }
+  if (!profile?.religion?.community) {
+    missingSteps.push({ label: 'Select your community background', path: '/member/profile/edit' });
+  }
+  if (!profile?.location?.city) {
+    missingSteps.push({ label: 'Add your current city', path: '/member/profile/edit' });
+  }
+  if (!profile?.education?.highestQualification) {
+    missingSteps.push({
+      label: 'Add your educational qualification',
+      path: '/member/profile/edit',
+    });
+  }
+  if (!profile?.employment?.occupation) {
+    missingSteps.push({ label: 'Specify your occupation', path: '/member/profile/edit' });
+  }
+  if (!profile?.about?.aboutMe) {
+    missingSteps.push({ label: 'Write a warm "About Me" section', path: '/member/profile/edit' });
+  }
+  if (!profile?.about?.partnerExpectations) {
+    missingSteps.push({ label: 'Specify your partner expectations', path: '/member/profile/edit' });
+  }
+  if (!profile?.verification?.mobileVerified) {
+    missingSteps.push({ label: 'Verify your mobile number via OTP', path: '/member/verification' });
+  }
+
+  // Circular progress calculations
+  const completionPercentage = profile?.completionPercentage ?? 0;
+  const radius = 36;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (completionPercentage / 100) * circumference;
+
   return (
     <MemberShell
       title="Dashboard"
-      subtitle="Start from your profile, matches, messages, and account updates."
+      subtitle="Overview of your matrimonial status, dynamic interests, and verified suggestions."
     >
       {errorMessage ? (
-        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 animate-fade-in">
           <AlertCircle className="size-5 shrink-0" />
           <p className="font-semibold">{errorMessage}</p>
         </div>
       ) : null}
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Welcome Card */}
-        <PremiumCard className="relative overflow-hidden bg-gradient-to-br from-[#7A1F2B] via-[#651925] to-[#4A0A14] p-6 text-white shadow-xl md:col-span-2">
-          <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
-          <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Matrimonial Dashboard</span>
-              <h1 className="mt-2 text-3xl font-bold text-[#FCFAF7] md:text-4xl">
-                Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
-              </h1>
-              <p className="mt-2 text-sm leading-relaxed text-[#FCFAF7]/80 max-w-xl">
-                Welcome to your matrimonial dashboard. Discover matches, manage dynamic interests, and follow up with certified members to begin your sacred marriage journey.
+      {/* Grid wrapper for entire page */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Main Content Area (Spans 2 columns on desktop) */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Welcome Banner */}
+          <PremiumCard className="relative overflow-hidden bg-gradient-to-br from-[#7A1F2B] via-[#651925] to-[#4A0A14] p-6 text-white shadow-xl">
+            <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+            <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+                  Matrimonial Hub
+                </span>
+                <h1 className="mt-2 text-3xl font-bold text-[#FCFAF7] md:text-4xl">
+                  Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
+                </h1>
+                <p className="mt-2 text-sm leading-relaxed text-[#FCFAF7]/80 max-w-xl">
+                  Manage your matrimonial activity in real time. Connect with genuine, verified
+                  South Asian singles who are committed to a serious marriage journey in Australia.
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
+                  <Eye className="mx-auto size-5 text-[#D4AF37]" />
+                  <span className="mt-2 block text-2xl font-bold">
+                    {profile?.stats?.profileViews ?? 0}
+                  </span>
+                  <span className="text-xs text-[#FCFAF7]/70">Profile Views</span>
+                </div>
+                <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
+                  <Heart className="mx-auto size-5 text-[#D4AF37]" />
+                  <span className="mt-2 block text-2xl font-bold">
+                    {profile?.stats?.interestsReceived ?? 0}
+                  </span>
+                  <span className="text-xs text-[#FCFAF7]/70">Interests Recd</span>
+                </div>
+              </div>
+            </div>
+          </PremiumCard>
+
+          {/* Pending Actions & Conversations Grid */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Received Interests Widget */}
+            <PremiumCard className="flex flex-col justify-between p-5 min-h-[300px]">
+              <div>
+                <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
+                  <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
+                    <Heart className="size-5 text-[#7A1F2B]" /> Interests Received
+                  </h3>
+                  {interests.filter((i) => i.status === 'PENDING').length > 0 && (
+                    <span className="rounded-full bg-[#F8E8E8] px-2.5 py-0.5 text-xs font-bold text-[#7A1F2B]">
+                      {interests.filter((i) => i.status === 'PENDING').length} Pending
+                    </span>
+                  )}
+                </div>
+
+                <div className="divide-y divide-[#7A1F2B]/5">
+                  {interests.length > 0 ? (
+                    interests.slice(0, 3).map((interest) => {
+                      const sender = interest.sender;
+                      return (
+                        <div key={interest.id} className="py-3 first:pt-0 last:pb-0 animate-hover">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <Link
+                                href={`/profiles/${sender?.id}`}
+                                className="font-semibold text-[#1A1A1A] hover:text-[#7A1F2B] hover:underline text-sm truncate block"
+                              >
+                                {sender?.firstName ?? 'Member'}, {sender?.age ?? 'Age hidden'}
+                              </Link>
+                              <p className="text-xs text-[#6B7280] mt-0.5 truncate">
+                                {[sender?.city, sender?.occupation].filter(Boolean).join(' | ') ||
+                                  'Australia'}
+                              </p>
+                            </div>
+                            {interest.status === 'PENDING' ? (
+                              <div className="flex gap-1.5 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => void handleInterestResponse(interest.id, 'ACCEPT')}
+                                  className="rounded-full bg-[#7A1F2B]/10 p-2 text-[#7A1F2B] hover:bg-[#7A1F2B] hover:text-white transition flex items-center justify-center"
+                                  title="Accept Interest"
+                                >
+                                  <CheckCircle2 className="size-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void handleInterestResponse(interest.id, 'REJECT')}
+                                  className="rounded-full bg-[#6B7280]/10 p-2 text-[#6B7280] hover:bg-[#6B7280] hover:text-white transition flex items-center justify-center"
+                                  title="Decline Interest"
+                                >
+                                  <X className="size-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-xs font-bold shrink-0 rounded-full px-2.5 py-0.5 bg-[#FCFAF7] text-[#6B7280] border border-[#7A1F2B]/5 uppercase tracking-wider text-[9px]">
+                                {interest.status.toLowerCase()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="py-8 text-center">
+                      <Heart className="size-7 text-[#7A1F2B]/35 mx-auto mb-2" />
+                      <p className="text-xs text-[#6B7280] max-w-[200px] mx-auto">
+                        No received interests yet. Complete your profile to attract other
+                        matrimonial members.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <PremiumButton
+                href="/member/interests"
+                variant="ghost"
+                className="w-full mt-4 min-h-[38px]"
+              >
+                Manage Interests
+              </PremiumButton>
+            </PremiumCard>
+
+            {/* Recent Conversations Widget */}
+            <PremiumCard className="flex flex-col justify-between p-5 min-h-[300px]">
+              <div>
+                <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
+                  <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
+                    <MessageSquare className="size-5 text-[#7A1F2B]" /> Active Chats
+                  </h3>
+                  {conversations.length > 0 && (
+                    <span className="rounded-full bg-[#F8E8E8] px-2.5 py-0.5 text-xs font-bold text-[#7A1F2B]">
+                      {conversations.length} Active
+                    </span>
+                  )}
+                </div>
+
+                <div className="divide-y divide-[#7A1F2B]/5">
+                  {conversations.length > 0 ? (
+                    conversations.slice(0, 3).map((conv) => {
+                      const other = conv.otherProfile;
+                      const initial = (other?.firstName ?? 'V').slice(0, 1).toUpperCase();
+                      return (
+                        <div key={conv.id} className="py-3 first:pt-0 last:pb-0">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="size-8 rounded-full bg-[#F8E8E8] text-[#7A1F2B] font-bold text-sm flex items-center justify-center shrink-0 border border-[#7A1F2B]/10">
+                                {initial}
+                              </div>
+                              <div className="min-w-0">
+                                <Link
+                                  href={`/member/messages`}
+                                  className="font-semibold text-[#1A1A1A] hover:text-[#7A1F2B] hover:underline text-sm truncate block"
+                                >
+                                  {other?.firstName ?? 'Member'}
+                                </Link>
+                                <p className="text-xs text-[#6B7280] truncate mt-0.5">
+                                  {other?.occupation ? `${other.occupation} | ` : ''}
+                                  {other?.city ?? 'Australia'}
+                                </p>
+                              </div>
+                            </div>
+                            <Link
+                              href="/member/messages"
+                              className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B] hover:bg-[#F8E8E8] shrink-0 transition"
+                              title="Go to messages"
+                            >
+                              <ChevronRight className="size-4" />
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="py-8 text-center">
+                      <MessageSquare className="size-7 text-[#7A1F2B]/35 mx-auto mb-2" />
+                      <p className="text-xs text-[#6B7280] max-w-[200px] mx-auto">
+                        No active conversations yet. Accept received interests to start chatting.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <PremiumButton
+                href="/member/messages"
+                variant="ghost"
+                className="w-full mt-4 min-h-[38px]"
+              >
+                Open Inbox
+              </PremiumButton>
+            </PremiumCard>
+          </div>
+
+          {/* Discovery: Recommended Matches */}
+          <div className="space-y-6">
+            <SectionHeader
+              title="Recommended Matches"
+              subtitle="Handpicked profiles matching your specific partner preferences"
+              action={
+                <Link
+                  href="/member/matches"
+                  className="text-sm font-semibold text-[#7A1F2B] hover:text-[#651925] flex items-center gap-1"
+                >
+                  Explore all <ChevronRight className="size-4" />
+                </Link>
+              }
+            />
+            <div className="grid gap-6 md:grid-cols-2">
+              {recommended.length > 0 ? (
+                recommended.map((match) => (
+                  <ProfileMatchCard
+                    key={match.id}
+                    profile={{
+                      id: match.id,
+                      name: match.firstName ?? 'Member',
+                      age: match.age,
+                      city: match.city || match.state || match.country || 'Australia',
+                      community: match.community,
+                      education: match.education,
+                      matchScore: match.matchScore,
+                      occupation: match.occupation,
+                      photoUrl: match.photoUrl,
+                      religion: match.religion,
+                      verificationLevel: match.verificationLevel,
+                      slug: match.id,
+                    }}
+                  />
+                ))
+              ) : (
+                <div className="md:col-span-2">
+                  <EmptyState title="No custom recommendations yet">
+                    Complete your partner preferences in edit profile to get matches tailored for
+                    you.
+                  </EmptyState>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Discovery: Recently Active */}
+          <div className="space-y-6">
+            <SectionHeader
+              title="Recently Active Members"
+              subtitle="Serious matrimonial members active within the last 30 days"
+              action={
+                <Link
+                  href="/member/matches"
+                  className="text-sm font-semibold text-[#7A1F2B] hover:text-[#651925] flex items-center gap-1"
+                >
+                  Search all <ChevronRight className="size-4" />
+                </Link>
+              }
+            />
+            <div className="grid gap-6 md:grid-cols-2">
+              {recentlyActive.length > 0 ? (
+                recentlyActive.map((match) => (
+                  <ProfileMatchCard
+                    key={match.id}
+                    profile={{
+                      id: match.id,
+                      name: match.firstName ?? 'Member',
+                      age: match.age,
+                      city: match.city || match.state || match.country || 'Australia',
+                      community: match.community,
+                      education: match.education,
+                      matchScore: match.matchScore,
+                      occupation: match.occupation,
+                      photoUrl: match.photoUrl,
+                      religion: match.religion,
+                      verificationLevel: match.verificationLevel,
+                      slug: match.id,
+                    }}
+                  />
+                ))
+              ) : (
+                <div className="md:col-span-2">
+                  <EmptyState title="No recently active members found">
+                    Check back later to discover newly active South Asian matrimonial profiles in
+                    Australia.
+                  </EmptyState>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar (Trust & Conversion Hub - 1 column) */}
+        <div className="space-y-6">
+          {/* Profile Strength Checklist */}
+          <PremiumCard className="p-5">
+            <h3 className="font-semibold text-[#1A1A1A] border-b border-[#7A1F2B]/10 pb-3">
+              Profile Strength
+            </h3>
+
+            <div className="flex flex-col items-center mt-5">
+              {/* Circular SVG Progress */}
+              <div className="relative size-24 flex items-center justify-center">
+                <svg className="size-24 transform -rotate-90">
+                  <circle
+                    cx="48"
+                    cy="48"
+                    r={radius}
+                    className="stroke-[#F8E8E8]"
+                    strokeWidth="7"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="48"
+                    cy="48"
+                    r={radius}
+                    className="stroke-[#7A1F2B] transition-all duration-500 ease-out"
+                    strokeWidth="7"
+                    fill="transparent"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-[#7A1F2B]">{completionPercentage}%</span>
+                  <span className="text-[8px] font-bold text-[#6B7280] uppercase tracking-wider">
+                    Complete
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs text-[#6B7280] text-center mt-4 max-w-[200px] leading-relaxed">
+                Complete profiles get 3x more visibility and higher verification scores.
               </p>
             </div>
-            <div className="flex gap-4">
-              <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
-                <Eye className="mx-auto size-5 text-[#D4AF37]" />
-                <span className="mt-2 block text-2xl font-bold">{profile?.stats?.profileViews ?? 0}</span>
-                <span className="text-xs text-[#FCFAF7]/70">Profile Views</span>
-              </div>
-              <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
-                <Heart className="mx-auto size-5 text-[#D4AF37]" />
-                <span className="mt-2 block text-2xl font-bold">{profile?.stats?.interestsReceived ?? 0}</span>
-                <span className="text-xs text-[#FCFAF7]/70">Interests Recd</span>
-              </div>
-            </div>
-          </div>
-        </PremiumCard>
 
-        {/* Profile Completion Card */}
-        <PremiumCard className="flex flex-col justify-between gap-4">
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-[#1A1A1A]">Profile Completion</h3>
-              <span className="text-sm font-bold text-[#7A1F2B]">{profile?.completionPercentage ?? 0}%</span>
-            </div>
-            <div className="mt-3 h-2.5 w-full rounded-full bg-[#F8E8E8]">
-              <div
-                className="h-2.5 rounded-full bg-[#7A1F2B] transition-all duration-500"
-                style={{ width: `${profile?.completionPercentage ?? 0}%` }}
-              />
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-[#6B7280]">
-              Completed matrimonial profiles are shown 3x more frequently in matchmaking suggestions.
-            </p>
-          </div>
-          <PremiumButton href="/member/profile/edit" variant="secondary" className="w-full">
-            Complete Profile
-          </PremiumButton>
-        </PremiumCard>
+            {/* Checklist items */}
+            {missingSteps.length > 0 ? (
+              <div className="mt-5 space-y-2 bg-[#FCFAF7] p-3.5 rounded-2xl border border-[#7A1F2B]/5">
+                <p className="text-[10px] font-bold text-[#7A1F2B] uppercase tracking-wider mb-2">
+                  Next steps to 100%:
+                </p>
+                {missingSteps.slice(0, 3).map((step, idx) => (
+                  <Link
+                    key={idx}
+                    href={step.path}
+                    className="flex items-center gap-2 text-xs font-semibold text-[#1A1A1A] hover:text-[#7A1F2B] transition py-1 group"
+                  >
+                    <div className="size-1.5 rounded-full bg-[#D4AF37] shrink-0 group-hover:scale-125 transition" />
+                    <span className="truncate flex-1">{step.label}</span>
+                    <ChevronRight className="size-3.5 opacity-0 group-hover:opacity-100 transition" />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-5 flex items-center gap-2 bg-green-50 text-green-800 p-3 rounded-2xl text-xs font-semibold border border-green-200">
+                <CheckCircle2 className="size-4 text-green-600 shrink-0" />
+                <span>Your profile is fully complete. Great job.</span>
+              </div>
+            )}
 
-        {/* Verification Status Card */}
-        <PremiumCard className="flex flex-col justify-between gap-4">
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-[#1A1A1A]">Trust Verification</h3>
+            <PremiumButton href="/member/profile/edit" variant="secondary" className="w-full mt-5">
+              Complete Profile
+            </PremiumButton>
+          </PremiumCard>
+
+          {/* Trust Verification Hub */}
+          <PremiumCard className="p-5">
+            <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
+              <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
+                <ShieldCheck className="size-5 text-[#7A1F2B]" /> Trust Verification
+              </h3>
               <VerificationBadge level={profile?.verification?.level} />
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-[#6B7280]">
-              A verified profile secures high-trust badge indicators, validating your identity, location, and residency.
-            </p>
-          </div>
-          <PremiumButton href="/member/verification" variant="gold" className="w-full">
-            Get Verified
-          </PremiumButton>
-        </PremiumCard>
-      </div>
 
-      {/* Discovery Grids */}
-      <div className="mt-10 grid gap-10 md:grid-cols-2">
-        {/* Recommended Matches */}
-        <div className="space-y-6">
-          <SectionHeader
-            title="Recommended Matches"
-            subtitle="Handpicked profiles matching your partner criteria"
-            action={
-              <Link href="/member/matches" className="text-sm font-semibold text-[#7A1F2B] hover:text-[#651925] flex items-center gap-1">
-                Explore all <ChevronRight className="size-4" />
-              </Link>
-            }
-          />
-          <div className="grid gap-4">
-            {recommended.length > 0 ? (
-              recommended.map((match) => (
-                <ProfileMatchCard
-                  key={match.id}
-                  profile={{
-                    id: match.id,
-                    name: match.firstName ?? 'Member',
-                    age: match.age,
-                    city: match.city || match.state || match.country || 'Australia',
-                    community: match.community,
-                    education: match.education,
-                    matchScore: match.matchScore,
-                    occupation: match.occupation,
-                    photoUrl: match.photoUrl,
-                    religion: match.religion,
-                    verificationLevel: match.verificationLevel,
-                    slug: match.id,
-                  }}
-                />
-              ))
-            ) : (
-              <EmptyState title="No recommendations yet">
-                Ensure your preferences are completed to receive custom recommendations.
-              </EmptyState>
-            )}
-          </div>
-        </div>
-
-        {/* Recently Active */}
-        <div className="space-y-6">
-          <SectionHeader
-            title="Recently Active"
-            subtitle="Matrimonial members active in the last 30 days"
-            action={
-              <Link href="/member/matches" className="text-sm font-semibold text-[#7A1F2B] hover:text-[#651925] flex items-center gap-1">
-                Search more <ChevronRight className="size-4" />
-              </Link>
-            }
-          />
-          <div className="grid gap-4">
-            {recentlyActive.length > 0 ? (
-              recentlyActive.map((match) => (
-                <ProfileMatchCard
-                  key={match.id}
-                  profile={{
-                    id: match.id,
-                    name: match.firstName ?? 'Member',
-                    age: match.age,
-                    city: match.city || match.state || match.country || 'Australia',
-                    community: match.community,
-                    education: match.education,
-                    matchScore: match.matchScore,
-                    occupation: match.occupation,
-                    photoUrl: match.photoUrl,
-                    religion: match.religion,
-                    verificationLevel: match.verificationLevel,
-                    slug: match.id,
-                  }}
-                />
-              ))
-            ) : (
-              <EmptyState title="No active members found">
-                Check back later to discover new Australia matrimonial users.
-              </EmptyState>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Relations & Premium Tiers */}
-      <div className="mt-10 grid gap-6 lg:grid-cols-3">
-        {/* Interests Received */}
-        <PremiumCard className="flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3">
-              <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                <Heart className="size-5 text-[#7A1F2B]" /> Interests Received
-              </h3>
-              {interests.length > 0 && (
-                <span className="rounded-full bg-[#F8E8E8] px-2.5 py-0.5 text-xs font-bold text-[#7A1F2B]">
-                  {interests.filter((i) => i.status === 'PENDING').length} Pending
+            <div className="space-y-3 mt-4">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-[#6B7280]">Email ID Verified:</span>
+                <span className="font-semibold text-green-700 flex items-center gap-1">
+                  <CheckCircle2 className="size-3.5" /> Yes
                 </span>
-              )}
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-[#6B7280]">Mobile OTP Verified:</span>
+                {profile?.verification?.mobileVerified ? (
+                  <span className="font-semibold text-green-700 flex items-center gap-1">
+                    <CheckCircle2 className="size-3.5" /> Yes
+                  </span>
+                ) : (
+                  <Link
+                    href="/member/verification"
+                    className="text-[#7A1F2B] font-semibold hover:underline"
+                  >
+                    Verify now
+                  </Link>
+                )}
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-[#6B7280]">ID & Residency:</span>
+                {profile?.verification?.identityVerified ? (
+                  <span className="font-semibold text-green-700 flex items-center gap-1">
+                    <CheckCircle2 className="size-3.5" /> Yes
+                  </span>
+                ) : (
+                  <Link
+                    href="/member/verification"
+                    className="text-[#7A1F2B] font-semibold hover:underline"
+                  >
+                    Submit document
+                  </Link>
+                )}
+              </div>
             </div>
 
-            <div className="mt-4 divide-y divide-[#7A1F2B]/5">
-              {interests.length > 0 ? (
-                interests.slice(0, 3).map((interest) => {
-                  const sender = interest.sender;
-                  return (
-                    <div key={interest.id} className="py-3 first:pt-0 last:pb-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <Link
-                            href={`/profiles/${sender?.id}`}
-                            className="font-semibold text-[#1A1A1A] hover:text-[#7A1F2B] hover:underline text-sm"
-                          >
-                            {sender?.firstName ?? 'Member'}, {sender?.age ?? 'Age hidden'}
-                          </Link>
-                          <p className="text-xs text-[#6B7280] mt-0.5">
-                            {[sender?.city, sender?.occupation].filter(Boolean).join(' | ') || 'Australia'}
-                          </p>
-                        </div>
-                        {interest.status === 'PENDING' ? (
-                          <div className="flex gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => void handleInterestResponse(interest.id, 'ACCEPT')}
-                              className="rounded-full bg-[#7A1F2B]/10 p-1.5 text-[#7A1F2B] hover:bg-[#7A1F2B] hover:text-white transition flex items-center justify-center animate-hover"
-                              title="Accept"
-                            >
-                              <CheckCircle2 className="size-4" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void handleInterestResponse(interest.id, 'REJECT')}
-                              className="rounded-full bg-[#6B7280]/10 p-1.5 text-[#6B7280] hover:bg-[#6B7280] hover:text-white transition flex items-center justify-center animate-hover"
-                              title="Decline"
-                            >
-                              <X className="size-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs font-semibold capitalize text-[#6B7280]">
-                            {interest.status.toLowerCase()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="py-6 text-center text-xs text-[#6B7280]">
-                  No received interests yet. Complete your profile to attract more attention.
+            <p className="text-[10px] text-[#6B7280] leading-relaxed mt-4 bg-[#FCFAF7] p-3 rounded-2xl border border-[#7A1F2B]/5">
+              Secure a verified gold badge to gain trust. Verification filters allow serious members
+              to find you easily.
+            </p>
+
+            <PremiumButton href="/member/verification" variant="gold" className="w-full mt-4">
+              Get Verified
+            </PremiumButton>
+          </PremiumCard>
+
+          {/* Profile Booster widget */}
+          <PremiumCard className="p-5 relative overflow-hidden">
+            {isBoosted && (
+              <div className="absolute right-0 top-0 bg-[#D4AF37] text-[#7A1F2B] px-3 py-1 text-[9px] font-bold uppercase tracking-wider rounded-bl-2xl">
+                Boosted
+              </div>
+            )}
+
+            <h3 className="font-semibold text-[#1A1A1A] border-b border-[#7A1F2B]/10 pb-3 flex items-center gap-2">
+              <Rocket className="size-5 text-[#D4AF37]" /> Profile Booster
+            </h3>
+
+            {isBoosted ? (
+              <div className="mt-4 space-y-3">
+                <div className="bg-[#FCFAF7] p-4 rounded-2xl border border-[#D4AF37]/30 flex items-start gap-3">
+                  <Sparkles className="size-5 text-[#D4AF37] shrink-0 mt-0.5 animate-pulse" />
+                  <div>
+                    <h4 className="text-xs font-bold text-[#7A1F2B] uppercase tracking-wider">
+                      Active Boost
+                    </h4>
+                    <p className="text-[11px] text-[#6B7280] mt-1 leading-relaxed">
+                      Your profile is placed at the top of matrimonial searches for Australian
+                      singles.
+                    </p>
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#D4AF37] mt-3">
+                      <Clock className="size-3.5" /> {boostHoursLeft} hours remaining
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 space-y-3">
+                <p className="text-xs leading-relaxed text-[#6B7280]">
+                  Boost your matrimonial profile to get **3x higher search rankings** and priority
+                  featured recommendation slots.
                 </p>
-              )}
-            </div>
-          </div>
-          <PremiumButton href="/member/interests" variant="ghost" className="w-full mt-4 min-h-[38px]">
-            Manage Interests
-          </PremiumButton>
-        </PremiumCard>
+                <div className="bg-[#FCFAF7] p-3 rounded-2xl border border-[#7A1F2B]/5 text-xs text-[#1A1A1A] font-semibold flex items-center gap-2">
+                  <Zap className="size-4 text-[#D4AF37]" />
+                  <span>
+                    {boostsRemaining === Infinity ? 'Unlimited' : boostsRemaining} boost credits
+                    available
+                  </span>
+                </div>
+              </div>
+            )}
 
-        {/* Membership Status */}
-        <PremiumCard className="flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3">
+            <div className="mt-4">
+              <PremiumButton
+                onClick={() => {
+                  void handleActivateBoost();
+                }}
+                disabled={activatingBoost || boostsRemaining === 0 || isBoosted}
+                variant="primary"
+                className="w-full"
+              >
+                {activatingBoost ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" /> Activating...
+                  </>
+                ) : isBoosted ? (
+                  'Currently Boosted'
+                ) : boostsRemaining > 0 ? (
+                  'Activate 24h Boost'
+                ) : (
+                  'Buy Boost Credits'
+                )}
+              </PremiumButton>
+            </div>
+
+            {boostMessage ? (
+              <p className="mt-3 text-xs font-semibold text-[#7A1F2B] text-center animate-fade-in">
+                {boostMessage}
+              </p>
+            ) : null}
+          </PremiumCard>
+
+          {/* Membership & Limit Usage status */}
+          <PremiumCard className="p-5">
+            <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3 mb-4">
               <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                <Crown className="size-5 text-[#D4AF37]" /> Membership Tier
+                <Crown className="size-5 text-[#D4AF37]" /> Member Tier
               </h3>
-              <span className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#7A1F2B]">
+              <span className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#7A1F2B] uppercase tracking-wider">
                 {subscriptionData?.plan?.name ?? 'Free Tier'}
               </span>
             </div>
 
-            <div className="mt-4 space-y-3">
-              <p className="text-xs text-[#6B7280]">
-                Active Tier: <span className="font-semibold text-[#1A1A1A]">{subscriptionData?.plan?.name ?? 'Free Plan'}</span>
-              </p>
-              {subscriptionData?.plan?.limits ? (
-                <div className="space-y-1.5 bg-[#FCFAF7] p-3 rounded-2xl border border-[#7A1F2B]/5">
-                  <p className="text-xs font-medium text-[#1A1A1A]">Monthly Allowances:</p>
-                  <div className="flex justify-between text-[11px] text-[#6B7280] mt-1">
-                    <span>Monthly Interests:</span>
-                    <span className="font-semibold text-[#1A1A1A]">
-                      {subscriptionData.plan.limits.interestsMonthly === -1 ? 'Unlimited' : subscriptionData.plan.limits.interestsMonthly ?? 5}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-[11px] text-[#6B7280]">
-                    <span>Search Filters:</span>
-                    <span className="font-semibold text-[#1A1A1A]">
-                      {subscriptionData.plan.limits.advancedFilters ? 'Premium' : 'Standard'}
-                    </span>
-                  </div>
+            <div className="mt-4 space-y-4">
+              {/* Interest quota limit indicator */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-[#6B7280]">Interests sent:</span>
+                  <span className="text-[#1A1A1A]">
+                    {interestUsed} / {interestLimit === -1 ? 'Unlimited' : interestLimit}
+                  </span>
                 </div>
-              ) : (
-                <p className="text-xs text-[#6B7280]">Upgrade your membership to gain access to premium advanced filters and unlimited interests.</p>
-              )}
-            </div>
-          </div>
-          <PremiumButton href="/member/subscription" variant="primary" className="w-full mt-4 min-h-[38px]">
-            Manage Membership
-          </PremiumButton>
-        </PremiumCard>
+                <div className="h-2 w-full rounded-full bg-[#F8E8E8]">
+                  <div
+                    className="h-2 rounded-full bg-[#7A1F2B] transition-all duration-500"
+                    style={{
+                      width: `${interestLimit === -1 ? 0 : Math.min(100, (interestUsed / interestLimit) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
 
-        {/* Notifications Preview */}
-        <PremiumCard className="flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-[#7A1F2B]/10 pb-3">
-              <h3 className="font-semibold text-[#1A1A1A] flex items-center gap-2">
-                <Bell className="size-5 text-[#7A1F2B]" /> Notifications
-              </h3>
-              {notifications.filter((n) => !n.readAt).length > 0 && (
-                <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white">
-                  {notifications.filter((n) => !n.readAt).length} New
+              {/* Search capability indicator */}
+              <div className="flex justify-between items-center text-xs bg-[#FCFAF7] p-3 rounded-2xl border border-[#7A1F2B]/5">
+                <span className="text-[#6B7280]">Search Level:</span>
+                <span className="font-bold text-[#7A1F2B]">
+                  {subscriptionData?.plan?.limits?.advancedFilters
+                    ? 'Advanced Filters'
+                    : 'Standard Filters'}
                 </span>
-              )}
+              </div>
             </div>
 
-            <div className="mt-4 divide-y divide-[#7A1F2B]/5">
-              {notifications.length > 0 ? (
-                notifications.slice(0, 3).map((notif) => (
-                  <div key={notif._id} className="py-2.5 first:pt-0 last:pb-0">
-                    <p className="text-xs font-semibold text-[#1A1A1A] truncate">{notif.title}</p>
-                    <p className="text-[11px] text-[#6B7280] truncate mt-0.5">{notif.body}</p>
-                    <span className="text-[9px] text-[#6B7280] block mt-1">
-                      {new Date(notif.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="py-6 text-center text-xs text-[#6B7280]">
-                  No recent notifications.
-                </p>
-              )}
-            </div>
-          </div>
-          <PremiumButton href="/member/notifications" variant="ghost" className="w-full mt-4 min-h-[38px]">
-            View All Notifications
-          </PremiumButton>
-        </PremiumCard>
+            <PremiumButton href="/member/subscription" variant="secondary" className="w-full mt-5">
+              Manage Membership
+            </PremiumButton>
+          </PremiumCard>
+        </div>
       </div>
     </MemberShell>
   );

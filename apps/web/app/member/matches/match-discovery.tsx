@@ -1,9 +1,23 @@
 'use client';
 
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Bookmark, Heart, Search, ShieldCheck, SlidersHorizontal, Sparkles } from 'lucide-react';
+import {
+  Bookmark,
+  Heart,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Clock,
+  UserPlus,
+} from 'lucide-react';
 import { profileSearchQuerySchema, savedSearchCreateSchema } from '@vivah/shared';
-import { ProfileMatchCard } from '@/app/components';
+import {
+  ProfileMatchCard,
+  FilterDrawer,
+  PremiumButton,
+  PremiumCard,
+  EmptyState,
+} from '@/app/components';
 import { csvList, optionalNumber, optionalString, useMemberRequest } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
 
@@ -58,6 +72,10 @@ const defaultFilters = {
   sort: 'RECOMMENDED',
 };
 
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
+
 export default function MatchDiscovery() {
   const memberRequest = useMemberRequest();
   const [message, setMessage] = useState<string | null>(null);
@@ -66,6 +84,10 @@ export default function MatchDiscovery() {
   const [recommended, setRecommended] = useState<MatchCard[]>([]);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [currentQuery, setCurrentQuery] = useState<Record<string, unknown>>(defaultFilters);
+  const [activeTab, setActiveTab] = useState<
+    'search' | 'recommended' | 'active' | 'newest' | 'saved'
+  >('search');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const activeChips = useMemo(() => {
     if (!search?.pagination) {
@@ -81,7 +103,10 @@ export default function MatchDiscovery() {
   }, [search]);
 
   async function loadRecommended() {
-    const result = await memberRequest('/api/matches/recommended?limit=12');
+    setLoading(true);
+    setMessage(null);
+    const result = await memberRequest('/api/matches/recommended?limit=24');
+    setLoading(false);
 
     if (!result.ok) {
       setMessage(result.message);
@@ -93,7 +118,10 @@ export default function MatchDiscovery() {
   }
 
   async function loadSavedSearches() {
+    setLoading(true);
+    setMessage(null);
     const result = await memberRequest('/api/matches/saved-searches');
+    setLoading(false);
     if (result.ok) {
       setSavedSearches((result.data as { savedSearches?: SavedSearch[] }).savedSearches ?? []);
     }
@@ -201,81 +229,206 @@ export default function MatchDiscovery() {
     await runSearch(parsed.data);
   }
 
+  const renderFilterForm = (isMobile = false) => {
+    return (
+      <form
+        onSubmit={(event) => {
+          if (isMobile) {
+            setDrawerOpen(false);
+          }
+          void submit(event);
+        }}
+        className="grid gap-4"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">Discovery</p>
+            <h2 className="mt-1 text-lg font-semibold text-[#1A1A1A]">Search Filters</h2>
+          </div>
+          {!isMobile && <SlidersHorizontal className="size-5 text-[#D6A84F]" />}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <Select label="Looking for" name="gender" options={['FEMALE', 'MALE']} />
+          <Select
+            label="Sort"
+            name="sort"
+            options={['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED']}
+            defaultValue="RECOMMENDED"
+          />
+          <Field label="Age min" name="ageMin" type="number" placeholder="25" />
+          <Field label="Age max" name="ageMax" type="number" placeholder="36" />
+          <Field label="City" name="city" placeholder="Melbourne, Sydney" />
+          <Field label="State" name="state" placeholder="VIC, NSW" />
+          <Field label="Religion" name="religion" placeholder="Hindu" />
+          <Field label="Community" name="community" placeholder="Indian" />
+          <Field label="Mother tongue" name="motherTongue" placeholder="Hindi" />
+          <Field label="Occupation" name="occupation" placeholder="Engineer" />
+        </div>
+
+        <details className="rounded-2xl border border-[#7A1F2B]/10 bg-[#FCFAF7]/50 p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+            Advanced filters
+          </summary>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <Field label="Height min" name="heightMinCm" type="number" placeholder="155" />
+            <Field label="Height max" name="heightMaxCm" type="number" placeholder="185" />
+            <Field label="Income min" name="incomeMin" type="number" placeholder="90000" />
+            <Select
+              label="Verification"
+              name="verificationLevel"
+              options={['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED']}
+            />
+            <label className="flex items-center gap-2.5 text-sm font-semibold text-[#1A1A1A]">
+              <input
+                name="recentlyActive"
+                type="checkbox"
+                className="size-4 rounded accent-[#7A1F2B]"
+              />
+              Recently active
+            </label>
+          </div>
+        </details>
+
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto] lg:grid-cols-1">
+          <Field label="Results per page" name="pageSize" type="number" defaultValue="12" />
+          <PremiumButton type="submit" className="w-full lg:mt-2">
+            <Search className="size-4" />
+            Search Matches
+          </PremiumButton>
+        </div>
+      </form>
+    );
+  };
+
+  const renderResultsGrid = (cols = 'grid gap-4 md:grid-cols-2') => {
+    if (loading) {
+      return (
+        <div className={cols}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))}
+        </div>
+      );
+    }
+
+    if (!search || search.results.length === 0) {
+      return (
+        <EmptyState title="No matches found">
+          Try broadening age, city, or community filters to discover more profiles.
+        </EmptyState>
+      );
+    }
+
+    return (
+      <div className={cols}>
+        {search.results.map((profile, index) => (
+          <ProfileCard key={profile.id} profile={profile} index={index} />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="grid gap-8">
-      <section className="overflow-hidden rounded-lg border border-[#F0D6DA] bg-[#FFF8F1]">
-        <div className="grid gap-6 p-5 lg:grid-cols-[1.05fr_1.6fr] lg:p-6">
-          <form
-            onSubmit={(event) => void submit(event)}
-            className="grid content-start gap-4 rounded-lg border border-white bg-white/80 p-4 shadow-sm"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7A1E3A]">
-                  Discovery
-                </p>
-                <h2 className="mt-1 text-xl font-semibold text-[#232323]">Search filters</h2>
-              </div>
-              <SlidersHorizontal className="size-5 text-[#C94F7C]" />
-            </div>
+      {/* ─── Premium Tabs ──────────────────────────────────────────────────────── */}
+      <div className="flex overflow-x-auto border-b border-[#7A1F2B]/10 pb-px scrollbar-none gap-2">
+        <button
+          onClick={() => {
+            setActiveTab('search');
+            void runSearch(defaultFilters);
+          }}
+          className={cx(
+            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
+            activeTab === 'search'
+              ? 'border-[#7A1F2B] text-[#7A1F2B]'
+              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+          )}
+        >
+          <Search className="size-4" />
+          Search & Browse
+        </button>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Select label="Looking for" name="gender" options={['FEMALE', 'MALE']} />
-              <Select
-                label="Sort"
-                name="sort"
-                options={['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED']}
-                defaultValue="RECOMMENDED"
-              />
-              <Field label="Age min" name="ageMin" type="number" placeholder="25" />
-              <Field label="Age max" name="ageMax" type="number" placeholder="36" />
-              <Field label="City" name="city" placeholder="Melbourne, Sydney" />
-              <Field label="State" name="state" placeholder="VIC, NSW" />
-              <Field label="Religion" name="religion" placeholder="Hindu" />
-              <Field label="Community" name="community" placeholder="Indian" />
-              <Field label="Mother tongue" name="motherTongue" placeholder="Hindi" />
-              <Field label="Occupation" name="occupation" placeholder="Engineer" />
-            </div>
+        <button
+          onClick={() => {
+            setActiveTab('recommended');
+            void loadRecommended();
+          }}
+          className={cx(
+            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
+            activeTab === 'recommended'
+              ? 'border-[#7A1F2B] text-[#7A1F2B]'
+              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+          )}
+        >
+          <Heart className="size-4" />
+          Recommended
+        </button>
 
-            <details className="rounded-md border border-[#F0D6DA] bg-[#FFF8F1] p-3">
-              <summary className="cursor-pointer text-sm font-semibold text-[#7A1E3A]">
-                Advanced filters
-              </summary>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Field label="Height min" name="heightMinCm" type="number" placeholder="155" />
-                <Field label="Height max" name="heightMaxCm" type="number" placeholder="185" />
-                <Field label="Income min" name="incomeMin" type="number" placeholder="90000" />
-                <Select
-                  label="Verification"
-                  name="verificationLevel"
-                  options={['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED']}
-                />
-                <label className="flex items-center gap-2 text-sm font-medium text-[#232323]">
-                  <input
-                    name="recentlyActive"
-                    type="checkbox"
-                    className="size-4 accent-[#7A1E3A]"
-                  />
-                  Recently active
-                </label>
-              </div>
-            </details>
+        <button
+          onClick={() => {
+            setActiveTab('active');
+            void runSearch({ sort: 'RECENTLY_ACTIVE', page: 1, pageSize: 12 });
+          }}
+          className={cx(
+            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
+            activeTab === 'active'
+              ? 'border-[#7A1F2B] text-[#7A1F2B]'
+              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+          )}
+        >
+          <Clock className="size-4" />
+          Recently Active
+        </button>
 
-            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-              <Field label="Results per page" name="pageSize" type="number" defaultValue="12" />
-              <button className="mt-auto inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#7A1E3A] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#65172F]">
-                <Search className="size-4" />
-                Search
-              </button>
-            </div>
-          </form>
+        <button
+          onClick={() => {
+            setActiveTab('newest');
+            void runSearch({ sort: 'NEWEST', page: 1, pageSize: 12 });
+          }}
+          className={cx(
+            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
+            activeTab === 'newest'
+              ? 'border-[#7A1F2B] text-[#7A1F2B]'
+              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+          )}
+        >
+          <UserPlus className="size-4" />
+          New Members
+        </button>
 
+        <button
+          onClick={() => {
+            setActiveTab('saved');
+            void loadSavedSearches();
+          }}
+          className={cx(
+            'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
+            activeTab === 'saved'
+              ? 'border-[#7A1F2B] text-[#7A1F2B]'
+              : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+          )}
+        >
+          <Bookmark className="size-4" />
+          Saved Searches
+        </button>
+      </div>
+
+      {/* ─── Tab Content ───────────────────────────────────────────────────────── */}
+      {activeTab === 'search' && (
+        <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+          {/* Desktop Filter Panel */}
+          <aside className="hidden lg:block">
+            <PremiumCard className="p-5">{renderFilterForm()}</PremiumCard>
+          </aside>
+
+          {/* Search Result Listing */}
           <div className="grid content-start gap-5">
             <div className="flex flex-wrap gap-2">
               {activeChips.map((chip) => (
                 <span
                   key={chip}
-                  className="rounded-full border border-[#F0D6DA] bg-white px-3 py-1 text-xs font-semibold text-[#5E6470]"
+                  className="rounded-full border border-[#7A1F2B]/10 bg-white px-3 py-1 text-xs font-semibold text-[#6B7280]"
                 >
                   {chip}
                 </span>
@@ -283,119 +436,173 @@ export default function MatchDiscovery() {
             </div>
 
             {message ? (
-              <p className="rounded-md border border-[#F59E0B]/30 bg-[#FFF8F1] p-3 text-sm text-[#7A1E3A]">
+              <p className="rounded-2xl border border-[#7A1F2B]/10 bg-[#F8E8E8] p-4 text-sm text-[#7A1F2B]">
                 {message}
               </p>
             ) : null}
 
-            <div className="grid gap-4 md:grid-cols-2">
-              {loading
-                ? Array.from({ length: 4 }).map((_, index) => <SkeletonCard key={index} />)
-                : search?.results.map((profile, index) => (
-                    <ProfileCard key={profile.id} profile={profile} index={index} />
-                  ))}
+            {renderResultsGrid('grid gap-4 md:grid-cols-2')}
+
+            {/* Mobile Filter Drawer Overlay */}
+            <FilterDrawer
+              open={drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+              title="Search Filters"
+            >
+              {renderFilterForm(true)}
+            </FilterDrawer>
+
+            {/* Floating Mobile Filter Button */}
+            <div className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 lg:hidden">
+              <PremiumButton onClick={() => setDrawerOpen(true)} className="shadow-2xl">
+                <SlidersHorizontal className="size-4" />
+                Show Filters
+              </PremiumButton>
             </div>
-
-            {!loading && search?.results.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-[#D6A84F] bg-white p-6 text-center">
-                <Sparkles className="mx-auto size-6 text-[#D6A84F]" />
-                <h3 className="mt-3 text-lg font-semibold text-[#232323]">No matches found</h3>
-                <p className="mt-2 text-sm text-[#5E6470]">
-                  Try broadening age, city, or community filters.
-                </p>
-              </div>
-            ) : null}
           </div>
         </div>
-      </section>
+      )}
 
-      <section className="grid gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7A1E3A]">
-              Recommended
+      {activeTab === 'recommended' && (
+        <div className="grid gap-6">
+          <div className="max-w-2xl">
+            <h2 className="text-xl font-semibold text-[#1A1A1A]">Compatible Matches</h2>
+            <p className="mt-1 text-sm text-[#6B7280]">
+              Calculated automatically based on your profile preferences and background
+              expectations.
             </p>
-            <h2 className="mt-1 text-2xl font-semibold text-[#232323]">Rule-based matches</h2>
           </div>
-          <Heart className="size-5 text-[#C94F7C]" />
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {recommended.map((profile, index) => (
-            <ProfileCard key={profile.id} profile={profile} index={index} compact />
-          ))}
-        </div>
-      </section>
 
-      <section className="grid gap-4 rounded-lg border border-[#F0D6DA] bg-white p-5">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7A1E3A]">
-              Saved searches
-            </p>
-            <h2 className="mt-1 text-xl font-semibold text-[#232323]">Repeat your best filters</h2>
-          </div>
-          <Bookmark className="size-5 text-[#C94F7C]" />
-        </div>
-        <form
-          className="grid gap-3 md:grid-cols-[1fr_auto_auto]"
-          onSubmit={(event) => void saveSearch(event)}
-        >
-          <input
-            name="name"
-            placeholder="Name this search"
-            className="h-10 rounded-md border border-[#E8D5D8] px-3 text-sm outline-none transition focus:border-[#7A1E3A] focus:ring-2 focus:ring-[#FDECEF]"
-          />
-          <label className="flex items-center gap-2 text-sm font-medium text-[#5E6470]">
-            <input name="notifyOnNewMatches" type="checkbox" className="size-4 accent-[#7A1E3A]" />
-            Notify
-          </label>
-          <button className="h-10 rounded-md border border-[#7A1E3A]/20 px-4 text-sm font-semibold text-[#7A1E3A]">
-            Save search
-          </button>
-        </form>
-        <div className="grid gap-2">
-          {savedSearches.length === 0 ? (
-            <p className="rounded-md border border-dashed border-[#F0D6DA] p-3 text-sm text-[#5E6470]">
-              Saved searches will appear here.
-            </p>
+          {loading ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <SkeletonCard key={index} />
+              ))}
+            </div>
+          ) : recommended.length === 0 ? (
+            <EmptyState title="No recommendations available">
+              Update your partner preferences in your profile wizard to help us find matches for
+              you.
+            </EmptyState>
           ) : (
-            savedSearches.map((savedSearch) => {
-              const id = savedSearch.id ?? savedSearch._id ?? savedSearch.name;
-              return (
-                <div
-                  key={id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#F0D6DA] p-3"
-                >
-                  <div>
-                    <p className="font-semibold text-[#232323]">{savedSearch.name}</p>
-                    <p className="text-xs text-[#5E6470]">
-                      {savedSearch.notifyOnNewMatches
-                        ? 'Notifications enabled'
-                        : 'Notifications off'}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void runSearch(savedSearch.query)}
-                      className="rounded-md bg-[#7A1E3A] px-3 py-2 text-xs font-semibold text-white"
-                    >
-                      Run
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void deleteSavedSearch(id)}
-                      className="rounded-md border border-[#7A1E3A]/20 px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              );
-            })
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {recommended.map((profile, index) => (
+                <ProfileCard key={profile.id} profile={profile} index={index} />
+              ))}
+            </div>
           )}
         </div>
-      </section>
+      )}
+
+      {activeTab === 'active' && (
+        <div className="grid gap-6">
+          <div className="max-w-2xl">
+            <h2 className="text-xl font-semibold text-[#1A1A1A]">Recently Active</h2>
+            <p className="mt-1 text-sm text-[#6B7280]">
+              Members active within the last 24 hours, ordered by communication readiness.
+            </p>
+          </div>
+          {renderResultsGrid('grid gap-4 md:grid-cols-2 lg:grid-cols-3')}
+        </div>
+      )}
+
+      {activeTab === 'newest' && (
+        <div className="grid gap-6">
+          <div className="max-w-2xl">
+            <h2 className="text-xl font-semibold text-[#1A1A1A]">New Members</h2>
+            <p className="mt-1 text-sm text-[#6B7280]">
+              Freshly joined members who recently completed their registration and verification.
+            </p>
+          </div>
+          {renderResultsGrid('grid gap-4 md:grid-cols-2 lg:grid-cols-3')}
+        </div>
+      )}
+
+      {activeTab === 'saved' && (
+        <div className="grid gap-6">
+          <div className="max-w-2xl">
+            <h2 className="text-xl font-semibold text-[#1A1A1A]">Saved Searches</h2>
+            <p className="mt-1 text-sm text-[#6B7280]">
+              Manage and rerun your preferred filter combinations for targeted search.
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+            {/* Save Search Form on left */}
+            <aside className="h-fit">
+              <PremiumCard className="p-5 space-y-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#7A1F2B]">
+                  Save current query
+                </h3>
+                <form className="grid gap-3" onSubmit={(event) => void saveSearch(event)}>
+                  <input
+                    name="name"
+                    placeholder="Name this search"
+                    className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                  />
+                  <label className="flex items-center gap-2 text-sm font-semibold text-[#1A1A1A]">
+                    <input
+                      name="notifyOnNewMatches"
+                      type="checkbox"
+                      className="size-4 rounded accent-[#7A1F2B]"
+                    />
+                    Email notifications
+                  </label>
+                  <PremiumButton type="submit" variant="secondary" className="w-full">
+                    Save search
+                  </PremiumButton>
+                </form>
+              </PremiumCard>
+            </aside>
+
+            {/* Saved Searches list on right */}
+            <div className="space-y-4">
+              {savedSearches.length === 0 ? (
+                <EmptyState title="No saved searches">
+                  Your saved search configurations will appear here.
+                </EmptyState>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {savedSearches.map((savedSearch) => {
+                    const id = savedSearch.id ?? savedSearch._id ?? savedSearch.name;
+                    return (
+                      <PremiumCard key={id} className="flex flex-col justify-between gap-4 p-5">
+                        <div>
+                          <h4 className="font-semibold text-[#1A1A1A]">{savedSearch.name}</h4>
+                          <p className="mt-1 text-xs text-[#6B7280]">
+                            {savedSearch.notifyOnNewMatches
+                              ? '📧 Daily email alerts enabled'
+                              : '📧 Alerts off'}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <PremiumButton
+                            onClick={() => {
+                              setActiveTab('search');
+                              void runSearch(savedSearch.query);
+                            }}
+                            className="h-9 px-4 text-xs"
+                            variant="primary"
+                          >
+                            Run Search
+                          </PremiumButton>
+                          <PremiumButton
+                            onClick={() => void deleteSavedSearch(id)}
+                            className="h-9 px-4 text-xs"
+                            variant="danger"
+                          >
+                            Delete
+                          </PremiumButton>
+                        </div>
+                      </PremiumCard>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -427,7 +634,7 @@ function ProfileCard({
               {profile.matchReasons.slice(0, 3).map((reason) => (
                 <span
                   key={reason}
-                  className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-medium text-[#1F6F4A]"
+                  className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-semibold text-[#1F6F4A]"
                 >
                   <ShieldCheck className="size-3.5" />
                   {reason}
@@ -446,13 +653,13 @@ function ProfileCard({
 
 function SkeletonCard() {
   return (
-    <div className="grid grid-cols-[96px_1fr] gap-4 rounded-lg border border-[#F0D6DA] bg-white p-4">
-      <div className="aspect-[3/4] animate-pulse rounded-md bg-[#FDECEF]" />
+    <div className="grid grid-cols-[96px_1fr] gap-4 rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm animate-pulse">
+      <div className="aspect-[3/4] rounded-2xl bg-[#F8E8E8]" />
       <div className="grid content-start gap-3">
-        <div className="h-5 w-2/3 animate-pulse rounded bg-[#FDECEF]" />
-        <div className="h-4 w-1/2 animate-pulse rounded bg-[#FDECEF]" />
-        <div className="h-4 w-5/6 animate-pulse rounded bg-[#FDECEF]" />
-        <div className="h-7 w-24 animate-pulse rounded-full bg-[#FDECEF]" />
+        <div className="h-5 w-2/3 rounded-lg bg-[#F8E8E8]" />
+        <div className="h-4 w-1/2 rounded-lg bg-[#F8E8E8]" />
+        <div className="h-4 w-5/6 rounded-lg bg-[#F8E8E8]" />
+        <div className="h-7 w-24 rounded-full bg-[#F8E8E8]" />
       </div>
     </div>
   );
@@ -472,14 +679,14 @@ function Field({
   defaultValue?: string;
 }>) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#232323]">
+    <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
       {label}
       <input
         name={name}
         type={type}
         placeholder={placeholder}
         defaultValue={defaultValue}
-        className="h-10 rounded-md border border-[#E8D5D8] bg-white px-3 text-sm outline-none transition focus:border-[#7A1E3A] focus:ring-2 focus:ring-[#FDECEF]"
+        className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition duration-200 focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
       />
     </label>
   );
@@ -492,12 +699,12 @@ function Select({
   defaultValue,
 }: Readonly<{ label: string; name: string; options: string[]; defaultValue?: string }>) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#232323]">
+    <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
       {label}
       <select
         name={name}
         defaultValue={defaultValue ?? ''}
-        className="h-10 rounded-md border border-[#E8D5D8] bg-white px-3 text-sm outline-none transition focus:border-[#7A1E3A] focus:ring-2 focus:ring-[#FDECEF]"
+        className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition duration-200 focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
       >
         <option value="">Any</option>
         {options.map((option) => (

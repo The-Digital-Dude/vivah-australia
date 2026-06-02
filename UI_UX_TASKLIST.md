@@ -71,7 +71,7 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 | FE-004 | Complete | Homepage, match discovery, favourites, interests, and recently viewed profile cards now navigate to profile detail pages with action buttons kept separate.            |
 | FE-005 | Complete | Premium public profile detail page now includes hero, sticky/mobile actions, full profile sections, verification state, and locked private gallery messaging.          |
 | FE-006 | Complete | Aligned static public pages using the premium brand layout and reusable components (StaticPageHero, FAQAccordion, ContactCard, etc.) with dynamic CMS API integration. |
-| FE-007 | Complete | Aligned authentication and password recovery pages under the premium dynamic split-screen layout, and created a dedicated auto-verifying /verify-email route.           |
+| FE-007 | Complete | Aligned authentication and password recovery pages under the premium dynamic split-screen layout, and created a dedicated auto-verifying /verify-email route.          |
 | FE-008 | Pending  | Redesign member dashboard UX.                                                                                                                                          |
 | FE-009 | Pending  | Improve onboarding/profile editing UX.                                                                                                                                 |
 | FE-010 | Pending  | Improve match discovery UX.                                                                                                                                            |
