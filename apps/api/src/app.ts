@@ -9,6 +9,7 @@ import type { AuthConfig } from './auth/auth-types.js';
 import { createBillingRouter, createStripeWebhookRouter } from './billing/billing.routes.js';
 import { createCommunityRouter } from './community/community.routes.js';
 import { createInteractionsRouter } from './interactions/interactions.routes.js';
+import { createPhotoRequestsRouter } from './interactions/photo-requests.routes.js';
 import { createMatchRouter } from './match/match.routes.js';
 import { createMediaRouter } from './media/media.routes.js';
 import { createMessagesRouter } from './messages/messages.routes.js';
@@ -63,6 +64,7 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createMediaRouter(options.auth));
   app.use('/api', createMatchRouter(options.auth));
   app.use('/api', createInteractionsRouter(options.auth));
+  app.use('/api', createPhotoRequestsRouter(options.auth));
   app.use('/api', createMessagesRouter(options.auth));
   app.use('/api', createCommunityRouter(options.auth));
   app.use('/api', createBillingRouter(options.auth));

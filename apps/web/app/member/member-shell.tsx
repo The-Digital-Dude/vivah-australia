@@ -20,7 +20,9 @@ const memberLinks = [
   ['Matches', '/member/matches'],
   ['Recently viewed', '/member/recently-viewed'],
   ['Who viewed me', '/member/profile-viewers'],
+  ['Photo requests', '/member/photo-requests'],
   ['Interests', '/member/interests'],
+
   ['Messages', '/member/messages'],
   ['Community', '/member/community'],
   ['Favourites', '/member/favourites'],

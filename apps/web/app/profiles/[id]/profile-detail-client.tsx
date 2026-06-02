@@ -2,6 +2,15 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import {
+  Camera,
+  CheckCircle2,
+  Clock,
+  ImageOff,
+  Lock,
+  Send,
+  X,
+} from 'lucide-react';
+import {
   LoadingState,
   MatchScoreBadge,
   PageHero,
@@ -15,6 +24,8 @@ import { useAuth } from '@/app/auth-context';
 import ProfileActions from '../../member/profile-actions';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 interface PublicProfileResponse {
   profile?: ProfileDetail;
@@ -88,12 +99,270 @@ interface ProfileDetail {
   verification?: { level?: string };
 }
 
+type PhotoRequestStatus = 'NONE' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
+
+interface PhotoStatusResponse {
+  status: PhotoRequestStatus;
+  hasAccess: boolean;
+  requestId: string | null;
+  accessGrantedUntil: string | null;
+}
+
+interface PrivatePhoto {
+  id: string;
+  assetUrl: string;
+  mediaType: string;
+  isPrimary: boolean;
+}
+
 type LoadState =
   | { status: 'loading' }
   | { status: 'restricted' }
   | { status: 'not-found' }
   | { status: 'error'; message: string }
   | { status: 'ready'; profile: ProfileDetail };
+
+// ── Photo Gallery Section ─────────────────────────────────────────────────────
+
+function PhotoGallerySection({
+  profileId,
+  token,
+}: {
+  profileId: string;
+  token: string | null;
+}) {
+  const [requestStatus, setRequestStatus] = useState<PhotoStatusResponse | null>(null);
+  const [photos, setPhotos] = useState<PrivatePhoto[]>([]);
+  const [loadingStatus, setLoadingStatus] = useState(true);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [showMessageBox, setShowMessageBox] = useState(false);
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  async function authFetch(path: string, options?: RequestInit) {
+    return fetch(`${apiBaseUrl}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options?.headers ?? {}),
+      },
+    });
+  }
+
+  async function loadStatus() {
+    if (!token) {
+      setLoadingStatus(false);
+      return;
+    }
+    try {
+      const res = await authFetch(`/api/me/photo-requests/status/${profileId}`);
+      if (res.ok) {
+        const data = (await res.json()) as PhotoStatusResponse;
+        setRequestStatus(data);
+
+        if (data.hasAccess) {
+          setLoadingPhotos(true);
+          const photosRes = await authFetch(`/api/profiles/${profileId}/private-gallery`);
+          if (photosRes.ok) {
+            const pd = (await photosRes.json()) as { photos: PrivatePhoto[] };
+            setPhotos(pd.photos ?? []);
+          }
+          setLoadingPhotos(false);
+        }
+      }
+    } finally {
+      setLoadingStatus(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId, token]);
+
+  async function handleSendRequest() {
+    setSending(true);
+    setFeedback(null);
+    try {
+      const res = await authFetch('/api/me/photo-requests', {
+        method: 'POST',
+        body: JSON.stringify({ profileId, message: message.trim() || undefined }),
+      });
+      const data = (await res.json()) as { message?: string };
+      setFeedback(data.message ?? (res.ok ? 'Request sent!' : 'Failed to send request'));
+      if (res.ok) {
+        setShowMessageBox(false);
+        setMessage('');
+        await loadStatus();
+      }
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function handleWithdraw() {
+    if (!requestStatus?.requestId) return;
+    setSending(true);
+    try {
+      const res = await authFetch(`/api/me/photo-requests/${requestStatus.requestId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setFeedback('Request withdrawn');
+        await loadStatus();
+      }
+    } finally {
+      setSending(false);
+    }
+  }
+
+  // Not logged in
+  if (!token) {
+    return (
+      <div className="rounded-3xl border border-dashed border-[#D4AF37]/70 bg-[#FCFAF7] p-6 text-center">
+        <Lock className="mx-auto size-8 text-[#D4AF37] mb-3" />
+        <p className="font-semibold text-[#1A1A1A]">Sign in to request private photo access</p>
+      </div>
+    );
+  }
+
+  if (loadingStatus) {
+    return (
+      <div className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-6 text-center text-sm text-[#6B7280]">
+        Checking photo access…
+      </div>
+    );
+  }
+
+  const status = requestStatus?.status ?? 'NONE';
+
+  // ── ACCESS GRANTED — show gallery ─────────────────────────────────────────
+  if (requestStatus?.hasAccess) {
+    return (
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700 border border-green-200">
+            <CheckCircle2 className="size-3.5" />
+            Access granted
+            {requestStatus.accessGrantedUntil
+              ? ` until ${new Date(requestStatus.accessGrantedUntil).toLocaleDateString()}`
+              : ''}
+          </span>
+        </div>
+
+        {loadingPhotos ? (
+          <p className="text-sm text-[#6B7280]">Loading photos…</p>
+        ) : photos.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {photos.map((photo) => (
+              <div
+                key={photo.id}
+                className="aspect-square overflow-hidden rounded-2xl border border-[#7A1F2B]/10 bg-[#F3E8E9]"
+              >
+                <img
+                  src={photo.assetUrl}
+                  alt="Private gallery photo"
+                  className="size-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-3xl border border-dashed border-[#D4AF37]/70 bg-[#FCFAF7] p-6 text-center">
+            <ImageOff className="mx-auto size-8 text-[#D4AF37]/60 mb-2" />
+            <p className="text-sm text-[#6B7280]">No private photos have been added yet.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── PENDING — waiting for response ────────────────────────────────────────
+  if (status === 'PENDING') {
+    return (
+      <div className="rounded-3xl border border-[#D4AF37]/30 bg-gradient-to-br from-[#FFFBEB] to-[#FDF6F0] p-6 text-center space-y-3">
+        <Clock className="mx-auto size-8 text-[#D4AF37]" />
+        <p className="font-semibold text-[#1A1A1A]">Request pending</p>
+        <p className="text-sm text-[#6B7280]">
+          Your request is awaiting their response. We&apos;ll notify you when they respond.
+        </p>
+        {feedback && <p className="text-sm text-[#7A1F2B]">{feedback}</p>}
+        <PremiumButton
+          variant="secondary"
+          onClick={() => void handleWithdraw()}
+          disabled={sending}
+        >
+          <X className="size-4" />
+          Withdraw request
+        </PremiumButton>
+      </div>
+    );
+  }
+
+  // ── REJECTED / WITHDRAWN / NONE — show request form ───────────────────────
+  return (
+    <div className="rounded-3xl border border-dashed border-[#D4AF37]/70 bg-[#FCFAF7] p-6 space-y-4">
+      <div className="text-center">
+        <Lock className="mx-auto size-8 text-[#7A1F2B]/50 mb-3" />
+        <p className="font-semibold text-[#1A1A1A]">Private gallery</p>
+        <p className="mt-1 text-sm text-[#6B7280]">
+          {status === 'REJECTED'
+            ? 'Your previous request was declined. You can send a new request.'
+            : 'Request access to view their private photos.'}
+        </p>
+      </div>
+
+      {feedback && (
+        <p className="rounded-xl bg-[#F8E8E8] px-4 py-2 text-center text-sm font-semibold text-[#7A1F2B]">
+          {feedback}
+        </p>
+      )}
+
+      {showMessageBox ? (
+        <div className="space-y-3">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Add a short note (optional)…"
+            maxLength={200}
+            rows={3}
+            className="w-full rounded-2xl border border-[#7A1F2B]/20 bg-white px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#6B7280] outline-none focus:border-[#7A1F2B]/40 focus:ring-1 focus:ring-[#7A1F2B]/20 resize-none"
+          />
+          <div className="flex gap-2">
+            <PremiumButton
+              onClick={() => void handleSendRequest()}
+              disabled={sending}
+              className="flex-1"
+            >
+              <Send className="size-4" />
+              {sending ? 'Sending…' : 'Send request'}
+            </PremiumButton>
+            <PremiumButton
+              variant="secondary"
+              onClick={() => {
+                setShowMessageBox(false);
+                setMessage('');
+              }}
+            >
+              Cancel
+            </PremiumButton>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-center">
+          <PremiumButton onClick={() => setShowMessageBox(true)}>
+            <Camera className="size-4" />
+            Request private photos
+          </PremiumButton>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main export ───────────────────────────────────────────────────────────────
 
 export default function ProfileDetailClient({ profileId }: Readonly<{ profileId: string }>) {
   const { initialized, refreshAccessToken, token } = useAuth();
@@ -178,13 +447,16 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
     return <ProfileMessage title="Unable to load profile" message={state.message} />;
   }
 
-  return <ProfileDetailView profile={state.profile} profileId={profileId} />;
+  return <ProfileDetailView profile={state.profile} profileId={profileId} token={token} />;
 }
+
+// ── Profile detail view ───────────────────────────────────────────────────────
 
 function ProfileDetailView({
   profile,
   profileId,
-}: Readonly<{ profile: ProfileDetail; profileId: string }>) {
+  token,
+}: Readonly<{ profile: ProfileDetail; profileId: string; token: string | null }>) {
   const actionProfileId = profile._id ?? profileId;
   const fullName =
     [profile.personal?.firstName, profile.personal?.lastName].filter(Boolean).join(' ') ||
@@ -334,13 +606,9 @@ function ProfileDetailView({
             </div>
           </ProfileDetailSection>
 
+          {/* ── Photos / Gallery ── */}
           <ProfileDetailSection title="Photos / Gallery">
-            <div className="rounded-3xl border border-dashed border-[#D4AF37]/70 bg-[#FCFAF7] p-6 text-center">
-              <p className="font-semibold text-[#1A1A1A]">Private gallery locked</p>
-              <p className="mt-2 text-sm text-[#6B7280]">
-                Private photos visible after interest acceptance.
-              </p>
-            </div>
+            <PhotoGallerySection profileId={actionProfileId} token={token} />
           </ProfileDetailSection>
 
           <ProfileDetailSection title="Verification Status">
@@ -380,6 +648,8 @@ function ProfileDetailView({
     </StaticPageLayout>
   );
 }
+
+// ── Small helpers ─────────────────────────────────────────────────────────────
 
 function RestrictedProfilePage({ profileId }: Readonly<{ profileId: string }>) {
   return (
@@ -454,3 +724,4 @@ function joinList(value?: string[]) {
 function formatEnum(value?: string) {
   return value ? value.replaceAll('_', ' ') : undefined;
 }
+

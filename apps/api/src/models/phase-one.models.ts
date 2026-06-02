@@ -276,6 +276,56 @@ const profileViewSchema = new Schema<ProfileView>(
 
 profileViewSchema.index({ viewerId: 1, profileId: 1 }, { unique: true });
 
+// ── Photo Access Requests ────────────────────────────────────────────────────
+
+export type PhotoRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
+
+export interface PhotoRequest {
+  requesterId: ObjectId;    // user who wants to see the photos
+  ownerId: ObjectId;        // user who owns the private gallery
+  ownerProfileId: ObjectId; // profile._id of owner (for quick lookups)
+  status: PhotoRequestStatus;
+  respondedAt?: Date;
+  accessGrantedUntil?: Date; // set when ACCEPTED — temp access window
+  message?: string;          // optional note from requester
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
+}
+
+const PHOTO_REQUEST_STATUSES: PhotoRequestStatus[] = [
+  'PENDING',
+  'ACCEPTED',
+  'REJECTED',
+  'WITHDRAWN',
+];
+
+const photoRequestSchema = new Schema<PhotoRequest>(
+  {
+    requesterId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    ownerProfileId: { type: Schema.Types.ObjectId, ref: 'Profile', required: true, index: true },
+    status: {
+      type: String,
+      enum: PHOTO_REQUEST_STATUSES,
+      default: 'PENDING',
+      required: true,
+      index: true,
+    },
+    respondedAt: { type: Date },
+    accessGrantedUntil: { type: Date, index: true },
+    message: { type: String, trim: true, maxlength: 200 },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'photo_requests' },
+);
+
+// One active request per requester→owner pair (enforced by service-layer upsert)
+photoRequestSchema.index({ requesterId: 1, ownerId: 1 });
+
+
 export interface SavedSearch {
   userId: ObjectId;
   name: string;
@@ -1114,6 +1164,8 @@ export const ContactInquiryModel = getOrCreateModel<ContactInquiry>(
   'ContactInquiry',
   contactInquirySchema,
 );
+export const PhotoRequestModel = getOrCreateModel<PhotoRequest>('PhotoRequest', photoRequestSchema);
+
 
 export const phaseOneSchemas = {
   profileMediaSchema,
@@ -1154,7 +1206,9 @@ export const phaseOneSchemas = {
   systemSettingSchema,
   adminNoteSchema,
   contactInquirySchema,
+  photoRequestSchema,
 } as const;
+
 
 export const phaseOneModels = [
   ProfileMediaModel,
@@ -1195,4 +1249,6 @@ export const phaseOneModels = [
   SystemSettingModel,
   AdminNoteModel,
   ContactInquiryModel,
+  PhotoRequestModel,
 ] as const;
+
