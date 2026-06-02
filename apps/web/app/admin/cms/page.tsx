@@ -12,6 +12,7 @@ import {
 } from '@vivah/shared';
 import AdminShell from '../admin-shell';
 import { formString, optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
+import { Sparkles, AlertCircle, FileEdit, Trash2, Globe, ShieldAlert, Eye } from 'lucide-react';
 
 type SectionKey = 'home' | 'pages' | 'blogs' | 'stories' | 'testimonials' | 'banners';
 
@@ -139,6 +140,13 @@ export default function AdminCmsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
 
+  // Custom confirmation dialog
+  const [deleteTarget, setDeleteTarget] = useState<{
+    path: string;
+    id: string;
+    label: string;
+  } | null>(null);
+
   async function loadAll() {
     const [homeResult, pageResult, blogResult, storyResult, testimonialResult, bannerResult] =
       await Promise.all([
@@ -178,13 +186,25 @@ export default function AdminCmsPage() {
     void loadAll();
   }, []);
 
+  async function executeDelete() {
+    if (!deleteTarget) return;
+    const { path, id, label } = deleteTarget;
+    setPending(true);
+    const result = await memberRequest(`${path}/${id}`, { method: 'DELETE' });
+    setPending(false);
+    setDeleteTarget(null);
+    setMessage(result.ok ? `${label} was deleted.` : result.message);
+    if (result.ok) await loadAll();
+  }
+
   return (
     <AdminShell
-      title="CMS"
-      subtitle="Manage public website content, rich text blocks, homepage copy, banners, stories, testimonials, and publish state."
+      title="Content Management"
+      subtitle="Edit homepage copy, publish blog posts, configure marketing banners, testimonials, and static page content."
     >
-      <div className="grid gap-6">
-        <nav className="flex flex-wrap gap-2 rounded-lg border border-[#7A1E3A]/10 bg-white p-2">
+      <div className="space-y-6">
+        {/* TABS NAVBAR */}
+        <div className="flex flex-wrap gap-1 border-b border-neutral-200 pb-4">
           {sections.map((section) => (
             <button
               key={section.key}
@@ -193,24 +213,26 @@ export default function AdminCmsPage() {
                 setActiveSection(section.key);
                 setMessage('');
               }}
-              className={`rounded-md px-4 py-2 text-sm font-semibold ${
+              className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                 activeSection === section.key
-                  ? 'bg-[#7A1E3A] text-white'
-                  : 'text-[#5E6470] hover:bg-[#FFF8F1]'
+                  ? 'bg-[#7A1F2B] text-white shadow-sm'
+                  : 'text-neutral-500 hover:bg-neutral-100'
               }`}
             >
               {section.label}
             </button>
           ))}
-        </nav>
+        </div>
 
-        {message ? (
-          <p className="rounded-md border border-[#7A1E3A]/20 bg-[#FFF8F1] p-3 text-sm font-semibold text-[#7A1E3A]">
-            {message}
-          </p>
-        ) : null}
+        {message && (
+          <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
+            <AlertCircle className="h-4.5 w-4.5 text-[#7A1F2B]" />
+            <span>{message}</span>
+          </div>
+        )}
 
-        {activeSection === 'home' ? (
+        {/* CMS SECTION PANEL RENDERS */}
+        {activeSection === 'home' && (
           <HomeEditor
             home={home}
             pending={pending}
@@ -228,13 +250,13 @@ export default function AdminCmsPage() {
                 body: parsed.data,
               });
               setPending(false);
-              setMessage(result.ok ? 'Homepage content saved.' : result.message);
+              setMessage(result.ok ? 'Homepage copy updated successfully.' : result.message);
               if (result.ok) setHome(parsed.data);
             }}
           />
-        ) : null}
+        )}
 
-        {activeSection === 'pages' ? (
+        {activeSection === 'pages' && (
           <PageManager
             items={pages}
             pending={pending}
@@ -242,10 +264,11 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
+            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/pages', id, label })}
           />
-        ) : null}
+        )}
 
-        {activeSection === 'blogs' ? (
+        {activeSection === 'blogs' && (
           <ContentManager
             title="Blogs"
             items={blogs}
@@ -258,12 +281,13 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
+            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/blogs', id, label })}
           />
-        ) : null}
+        )}
 
-        {activeSection === 'stories' ? (
+        {activeSection === 'stories' && (
           <ContentManager
-            title="Success stories"
+            title="Success Stories"
             items={stories}
             emptyEditor={emptyContent}
             collectionLabel="Success story"
@@ -275,10 +299,11 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
+            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/success-stories', id, label })}
           />
-        ) : null}
+        )}
 
-        {activeSection === 'testimonials' ? (
+        {activeSection === 'testimonials' && (
           <TestimonialManager
             items={testimonials}
             pending={pending}
@@ -286,10 +311,11 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
+            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/testimonials', id, label })}
           />
-        ) : null}
+        )}
 
-        {activeSection === 'banners' ? (
+        {activeSection === 'banners' && (
           <BannerManager
             items={banners}
             pending={pending}
@@ -297,9 +323,53 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
+            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/banners', id, label })}
           />
-        ) : null}
+        )}
       </div>
+
+      {/* DELETE CONFIRMATION DIALOG */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            onClick={() => setDeleteTarget(null)}
+            className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
+            aria-label="Close Dialog"
+          />
+          <div className="relative w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
+            <h3 className="text-lg font-bold text-neutral-900">
+              Confirm Resource Deletion
+            </h3>
+            <p className="text-xs text-neutral-500 mt-1">
+              Are you sure you want to permanently delete this {deleteTarget.label.toLowerCase()}?
+            </p>
+
+            <div className="mt-4 flex gap-2.5 items-start bg-rose-50 border border-rose-200 p-3 rounded-xl">
+              <ShieldAlert className="h-4.5 w-4.5 text-rose-700 shrink-0 mt-0.5" />
+              <p className="text-[10px] text-rose-800 leading-relaxed">
+                <strong>Warning:</strong> Deleting CMS nodes instantly affects public page routing and invalidates static caching indexes.
+              </p>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="rounded-xl border border-neutral-250 px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-50"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => void executeDelete()}
+                className="rounded-xl bg-rose-600 hover:bg-rose-700 px-4 py-2 text-xs font-bold text-white shadow-sm"
+                type="button"
+              >
+                Permanently Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminShell>
   );
 }
@@ -354,7 +424,7 @@ function HomeEditor({
         };
         void onSave(nextHome);
       }}
-      className="grid gap-5"
+      className="grid gap-5 bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm"
     >
       <div className="grid gap-4 md:grid-cols-2">
         <Field
@@ -406,17 +476,21 @@ function HomeEditor({
         onChange={(faq) => setEditor((current) => ({ ...current, faq }))}
         help="One question and answer per line, separated by |."
       />
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-2 border-t border-neutral-100">
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-[#7A1E3A] px-5 py-2 text-sm font-semibold text-white disabled:bg-neutral-400"
+          className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-5 py-2.5 text-sm font-bold text-white disabled:bg-neutral-400 shadow-sm"
         >
-          {pending ? 'Saving...' : 'Save homepage'}
+          {pending ? 'Saving Changes...' : 'Save Homepage Copy'}
         </button>
       </div>
     </form>
   );
+}
+
+interface ManagerPropsExtended<T> extends ManagerProps<T> {
+  onDeleteTrigger: (id: string, label: string) => void;
 }
 
 function PageManager({
@@ -426,7 +500,8 @@ function PageManager({
   request,
   setMessage,
   setPending,
-}: Readonly<ManagerProps<CmsPage>>) {
+  onDeleteTrigger,
+}: Readonly<ManagerPropsExtended<CmsPage>>) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editor, setEditor] = useState(emptyPage);
   const selectedPage = useMemo(
@@ -448,7 +523,7 @@ function PageManager({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+    <div className="grid gap-6 xl:grid-cols-[280px_1fr]">
       <ContentList
         items={items}
         selectedId={selectedId}
@@ -472,17 +547,17 @@ function PageManager({
             setPending,
           })
         }
-        className="grid gap-4"
+        className="grid gap-4 bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm"
       >
         <div className="grid gap-4 md:grid-cols-2">
           <Field
-            label="Slug"
+            label="Page Slug"
             name="slug"
             value={editor.slug}
             onChange={(slug) => setEditor((current) => ({ ...current, slug }))}
           />
           <Field
-            label="Title"
+            label="Page Title"
             name="title"
             value={editor.title}
             onChange={(title) => setEditor((current) => ({ ...current, title }))}
@@ -494,13 +569,13 @@ function PageManager({
         />
         <div className="grid gap-4 md:grid-cols-2">
           <Field
-            label="SEO title"
+            label="SEO Page Title"
             name="seoTitle"
             value={editor.seoTitle}
             onChange={(seoTitle) => setEditor((current) => ({ ...current, seoTitle }))}
           />
           <Field
-            label="SEO description"
+            label="SEO Meta Description"
             name="seoDescription"
             value={editor.seoDescription}
             onChange={(seoDescription) => setEditor((current) => ({ ...current, seoDescription }))}
@@ -510,25 +585,24 @@ function PageManager({
           selectedId={selectedId}
           pending={pending}
           published={editor.published}
-          publishLabel="Published"
+          publishLabel="Publish Page (Visible publicly)"
           onPublishedChange={(published) => setEditor((current) => ({ ...current, published }))}
-          onDelete={() =>
-            void deleteItem(
-              '/api/admin/cms/pages',
-              selectedId,
-              'CMS page',
-              request,
-              reload,
-              setMessage,
-              setPending,
-            )
-          }
+          onDelete={() => selectedId && onDeleteTrigger(selectedId, 'Page')}
+          submitLabel={selectedId ? 'Save Changes' : 'Create Page'}
           {...(selectedPage?.published ? { preview: `/pages/${selectedPage.slug}` } : {})}
-          submitLabel={selectedId ? 'Save changes' : 'Create page'}
         />
       </form>
     </div>
   );
+}
+
+interface ContentManagerPropsExtended extends ManagerPropsExtended<CmsContent> {
+  collectionLabel: string;
+  emptyEditor: typeof emptyContent;
+  listPath: string;
+  schema: typeof cmsContentInputSchema | typeof cmsSuccessStoryInputSchema;
+  showCoupleName?: boolean;
+  title: string;
 }
 
 function ContentManager({
@@ -544,7 +618,8 @@ function ContentManager({
   setPending,
   showCoupleName = false,
   title,
-}: Readonly<ContentManagerProps>) {
+  onDeleteTrigger,
+}: Readonly<ContentManagerPropsExtended>) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editor, setEditor] = useState(initialEmptyEditor);
 
@@ -561,7 +636,7 @@ function ContentManager({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+    <div className="grid gap-6 xl:grid-cols-[280px_1fr]">
       <ContentList
         items={items}
         selectedId={selectedId}
@@ -589,24 +664,24 @@ function ContentManager({
             showCoupleName,
           })
         }
-        className="grid gap-4"
+        className="grid gap-4 bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm"
       >
         <div className="grid gap-4 md:grid-cols-2">
           <Field
-            label="Slug"
+            label="URL Slug"
             name="slug"
             value={editor.slug}
             onChange={(slug) => setEditor((current) => ({ ...current, slug }))}
           />
           <Field
-            label="Title"
+            label="Resource Title"
             name="title"
             value={editor.title}
             onChange={(nextTitle) => setEditor((current) => ({ ...current, title: nextTitle }))}
           />
           {showCoupleName ? (
             <Field
-              label="Couple name"
+              label="Couple Names"
               name="coupleName"
               value={editor.coupleName}
               onChange={(coupleName) => setEditor((current) => ({ ...current, coupleName }))}
@@ -621,20 +696,10 @@ function ContentManager({
           selectedId={selectedId}
           pending={pending}
           published={editor.published}
-          publishLabel="Published"
+          publishLabel="Publish to live catalog"
           onPublishedChange={(published) => setEditor((current) => ({ ...current, published }))}
-          onDelete={() =>
-            void deleteItem(
-              listPath,
-              selectedId,
-              collectionLabel,
-              request,
-              reload,
-              setMessage,
-              setPending,
-            )
-          }
-          submitLabel={selectedId ? 'Save changes' : `Create ${collectionLabel.toLowerCase()}`}
+          onDelete={() => selectedId && onDeleteTrigger(selectedId, collectionLabel)}
+          submitLabel={selectedId ? 'Save Changes' : `Create ${collectionLabel}`}
         />
       </form>
     </div>
@@ -648,12 +713,13 @@ function TestimonialManager({
   request,
   setMessage,
   setPending,
-}: Readonly<ManagerProps<Testimonial>>) {
+  onDeleteTrigger,
+}: Readonly<ManagerPropsExtended<Testimonial>>) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editor, setEditor] = useState(emptyTestimonial);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+    <div className="grid gap-6 xl:grid-cols-[280px_1fr]">
       <ContentList
         items={items}
         selectedId={selectedId}
@@ -680,16 +746,16 @@ function TestimonialManager({
             setPending,
           })
         }
-        className="grid gap-4"
+        className="grid gap-4 bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm"
       >
         <Field
-          label="Name"
+          label="Name / Attribution"
           name="name"
           value={editor.name}
           onChange={(name) => setEditor((current) => ({ ...current, name }))}
         />
         <TextBlock
-          label="Quote"
+          label="Quote Text"
           name="quote"
           value={editor.quote}
           onChange={(quote) => setEditor((current) => ({ ...current, quote }))}
@@ -698,20 +764,10 @@ function TestimonialManager({
           selectedId={selectedId}
           pending={pending}
           published={editor.published}
-          publishLabel="Published"
+          publishLabel="Visible on testimonials sections"
           onPublishedChange={(published) => setEditor((current) => ({ ...current, published }))}
-          onDelete={() =>
-            void deleteItem(
-              '/api/admin/cms/testimonials',
-              selectedId,
-              'Testimonial',
-              request,
-              reload,
-              setMessage,
-              setPending,
-            )
-          }
-          submitLabel={selectedId ? 'Save changes' : 'Create testimonial'}
+          onDelete={() => selectedId && onDeleteTrigger(selectedId, 'Testimonial')}
+          submitLabel={selectedId ? 'Save Changes' : 'Create Testimonial'}
         />
       </form>
     </div>
@@ -725,12 +781,13 @@ function BannerManager({
   request,
   setMessage,
   setPending,
-}: Readonly<ManagerProps<Banner>>) {
+  onDeleteTrigger,
+}: Readonly<ManagerPropsExtended<Banner>>) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editor, setEditor] = useState(emptyBanner);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+    <div className="grid gap-6 xl:grid-cols-[280px_1fr]">
       <ContentList
         items={items}
         selectedId={selectedId}
@@ -762,24 +819,24 @@ function BannerManager({
             setPending,
           })
         }
-        className="grid gap-4"
+        className="grid gap-4 bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm"
       >
         <div className="grid gap-4 md:grid-cols-2">
           <Field
-            label="Key"
+            label="System Key (Routing name)"
             name="key"
             value={editor.key}
             onChange={(key) => setEditor((current) => ({ ...current, key }))}
           />
           <Field
-            label="Title"
+            label="Banner Label / Title"
             name="title"
             value={editor.title}
             onChange={(title) => setEditor((current) => ({ ...current, title }))}
           />
         </div>
         <Field
-          label="Image URL"
+          label="Creative Asset Image URL"
           name="imageUrl"
           value={editor.imageUrl}
           onChange={(imageUrl) => setEditor((current) => ({ ...current, imageUrl }))}
@@ -788,20 +845,10 @@ function BannerManager({
           selectedId={selectedId}
           pending={pending}
           published={editor.active}
-          publishLabel="Active"
+          publishLabel="Active (Rendering across target views)"
           onPublishedChange={(active) => setEditor((current) => ({ ...current, active }))}
-          onDelete={() =>
-            void deleteItem(
-              '/api/admin/cms/banners',
-              selectedId,
-              'Banner',
-              request,
-              reload,
-              setMessage,
-              setPending,
-            )
-          }
-          submitLabel={selectedId ? 'Save changes' : 'Create banner'}
+          onDelete={() => selectedId && onDeleteTrigger(selectedId, 'Banner')}
+          submitLabel={selectedId ? 'Save Changes' : 'Create Banner'}
         />
       </form>
     </div>
@@ -819,22 +866,22 @@ function RichTextEditor({
   }
 
   return (
-    <div className="grid gap-2 text-sm font-semibold text-[#232323]">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span>Body</span>
-        <div className="flex flex-wrap gap-2">
+    <div className="grid gap-2 text-xs font-bold text-neutral-800">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-2">
+        <span className="uppercase tracking-wider text-neutral-400">Page Content Block</span>
+        <div className="flex flex-wrap gap-1">
           <button type="button" onClick={() => wrap('**')} className={toolbarButtonClass}>
-            B
+            Bold
           </button>
           <button type="button" onClick={() => wrap('_')} className={toolbarButtonClass}>
-            I
+            Italic
           </button>
           <button
             type="button"
             onClick={() => onChange(`${value}${value ? '\n' : ''}## Heading`)}
             className={toolbarButtonClass}
           >
-            H
+            Heading
           </button>
           <button
             type="button"
@@ -846,18 +893,18 @@ function RichTextEditor({
           <button
             type="button"
             onClick={() => setPreview((current) => !current)}
-            className={toolbarButtonClass}
+            className="rounded-lg border border-neutral-200 px-3 py-1.5 text-[10px] font-bold text-neutral-700 bg-white hover:bg-neutral-50"
           >
-            {preview ? 'Edit' : 'Preview'}
+            {preview ? 'Edit Source' : 'Visual Preview'}
           </button>
         </div>
       </div>
       {preview ? (
-        <div className="min-h-[260px] rounded-md border border-[#7A1E3A]/20 bg-white px-3 py-2 text-sm font-normal leading-7 text-[#5E6470]">
+        <div className="min-h-[220px] rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs font-medium leading-relaxed text-neutral-600">
           {value.split('\n').map((line, index) => (
             <p
               key={`${line}-${index}`}
-              className={line.startsWith('## ') ? 'text-lg font-semibold text-[#232323]' : ''}
+              className={line.startsWith('## ') ? 'text-sm font-bold text-neutral-800 mt-2 mb-1' : 'mb-1'}
             >
               {line.replace(/^## /, '').replace(/\*\*/g, '').replace(/_/g, '') || '\u00a0'}
             </p>
@@ -868,9 +915,9 @@ function RichTextEditor({
           name="body"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          rows={14}
-          className="rounded-md border border-[#7A1E3A]/20 px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-[#7A1E3A]"
-          placeholder="Write rich content with headings, bold text, lists, and paragraphs."
+          rows={10}
+          className="w-full rounded-xl border border-neutral-250 p-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-450 outline-none focus:border-[#7A1F2B] leading-relaxed"
+          placeholder="Use Markdown shortcuts or toolbar actions above to format core page details..."
         />
       )}
     </div>
@@ -895,38 +942,39 @@ function ContentList<T extends { _id: string }>({
   title: string;
 }>) {
   return (
-    <section className="rounded-lg border border-[#7A1E3A]/10 bg-[#FFF8F1] p-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">{title}</h2>
+    <section className="rounded-2xl border border-neutral-200 bg-neutral-50/50 p-4 space-y-4">
+      <div className="flex items-center justify-between gap-3 border-b border-neutral-200 pb-2">
+        <h4 className="text-sm font-bold text-neutral-800">{title}</h4>
         <button
           type="button"
           onClick={onNew}
-          className="rounded-md border border-[#7A1E3A]/20 bg-white px-3 py-2 text-sm font-semibold text-[#7A1E3A]"
+          className="inline-flex h-8 items-center gap-1 rounded-xl bg-white border border-[#7A1F2B]/10 hover:bg-[#F8E8E8] px-3 text-xs font-bold text-[#7A1F2B]"
         >
-          New
+          <FileEdit className="h-3.5 w-3.5" />
+          <span>New</span>
         </button>
       </div>
-      <div className="mt-4 grid gap-2">
+      <div className="space-y-2 max-h-[500px] overflow-y-auto">
         {items.map((item) => (
           <button
             key={item._id}
             type="button"
             onClick={() => onSelect(item)}
-            className={`rounded-md border p-3 text-left text-sm ${
+            className={`flex w-full flex-col rounded-xl border p-3.5 text-left transition ${
               selectedId === item._id
-                ? 'border-[#7A1E3A] bg-white'
-                : 'border-[#7A1E3A]/10 bg-white/70 hover:bg-white'
+                ? 'border-[#7A1F2B] bg-white ring-1 ring-[#7A1F2B]/10 shadow-sm'
+                : 'border-neutral-200/60 bg-white/70 hover:bg-white'
             }`}
           >
-            <span className="block font-semibold">{labelFor(item)}</span>
-            <span className="mt-1 block text-xs text-[#5E6470]">{metaFor(item)}</span>
+            <span className="text-xs font-bold text-neutral-800 truncate w-full">{labelFor(item)}</span>
+            <span className="mt-1 text-[10px] font-semibold text-neutral-450">{metaFor(item)}</span>
           </button>
         ))}
-        {items.length === 0 ? (
-          <p className="rounded-md border border-dashed border-[#7A1E3A]/20 bg-white p-4 text-sm text-[#5E6470]">
-            Nothing has been created yet.
+        {items.length === 0 && (
+          <p className="rounded-xl border border-dashed border-neutral-200 bg-white/80 p-5 text-center text-xs text-neutral-400 italic">
+            No CMS assets available.
           </p>
-        ) : null}
+        )}
       </div>
     </section>
   );
@@ -952,41 +1000,44 @@ function ActionBar({
   submitLabel: string;
 }>) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#7A1E3A]/10 p-4">
-      <label className="inline-flex items-center gap-2 text-sm font-semibold">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-100 bg-neutral-50/50 p-4 mt-2">
+      <label className="inline-flex items-center gap-2 text-xs font-bold text-neutral-600">
         <input
           type="checkbox"
           checked={published}
           onChange={(event) => onPublishedChange(event.target.checked)}
+          className="rounded-lg border-neutral-300 text-[#7A1F2B] focus:ring-[#7A1F2B]/30 h-4.5 w-4.5"
         />
-        {publishLabel}
+        <span>{publishLabel}</span>
       </label>
       <div className="flex flex-wrap gap-2">
-        {preview ? (
+        {preview && (
           <Link
             href={preview}
             target="_blank"
-            className="rounded-md border border-[#7A1E3A]/20 px-4 py-2 text-sm font-semibold text-[#7A1E3A]"
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#7A1F2B]/20 bg-white px-3.5 text-xs font-bold text-[#7A1F2B] hover:bg-[#F8E8E8] shadow-sm transition"
           >
-            Preview
+            <Eye className="h-3.5 w-3.5" />
+            <span>Live Link</span>
           </Link>
-        ) : null}
-        {selectedId ? (
+        )}
+        {selectedId && (
           <button
             type="button"
             onClick={onDelete}
             disabled={pending}
-            className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-rose-200 text-rose-700 px-3.5 text-xs font-bold hover:bg-rose-50 disabled:opacity-40 transition"
           >
-            Delete
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Delete</span>
           </button>
-        ) : null}
+        )}
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-[#7A1E3A] px-5 py-2 text-sm font-semibold text-white disabled:bg-neutral-400"
+          className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4.5 py-2 text-xs font-bold text-white disabled:bg-neutral-400 shadow-sm transition"
         >
-          {pending ? 'Saving...' : submitLabel}
+          {pending ? 'Saving Changes...' : submitLabel}
         </button>
       </div>
     </div>
@@ -1007,16 +1058,16 @@ function Field({
   value: string;
 }>) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#232323]">
-      {label}
+    <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
+      <span className="uppercase tracking-wider text-neutral-400">{label}</span>
       <input
         name={name}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-11 rounded-md border border-[#7A1E3A]/20 px-3 text-sm font-normal outline-none focus:border-[#7A1E3A]"
+        className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#7A1F2B] transition"
       />
-    </label>
+    </div>
   );
 }
 
@@ -1034,17 +1085,17 @@ function TextBlock({
   value: string;
 }>) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#232323]">
-      {label}
+    <div className="grid gap-1.5 text-xs font-bold text-neutral-850">
+      <span className="uppercase tracking-wider text-neutral-400">{label}</span>
       <textarea
         name={name}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={6}
-        className="rounded-md border border-[#7A1E3A]/20 px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-[#7A1E3A]"
+        className="w-full rounded-xl border border-neutral-250 p-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#7A1F2B] transition leading-relaxed"
       />
-      {help ? <span className="text-xs font-normal text-[#5E6470]">{help}</span> : null}
-    </label>
+      {help && <span className="text-[10px] text-neutral-450 font-medium">{help}</span>}
+    </div>
   );
 }
 
@@ -1067,7 +1118,7 @@ interface ContentManagerProps extends ManagerProps<CmsContent> {
 }
 
 const toolbarButtonClass =
-  'rounded-md border border-[#7A1E3A]/20 px-3 py-1 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]';
+  'rounded-lg border border-neutral-250 bg-white px-2.5 py-1 text-[10px] font-bold text-neutral-600 hover:bg-neutral-50 transition';
 
 async function savePage(
   event: FormEvent<HTMLFormElement>,
@@ -1103,7 +1154,7 @@ async function savePage(
     { method: options.selectedId ? 'PATCH' : 'POST', body: parsed.data },
   );
   options.setPending(false);
-  options.setMessage(result.ok ? 'Page saved.' : result.message);
+  options.setMessage(result.ok ? 'Static Page changes updated successfully.' : result.message);
   if (result.ok) await options.reload();
 }
 
@@ -1144,7 +1195,7 @@ async function saveContent(
     { method: options.selectedId ? 'PATCH' : 'POST', body: parsed.data },
   );
   options.setPending(false);
-  options.setMessage(result.ok ? `${options.collectionLabel} saved.` : result.message);
+  options.setMessage(result.ok ? `${options.collectionLabel} changes saved.` : result.message);
   if (result.ok) await options.reload();
 }
 
@@ -1180,7 +1231,7 @@ async function saveTestimonial(
     { method: options.selectedId ? 'PATCH' : 'POST', body: parsed.data },
   );
   options.setPending(false);
-  options.setMessage(result.ok ? 'Testimonial saved.' : result.message);
+  options.setMessage(result.ok ? 'Member testimonial details updated.' : result.message);
   if (result.ok) await options.reload();
 }
 
@@ -1215,25 +1266,8 @@ async function saveBanner(
     { method: options.selectedId ? 'PATCH' : 'POST', body: parsed.data },
   );
   options.setPending(false);
-  options.setMessage(result.ok ? 'Banner saved.' : result.message);
+  options.setMessage(result.ok ? 'Banner asset details updated.' : result.message);
   if (result.ok) await options.reload();
-}
-
-async function deleteItem(
-  path: string,
-  selectedId: string | null,
-  label: string,
-  request: ReturnType<typeof useMemberRequest>,
-  reload: () => Promise<void>,
-  setMessage: (message: string) => void,
-  setPending: (pending: boolean) => void,
-) {
-  if (!selectedId || !window.confirm(`Delete this ${label.toLowerCase()}?`)) return;
-  setPending(true);
-  const result = await request(`${path}/${selectedId}`, { method: 'DELETE' });
-  setPending(false);
-  setMessage(result.ok ? `${label} deleted.` : result.message);
-  if (result.ok) await reload();
 }
 
 function lines(value: string) {
