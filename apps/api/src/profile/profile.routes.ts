@@ -11,12 +11,15 @@ import { HttpError } from '../auth/auth-errors.js';
 import {
   getOwnProfile,
   listRecentlyViewedProfiles,
+  listProfileViewersReceived,
   getVisibleProfile,
   submitOwnProfile,
   updateAccountSettings,
   updateNotificationPreferences,
   updateOwnProfile,
 } from './profile.service.js';
+import { SubscriptionModel, PlanModel } from '../models/index.js';
+import { SubscriptionStatus } from '@vivah/shared';
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -121,6 +124,39 @@ export function createProfileRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       response.status(200).json({ items: await listRecentlyViewedProfiles(auth.userId) });
+    }),
+  );
+
+  router.get(
+    '/me/profile-viewers',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+
+      // Resolve subscription tier
+      const now = new Date();
+      const subscription = await SubscriptionModel.findOne({
+        userId: auth.userId,
+        status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
+        startsAt: { $lte: now },
+        isDeleted: false,
+        $or: [{ endsAt: { $exists: false } }, { endsAt: { $gt: now } }],
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      let isPaid = false;
+      if (subscription) {
+        const plan = await PlanModel.findOne({
+          _id: subscription.planId,
+          active: true,
+          isDeleted: false,
+        }).lean();
+        isPaid = plan?.code !== 'FREE' && !!plan;
+      }
+
+      const result = await listProfileViewersReceived(auth.userId, isPaid);
+      response.status(200).json(result);
     }),
   );
 

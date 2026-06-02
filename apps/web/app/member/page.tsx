@@ -28,6 +28,7 @@ import {
   Zap,
   Sparkles,
   Clock,
+  Lock,
 } from 'lucide-react';
 
 interface InterestProfile {
@@ -165,6 +166,8 @@ export default function MemberDashboardPage() {
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionOverview | null>(null);
   const [boosts, setBoosts] = useState<BoostItem[]>([]);
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
+  const [profileViewersTotal, setProfileViewersTotal] = useState<number | null>(null);
+  const [profileViewersIsPaid, setProfileViewersIsPaid] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activatingBoost, setActivatingBoost] = useState(false);
@@ -180,6 +183,7 @@ export default function MemberDashboardPage() {
         memberRequest('/api/me/subscription'),
         memberRequest('/api/me/boosts'),
         memberRequest('/api/me/conversations'),
+        memberRequest('/api/me/profile-viewers'),
       ]);
 
       const profileRes = results[0];
@@ -189,6 +193,7 @@ export default function MemberDashboardPage() {
       const subRes = results[4];
       const boostsRes = results[5];
       const convRes = results[6];
+      const viewersRes = results[7];
 
       if (profileRes.ok && profileRes.data) {
         const rawProfile = (profileRes.data as { profile: ProfileData }).profile;
@@ -229,6 +234,12 @@ export default function MemberDashboardPage() {
         setConversations(
           (convRes.data as { conversations: ConversationItem[] }).conversations ?? [],
         );
+      }
+
+      if (viewersRes?.ok && viewersRes.data) {
+        const vd = viewersRes.data as { total: number; isPaid: boolean };
+        setProfileViewersTotal(vd.total);
+        setProfileViewersIsPaid(vd.isPaid);
       }
     } catch (err: unknown) {
       const msg =
@@ -404,24 +415,30 @@ export default function MemberDashboardPage() {
                   South Asian singles who are committed to a serious marriage journey in Australia.
                 </p>
               </div>
-              <div className="flex gap-4">
-                <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
-                  <Eye className="mx-auto size-5 text-[#D4AF37]" />
-                  <span className="mt-2 block text-2xl font-bold">
-                    {profile?.stats?.profileViews ?? 0}
-                  </span>
-                  <span className="text-xs text-[#FCFAF7]/70">Profile Views</span>
-                </div>
-                <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
-                  <Heart className="mx-auto size-5 text-[#D4AF37]" />
-                  <span className="mt-2 block text-2xl font-bold">
-                    {profile?.stats?.interestsReceived ?? 0}
-                  </span>
-                  <span className="text-xs text-[#FCFAF7]/70">Interests Recd</span>
+                <div className="flex gap-4">
+                  <Link
+                    href="/member/profile-viewers"
+                    className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px] hover:bg-white/20 transition group"
+                  >
+                    <Eye className="mx-auto size-5 text-[#D4AF37]" />
+                    <span className="mt-2 block text-2xl font-bold">
+                      {profileViewersTotal ?? profile?.stats?.profileViews ?? 0}
+                    </span>
+                    <span className="text-xs text-[#FCFAF7]/70">Viewed Me</span>
+                    <span className="block text-[10px] text-[#D4AF37]/70 mt-0.5 group-hover:text-[#D4AF37] transition">
+                      See who →
+                    </span>
+                  </Link>
+                  <div className="rounded-2xl bg-white/10 p-4 text-center backdrop-blur-md border border-white/10 min-w-[100px]">
+                    <Heart className="mx-auto size-5 text-[#D4AF37]" />
+                    <span className="mt-2 block text-2xl font-bold">
+                      {profile?.stats?.interestsReceived ?? 0}
+                    </span>
+                    <span className="text-xs text-[#FCFAF7]/70">Interests Recd</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </PremiumCard>
+            </PremiumCard>
 
           {/* Pending Actions & Conversations Grid */}
           <div className="grid gap-6 md:grid-cols-2">

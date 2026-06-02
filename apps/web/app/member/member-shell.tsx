@@ -19,6 +19,7 @@ const memberLinks = [
   ['Notifications', '/member/notifications'],
   ['Matches', '/member/matches'],
   ['Recently viewed', '/member/recently-viewed'],
+  ['Who viewed me', '/member/profile-viewers'],
   ['Interests', '/member/interests'],
   ['Messages', '/member/messages'],
   ['Community', '/member/community'],
@@ -29,6 +30,7 @@ const memberLinks = [
   ['Settings', '/member/settings'],
   ['Safety', '/member/safety'],
 ] as const;
+
 
 export default function MemberShell({
   title,

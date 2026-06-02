@@ -1,10 +1,18 @@
-import { ProfileVisibility, type ProfileDraftInput } from '@vivah/shared';
+import {
+  MediaCategory,
+  MediaUploadStatus,
+  MediaVisibility,
+  ProfileVisibility,
+  VerificationStatus,
+  type ProfileDraftInput,
+} from '@vivah/shared';
 import { Types } from 'mongoose';
 import { recordHighVelocityProfileViews } from '../common/fraud.service.js';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   BlockModel,
   ProfileApprovalStatus,
+  ProfileMediaModel,
   ProfileModel,
   ProfileViewModel,
   UserModel,
@@ -247,6 +255,147 @@ export async function listRecentlyViewedProfiles(userId: Types.ObjectId) {
         : null;
     })
     .filter(Boolean);
+}
+
+// ── Who Viewed My Profile ────────────────────────────────────────────────────
+
+const FREE_VIEWERS_LIMIT = 5; // free users see at most 5 blurred viewers
+const PAID_VIEWERS_LIMIT = 50;
+
+export async function listProfileViewersReceived(userId: Types.ObjectId, isPaidMember: boolean) {
+  // First get own profile id so we can look up views by profileUserId
+  const ownProfile = await ProfileModel.findOne({ userId, isDeleted: false }).lean();
+  if (!ownProfile) {
+    throw new HttpError(404, 'Profile not found');
+  }
+
+  const limit = isPaidMember ? PAID_VIEWERS_LIMIT : FREE_VIEWERS_LIMIT;
+
+  // Fetch recent distinct viewers (one record per viewer – latest view wins)
+  const views = await ProfileViewModel.aggregate<{
+    _id: Types.ObjectId; // viewerId
+    viewedAt: Date;
+    viewerProfileId: Types.ObjectId;
+  }>([
+    {
+      $match: {
+        profileUserId: ownProfile._id,
+        isDeleted: false,
+        // Exclude self-views (shouldn't happen, but defensive)
+        viewerId: { $ne: userId },
+      },
+    },
+    { $sort: { viewedAt: -1 } },
+    // Deduplicate to one row per viewer, keeping the most recent
+    {
+      $group: {
+        _id: '$viewerId',
+        viewedAt: { $first: '$viewedAt' },
+        viewerProfileId: { $first: '$profileId' },
+      },
+    },
+    { $sort: { viewedAt: -1 } },
+    { $limit: limit },
+  ]);
+
+  if (views.length === 0) {
+    return { total: 0, isPaid: isPaidMember, viewers: [] };
+  }
+
+  const viewerUserIds = views.map((v) => v._id);
+
+  // Fetch viewer profiles (must be approved + visible)
+  const viewerProfiles = await ProfileModel.find({
+    userId: { $in: viewerUserIds },
+    isDeleted: false,
+    'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+  }).lean();
+
+  const profileByUserId = new Map(
+    viewerProfiles.map((profile) => [String(profile.userId), profile]),
+  );
+
+  // Fetch photos for viewer profiles
+  const profileIds = viewerProfiles.map((p) => p._id);
+  const media = await ProfileMediaModel.find({
+      profileId: { $in: profileIds },
+      uploadStatus: MediaUploadStatus.UPLOADED,
+      approvalStatus: VerificationStatus.APPROVED,
+      mediaType: 'PHOTO',
+      category: { $in: [MediaCategory.PROFILE_PHOTO, MediaCategory.PUBLIC_GALLERY] },
+      visibility: { $in: [MediaVisibility.PUBLIC, MediaVisibility.MATCHES_ONLY] },
+      isDeleted: false,
+    })
+    .sort({ isPrimary: -1, createdAt: -1 })
+    .lean();
+
+  const photoByProfileId = new Map<string, string>();
+  for (const m of media) {
+    const key = String(m.profileId);
+    if (!photoByProfileId.has(key)) {
+      photoByProfileId.set(key, m.assetUrl);
+    }
+  }
+
+  // Get total unique viewer count (unfiltered, for the free-tier "X people viewed" teaser)
+  const totalCount = await ProfileViewModel.aggregate<{ count: number }>([
+    { $match: { profileUserId: ownProfile._id, isDeleted: false, viewerId: { $ne: userId } } },
+    { $group: { _id: '$viewerId' } },
+    { $count: 'count' },
+  ]).then((result) => result[0]?.count ?? 0);
+
+  const viewers = views.map((view) => {
+    const profile = profileByUserId.get(String(view._id));
+
+    if (!profile) {
+      // Viewer deleted/hidden profile — return blurred stub
+      return {
+        viewedAt: view.viewedAt,
+        blurred: true,
+        viewer: null,
+      };
+    }
+
+    const photoUrl = photoByProfileId.get(String(profile._id));
+
+    if (isPaidMember) {
+      // Full details for paid members
+      return {
+        viewedAt: view.viewedAt,
+        blurred: false,
+        viewer: {
+          id: String(profile._id),
+          displayId: profile.displayId,
+          firstName: profile.personal?.firstName,
+          age: profile.personal?.age,
+          city: profile.location?.city,
+          state: profile.location?.state,
+          occupation: profile.employment?.occupation,
+          religion: profile.religion?.religion,
+          verificationLevel: profile.verification?.level ?? 'NONE',
+          photoUrl: profile.visibility?.showPhoto ? photoUrl : undefined,
+        },
+      };
+    }
+
+    // Free: blurred — no name, no photo, minimal stub
+    return {
+      viewedAt: view.viewedAt,
+      blurred: true,
+      viewer: {
+        id: null, // hidden
+        displayId: null,
+        firstName: null,
+        age: profile.personal?.age,
+        city: profile.location?.state ?? profile.location?.country, // state level only
+        religion: profile.religion?.religion,
+        verificationLevel: profile.verification?.level ?? 'NONE',
+        photoUrl: null,
+      },
+    };
+  });
+
+  return { total: totalCount, isPaid: isPaidMember, viewers };
 }
 
 export function applyPrivacy(profile: ProfileDocument, viewerId?: Types.ObjectId) {
