@@ -204,6 +204,7 @@ const interestSchema = new Schema<Interest>(
 );
 
 interestSchema.index({ senderId: 1, receiverId: 1 }, { unique: true });
+interestSchema.index({ receiverId: 1, status: 1 });
 
 export interface UserPair {
   userId?: ObjectId;
@@ -347,6 +348,7 @@ const photoRequestSchema = new Schema<PhotoRequest>(
 
 // One active request per requester→owner pair (enforced by service-layer upsert)
 photoRequestSchema.index({ requesterId: 1, ownerId: 1 });
+photoRequestSchema.index({ ownerId: 1, status: 1 });
 
 
 export interface SavedSearch {

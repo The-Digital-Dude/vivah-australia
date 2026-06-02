@@ -1,4 +1,5 @@
 import cors from 'cors';
+import crypto from 'crypto';
 import express, { type Express, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import { z } from 'zod';
@@ -48,6 +49,37 @@ export function createApp(options: CreateAppOptions): Express {
       },
     }),
   );
+
+  // Request ID / Correlation ID Middleware
+  app.use((request: Request, response: Response, next: express.NextFunction) => {
+    const reqId = request.header('x-request-id') || crypto.randomUUID();
+    request.headers['x-request-id'] = reqId;
+    response.setHeader('x-request-id', reqId);
+    next();
+  });
+
+  // Structured Logging Middleware
+  app.use((request: Request, response: Response, next: express.NextFunction) => {
+    const startTime = Date.now();
+    response.on('finish', () => {
+      const duration = Date.now() - startTime;
+      const logData = {
+        timestamp: new Date().toISOString(),
+        requestId: response.getHeader('x-request-id'),
+        method: request.method,
+        url: request.originalUrl,
+        status: response.statusCode,
+        durationMs: duration,
+        userAgent: request.headers['user-agent'],
+        ip: request.ip,
+      };
+      if (process.env.NODE_ENV !== 'test') {
+        console.log(JSON.stringify(logData));
+      }
+    });
+    next();
+  });
+
   app.use('/api', createStripeWebhookRouter());
   app.use(express.json({ limit: '1mb' }));
 
@@ -71,7 +103,9 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createAdminRouter(options.auth));
   app.use('/api', createNotificationsRouter(options.auth));
 
-  app.use((error: unknown, _request: Request, response: Response, _next: express.NextFunction) => {
+  app.use((error: unknown, request: Request, response: Response, _next: express.NextFunction) => {
+    const reqId = response.getHeader('x-request-id') || request.headers['x-request-id'];
+
     if (isZodValidationError(error)) {
       response.status(400).json({ message: 'Validation failed', issues: error.issues });
       return;
@@ -83,10 +117,15 @@ export function createApp(options: CreateAppOptions): Express {
     }
 
     if (process.env.NODE_ENV !== 'test') {
-      console.error(error);
+      console.error(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        requestId: reqId,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      }));
     }
 
-    response.status(500).json({ message: 'Internal server error' });
+    response.status(500).json({ message: 'Internal server error', requestId: reqId });
   });
 
   return app;
