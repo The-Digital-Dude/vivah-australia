@@ -300,6 +300,12 @@ export const recommendedMatchesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(30).default(12),
 });
 
+export const savedSearchCreateSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  query: profileSearchQuerySchema,
+  notifyOnNewMatches: z.boolean().default(false),
+});
+
 export const profileTargetSchema = z.object({
   profileId: objectIdSchema,
 });
@@ -704,6 +710,7 @@ export const profileSubmitSchema = z.object({
 export const notificationPreferencesSchema = z.object({
   emailNotifications: z.boolean().default(true),
   smsNotifications: z.boolean().default(false),
+  pushNotifications: z.boolean().default(false),
   marketingNotifications: z.boolean().default(false),
 });
 
@@ -731,6 +738,7 @@ export type MediaUpdateInput = z.infer<typeof mediaUpdateSchema>;
 export type MediaReviewInput = z.infer<typeof mediaReviewSchema>;
 export type ProfileSearchQueryInput = z.infer<typeof profileSearchQuerySchema>;
 export type RecommendedMatchesQueryInput = z.infer<typeof recommendedMatchesQuerySchema>;
+export type SavedSearchCreateInput = z.infer<typeof savedSearchCreateSchema>;
 export type ProfileTargetInput = z.infer<typeof profileTargetSchema>;
 export type InterestRespondInput = z.infer<typeof interestRespondSchema>;
 export type InterestListQueryInput = z.infer<typeof interestListQuerySchema>;

@@ -276,6 +276,33 @@ const profileViewSchema = new Schema<ProfileView>(
 
 profileViewSchema.index({ viewerId: 1, profileId: 1 }, { unique: true });
 
+export interface SavedSearch {
+  userId: ObjectId;
+  name: string;
+  query: unknown;
+  notifyOnNewMatches: boolean;
+  lastRunAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: ObjectId;
+}
+
+const savedSearchSchema = new Schema<SavedSearch>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    name: { type: String, required: true, trim: true, maxlength: 80 },
+    query: { type: Schema.Types.Mixed, required: true },
+    notifyOnNewMatches: { type: Boolean, default: false, index: true },
+    lastRunAt: { type: Date },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'saved_searches' },
+);
+
+savedSearchSchema.index({ userId: 1, name: 1 }, { unique: true });
+
 const reportSchema = new Schema<Report>(
   {
     reporterId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -1036,6 +1063,7 @@ export const FavouriteModel = getOrCreateModel<UserPair>('Favourite', favouriteS
 export const BlockModel = getOrCreateModel<UserPair>('Block', blockSchema);
 export const ReportModel = getOrCreateModel<Report>('Report', reportSchema);
 export const ProfileViewModel = getOrCreateModel<ProfileView>('ProfileView', profileViewSchema);
+export const SavedSearchModel = getOrCreateModel<SavedSearch>('SavedSearch', savedSearchSchema);
 export const ConversationModel = getOrCreateModel<Conversation>('Conversation', conversationSchema);
 export const MobileOtpModel = getOrCreateModel<MobileOtp>('MobileOtp', mobileOtpSchema);
 export const PushSubscriptionModel = getOrCreateModel<PushSubscription>(
@@ -1096,6 +1124,7 @@ export const phaseOneSchemas = {
   blockSchema,
   reportSchema,
   profileViewSchema,
+  savedSearchSchema,
   conversationSchema,
   mobileOtpSchema,
   pushSubscriptionSchema,
@@ -1136,6 +1165,7 @@ export const phaseOneModels = [
   BlockModel,
   ReportModel,
   ProfileViewModel,
+  SavedSearchModel,
   ConversationModel,
   MobileOtpModel,
   PushSubscriptionModel,

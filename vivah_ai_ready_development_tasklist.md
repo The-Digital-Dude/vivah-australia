@@ -1029,8 +1029,8 @@ PATCH /api/admin/verifications/:id/review
 #### Tests
 
 - [x] Badge updates after each verification approval.
-- [ ] Badge downgrades if verification is revoked.
-- [ ] Config changes recalculate correctly.
+- [x] Badge downgrades if verification is revoked.
+- [x] Config changes recalculate correctly.
 
 ---
 
@@ -1164,10 +1164,12 @@ GET /api/matches/highly-compatible
 - [x] Store viewer, viewed profile, timestamp.
 - [x] Prevent excessive duplicate views.
 - [x] Create recently viewed endpoint.
+- [x] Create saved search model and endpoints.
 
 #### Frontend Tasks
 
 - [x] Show recently viewed page/section.
+- [x] Add saved search controls to match discovery.
 
 #### API Endpoints
 
@@ -1774,7 +1776,7 @@ DELETE /api/me/notifications/:id
 
 #### Tasks
 
-- [ ] Add notification channel enum: `IN_APP`, `EMAIL`, `SMS`, `PUSH`.
+- [x] Add notification channel preferences for email, SMS, push, and in-app records.
 - [x] Keep push disabled for Phase 1 web unless web push is explicitly requested.
 - [x] Prepare data model for future native apps.
 
@@ -1860,7 +1862,7 @@ Status actions use `PATCH /api/admin/users/:id/status` with `PENDING`, `ACTIVE`,
 
 - [x] Build moderation queue.
 - [x] Build profile review screen.
-- [ ] Add comparison of old/new values for edited profiles.
+- [x] Add comparison of old/new values for edited profiles.
 
 #### API Endpoints
 
@@ -1879,8 +1881,8 @@ Use tasks from `VERIFY-001` and build admin UI.
 #### Frontend Tasks
 
 - [x] Queue by verification type.
-- [ ] Queue by priority.
-- [ ] Secure document preview.
+- [x] Queue by priority.
+- [x] Secure document preview.
 - [x] Approve/reject/request resubmission.
 - [x] Display verification history.
 
@@ -1939,7 +1941,7 @@ Use tasks from `VERIFY-001` and build admin UI.
 
 - [x] Build moderation dashboard.
 - [x] Add assignment and status filters.
-- [ ] Add action buttons: warn, suspend, ban, remove content, dismiss.
+- [x] Add action buttons: warn, suspend, ban, remove content, dismiss.
 
 ---
 
@@ -1954,9 +1956,9 @@ Create reporting endpoints for:
 - [x] Revenue reports
 - [x] Subscription reports
 - [x] Platform activity reports
-- [ ] Match/interest statistics
-- [ ] Messaging activity
-- [ ] Community activity
+- [x] Match/interest statistics
+- [x] Messaging activity
+- [x] Community activity
 
 #### API Endpoints
 
@@ -1972,9 +1974,9 @@ GET /api/admin/reports/activity
 #### Frontend Tasks
 
 - [x] Build admin dashboard cards.
-- [ ] Build charts.
-- [ ] Build date range filters.
-- [ ] Build export CSV buttons.
+- [x] Build charts.
+- [x] Build date range filters.
+- [x] Build export CSV buttons.
 
 ---
 
@@ -2049,10 +2051,10 @@ GET /api/admin/activity-logs
 #### Backend Tasks
 
 - [x] Add suspicious activity model or score field.
-- [ ] Track repeated reports.
-- [ ] Track duplicate phone/email attempts.
+- [x] Track repeated reports.
+- [x] Track duplicate phone/email attempts.
 - [x] Track repeated OTP failures.
-- [ ] Track unusual message volume.
+- [x] Track unusual message volume.
 - [x] Flag accounts for admin review.
 
 #### Acceptance Criteria
@@ -2075,7 +2077,7 @@ GET /api/admin/activity-logs
   - Admin layout
   - Auth layout
 - [x] Build responsive navigation.
-- [ ] Build mobile drawers.
+- [x] Build mobile drawers.
 - [x] Ensure all pages work on desktop, tablet, and mobile browsers.
 
 #### Acceptance Criteria
@@ -2092,20 +2094,20 @@ GET /api/admin/activity-logs
 
 - [x] Button
 - [x] Input
-- [ ] Select
+- [x] Select
 - [ ] Date picker
-- [ ] Checkbox/radio
-- [ ] Modal
-- [ ] Drawer
-- [ ] Tabs
+- [x] Checkbox/radio
+- [x] Modal
+- [x] Drawer
+- [x] Tabs
 - [ ] Toast
-- [ ] Badge
-- [ ] Avatar
+- [x] Badge
+- [x] Avatar
 - [ ] Profile card
 - [ ] Plan card
 - [x] Empty state
-- [ ] Loading skeleton
-- [ ] Pagination
+- [x] Loading skeleton
+- [x] Pagination
 - [x] Data table
 - [ ] File uploader
 
@@ -2326,8 +2328,8 @@ ADMIN_SEED_PASSWORD=
 
 - [x] NOTIF-001 In-app notifications
 - [x] NOTIF-002 Email notifications
-- [ ] NOTIF-003 SMS notifications
-- [ ] ADMIN-008 Reports/analytics
+- [x] NOTIF-003 SMS notifications
+- [x] ADMIN-008 Reports/analytics
 - [ ] TEST-001 to TEST-004
 - [ ] DEVOPS-001 to DEVOPS-004
 

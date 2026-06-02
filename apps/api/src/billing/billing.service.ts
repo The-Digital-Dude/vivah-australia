@@ -94,7 +94,7 @@ export async function upsertPlan(input: PlanInput) {
   const plan = await PlanModel.findOneAndUpdate(
     { code: input.code },
     { $set: input },
-    { new: true, upsert: true, setDefaultsOnInsert: true },
+    { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
   );
   return publicPlan(plan);
 }
@@ -103,7 +103,7 @@ export async function updatePlan(planId: string, input: PlanUpdateInput) {
   const plan = await PlanModel.findOneAndUpdate(
     { _id: planId, isDeleted: false },
     { $set: input },
-    { new: true },
+    { returnDocument: 'after' },
   );
 
   if (!plan) {
@@ -268,7 +268,7 @@ export async function createCoupon(input: CouponInput) {
   const coupon = await CouponModel.findOneAndUpdate(
     { code: input.code },
     { $set: input },
-    { new: true, upsert: true, setDefaultsOnInsert: true },
+    { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
   ).lean();
   return coupon;
 }
@@ -327,7 +327,7 @@ export async function incrementUsage(userId: Types.ObjectId, key: string, amount
   const counter = await UsageCounterModel.findOneAndUpdate(
     { userId, key, periodStart: start },
     { $setOnInsert: { periodEnd: end }, $inc: { count: amount } },
-    { new: true, upsert: true, setDefaultsOnInsert: true },
+    { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
   );
   return counter;
 }
@@ -456,7 +456,7 @@ export async function handleStripeEvent(event: Stripe.Event) {
           description: 'Subscription invoice payment',
         },
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
+      { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
     );
 
     await InvoiceModel.findOneAndUpdate(
@@ -474,7 +474,7 @@ export async function handleStripeEvent(event: Stripe.Event) {
           currency: invoice.currency.toUpperCase(),
         },
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
+      { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
     );
   }
 

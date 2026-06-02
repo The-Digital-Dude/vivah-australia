@@ -24,7 +24,9 @@ interface ModerationDashboard {
     verifications: Array<{ _id: string; type: string; status: string; createdAt: string }>;
     reports: Array<{
       _id: string;
+      reportedUserId?: string;
       targetType: string;
+      targetId?: string;
       severity: string;
       reason: string;
       status: string;
@@ -38,11 +40,26 @@ export default function AdminModerationPage() {
   const [dashboard, setDashboard] = useState<ModerationDashboard | null>(null);
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    void memberRequest('/api/admin/moderation/dashboard').then((result) => {
+  async function loadDashboard() {
+    const result = await memberRequest('/api/admin/moderation/dashboard');
       if (result.ok) setDashboard(result.data as ModerationDashboard);
       else setMessage(result.message);
+  }
+
+  async function applyAction(
+    reportId: string,
+    action: 'WARN' | 'SUSPEND' | 'BAN' | 'REMOVE_CONTENT' | 'DISMISS',
+  ) {
+    const result = await memberRequest(`/api/admin/moderation/reports/${reportId}/action`, {
+      method: 'PATCH',
+      body: { action },
     });
+    setMessage(result.message);
+    if (result.ok) await loadDashboard();
+  }
+
+  useEffect(() => {
+    void loadDashboard();
   }, [memberRequest]);
 
   return (
@@ -120,20 +137,49 @@ export default function AdminModerationPage() {
 
         <Queue title="Reports">
           {dashboard?.queues.reports.map((report) => (
-            <Link
+            <article
               key={report._id}
-              href="/admin/reports"
-              className="block rounded-md border border-[#7A1E3A]/10 p-3 hover:bg-[#FFF8F1]"
+              className="rounded-md border border-[#7A1E3A]/10 p-3"
             >
-              <p className="font-semibold">
-                {report.severity} {report.targetType}
-              </p>
+              <Link href="/admin/reports" className="block hover:text-[#7A1E3A]">
+                <p className="font-semibold">
+                  {report.severity} {report.targetType}
+                </p>
+              </Link>
               <p className="line-clamp-2 text-sm text-[#5E6470]">{report.reason}</p>
-            </Link>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <ModerationButton label="Warn" onClick={() => void applyAction(report._id, 'WARN')} />
+                <ModerationButton
+                  label="Suspend"
+                  onClick={() => void applyAction(report._id, 'SUSPEND')}
+                />
+                <ModerationButton label="Ban" onClick={() => void applyAction(report._id, 'BAN')} />
+                <ModerationButton
+                  label="Remove content"
+                  onClick={() => void applyAction(report._id, 'REMOVE_CONTENT')}
+                />
+                <ModerationButton
+                  label="Dismiss"
+                  onClick={() => void applyAction(report._id, 'DISMISS')}
+                />
+              </div>
+            </article>
           ))}
         </Queue>
       </div>
     </AdminShell>
+  );
+}
+
+function ModerationButton({ label, onClick }: Readonly<{ label: string; onClick: () => void }>) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-md border border-[#7A1E3A]/20 px-2.5 py-1.5 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
+    >
+      {label}
+    </button>
   );
 }
 

@@ -7,6 +7,7 @@ import {
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
+import { recordRepeatedReports } from '../common/fraud.service.js';
 import {
   BlockModel,
   ConversationModel,
@@ -440,6 +441,20 @@ export async function createReport(
   await report.save();
 
   await notify(userId, 'REPORT_SUBMITTED', 'Report submitted', 'Our safety team will review it.');
+
+  const reportCount = await ReportModel.countDocuments({
+    reporterId: userId,
+    createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    isDeleted: false,
+  });
+
+  if (reportCount >= 5) {
+    await recordRepeatedReports({
+      reporterId: userId,
+      reportCount,
+      ...(targetId ? { targetId } : {}),
+    });
+  }
 
   return {
     id: report.id,

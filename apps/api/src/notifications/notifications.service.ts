@@ -5,6 +5,7 @@ import { sendPush } from '../common/push.service.js';
 import { sendSms } from '../common/sms.service.js';
 import { sendEmail } from '../common/email.service.js';
 import { logActivity } from '../common/audit.service.js';
+import { recordRepeatedOtpFailures } from '../common/fraud.service.js';
 import {
   MobileOtpModel,
   NotificationModel,
@@ -35,7 +36,7 @@ export async function createNotification(input: {
 
   if (input.emailSubject && input.emailBody) {
     const user = await UserModel.findById(input.userId);
-    if (user?.email) {
+    if (user?.email && (user.notificationPreferences?.emailNotifications ?? true)) {
       await sendEmail({
         to: user.email,
         subject: input.emailSubject,
@@ -48,27 +49,30 @@ export async function createNotification(input: {
   if (input.smsBody) {
     const user = await UserModel.findById(input.userId);
     const mobile = user?.mobile;
-    if (mobile) {
+    if (mobile && (user.notificationPreferences?.smsNotifications ?? false)) {
       await sendSms({ to: mobile, message: input.smsBody });
     }
   }
 
   if (input.pushBody) {
-    const subscriptions = await PushSubscriptionModel.find({
-      userId: input.userId,
-      active: true,
-      isDeleted: false,
-    }).lean();
-    await Promise.all(
-      subscriptions.map((subscription) =>
-        sendPush({
-          endpoint: subscription.endpoint,
-          title: input.title,
-          body: input.pushBody ?? input.body ?? input.title,
-          data: input.data,
-        }),
-      ),
-    );
+    const user = await UserModel.findById(input.userId);
+    if (user?.notificationPreferences?.pushNotifications ?? false) {
+      const subscriptions = await PushSubscriptionModel.find({
+        userId: input.userId,
+        active: true,
+        isDeleted: false,
+      }).lean();
+      await Promise.all(
+        subscriptions.map((subscription) =>
+          sendPush({
+            endpoint: subscription.endpoint,
+            title: input.title,
+            body: input.pushBody ?? input.body ?? input.title,
+            data: input.data,
+          }),
+        ),
+      );
+    }
   }
 
   await logActivity({
@@ -126,6 +130,9 @@ export async function verifyMobileOtp(userId: Types.ObjectId, mobile: string, co
   otp.attempts += 1;
   if (otp.attempts > 5 || otp.codeHash !== hashOtp(code)) {
     await otp.save();
+    if (otp.attempts >= 3) {
+      await recordRepeatedOtpFailures({ userId, mobile, attempts: otp.attempts });
+    }
     throw new HttpError(400, 'Invalid or expired OTP');
   }
 
@@ -158,7 +165,7 @@ export async function savePushSubscription(userId: Types.ObjectId, input: PushSu
         isDeleted: false,
       },
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
   );
   return subscription;
 }
@@ -192,7 +199,7 @@ export async function markNotificationRead(userId: Types.ObjectId, notificationI
   const notification = await NotificationModel.findOneAndUpdate(
     { _id: notificationId, userId, isDeleted: false },
     { $set: { readAt: new Date() } },
-    { new: true },
+    { returnDocument: 'after' },
   );
   return notification;
 }
@@ -209,7 +216,7 @@ export async function deleteNotification(userId: Types.ObjectId, notificationId:
   const notification = await NotificationModel.findOneAndUpdate(
     { _id: notificationId, userId, isDeleted: false },
     { $set: { isDeleted: true, deletedAt: new Date(), deletedBy: userId } },
-    { new: true },
+    { returnDocument: 'after' },
   );
   return notification;
 }

@@ -108,7 +108,7 @@ export async function updateRoom(
   const room = await CommunityRoomModel.findOneAndUpdate(
     { _id: toId(roomId), isDeleted: false },
     { $set: input },
-    { new: true },
+    { returnDocument: 'after' },
   );
   if (!room) throw new HttpError(404, 'Room not found');
   await logAudit({

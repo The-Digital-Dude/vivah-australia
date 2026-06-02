@@ -11,6 +11,8 @@ import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   ActivityLogModel,
   AuditLogModel,
+  CommunityPostModel,
+  CommunityRoomModel,
   NotificationModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -157,6 +159,16 @@ describe('admin production readiness routes', () => {
     expect(
       bodyAs<{ usersByRole: Array<{ _id: string; count: number }> }>(analyticsResponse).usersByRole,
     ).toContainEqual(expect.objectContaining({ _id: UserRole.ADMIN, count: 1 }));
+    expect(
+      bodyAs<{ matchInterestStats: unknown[]; messagingActivity: unknown[] }>(analyticsResponse)
+        .matchInterestStats,
+    ).toEqual(expect.any(Array));
+
+    const csvResponse = await request(app)
+      .get('/api/admin/analytics/export.csv')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(csvResponse.text).toContain('section,key,count,totalCents');
   });
 
   it('manages users and writes audit logs', async () => {
@@ -275,6 +287,28 @@ describe('admin production readiness routes', () => {
 
     const created = bodyAs<{ request: { _id: string } }>(createResponse);
 
+    const listResponse = await request(app)
+      .get('/api/admin/verifications?status=PENDING')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(
+      bodyAs<{ requests: Array<{ priority?: { score: number } }> }>(listResponse).requests[0]
+        ?.priority?.score,
+    ).toBeGreaterThan(0);
+
+    const detailResponse = await request(app)
+      .get(`/api/admin/verifications/${created.request._id}`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    const documentId = bodyAs<{ documents: Array<{ _id: string }> }>(detailResponse).documents[0]
+      ?._id;
+    expect(documentId).toEqual(expect.any(String));
+
+    await request(app)
+      .get(`/api/admin/verifications/${created.request._id}/documents/${documentId}/preview`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+
     await request(app)
       .patch(`/api/admin/verifications/${created.request._id}/review`)
       .set('Authorization', `Bearer ${admin.accessToken}`)
@@ -292,6 +326,77 @@ describe('admin production readiness routes', () => {
     );
     expect(await NotificationModel.countDocuments({ type: 'VERIFICATION_REVIEWED' })).toBe(1);
     expect(await AuditLogModel.countDocuments({ action: 'VERIFICATION_REVIEWED' })).toBe(1);
+    expect(
+      await AuditLogModel.countDocuments({ action: 'VERIFICATION_DOCUMENT_PREVIEWED' }),
+    ).toBe(1);
+
+    await request(app)
+      .patch(`/api/admin/verifications/${created.request._id}/review`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ status: VerificationStatus.REJECTED })
+      .expect(200);
+    const downgradedProfile = await ProfileModel.findOne({ userId: member.user._id }).orFail();
+    expect(downgradedProfile.verification.identityVerified).toBe(false);
+    expect(downgradedProfile.verification.level).toBe('BASIC');
+
+    downgradedProfile.verification.level = 'FULLY_VERIFIED';
+    await downgradedProfile.save();
+    await request(app)
+      .post('/api/admin/verifications/recalculate-badges')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect((await ProfileModel.findById(profile._id).orFail()).verification.level).toBe('BASIC');
+  });
+
+  it('applies moderation dashboard report actions', async () => {
+    const admin = await createUser('moderation-actions@example.com', UserRole.ADMIN);
+    const member = await createUser('reported-member@example.com');
+    const room = await CommunityRoomModel.create({
+      slug: 'moderation-room',
+      name: 'Moderation Room',
+      isDefault: false,
+    });
+    const post = await CommunityPostModel.create({
+      roomId: room._id,
+      authorId: member.user._id,
+      body: 'Reported community post.',
+      status: 'PUBLISHED',
+    });
+    const report = await ReportModel.create({
+      reporterId: admin.user._id,
+      reportedUserId: member.user._id,
+      targetType: 'COMMUNITY_POST',
+      targetId: post._id,
+      reason: 'This community post needs moderation.',
+      status: 'OPEN',
+      severity: 'HIGH',
+    });
+
+    await request(app)
+      .patch(`/api/admin/moderation/reports/${report.id}/action`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ action: 'REMOVE_CONTENT' })
+      .expect(200);
+
+    expect((await CommunityPostModel.findById(post._id).orFail()).status).toBe('REMOVED');
+    expect(await AuditLogModel.countDocuments({ action: 'MODERATION_REMOVE_CONTENT' })).toBe(1);
+
+    const secondReport = await ReportModel.create({
+      reporterId: admin.user._id,
+      reportedUserId: member.user._id,
+      targetType: 'USER',
+      reason: 'This member should be suspended after review.',
+      status: 'OPEN',
+      severity: 'HIGH',
+    });
+    await request(app)
+      .patch(`/api/admin/moderation/reports/${secondReport.id}/action`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ action: 'SUSPEND' })
+      .expect(200);
+    expect((await UserModel.findById(member.user._id).orFail()).status).toBe(
+      AccountStatus.SUSPENDED,
+    );
   });
 
   it('lists audit logs for admins', async () => {

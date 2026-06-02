@@ -11,6 +11,7 @@ import {
   BlogPostModel,
   CmsPageModel,
   ContactInquiryModel,
+  FraudEventModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -326,5 +327,21 @@ describe('public web routes', () => {
 
     const inquiry = await ContactInquiryModel.findOne({ email: 'amit@example.com' }).orFail();
     expect(inquiry.subject).toBe('Membership question');
+  });
+
+  it('flags duplicate contact attempts for fraud review', async () => {
+    for (let index = 0; index < 3; index += 1) {
+      await request(app)
+        .post('/api/public/contact')
+        .send({
+          name: 'Repeated Contact',
+          email: 'repeat@example.com',
+          subject: 'Membership question',
+          message: 'I am sending another detailed inquiry about memberships.',
+        })
+        .expect(201);
+    }
+
+    expect(await FraudEventModel.countDocuments({ rule: 'DUPLICATE_CONTACT_ATTEMPTS' })).toBe(1);
   });
 });

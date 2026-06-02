@@ -7,7 +7,13 @@ import { createApp } from '../app.js';
 import { createTokenPair } from '../auth/token.service.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
-import { MobileOtpModel, ProfileModel, PushSubscriptionModel, UserModel } from '../models/index.js';
+import {
+  FraudEventModel,
+  MobileOtpModel,
+  ProfileModel,
+  PushSubscriptionModel,
+  UserModel,
+} from '../models/index.js';
 
 const authConfig: AuthConfig = {
   accessSecret: 'test-access-secret-minimum-32-characters',
@@ -94,6 +100,32 @@ describe('notification delivery extensions', () => {
     expect(
       (await ProfileModel.findOne({ userId: user._id }).orFail()).verification.mobileVerified,
     ).toBe(true);
+  });
+
+  it('flags repeated OTP failures for fraud review', async () => {
+    const { user, accessToken } = await createUser('otp-failure@example.com');
+    const mobile = '+61412345679';
+
+    await request(app)
+      .post('/api/me/mobile/request-otp')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ mobile })
+      .expect(201);
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await request(app)
+        .post('/api/me/mobile/verify-otp')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ mobile, code: '000000' })
+        .expect(400);
+    }
+
+    expect(
+      await FraudEventModel.countDocuments({
+        userId: user._id,
+        rule: 'REPEATED_OTP_FAILURES',
+      }),
+    ).toBe(1);
   });
 
   it('stores push subscriptions and queues a test push notification', async () => {

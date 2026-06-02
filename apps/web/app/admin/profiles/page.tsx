@@ -8,7 +8,11 @@ interface ProfileItem {
   _id: string;
   displayId: string;
   personal?: { firstName?: string; lastName?: string };
-  moderation: { approvalStatus: string; rejectionReason?: string };
+  moderation: {
+    approvalStatus: string;
+    rejectionReason?: string;
+    lastReviewSnapshot?: { previous?: unknown; current?: unknown };
+  };
   verification?: { level?: string };
   completionPercentage: number;
   updatedAt: string;
@@ -135,8 +139,38 @@ export default function AdminProfilesPage() {
               {detail.moderation.rejectionReason}
             </p>
           ) : null}
+          <SnapshotComparison snapshot={detail.moderation.lastReviewSnapshot} />
         </section>
       ) : null}
     </AdminShell>
+  );
+}
+
+function SnapshotComparison({
+  snapshot,
+}: Readonly<{ snapshot: { previous?: unknown; current?: unknown } | undefined }>) {
+  if (!snapshot?.previous && !snapshot?.current) {
+    return (
+      <p className="mt-4 rounded-md bg-white p-3 text-sm text-[#5E6470]">
+        No previous review snapshot is available yet.
+      </p>
+    );
+  }
+  return (
+    <div className="mt-4 grid gap-3 lg:grid-cols-2">
+      <Snapshot title="Previous values" value={snapshot.previous} />
+      <Snapshot title="Current values" value={snapshot.current} />
+    </div>
+  );
+}
+
+function Snapshot({ title, value }: Readonly<{ title: string; value: unknown }>) {
+  return (
+    <div className="rounded-md bg-white p-3">
+      <h3 className="text-sm font-semibold text-[#232323]">{title}</h3>
+      <pre className="mt-2 max-h-80 overflow-auto text-xs leading-5 text-[#5E6470]">
+        {JSON.stringify(value ?? {}, null, 2)}
+      </pre>
+    </div>
   );
 }

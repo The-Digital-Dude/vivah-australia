@@ -7,7 +7,7 @@ import {
   VerificationStatus,
   type ProfileSearchQueryInput,
 } from '@vivah/shared';
-import type { Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   BlockModel,
@@ -15,6 +15,7 @@ import {
   ProfileApprovalStatus,
   ProfileMediaModel,
   ProfileModel,
+  SavedSearchModel,
   SubscriptionModel,
 } from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';
@@ -543,4 +544,53 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
     .slice(0, limit);
 
   return { results, limits };
+}
+
+export async function listSavedSearches(userId: Types.ObjectId) {
+  return SavedSearchModel.find({ userId, isDeleted: false })
+    .sort({ updatedAt: -1 })
+    .select('name query notifyOnNewMatches lastRunAt createdAt updatedAt')
+    .lean();
+}
+
+export async function createSavedSearch(
+  userId: Types.ObjectId,
+  input: {
+    name: string;
+    query: ProfileSearchQueryInput;
+    notifyOnNewMatches: boolean;
+  },
+) {
+  const savedSearch = await SavedSearchModel.findOneAndUpdate(
+    { userId, name: input.name },
+    {
+      $set: {
+        userId,
+        name: input.name,
+        query: input.query,
+        notifyOnNewMatches: input.notifyOnNewMatches,
+        isDeleted: false,
+      },
+      $unset: { deletedAt: '', deletedBy: '' },
+    },
+    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
+  );
+
+  return savedSearch;
+}
+
+export async function deleteSavedSearch(userId: Types.ObjectId, searchId: string) {
+  if (!Types.ObjectId.isValid(searchId)) {
+    throw new HttpError(404, 'Saved search not found');
+  }
+
+  const savedSearch = await SavedSearchModel.findOneAndUpdate(
+    { _id: searchId, userId, isDeleted: false },
+    { $set: { isDeleted: true, deletedAt: new Date(), deletedBy: userId } },
+    { returnDocument: 'after' },
+  );
+
+  if (!savedSearch) {
+    throw new HttpError(404, 'Saved search not found');
+  }
 }

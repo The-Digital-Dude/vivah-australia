@@ -1,6 +1,7 @@
 import { InterestStatus, type MessageCreateInput } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
+import { recordUnusualMessageVolume } from '../common/fraud.service.js';
 import {
   BlockModel,
   ConversationModel,
@@ -153,6 +154,16 @@ export async function sendMessage(
   conversation.lastMessageAt = new Date();
   conversation.deletedFor = [];
   await conversation.save();
+
+  const sentThisHour = await MessageModel.countDocuments({
+    senderId: userId,
+    createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
+    isDeleted: false,
+  });
+
+  if (sentThisHour >= 50) {
+    await recordUnusualMessageVolume(userId, sentThisHour);
+  }
 
   return publicMessage(message);
 }

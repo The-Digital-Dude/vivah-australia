@@ -37,6 +37,12 @@ export interface User {
   termsAcceptedAt?: Date;
   privacyAcceptedAt?: Date;
   marketingConsent: boolean;
+  notificationPreferences: {
+    emailNotifications: boolean;
+    smsNotifications: boolean;
+    pushNotifications: boolean;
+    marketingNotifications: boolean;
+  };
   metadata: {
     signupIp?: string;
     signupUserAgent?: string;
@@ -92,6 +98,12 @@ const userSchema = new Schema<User>(
     termsAcceptedAt: { type: Date },
     privacyAcceptedAt: { type: Date },
     marketingConsent: { type: Boolean, default: false, required: true },
+    notificationPreferences: {
+      emailNotifications: { type: Boolean, default: true },
+      smsNotifications: { type: Boolean, default: false },
+      pushNotifications: { type: Boolean, default: false },
+      marketingNotifications: { type: Boolean, default: false },
+    },
     metadata: {
       signupIp: { type: String },
       signupUserAgent: { type: String },

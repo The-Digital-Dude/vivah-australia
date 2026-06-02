@@ -371,4 +371,48 @@ describe('match routes', () => {
     expect(body.results[0]?.matchReasons).toContain('Both based in Melbourne');
     expect(body.limits.recommendationLimit).toBe(6);
   });
+
+  it('creates, lists, runs, and deletes saved searches', async () => {
+    const viewer = await createUser('saved-search@example.com');
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA240001',
+      firstName: 'Amit',
+      gender: Gender.MALE,
+      age: 32,
+    });
+
+    const createResponse = await request(app)
+      .post('/api/matches/saved-searches')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .send({
+        name: 'Melbourne matches',
+        query: { page: 1, pageSize: 12, sort: 'RECOMMENDED', city: ['Melbourne'] },
+        notifyOnNewMatches: true,
+      })
+      .expect(201);
+
+    const savedSearch = bodyAs<{ savedSearch: { _id: string; name: string } }>(
+      createResponse,
+    ).savedSearch;
+    expect(savedSearch.name).toBe('Melbourne matches');
+
+    const listResponse = await request(app)
+      .get('/api/matches/saved-searches')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    expect(bodyAs<{ savedSearches: unknown[] }>(listResponse).savedSearches).toHaveLength(1);
+
+    await request(app)
+      .delete(`/api/matches/saved-searches/${savedSearch._id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(204);
+
+    const emptyResponse = await request(app)
+      .get('/api/matches/saved-searches')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ savedSearches: unknown[] }>(emptyResponse).savedSearches).toHaveLength(0);
+  });
 });

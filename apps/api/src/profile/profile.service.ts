@@ -209,7 +209,7 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
           viewedAt: new Date(),
         },
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
     );
     const recentViewCount = await ProfileViewModel.countDocuments({
       viewerId,
@@ -279,4 +279,19 @@ export async function updateAccountSettings(userId: Types.ObjectId, marketingCon
   }
 
   return user;
+}
+
+export async function updateNotificationPreferences(
+  userId: Types.ObjectId,
+  preferences: {
+    emailNotifications: boolean;
+    smsNotifications: boolean;
+    pushNotifications: boolean;
+    marketingNotifications: boolean;
+  },
+) {
+  const user = await UserModel.findById(userId).orFail();
+  user.notificationPreferences = preferences;
+  await user.save();
+  return user.notificationPreferences;
 }

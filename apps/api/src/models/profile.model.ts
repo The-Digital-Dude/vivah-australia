@@ -141,6 +141,10 @@ export interface Profile {
     reviewedAt?: Date;
     rejectionReason?: string;
     internalNote?: string;
+    lastReviewSnapshot?: {
+      previous?: unknown;
+      current?: unknown;
+    };
   };
   createdAt: Date;
   updatedAt: Date;
@@ -291,6 +295,10 @@ const profileSchema = new Schema<Profile>(
       reviewedAt: { type: Date },
       rejectionReason: { type: String, trim: true },
       internalNote: { type: String, trim: true },
+      lastReviewSnapshot: {
+        previous: { type: Schema.Types.Mixed },
+        current: { type: Schema.Types.Mixed },
+      },
     },
     ...auditedSchemaFields,
   },

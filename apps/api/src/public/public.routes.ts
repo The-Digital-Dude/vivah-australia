@@ -15,6 +15,7 @@ import { requireAuth } from '../auth/auth.middleware.js';
 import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { sendEmail } from '../common/email.service.js';
+import { recordDuplicateContactAttempts } from '../common/fraud.service.js';
 import {
   BlogPostModel,
   BannerModel,
@@ -258,6 +259,23 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         subject: input.subject,
         message: input.message,
       });
+
+      const recentDuplicateCount = await ContactInquiryModel.countDocuments({
+        isDeleted: false,
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        $or: [
+          { email: input.email.toLowerCase() },
+          ...(input.phone ? [{ phone: input.phone }] : []),
+        ],
+      });
+
+      if (recentDuplicateCount >= 3) {
+        await recordDuplicateContactAttempts({
+          email: input.email.toLowerCase(),
+          ...(input.phone ? { phone: input.phone } : {}),
+          count: recentDuplicateCount,
+        });
+      }
 
       // Send email notification
       await sendEmail({

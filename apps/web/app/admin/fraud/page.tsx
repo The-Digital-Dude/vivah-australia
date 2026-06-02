@@ -22,11 +22,25 @@ export default function AdminFraudPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    void memberRequest('/api/admin/fraud/events').then((result) => {
-      if (result.ok) setEvents((result.data as { events?: FraudEvent[] }).events ?? []);
-      else setMessage(result.message);
-    });
+    void loadEvents();
   }, [memberRequest]);
+
+  async function loadEvents() {
+    const result = await memberRequest('/api/admin/fraud/events');
+    if (result.ok) setEvents((result.data as { events?: FraudEvent[] }).events ?? []);
+    else setMessage(result.message);
+  }
+
+  async function reviewEvent(eventId: string, status: 'REVIEWED' | 'DISMISSED') {
+    const result = await memberRequest(`/api/admin/fraud/events/${eventId}`, {
+      method: 'PATCH',
+      body: { status },
+    });
+    setMessage(result.ok ? `Fraud event ${status.toLowerCase()}.` : result.message);
+    if (result.ok) {
+      await loadEvents();
+    }
+  }
 
   return (
     <AdminShell
@@ -56,6 +70,24 @@ export default function AdminFraudPage() {
             <pre className="mt-3 overflow-x-auto rounded-md bg-[#FFF8F1] p-3 text-xs text-[#5E6470]">
               {JSON.stringify(event.metadata ?? {}, null, 2)}
             </pre>
+            {event.status === 'OPEN' ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => void reviewEvent(event._id, 'REVIEWED')}
+                  className="rounded-md bg-[#7A1E3A] px-3 py-2 text-xs font-semibold text-white"
+                >
+                  Mark reviewed
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void reviewEvent(event._id, 'DISMISSED')}
+                  className="rounded-md border border-[#7A1E3A]/20 px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
+                >
+                  Dismiss
+                </button>
+              </div>
+            ) : null}
           </article>
         ))}
         {!events.length ? (

@@ -1,5 +1,6 @@
 import {
   AccountStatus,
+  CommunityPostStatus,
   ReportStatus,
   SubscriptionStatus,
   UserRole,
@@ -19,11 +20,15 @@ import {
 import type { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
-import { listFraudEvents } from '../common/fraud.service.js';
+import { listFraudEvents, reviewFraudEvent } from '../common/fraud.service.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import {
   AdminNoteModel,
   AuditLogModel,
+  CommunityCommentModel,
+  CommunityPostModel,
+  InterestModel,
+  MessageModel,
   PaymentModel,
   ProfileMediaModel,
   ProfileApprovalStatus,
@@ -54,6 +59,84 @@ const selfDestructiveStatuses = [
 function monthStart() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1);
+}
+
+type DateRangeInput = { from?: Date; to?: Date };
+
+function dateRange(input: DateRangeInput = {}) {
+  return {
+    from: input.from ?? monthStart(),
+    to: input.to ?? new Date(),
+  };
+}
+
+function createdAtMatch(input: DateRangeInput = {}) {
+  const range = dateRange(input);
+  return { createdAt: { $gte: range.from, $lte: range.to } };
+}
+
+function verificationPriority(request: {
+  type: string;
+  status: string;
+  submittedAt?: Date;
+  createdAt: Date;
+}) {
+  const typeRank: Record<string, number> = {
+    POLICE_CLEARANCE: 5,
+    FACIAL: 5,
+    IDENTITY: 4,
+    VISA: 4,
+    EMPLOYMENT: 3,
+    ADDRESS: 3,
+    MOBILE: 2,
+    EMAIL: 1,
+  };
+  const ageMs = Date.now() - new Date(request.submittedAt ?? request.createdAt).getTime();
+  const ageDays = Math.max(0, Math.floor(ageMs / (24 * 60 * 60 * 1000)));
+  const score =
+    (request.status === VerificationStatus.PENDING ? 20 : 0) +
+    (typeRank[request.type] ?? 1) * 10 +
+    Math.min(ageDays, 14);
+  return {
+    ageDays,
+    label: score >= 65 ? 'HIGH' : score >= 40 ? 'MEDIUM' : 'NORMAL',
+    score,
+  };
+}
+
+function profileReviewSnapshot(profile: Awaited<ReturnType<typeof ProfileModel.findOne>>) {
+  if (!profile) return null;
+  return {
+    personal: profile.personal,
+    religion: profile.religion,
+    location: profile.location,
+    education: profile.education,
+    employment: profile.employment,
+    family: profile.family,
+    lifestyle: profile.lifestyle,
+    about: profile.about,
+    partnerPreference: profile.partnerPreference,
+    visibility: profile.visibility,
+    completionPercentage: profile.completionPercentage,
+    updatedAt: profile.updatedAt,
+  };
+}
+
+function csvEscape(value: unknown) {
+  let stringValue = '';
+  if (typeof value === 'string') stringValue = value;
+  else if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    stringValue = value.toString();
+  } else if (value !== null && value !== undefined) {
+    stringValue = JSON.stringify(value) ?? '';
+  }
+  return `"${stringValue.replaceAll('"', '""')}"`;
+}
+
+function aggregateRowsToCsv(name: string, rows: Array<Record<string, unknown>>) {
+  return rows.map((row) =>
+    [name, row._id ?? 'UNKNOWN', row.count ?? 0, row.totalCents ?? ''].map(csvEscape).join(','),
+  );
 }
 
 function publicUser(user: Awaited<ReturnType<typeof UserModel.findOne>>) {
@@ -166,7 +249,7 @@ export async function getModerationDashboard() {
       .select('displayId personal.firstName personal.lastName moderation updatedAt')
       .lean(),
     VerificationRequestModel.find({ status: VerificationStatus.PENDING, isDeleted: false })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .limit(8)
       .lean(),
     ReportModel.find({
@@ -182,14 +265,17 @@ export async function getModerationDashboard() {
     counts: { pendingProfiles, pendingVerifications, openReports, assignedReports, pendingMedia },
     queues: {
       profiles: recentProfiles,
-      verifications: recentVerifications,
+      verifications: recentVerifications
+        .map((request) => ({ ...request, priority: verificationPriority(request) }))
+        .sort((a, b) => b.priority.score - a.priority.score),
       reports: recentReports,
     },
   };
 }
 
-export async function getAnalyticsSummary() {
-  const since = monthStart();
+export async function getAnalyticsSummary(input: DateRangeInput = {}) {
+  const range = dateRange(input);
+  const rangeMatch = createdAtMatch(range);
   const [
     usersByRole,
     usersByStatus,
@@ -199,6 +285,9 @@ export async function getAnalyticsSummary() {
     revenue,
     subscriptionsByStatus,
     verificationByStatus,
+    matchInterestStats,
+    messagingActivity,
+    communityActivity,
   ] = await Promise.all([
     UserModel.aggregate<{ _id: string; count: number }>([
       { $match: { isDeleted: false } },
@@ -213,15 +302,15 @@ export async function getAnalyticsSummary() {
       { $group: { _id: '$moderation.approvalStatus', count: { $sum: 1 } } },
     ]),
     ReportModel.aggregate<{ _id: string; count: number }>([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, ...rangeMatch } },
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]),
     PaymentModel.aggregate<{ _id: string; count: number; totalCents: number }>([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, ...rangeMatch } },
       { $group: { _id: '$status', count: { $sum: 1 }, totalCents: { $sum: '$amountCents' } } },
     ]),
     PaymentModel.aggregate<{ totalCents: number }>([
-      { $match: { status: 'SUCCEEDED', isDeleted: false, createdAt: { $gte: since } } },
+      { $match: { status: 'SUCCEEDED', isDeleted: false, ...rangeMatch } },
       { $group: { _id: null, totalCents: { $sum: '$amountCents' } } },
     ]),
     SubscriptionModel.aggregate<{ _id: string; count: number }>([
@@ -229,13 +318,30 @@ export async function getAnalyticsSummary() {
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]),
     VerificationRequestModel.aggregate<{ _id: string; count: number }>([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, ...rangeMatch } },
       { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]),
+    InterestModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false, ...rangeMatch } },
+      { $group: { _id: '$status', count: { $sum: 1 } } },
+    ]),
+    MessageModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false, ...rangeMatch } },
+      { $group: { _id: { $dateToString: { date: '$createdAt', format: '%Y-%m-%d' } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]),
+    Promise.all([
+      CommunityPostModel.countDocuments({ isDeleted: false, ...rangeMatch }),
+      CommunityCommentModel.countDocuments({ isDeleted: false, ...rangeMatch }),
+    ]).then(([posts, comments]) => [
+      { _id: 'POSTS', count: posts },
+      { _id: 'COMMENTS', count: comments },
     ]),
   ]);
 
   return {
     generatedAt: new Date(),
+    range,
     monthlyRevenueCents: revenue[0]?.totalCents ?? 0,
     usersByRole,
     usersByStatus,
@@ -244,11 +350,50 @@ export async function getAnalyticsSummary() {
     paymentsByStatus,
     subscriptionsByStatus,
     verificationByStatus,
+    matchInterestStats,
+    messagingActivity,
+    communityActivity,
   };
+}
+
+export async function getAnalyticsCsv(input: DateRangeInput = {}) {
+  const summary = await getAnalyticsSummary(input);
+  return [
+    ['section', 'key', 'count', 'totalCents'].join(','),
+    ...aggregateRowsToCsv('usersByRole', summary.usersByRole),
+    ...aggregateRowsToCsv('usersByStatus', summary.usersByStatus),
+    ...aggregateRowsToCsv('profilesByStatus', summary.profilesByStatus),
+    ...aggregateRowsToCsv('verificationByStatus', summary.verificationByStatus),
+    ...aggregateRowsToCsv('reportsByStatus', summary.reportsByStatus),
+    ...aggregateRowsToCsv('paymentsByStatus', summary.paymentsByStatus),
+    ...aggregateRowsToCsv('subscriptionsByStatus', summary.subscriptionsByStatus),
+    ...aggregateRowsToCsv('matchInterestStats', summary.matchInterestStats),
+    ...aggregateRowsToCsv('messagingActivity', summary.messagingActivity),
+    ...aggregateRowsToCsv('communityActivity', summary.communityActivity),
+  ].join('\n');
 }
 
 export async function getFraudEvents() {
   return { events: await listFraudEvents() };
+}
+
+export async function updateFraudEventStatus(
+  adminId: Types.ObjectId,
+  eventId: string,
+  status: 'REVIEWED' | 'DISMISSED',
+) {
+  const event = await reviewFraudEvent(eventId, status, adminId);
+  if (!event) {
+    throw new HttpError(404, 'Fraud event not found');
+  }
+  await logAudit({
+    actorId: adminId,
+    action: 'FRAUD_EVENT_REVIEWED',
+    targetType: 'FraudEvent',
+    targetId: event._id,
+    metadata: { status, rule: event.rule },
+  });
+  return event;
 }
 
 export async function listUsers(input: AdminUserQueryInput) {
@@ -475,11 +620,17 @@ export async function reviewProfile(
       : input.action === 'REJECT'
         ? ProfileApprovalStatus.REJECTED
         : ProfileApprovalStatus.NEEDS_CHANGES;
+  const previousSnapshot = profile.moderation.lastReviewSnapshot?.current ?? null;
+  const currentSnapshot = profileReviewSnapshot(profile);
   profile.set('moderation.approvalStatus', status);
   profile.set('moderation.reviewedBy', actorId);
   profile.set('moderation.reviewedAt', new Date());
   profile.set('moderation.rejectionReason', input.reason);
   profile.set('moderation.internalNote', input.internalNote);
+  profile.set('moderation.lastReviewSnapshot', {
+    previous: previousSnapshot,
+    current: currentSnapshot,
+  });
   await profile.save();
   await createNotification({
     userId: profile.userId,
@@ -561,13 +712,16 @@ export async function getOwnVerificationRequest(userId: Types.ObjectId, requestI
 export async function listVerificationRequests(
   status: VerificationStatusType = VerificationStatus.PENDING,
 ) {
-  return VerificationRequestModel.find({ status, isDeleted: false })
-    .sort({ createdAt: -1 })
+  const requests = await VerificationRequestModel.find({ status, isDeleted: false })
+    .sort({ createdAt: 1 })
     .limit(100)
     .lean();
+  return requests
+    .map((request) => ({ ...request, priority: verificationPriority(request) }))
+    .sort((a, b) => b.priority.score - a.priority.score);
 }
 
-export async function getVerificationRequestDetail(requestId: string) {
+export async function getVerificationRequestDetail(requestId: string, actorId?: Types.ObjectId) {
   const request = await VerificationRequestModel.findOne({
     _id: requestId,
     isDeleted: false,
@@ -576,8 +730,79 @@ export async function getVerificationRequestDetail(requestId: string) {
   const documents = await VerificationDocumentModel.find({
     requestId,
     isDeleted: false,
-  }).lean();
+  })
+    .select('_id documentType encrypted createdAt updatedAt')
+    .lean();
+  if (actorId) {
+    await logAudit({
+      actorId,
+      action: 'VERIFICATION_DOCUMENT_LIST_VIEWED',
+      targetType: 'VERIFICATION_REQUEST',
+      targetId: request._id,
+      targetUserId: request.userId,
+      metadata: { documentCount: documents.length },
+    });
+  }
   return { request, documents };
+}
+
+export async function getVerificationDocumentPreview(
+  actorId: Types.ObjectId,
+  actorRole: string,
+  requestId: string,
+  documentId: string,
+) {
+  const request = await VerificationRequestModel.findOne({ _id: requestId, isDeleted: false });
+  if (!request) throw new HttpError(404, 'Verification request not found');
+  const document = await VerificationDocumentModel.findOne({
+    _id: documentId,
+    requestId: request._id,
+    isDeleted: false,
+  }).lean();
+  if (!document) throw new HttpError(404, 'Verification document not found');
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  const previewToken = Buffer.from(
+    JSON.stringify({ documentId, requestId, exp: expiresAt.toISOString() }),
+  ).toString('base64url');
+  await logAudit({
+    actorId,
+    actorRole,
+    action: 'VERIFICATION_DOCUMENT_PREVIEWED',
+    targetType: 'VERIFICATION_DOCUMENT',
+    targetId: document._id,
+    targetUserId: document.userId,
+    metadata: { requestId, documentType: document.documentType, expiresAt },
+  });
+  return {
+    document: {
+      id: String(document._id),
+      documentType: document.documentType,
+      encrypted: document.encrypted,
+    },
+    previewUrl: `/api/admin/verifications/${requestId}/documents/${documentId}/preview?token=${previewToken}`,
+    expiresAt,
+  };
+}
+
+export async function recalculateVerificationBadges(actorId: Types.ObjectId, actorRole: string) {
+  const profiles = await ProfileModel.find({ isDeleted: false }).select('_id userId verification');
+  let changed = 0;
+  for (const profile of profiles) {
+    const nextLevel = calculateVerificationBadge(profile);
+    if (profile.verification.level !== nextLevel) {
+      profile.verification.level = nextLevel;
+      await profile.save();
+      changed += 1;
+    }
+  }
+  await logAudit({
+    actorId,
+    actorRole,
+    action: 'VERIFICATION_BADGES_RECALCULATED',
+    targetType: 'PROFILE',
+    metadata: { scanned: profiles.length, changed },
+  });
+  return { scanned: profiles.length, changed };
 }
 
 export async function reviewVerificationRequest(
@@ -597,9 +822,9 @@ export async function reviewVerificationRequest(
   request.reviewedAt = new Date();
   await request.save();
 
+  const profile = await ProfileModel.findOne({ userId: request.userId, isDeleted: false });
+  const path = verificationPath(request.type);
   if (input.status === VerificationStatus.APPROVED) {
-    const profile = await ProfileModel.findOne({ userId: request.userId, isDeleted: false });
-    const path = verificationPath(request.type);
     if (request.type === 'EMAIL') {
       await UserModel.updateOne({ _id: request.userId }, { $set: { emailVerified: true } });
     }
@@ -611,6 +836,10 @@ export async function reviewVerificationRequest(
       profile.verification.level = calculateVerificationBadge(profile);
       await profile.save();
     }
+  } else if (profile && path) {
+    profile.set(path, false);
+    profile.verification.level = calculateVerificationBadge(profile);
+    await profile.save();
   }
 
   await createNotification({
@@ -631,4 +860,74 @@ export async function reviewVerificationRequest(
   });
 
   return request;
+}
+
+export async function performModerationAction(
+  actorId: Types.ObjectId,
+  actorRole: string,
+  reportId: string,
+  action: 'WARN' | 'SUSPEND' | 'BAN' | 'REMOVE_CONTENT' | 'DISMISS',
+) {
+  const report = await ReportModel.findOne({ _id: reportId, isDeleted: false });
+  if (!report) throw new HttpError(404, 'Report not found');
+
+  if (action === 'WARN') {
+    const targetUserId = report.reportedUserId;
+    if (!targetUserId) throw new HttpError(400, 'Report has no user to warn');
+    await createNotification({
+      userId: targetUserId,
+      type: 'MODERATION_WARNING',
+      title: 'Moderation warning',
+      body: 'A moderator reviewed a report linked to your account. Please follow community guidelines.',
+      emailSubject: 'Vivah Australia moderation warning',
+      emailBody:
+        'A moderator reviewed a report linked to your account. Please follow community guidelines.',
+    });
+    report.status = ReportStatus.RESOLVED;
+  }
+
+  if (action === 'SUSPEND' || action === 'BAN') {
+    const targetUserId = report.reportedUserId;
+    if (!targetUserId) throw new HttpError(400, 'Report has no user to restrict');
+    await updateUserStatus(actorId, actorRole, String(targetUserId), {
+      status: action === 'BAN' ? AccountStatus.BANNED : AccountStatus.SUSPENDED,
+    });
+    report.status = ReportStatus.RESOLVED;
+  }
+
+  if (action === 'REMOVE_CONTENT') {
+    if (!report.targetId) throw new HttpError(400, 'Report has no content target');
+    if (['COMMUNITY_POST', 'POST'].includes(report.targetType)) {
+      const update = await CommunityPostModel.updateOne(
+        { _id: report.targetId, isDeleted: false },
+        { $set: { status: CommunityPostStatus.REMOVED, updatedBy: actorId } },
+      );
+      if (update.matchedCount === 0) throw new HttpError(404, 'Reported content not found');
+    } else if (['COMMUNITY_COMMENT', 'COMMENT'].includes(report.targetType)) {
+      const update = await CommunityCommentModel.updateOne(
+        { _id: report.targetId, isDeleted: false },
+        { $set: { isDeleted: true, deletedAt: new Date(), deletedBy: actorId } },
+      );
+      if (update.matchedCount === 0) throw new HttpError(404, 'Reported content not found');
+    } else {
+      throw new HttpError(400, 'Remove content is only available for community posts/comments');
+    }
+    report.status = ReportStatus.RESOLVED;
+  }
+
+  if (action === 'DISMISS') {
+    report.status = ReportStatus.DISMISSED;
+  }
+
+  await report.save();
+  await logAudit({
+    actorId,
+    actorRole,
+    action: `MODERATION_${action}`,
+    targetType: 'REPORT',
+    targetId: report._id,
+    ...(report.reportedUserId ? { targetUserId: report.reportedUserId } : {}),
+    metadata: { targetType: report.targetType, targetId: report.targetId },
+  });
+  return report;
 }

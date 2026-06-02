@@ -48,6 +48,7 @@ export default function MemberSettingsPage() {
     const payload = {
       emailNotifications: form.get('emailNotifications') === 'on',
       smsNotifications: form.get('smsNotifications') === 'on',
+      pushNotifications: form.get('pushNotifications') === 'on',
       marketingNotifications: form.get('marketingNotifications') === 'on',
     };
     const parsed = notificationPreferencesSchema.safeParse(payload);
@@ -141,7 +142,12 @@ export default function MemberSettingsPage() {
           className="grid gap-4 border-t border-neutral-200 pt-6"
           onSubmit={(event) => void saveNotifications(event)}
         >
-          {['emailNotifications', 'smsNotifications', 'marketingNotifications'].map((name) => (
+          {[
+            'emailNotifications',
+            'smsNotifications',
+            'pushNotifications',
+            'marketingNotifications',
+          ].map((name) => (
             <label key={name} className="flex gap-3 text-sm text-neutral-700">
               <input
                 name={name}

@@ -19,6 +19,7 @@ import { HttpError } from '../auth/auth-errors.js';
 import {
   createVerificationRequest,
   addUserNote,
+  getAnalyticsCsv,
   getAnalyticsSummary,
   getDashboardSummary,
   getFraudEvents,
@@ -26,14 +27,18 @@ import {
   getOwnVerificationRequest,
   getProfileModerationDetail,
   getUserDetail,
+  getVerificationDocumentPreview,
   getVerificationRequestDetail,
   listAuditLogs,
   listOwnVerificationRequests,
   listProfilesForModeration,
   listUsers,
   listVerificationRequests,
+  performModerationAction,
+  recalculateVerificationBadges,
   reviewProfile,
   reviewVerificationRequest,
+  updateFraudEventStatus,
   updateUserRole,
   updateUserStatus,
   updateUser,
@@ -52,6 +57,24 @@ function requireRequestAuth(request: AuthenticatedRequest) {
     throw new HttpError(401, 'Authentication required');
   }
   return request.auth;
+}
+
+function parseDateQuery(value: unknown) {
+  if (typeof value !== 'string' || value.trim() === '') return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new HttpError(400, 'Invalid date range');
+  }
+  return date;
+}
+
+function analyticsRangeFromQuery(query: Request['query']) {
+  const from = parseDateQuery(query.from);
+  const to = parseDateQuery(query.to);
+  return {
+    ...(from ? { from } : {}),
+    ...(to ? { to } : {}),
+  };
 }
 
 export function createAdminRouter(config: AuthConfig): Router {
@@ -79,8 +102,22 @@ export function createAdminRouter(config: AuthConfig): Router {
     '/admin/analytics/summary',
     requireAuth(config),
     requireRoles(['SUPER_ADMIN', 'ADMIN']),
-    asyncHandler(async (_request, response) => {
-      response.status(200).json(await getAnalyticsSummary());
+    asyncHandler(async (request, response) => {
+      response.status(200).json(await getAnalyticsSummary(analyticsRangeFromQuery(request.query)));
+    }),
+  );
+
+  router.get(
+    '/admin/analytics/export.csv',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (request, response) => {
+      const csv = await getAnalyticsCsv(analyticsRangeFromQuery(request.query));
+      response
+        .status(200)
+        .setHeader('Content-Type', 'text/csv; charset=utf-8')
+        .setHeader('Content-Disposition', 'attachment; filename="vivah-admin-analytics.csv"')
+        .send(csv);
     }),
   );
 
@@ -90,6 +127,51 @@ export function createAdminRouter(config: AuthConfig): Router {
     requireRoles(['SUPER_ADMIN', 'ADMIN']),
     asyncHandler(async (_request, response) => {
       response.status(200).json(await getFraudEvents());
+    }),
+  );
+
+  router.patch(
+    '/admin/fraud/events/:id',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const eventId = request.params.id;
+      const body = request.body as { status?: unknown };
+      const status = typeof body.status === 'string' ? body.status : '';
+      if (!eventId || (status !== 'REVIEWED' && status !== 'DISMISSED')) {
+        throw new HttpError(400, 'Valid fraud review status is required');
+      }
+      response
+        .status(200)
+        .json({ event: await updateFraudEventStatus(auth.userId, eventId, status) });
+    }),
+  );
+
+  router.patch(
+    '/admin/moderation/reports/:id/action',
+    requireAuth(config),
+    requireAdmin,
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const reportId = request.params.id;
+      const body = request.body as { action?: unknown };
+      const action = typeof body.action === 'string' ? body.action : '';
+      if (
+        !reportId ||
+        !['WARN', 'SUSPEND', 'BAN', 'REMOVE_CONTENT', 'DISMISS'].includes(action)
+      ) {
+        throw new HttpError(400, 'Valid moderation action is required');
+      }
+      response.status(200).json({
+        report: await performModerationAction(
+          auth.userId,
+          auth.role,
+          reportId,
+          action as 'WARN' | 'SUSPEND' | 'BAN' | 'REMOVE_CONTENT' | 'DISMISS',
+        ),
+        message: 'Moderation action applied',
+      });
     }),
   );
 
@@ -283,6 +365,19 @@ export function createAdminRouter(config: AuthConfig): Router {
     }),
   );
 
+  router.post(
+    '/admin/verifications/recalculate-badges',
+    requireAuth(config),
+    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      response.status(200).json({
+        result: await recalculateVerificationBadges(auth.userId, auth.role),
+        message: 'Verification badges recalculated',
+      });
+    }),
+  );
+
   router.patch(
     '/admin/verifications/:id/review',
     requireAuth(config),
@@ -303,10 +398,26 @@ export function createAdminRouter(config: AuthConfig): Router {
     '/admin/verifications/:id',
     requireAuth(config),
     requireAdmin,
-    asyncHandler(async (request, response) => {
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
       const requestId = request.params.id;
       if (!requestId) throw new HttpError(404, 'Verification request not found');
-      response.status(200).json(await getVerificationRequestDetail(requestId));
+      response.status(200).json(await getVerificationRequestDetail(requestId, auth.userId));
+    }),
+  );
+
+  router.get(
+    '/admin/verifications/:id/documents/:documentId/preview',
+    requireAuth(config),
+    requireAdmin,
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const requestId = request.params.id;
+      const documentId = request.params.documentId;
+      if (!requestId || !documentId) throw new HttpError(404, 'Verification document not found');
+      response.status(200).json({
+        preview: await getVerificationDocumentPreview(auth.userId, auth.role, requestId, documentId),
+      });
     }),
   );
 

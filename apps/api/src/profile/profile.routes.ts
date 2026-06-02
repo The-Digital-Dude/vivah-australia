@@ -14,6 +14,7 @@ import {
   getVisibleProfile,
   submitOwnProfile,
   updateAccountSettings,
+  updateNotificationPreferences,
   updateOwnProfile,
 } from './profile.service.js';
 
@@ -82,11 +83,13 @@ export function createProfileRouter(config: AuthConfig): Router {
   router.patch(
     '/me/notification-preferences',
     requireAuth(config),
-    (request: AuthenticatedRequest, response) => {
-      requireRequestAuth(request);
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
       const preferences = notificationPreferencesSchema.parse(request.body);
-      response.status(200).json({ preferences });
-    },
+      response
+        .status(200)
+        .json({ preferences: await updateNotificationPreferences(auth.userId, preferences) });
+    }),
   );
 
   router.patch(
