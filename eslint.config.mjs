@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['**/dist/**', '**/.next/**', '**/node_modules/**', '**/coverage/**'],
+    ignores: ['**/dist/**', '**/.next/**', '**/node_modules/**', '**/coverage/**', 'playwright.config.ts', 'e2e/**'],
   },
   {
     files: ['**/*.{js,mjs,cjs}'],
