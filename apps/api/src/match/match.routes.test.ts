@@ -88,6 +88,10 @@ async function createProfile({
   state = 'VIC',
   approvalStatus = ProfileApprovalStatus.APPROVED,
   visibilityStatus = 'MEMBERS_ONLY',
+  completionPercentage = 100,
+  verificationLevel = 'BASIC',
+  lastActiveAt = new Date(),
+  activeBoostEndsAt,
 }: {
   userId: mongoose.Types.ObjectId;
   displayId: string;
@@ -98,11 +102,15 @@ async function createProfile({
   state?: string;
   approvalStatus?: ProfileApprovalStatus;
   visibilityStatus?: 'PUBLIC' | 'MEMBERS_ONLY' | 'MATCHES_ONLY' | 'HIDDEN';
+  completionPercentage?: number;
+  verificationLevel?: string;
+  lastActiveAt?: Date;
+  activeBoostEndsAt?: Date;
 }) {
   return ProfileModel.create({
     userId,
     displayId,
-    completionPercentage: 100,
+    completionPercentage,
     personal: {
       firstName,
       lastName: 'Test',
@@ -148,7 +156,7 @@ async function createProfile({
       maritalStatuses: ['NEVER_MARRIED'],
     },
     verification: {
-      level: 'BASIC',
+      level: verificationLevel,
       emailVerified: true,
       mobileVerified: false,
       identityVerified: false,
@@ -170,7 +178,8 @@ async function createProfile({
       interestsReceived: 0,
       interestsSent: 0,
       favouritesCount: 0,
-      lastActiveAt: new Date(),
+      lastActiveAt,
+      ...(activeBoostEndsAt ? { activeBoostEndsAt } : {}),
     },
     moderation: { approvalStatus },
   });
@@ -389,6 +398,72 @@ describe('match routes', () => {
 
     expect(body.results.every((profile) => profile.firstName !== 'Priya')).toBe(true);
     expect(body.limits.recommendationLimit).toBe(6);
+  });
+
+  it('prioritizes active complete profiles ahead of stale incomplete ones while preserving boosts', async () => {
+    const viewer = await createUser('ranking-viewer@example.com');
+    const boosted = await createUser('ranking-boosted@example.com');
+    const active = await createUser('ranking-active@example.com');
+    const stale = await createUser('ranking-stale@example.com');
+
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA235001',
+      firstName: 'Amit',
+      gender: Gender.MALE,
+      age: 32,
+      city: 'Melbourne',
+    });
+
+    await createProfile({
+      userId: boosted.user._id,
+      displayId: 'VA235002',
+      firstName: 'Boosted',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+      completionPercentage: 72,
+      verificationLevel: 'BASIC',
+      lastActiveAt: new Date(Date.now() - 75 * 24 * 60 * 60 * 1000),
+      activeBoostEndsAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    await createProfile({
+      userId: active.user._id,
+      displayId: 'VA235003',
+      firstName: 'Active',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+      completionPercentage: 96,
+      verificationLevel: 'GOLD',
+      lastActiveAt: new Date(),
+    });
+
+    await createProfile({
+      userId: stale.user._id,
+      displayId: 'VA235004',
+      firstName: 'Stale',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+      completionPercentage: 68,
+      verificationLevel: 'BASIC',
+      lastActiveAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+    });
+
+    const response = await request(app)
+      .get('/api/matches/search?sort=RECOMMENDED&pageSize=12')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const body = bodyAs<MatchResponseBody>(response);
+    const names = body.results.map((profile) => profile.firstName);
+
+    expect(names[0]).toBe('Boosted');
+    expect(names.indexOf('Active')).toBeGreaterThan(-1);
+    expect(names.indexOf('Stale')).toBeGreaterThan(-1);
+    expect(names.indexOf('Active')).toBeLessThan(names.indexOf('Stale'));
   });
 
   it('creates, lists, runs, and deletes saved searches', async () => {

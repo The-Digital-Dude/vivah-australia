@@ -56,29 +56,77 @@ interface SubscriptionLimits {
 export interface MatchCard {
   id: string;
   displayId: string;
-  firstName?: string;
-  age?: number;
-  heightCm?: number;
-  city?: string;
-  state?: string;
-  country?: string;
-  occupation?: string;
-  education?: string;
-  religion?: string;
-  community?: string;
-  motherTongue?: string;
-  maritalStatus?: string;
+  firstName?: string | undefined;
+  age?: number | undefined;
+  heightCm?: number | undefined;
+  city?: string | undefined;
+  state?: string | undefined;
+  country?: string | undefined;
+  occupation?: string | undefined;
+  education?: string | undefined;
+  religion?: string | undefined;
+  community?: string | undefined;
+  motherTongue?: string | undefined;
+  maritalStatus?: string | undefined;
   verificationLevel: string;
-  lastActiveAt?: Date;
-  photoUrl?: string;
+  lastActiveAt?: Date | undefined;
+  photoUrl?: string | undefined;
   matchScore: number;
   matchReasons: string[];
-  isBoosted?: boolean;
+  isBoosted?: boolean | undefined;
 }
 
 export interface ScoredMatch {
   score: number;
   reasons: string[];
+}
+
+function verificationPriority(level?: string) {
+  switch (level) {
+    case 'FULLY_VERIFIED':
+      return 7;
+    case 'PLATINUM':
+      return 6;
+    case 'GOLD':
+      return 5;
+    case 'SILVER':
+      return 3;
+    case 'BASIC':
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+function recencyPriority(lastActiveAt?: Date) {
+  if (!lastActiveAt) {
+    return -6;
+  }
+
+  const diffMs = Date.now() - lastActiveAt.getTime();
+  const diffDays = diffMs / (24 * 60 * 60 * 1000);
+
+  if (diffDays <= 3) return 10;
+  if (diffDays <= 14) return 6;
+  if (diffDays <= 30) return 3;
+  if (diffDays <= 60) return 0;
+  return -8;
+}
+
+function completionPriority(completionPercentage: number) {
+  if (completionPercentage >= 95) return 6;
+  if (completionPercentage >= 85) return 3;
+  if (completionPercentage >= 75) return 0;
+  return -6;
+}
+
+function discoveryPriority(profile: ProfileDocument, card: MatchCard) {
+  return (
+    card.matchScore +
+    recencyPriority(profile.stats.lastActiveAt) +
+    completionPriority(profile.completionPercentage) +
+    verificationPriority(profile.verification.level)
+  );
 }
 
 function hasValues(value?: unknown[]) {
@@ -278,7 +326,7 @@ function sortFor(input: ProfileSearchQueryInput) {
     return { 'verification.level': -1, createdAt: -1 } as const;
   }
 
-  return { createdAt: -1 } as const;
+  return { 'stats.lastActiveAt': -1, completionPercentage: -1, createdAt: -1 } as const;
 }
 
 function intersects(candidate?: unknown[], desired?: unknown[]) {
@@ -506,13 +554,21 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
 
   if (input.sort === 'RECOMMENDED') {
     const candidates = await ProfileModel.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ 'stats.lastActiveAt': -1, completionPercentage: -1, createdAt: -1 })
       .limit(RECOMMENDED_CANDIDATE_LIMIT);
+    const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
     const cards = await toMatchCards(viewerProfile, candidates);
     const results = cards
       .sort((left, right) => {
         if (left.isBoosted && !right.isBoosted) return -1;
         if (!left.isBoosted && right.isBoosted) return 1;
+        const leftProfile = profileById.get(left.id);
+        const rightProfile = profileById.get(right.id);
+
+        if (leftProfile && rightProfile) {
+          return discoveryPriority(rightProfile, right) - discoveryPriority(leftProfile, left);
+        }
+
         return right.matchScore - left.matchScore;
       })
       .slice((input.page - 1) * pageSize, input.page * pageSize);
@@ -579,12 +635,20 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
   const candidates = await ProfileModel.find(filter)
     .sort({ 'stats.lastActiveAt': -1, createdAt: -1 })
     .limit(RECOMMENDED_CANDIDATE_LIMIT);
+  const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
 
   const results = (await toMatchCards(viewerProfile, candidates))
     .filter((profile) => profile.matchScore > 0)
     .sort((left, right) => {
       if (left.isBoosted && !right.isBoosted) return -1;
       if (!left.isBoosted && right.isBoosted) return 1;
+      const leftProfile = profileById.get(left.id);
+      const rightProfile = profileById.get(right.id);
+
+      if (leftProfile && rightProfile) {
+        return discoveryPriority(rightProfile, right) - discoveryPriority(leftProfile, left);
+      }
+
       return right.matchScore - left.matchScore;
     })
     .slice(0, limit);
