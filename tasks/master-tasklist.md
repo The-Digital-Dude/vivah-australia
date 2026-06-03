@@ -157,7 +157,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Transactional emails still send when required. *(from "Tests" L1754)*
 - [ ] Register -> verify email -> create profile -> submit profile *(from "Required Flows" L2144)*
 - [x] Add payment webhook failure alerts. _(Stripe webhook verification/processing failures now emit explicit error-tracking alerts in addition to request logging)_ *(from "Tasks" L2250)*
-- [ ] Add background job failure alerts. *(from "Tasks" L2251)*
+- [x] Add background job failure alerts. _(scheduled workflow failures now emit webhook alerts from the existing uptime-monitor job path)_ *(from "Tasks" L2251)*
 
 ### 🟢 Concierge / Manual Assistance
 *No remaining tasks.*

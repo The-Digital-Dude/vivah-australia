@@ -16,6 +16,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Scheduled uptime monitoring is wired through `.github/workflows/uptime-monitor.yml` and `scripts/uptime-check.mjs`, using configured public health-check URLs for the API and web app.
 - Optional webhook-based error tracking is wired for API startup failures, unexpected Express 500s, and uncaught/unhandled process errors, with env-controlled activation and service-level tests.
 - Stripe webhook verification/processing failures now trigger explicit error-tracking alerts, so payment webhook breakages surface even when they resolve into handled HTTP responses.
+- Scheduled uptime monitoring failures now trigger background-job webhook alerts through the GitHub Actions workflow path, covering the repo's current background-job surface.
 - `.env.example` files exist for API and web.
 - Real environment files, build outputs, logs, and dependencies are ignored by git.
 - `vivah_australia_ui_ux_planning.md` is now the standing UI/UX source of truth for all frontend and product work.
