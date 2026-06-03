@@ -173,6 +173,5 @@ Live local checks also passed for:
 
 1. Finish WEB-003 gaps: stronger CAPTCHA tests and production email templates/preferences.
 2. Expand broader frontend/component and deep E2E coverage.
-3. Add saved search UX and broader fraud-rule coverage.
-4. Add frontend test coverage for the expanded `/admin/cms` editor and future visual CMS layout controls.
-5. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.
+3. Add frontend test coverage for the expanded `/admin/cms` editor and future visual CMS layout controls.
+4. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.
