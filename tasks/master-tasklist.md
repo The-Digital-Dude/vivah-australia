@@ -43,7 +43,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [x] Auth forms validate input. _(Vitest + Testing Library coverage now exercises successful and failing login flows plus email/mobile OTP registration flows in `apps/web/app/(auth)/*.test.tsx`)_ *(from "Required Tests" L2160)*
 - [x] Profile wizard saves each step. _(Vitest coverage now verifies explicit draft saving and consecutive “Save & continue” PATCH persistence across wizard steps in `apps/web/app/member/profile-form.test.tsx`)_ *(from "Required Tests" L2161)*
 - [x] Search filters update query. _(Vitest coverage now proves quick filters and advanced discovery filters update the outgoing `/api/matches/search` query, including visa-status filters, in `apps/web/app/member/matches/match-discovery.test.tsx`)_ *(from "Required Tests" L2162)*
-- [ ] Interest buttons update state. *(from "Required Tests" L2163)*
+- [x] Interest buttons update state. _(Vitest coverage now proves member interest/save actions enter pending states, call the correct endpoints, and show success feedback in `apps/web/app/member/profile-actions.test.tsx`)_ *(from "Required Tests" L2163)*
 - [ ] Chat UI renders messages. *(from "Required Tests" L2164)*
 - [x] Pricing page triggers checkout. _(Vitest coverage now proves the pricing page opens the real upgrade modal for a paid tier and posts `/api/me/subscription/checkout` with the selected plan code in `apps/web/app/pricing/pricing-client.test.tsx`)_ *(from "Required Tests" L2165)*
 - [ ] Admin tables load and filter data. *(from "Required Tests" L2166)*
