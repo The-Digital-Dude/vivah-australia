@@ -442,7 +442,7 @@ export function MemberPageLayout({
 
 const publicLinks = [
   ['Home', '/'],
-  ['Matches', '/member/matches'],
+  ['Matches', '/matches'],
   ['Membership', '/pricing'],
   ['Verification', '/verification-policy'],
   ['Blog', '/blog'],
@@ -583,7 +583,7 @@ export function PublicFooter() {
         <FooterList
           title="Explore"
           links={[
-            ['Matches', '/member/matches'],
+            ['Matches', '/matches'],
             ['Membership', '/pricing'],
             ['Verification', '/verification-policy'],
           ]}

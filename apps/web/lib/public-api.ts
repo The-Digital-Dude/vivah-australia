@@ -10,6 +10,7 @@ export interface PublicPlan {
 }
 
 export interface FeaturedProfile {
+  id?: string;
   _id?: string;
   displayId: string;
   slug?: string;
@@ -32,6 +33,15 @@ export interface FeaturedProfile {
   verification?: {
     level?: string;
   };
+  stats?: {
+    lastActiveAt?: string;
+  };
+}
+
+export interface PublicMatchPreviewResponse {
+  profiles: FeaturedProfile[];
+  limit: number;
+  gated: boolean;
 }
 
 export interface PublicContentItem {
@@ -91,6 +101,23 @@ export async function getHomeContent() {
 export async function getFeaturedProfiles() {
   return getJson<{ profiles: FeaturedProfile[] }>('/api/public/featured-profiles', {
     profiles: [],
+  });
+}
+
+export async function getPublicMatches(query?: Record<string, string | number | undefined>) {
+  const params = new URLSearchParams();
+
+  Object.entries(query ?? {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') {
+      params.set(key, String(value));
+    }
+  });
+
+  const suffix = params.size ? `?${params.toString()}` : '';
+  return getJson<PublicMatchPreviewResponse>(`/api/public/matches${suffix}`, {
+    profiles: [],
+    limit: 0,
+    gated: true,
   });
 }
 

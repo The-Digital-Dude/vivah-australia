@@ -27,6 +27,12 @@ interface FeaturedProfilesResponse {
   profiles: Array<{ displayId: string }>;
 }
 
+interface PublicMatchesResponse {
+  profiles: Array<{ displayId: string }>;
+  limit: number;
+  gated: boolean;
+}
+
 interface CmsPageResponse {
   page: {
     _id: string;
@@ -171,6 +177,124 @@ describe('public web routes', () => {
 
     expect(body.profiles).toHaveLength(1);
     expect(body.profiles[0]).toMatchObject({ displayId: 'VA900001' });
+  });
+
+  it('returns capped public match previews with basic filters', async () => {
+    const femaleUser = await UserModel.create({
+      email: 'preview-female@example.com',
+      authProviders: ['email'],
+      role: UserRole.USER,
+      status: AccountStatus.ACTIVE,
+      emailVerified: true,
+      mobileVerified: false,
+      failedLoginAttempts: 0,
+      refreshTokenVersion: 0,
+      marketingConsent: false,
+      metadata: {},
+    });
+
+    const maleUser = await UserModel.create({
+      email: 'preview-male@example.com',
+      authProviders: ['email'],
+      role: UserRole.USER,
+      status: AccountStatus.ACTIVE,
+      emailVerified: true,
+      mobileVerified: false,
+      failedLoginAttempts: 0,
+      refreshTokenVersion: 0,
+      marketingConsent: false,
+      metadata: {},
+    });
+
+    await ProfileModel.create({
+      userId: femaleUser._id,
+      displayId: 'VA910001',
+      completionPercentage: 84,
+      personal: { firstName: 'Priya', age: 29, gender: 'FEMALE' },
+      religion: { religion: 'Hindu', languagesSpoken: [] },
+      location: { city: 'Sydney', country: 'Australia' },
+      education: {},
+      employment: { occupation: 'Analyst', annualIncomeVisibility: 'PRIVATE' },
+      family: {},
+      lifestyle: {},
+      about: {},
+      partnerPreference: {},
+      verification: {
+        level: 'BASIC',
+        emailVerified: true,
+        mobileVerified: false,
+        identityVerified: false,
+        addressVerified: false,
+        employmentVerified: false,
+        visaVerified: false,
+        policeClearanceVerified: false,
+        facialVerified: false,
+      },
+      visibility: {
+        status: 'MEMBERS_ONLY',
+        showPhoto: true,
+        showIncome: false,
+        showEmployer: false,
+        showLastName: false,
+      },
+      stats: {
+        profileViews: 0,
+        interestsReceived: 0,
+        interestsSent: 0,
+        favouritesCount: 0,
+      },
+      moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
+    });
+
+    await ProfileModel.create({
+      userId: maleUser._id,
+      displayId: 'VA910002',
+      completionPercentage: 84,
+      personal: { firstName: 'Arjun', age: 31, gender: 'MALE' },
+      religion: { religion: 'Sikh', languagesSpoken: [] },
+      location: { city: 'Melbourne', country: 'Australia' },
+      education: {},
+      employment: { occupation: 'Engineer', annualIncomeVisibility: 'PRIVATE' },
+      family: {},
+      lifestyle: {},
+      about: {},
+      partnerPreference: {},
+      verification: {
+        level: 'BASIC',
+        emailVerified: true,
+        mobileVerified: false,
+        identityVerified: false,
+        addressVerified: false,
+        employmentVerified: false,
+        visaVerified: false,
+        policeClearanceVerified: false,
+        facialVerified: false,
+      },
+      visibility: {
+        status: 'MEMBERS_ONLY',
+        showPhoto: true,
+        showIncome: false,
+        showEmployer: false,
+        showLastName: false,
+      },
+      stats: {
+        profileViews: 0,
+        interestsReceived: 0,
+        interestsSent: 0,
+        favouritesCount: 0,
+      },
+      moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
+    });
+
+    const response = await request(app)
+      .get('/api/public/matches?gender=FEMALE&city=Sydney&religion=Hindu&ageMin=27&ageMax=30')
+      .expect(200);
+
+    const body = bodyAs<PublicMatchesResponse>(response);
+    expect(body.gated).toBe(true);
+    expect(body.limit).toBeGreaterThan(0);
+    expect(body.profiles).toHaveLength(1);
+    expect(body.profiles[0]).toMatchObject({ displayId: 'VA910001' });
   });
 
   it('creates and serves CMS pages through admin CRUD and public fetch', async () => {

@@ -138,7 +138,7 @@ export default function HomeClient({
       city,
       religion,
     });
-    router.push(`/register?${query.toString()}`);
+    router.push(`/matches?${query.toString()}`);
   }
 
   return (
@@ -175,7 +175,7 @@ export default function HomeClient({
                 <ChevronRight className="size-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="#matches"
+                href="/matches"
                 className="rounded-full border border-[#7A1E3A]/20 bg-white/50 px-8 py-4 text-sm font-bold text-[#7A1E3A] backdrop-blur-sm transition-all duration-300 hover:bg-white hover:border-[#7A1E3A]/40"
               >
                 {home.hero?.secondaryAction || 'Explore Matches'}

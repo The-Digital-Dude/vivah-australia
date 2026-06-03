@@ -30,6 +30,7 @@ import {
 } from '../models/index.js';
 
 const PUBLIC_PROFILE_LIMIT = 6;
+const PUBLIC_MATCH_PREVIEW_LIMIT = 12;
 
 const contactRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -194,6 +195,84 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       }
 
       response.status(200).json({ profiles });
+    }),
+  );
+
+  router.get(
+    '/public/matches',
+    asyncHandler(async (request, response) => {
+      const limit = Math.min(
+        Math.max(Number(request.query.limit ?? PUBLIC_MATCH_PREVIEW_LIMIT), 1),
+        PUBLIC_MATCH_PREVIEW_LIMIT,
+      );
+      const ageMin = Number(request.query.ageMin);
+      const ageMax = Number(request.query.ageMax);
+      const gender = typeof request.query.gender === 'string' ? request.query.gender : undefined;
+      const city = typeof request.query.city === 'string' ? request.query.city.trim() : undefined;
+      const religion =
+        typeof request.query.religion === 'string' ? request.query.religion.trim() : undefined;
+
+      const baseFilter: Record<string, unknown> = {
+        isDeleted: false,
+        'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+        'visibility.status': { $ne: 'HIDDEN' },
+      };
+
+      if (gender) {
+        baseFilter['personal.gender'] = gender;
+      }
+
+      if (!Number.isNaN(ageMin) || !Number.isNaN(ageMax)) {
+        baseFilter['personal.age'] = {
+          ...(!Number.isNaN(ageMin) ? { $gte: ageMin } : {}),
+          ...(!Number.isNaN(ageMax) ? { $lte: ageMax } : {}),
+        };
+      }
+
+      if (city) {
+        baseFilter['location.city'] = { $regex: `^${city}$`, $options: 'i' };
+      }
+
+      if (religion) {
+        baseFilter['religion.religion'] = { $regex: `^${religion}$`, $options: 'i' };
+      }
+
+      const now = new Date();
+      const selectFields =
+        'displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt stats.lastActiveAt';
+
+      const boosted = await ProfileModel.find({
+        ...baseFilter,
+        'stats.activeBoostEndsAt': { $gt: now },
+      })
+        .sort({ 'stats.lastActiveAt': -1, updatedAt: -1 })
+        .limit(limit)
+        .select(selectFields)
+        .lean();
+
+      let profiles = boosted.map((profile) => ({ ...profile, isBoosted: true }));
+
+      if (profiles.length < limit) {
+        const standard = await ProfileModel.find({
+          ...baseFilter,
+          $or: [
+            { 'stats.activeBoostEndsAt': { $lte: now } },
+            { 'stats.activeBoostEndsAt': { $exists: false } },
+          ],
+        })
+          .sort({ 'stats.lastActiveAt': -1, updatedAt: -1 })
+          .limit(limit - profiles.length)
+          .select(selectFields)
+          .lean();
+
+        profiles = profiles.concat(standard.map((profile) => ({ ...profile, isBoosted: false })));
+      }
+
+      response.status(200).json({
+        profiles,
+        limit,
+        gated: true,
+      });
     }),
   );
 
