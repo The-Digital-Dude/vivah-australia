@@ -1,6 +1,6 @@
 # Vivah Australia Project Progress
 
-Last audited: 2026-06-01
+Last audited: 2026-06-03
 
 This file tracks what is implemented in the current codebase against `vivah_ai_ready_development_tasklist.md`.
 
@@ -35,6 +35,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | DB-003 Profile Model                                       | Complete                  | Detailed profile model in `apps/api/src/models/profile.model.ts` with nested profile sections, indexes, moderation, visibility, stats.                                                                                                                                                                                                             |
 | SEED-001 Realistic Demo Database Seed                      | Complete                  | `apps/api/src/db/seed.ts` now creates an idempotent matrimonial demo dataset with 3 admin accounts, 40 member profiles, interactions, messages, verification, notifications, billing, CMS/blog/community content, reports, logs, and guarded reset scripts documented in `SEEDING_GUIDE.md`.                                                       |
 | AUTH-001 Email and Password Registration                   | Complete                  | Register endpoint, password hashing, email verification token flow, frontend register page, tests.                                                                                                                                                                                                                                                 |
+| AUTH-002 Mobile Registration and OTP                      | Complete                  | Mobile registration endpoints, hashed OTP storage with 10-minute expiry, OTP resend and verification flow, mobile-aware login validation, public mobile signup + OTP UI with resend countdown, and auth route tests for verification, expiry, reuse, and rate limiting.                                                                            |
 | AUTH-004 Login, Logout, Refresh Tokens, Session Management | Complete                  | Login, refresh rotation, logout, JWT middleware, rate limiting, stored refresh token version, password-change session revocation, frontend login/admin login session storage, protected member/admin shells, auto-refreshing authenticated requests, and tests for valid login, invalid attempts, lockout, logout, and password-change revocation. |
 | AUTH-005 Password Recovery and Change Password             | Complete                  | Forgot/reset/change password endpoints, frontend forgot/reset pages, tests.                                                                                                                                                                                                                                                                        |
 | WEB-001 Public Homepage                                    | Complete                  | Homepage refreshed to follow `vivah_australia_ui_ux_planning.md`, with a Framer Motion/Lucide interactive experience, sticky nav, animated premium hero, quick signup/search card, trust stats, featured approved profiles API, active plans API, safety, stories, blog, FAQ accordion, community links, and final CTA.                            |
@@ -94,14 +95,13 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 
 The following modules do not yet have full business-feature implementations in the codebase:
 
-- AUTH-002 Mobile Registration and OTP
 - AUTH-003 Social Login
 - MEDIA-002 Video Introduction Upload
 - VERIFY-003 External Provider Extension Points
 - TEST-003 Frontend Tests
-- TEST-004 E2E Tests
+- TEST-004 Broader E2E Matrix
 - DEVOPS-001 Environment Setup beyond local examples
-- DEVOPS-002 CI/CD Pipeline
+- DEVOPS-002 Full CI/CD Deployment Pipeline
 - DEVOPS-003 Logging and Monitoring
 - DEVOPS-004 Backups and File Storage Safety
 
@@ -124,8 +124,8 @@ The following modules do not yet have full business-feature implementations in t
 - Verification documents are represented by encrypted storage metadata and manual document URLs, but secure member upload and signed admin preview still need to be connected to the media storage flow.
 - Notification/email delivery now has member read/read-all/delete UI and configurable provider selection; production templates, preferences, and queueing remain future work.
 - Audit/activity services record core admin and verification events and can be browsed in admin; sensitive document access logging remains future work.
-- Frontend tests and E2E tests are not present.
-- No CI/CD pipeline is configured yet.
+- Playwright smoke coverage and route QA exist, but broader frontend component/integration coverage and a deeper E2E scenario matrix are still needed.
+- CI runs typecheck, tests, build, and route QA in GitHub Actions; full deployment automation and environment promotion remain future work.
 
 ## Verification Status
 

@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { AccountStatus } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
-import { ProfileModel, UserModel } from '../models/index.js';
+import { MobileOtpModel, ProfileModel, UserModel } from '../models/index.js';
 import type { AuthConfig } from './auth-types.js';
 
 const authConfig: AuthConfig = {
@@ -31,6 +31,14 @@ interface TokenResponseBody {
 
 interface RegisterResponseBody {
   verificationToken: string;
+}
+
+interface MobileRegisterResponseBody {
+  user: {
+    id: string;
+    mobile: string;
+    status: string;
+  };
 }
 
 interface ForgotPasswordResponseBody {
@@ -115,6 +123,85 @@ describe('auth routes', () => {
         termsAccepted: true,
       })
       .expect(409);
+  });
+
+  it('registers with mobile, resends OTP, verifies it, and allows mobile login', async () => {
+    const mobile = '+61412345678';
+    const password = 'StrongPassword123!';
+
+    const registerResponse = await request(app).post('/api/auth/register/mobile').send({
+      mobile,
+      password,
+      firstName: 'Priya',
+      lastName: 'Sharma',
+      termsAccepted: true,
+      marketingConsent: false,
+    });
+
+    expect(registerResponse.status).toBe(201);
+    const registerBody = bodyAs<MobileRegisterResponseBody>(registerResponse);
+    expect(registerBody.user.mobile).toBe(mobile);
+
+    const createdUser = await UserModel.findOne({ mobile }).orFail();
+    expect(createdUser.status).toBe(AccountStatus.PENDING);
+    expect(createdUser.mobileVerified).toBe(false);
+
+    await request(app).post('/api/auth/otp/send').send({ mobile }).expect(201);
+
+    const verifyResponse = await request(app)
+      .post('/api/auth/otp/verify')
+      .send({ mobile, code: '123456' })
+      .expect(200);
+
+    const verifyBody = bodyAs<TokenResponseBody>(verifyResponse);
+    expect(verifyBody.accessToken).toEqual(expect.any(String));
+    expect(verifyBody.refreshToken).toEqual(expect.any(String));
+
+    const verifiedUser = await UserModel.findOne({ mobile }).orFail();
+    expect(verifiedUser.mobileVerified).toBe(true);
+    expect(verifiedUser.status).toBe(AccountStatus.ACTIVE);
+
+    await request(app)
+      .post('/api/auth/login')
+      .send({ email: mobile, password })
+      .expect(200);
+  });
+
+  it('does not allow OTP reuse after a successful mobile verification', async () => {
+    const mobile = '+61412345679';
+
+    await request(app).post('/api/auth/register/mobile').send({
+      mobile,
+      password: 'StrongPassword123!',
+      firstName: 'Meera',
+      lastName: 'Patel',
+      termsAccepted: true,
+      marketingConsent: false,
+    });
+
+    await request(app).post('/api/auth/otp/verify').send({ mobile, code: '123456' }).expect(200);
+
+    await request(app).post('/api/auth/otp/verify').send({ mobile, code: '123456' }).expect(400);
+  });
+
+  it('rejects expired OTP codes for mobile verification', async () => {
+    const mobile = '+61412345680';
+
+    await request(app).post('/api/auth/register/mobile').send({
+      mobile,
+      password: 'StrongPassword123!',
+      firstName: 'Nisha',
+      lastName: 'Rao',
+      termsAccepted: true,
+      marketingConsent: false,
+    });
+
+    await MobileOtpModel.updateMany(
+      { mobile, usedAt: { $exists: false } },
+      { $set: { expiresAt: new Date(Date.now() - 60_000) } },
+    );
+
+    await request(app).post('/api/auth/otp/verify').send({ mobile, code: '123456' }).expect(400);
   });
 
   it('logs in and rotates refresh tokens', async () => {

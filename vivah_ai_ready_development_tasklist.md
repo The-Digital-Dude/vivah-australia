@@ -504,18 +504,18 @@ Content-Type: application/json
 
 #### Backend Tasks
 
-- [ ] Create `POST /api/auth/register/mobile`.
-- [ ] Create `POST /api/auth/otp/send`.
-- [ ] Create `POST /api/auth/otp/verify`.
-- [ ] Rate-limit OTP sending.
-- [ ] Store hashed OTP with expiry.
-- [ ] Mark mobile as verified after successful verification.
+- [x] Create `POST /api/auth/register/mobile`.
+- [x] Create `POST /api/auth/otp/send`.
+- [x] Create `POST /api/auth/otp/verify`.
+- [x] Rate-limit OTP sending.
+- [x] Store hashed OTP with expiry.
+- [x] Mark mobile as verified after successful verification.
 
 #### Frontend Tasks
 
-- [ ] Build mobile signup flow.
-- [ ] Build OTP input component.
-- [ ] Add resend countdown.
+- [x] Build mobile signup flow.
+- [x] Build OTP input component.
+- [x] Add resend countdown.
 
 #### Security
 
@@ -525,9 +525,9 @@ Content-Type: application/json
 
 #### Tests
 
-- [ ] OTP cannot be reused.
-- [ ] OTP expires correctly.
-- [ ] Rate limit blocks abuse.
+- [x] OTP cannot be reused.
+- [x] OTP expires correctly.
+- [x] Rate limit blocks abuse.
 
 ---
 

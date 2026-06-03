@@ -33,6 +33,29 @@ export const australianMobileSchema = z
   .trim()
   .regex(/^(\+?61|0)4\d{8}$/, 'Mobile number must be a valid Australian mobile number');
 
+export const authLoginIdentifierSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(254)
+  .transform((value) => (value.includes('@') ? value.toLowerCase() : value))
+  .superRefine((value, ctx) => {
+    const emailResult = emailSchema.safeParse(value);
+    if (emailResult.success) {
+      return;
+    }
+
+    const mobileResult = australianMobileSchema.safeParse(value);
+    if (mobileResult.success) {
+      return;
+    }
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Enter a valid email address or Australian mobile number',
+    });
+  });
+
 export const registerEmailSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
@@ -42,8 +65,17 @@ export const registerEmailSchema = z.object({
   marketingConsent: z.boolean().default(false),
 });
 
+export const registerMobileSchema = z.object({
+  mobile: australianMobileSchema,
+  password: passwordSchema,
+  firstName: z.string().trim().min(1).max(80),
+  lastName: z.string().trim().min(1).max(80),
+  termsAccepted: z.literal(true),
+  marketingConsent: z.boolean().default(false),
+});
+
 export const loginSchema = z.object({
-  email: emailSchema,
+  email: authLoginIdentifierSchema,
   password: z.string().min(1).max(128),
 });
 
@@ -719,6 +751,7 @@ export const accountSettingsSchema = z.object({
 });
 
 export type RegisterEmailInput = z.infer<typeof registerEmailSchema>;
+export type RegisterMobileInput = z.infer<typeof registerMobileSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;

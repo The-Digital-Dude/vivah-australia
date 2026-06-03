@@ -70,7 +70,12 @@ export default function LoginPage() {
         )}
 
         <div className="grid gap-4">
-          <FormField label="Email Address" name="email" type="email" autoComplete="email" />
+          <FormField
+            label="Email Address or Mobile Number"
+            name="email"
+            type="text"
+            autoComplete="username"
+          />
           <div>
             <div className="flex justify-between items-center mb-2">
               <label htmlFor="password" className="text-sm font-bold text-[#1A1A1A]">

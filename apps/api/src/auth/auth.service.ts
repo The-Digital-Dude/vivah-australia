@@ -5,6 +5,7 @@ import {
   type ChangePasswordInput,
   type LoginInput,
   type RegisterEmailInput,
+  type RegisterMobileInput,
 } from '@vivah/shared';
 import type { Types } from 'mongoose';
 import { sendEmail } from '../common/email.service.js';
@@ -17,6 +18,7 @@ import {
   type UserDocument,
 } from '../models/index.js';
 import { HttpError } from './auth-errors.js';
+import { requestMobileOtp, verifyMobileOtp } from '../notifications/notifications.service.js';
 import type { AuthConfig } from './auth-types.js';
 import {
   createOpaqueToken,
@@ -36,7 +38,8 @@ const DEFAULT_WEB_BASE_URL = 'http://localhost:3000';
 export interface RegisterResult {
   user: {
     id: string;
-    email: string;
+    email?: string;
+    mobile?: string;
     status: string;
   };
   verificationToken?: string;
@@ -75,41 +78,14 @@ function getWebBaseUrl() {
   return process.env.WEB_BASE_URL ?? DEFAULT_WEB_BASE_URL;
 }
 
-export async function registerWithEmail(
-  input: RegisterEmailInput,
-  config: AuthConfig,
-): Promise<RegisterResult> {
-  const existingUser = await UserModel.findOne({ email: input.email });
-
-  if (existingUser) {
-    throw new HttpError(409, 'Email is already registered');
-  }
-
-  const now = new Date();
-  const passwordHash = await bcrypt.hash(input.password, PASSWORD_HASH_ROUNDS);
-  const user = await UserModel.create({
-    email: input.email,
-    passwordHash,
-    authProviders: [AuthProvider.EMAIL],
-    role: UserRole.USER,
-    status: AccountStatus.PENDING,
-    emailVerified: false,
-    mobileVerified: false,
-    failedLoginAttempts: 0,
-    refreshTokenVersion: 0,
-    termsAcceptedAt: now,
-    privacyAcceptedAt: now,
-    marketingConsent: input.marketingConsent,
-    metadata: {},
-  });
-
-  await ProfileModel.create({
-    userId: user._id,
-    displayId: `VA${user._id.toString().slice(-8).toUpperCase()}`,
+function createProfileDraft(userId: Types.ObjectId, firstName: string, lastName: string) {
+  return ProfileModel.create({
+    userId,
+    displayId: `VA${userId.toString().slice(-8).toUpperCase()}`,
     completionPercentage: 10,
     personal: {
-      firstName: input.firstName,
-      lastName: input.lastName,
+      firstName,
+      lastName,
     },
     religion: { languagesSpoken: [] },
     location: {},
@@ -147,6 +123,41 @@ export async function registerWithEmail(
       approvalStatus: 'PENDING',
     },
   });
+}
+
+function normalizeLoginIdentifier(value: string) {
+  return value.includes('@') ? value.toLowerCase() : value;
+}
+
+export async function registerWithEmail(
+  input: RegisterEmailInput,
+  config: AuthConfig,
+): Promise<RegisterResult> {
+  const existingUser = await UserModel.findOne({ email: input.email });
+
+  if (existingUser) {
+    throw new HttpError(409, 'Email is already registered');
+  }
+
+  const now = new Date();
+  const passwordHash = await bcrypt.hash(input.password, PASSWORD_HASH_ROUNDS);
+  const user = await UserModel.create({
+    email: input.email,
+    passwordHash,
+    authProviders: [AuthProvider.EMAIL],
+    role: UserRole.USER,
+    status: AccountStatus.PENDING,
+    emailVerified: false,
+    mobileVerified: false,
+    failedLoginAttempts: 0,
+    refreshTokenVersion: 0,
+    termsAcceptedAt: now,
+    privacyAcceptedAt: now,
+    marketingConsent: input.marketingConsent,
+    metadata: {},
+  });
+
+  await createProfileDraft(user._id, input.firstName, input.lastName);
 
   const verificationToken = await createAuthToken(
     user._id,
@@ -171,6 +182,45 @@ export async function registerWithEmail(
       status: user.status,
     },
     ...(config.exposeSensitiveTokens ? { verificationToken } : {}),
+  };
+}
+
+export async function registerWithMobile(
+  input: RegisterMobileInput,
+): Promise<RegisterResult> {
+  const existingUser = await UserModel.findOne({ mobile: input.mobile });
+
+  if (existingUser) {
+    throw new HttpError(409, 'Mobile number is already registered');
+  }
+
+  const now = new Date();
+  const passwordHash = await bcrypt.hash(input.password, PASSWORD_HASH_ROUNDS);
+  const user = await UserModel.create({
+    mobile: input.mobile,
+    passwordHash,
+    authProviders: [AuthProvider.MOBILE],
+    role: UserRole.USER,
+    status: AccountStatus.PENDING,
+    emailVerified: false,
+    mobileVerified: false,
+    failedLoginAttempts: 0,
+    refreshTokenVersion: 0,
+    termsAcceptedAt: now,
+    privacyAcceptedAt: now,
+    marketingConsent: input.marketingConsent,
+    metadata: {},
+  });
+
+  await createProfileDraft(user._id, input.firstName, input.lastName);
+  await requestMobileOtp(user._id, input.mobile);
+
+  return {
+    user: {
+      id: user.id,
+      mobile: user.mobile ?? input.mobile,
+      status: user.status,
+    },
   };
 }
 
@@ -209,7 +259,10 @@ export async function verifyEmail(token: string): Promise<void> {
 }
 
 export async function loginWithEmail(input: LoginInput, config: AuthConfig): Promise<AuthResult> {
-  const user = await UserModel.findOne({ email: input.email });
+  const identifier = normalizeLoginIdentifier(input.email);
+  const user = await UserModel.findOne(
+    identifier.includes('@') ? { email: identifier } : { mobile: identifier },
+  );
 
   if (!user?.passwordHash) {
     throw new HttpError(401, 'Invalid email or password');
@@ -233,7 +286,7 @@ export async function loginWithEmail(input: LoginInput, config: AuthConfig): Pro
     throw new HttpError(401, 'Invalid email or password');
   }
 
-  if (user.status !== AccountStatus.ACTIVE || !user.emailVerified) {
+  if (user.status !== AccountStatus.ACTIVE || (!user.emailVerified && !user.mobileVerified)) {
     throw new HttpError(403, 'Account is not active');
   }
 
@@ -241,6 +294,44 @@ export async function loginWithEmail(input: LoginInput, config: AuthConfig): Pro
   user.set('lockUntil', undefined);
   user.lastLoginAt = new Date();
   await user.save();
+
+  return {
+    user: publicUser(user),
+    ...createTokenPair(config, {
+      id: user.id,
+      role: user.role,
+      refreshTokenVersion: user.refreshTokenVersion,
+    }),
+  };
+}
+
+export async function resendMobileRegistrationOtp(mobile: string) {
+  const user = await UserModel.findOne({ mobile, isDeleted: false });
+
+  if (!user || user.mobileVerified) {
+    throw new HttpError(404, 'Mobile registration not found');
+  }
+
+  await requestMobileOtp(user._id, mobile);
+  return { message: 'Verification code sent.' };
+}
+
+export async function verifyMobileRegistration(
+  mobile: string,
+  code: string,
+  config: AuthConfig,
+): Promise<AuthResult> {
+  const user = await UserModel.findOne({ mobile, isDeleted: false });
+
+  if (!user) {
+    throw new HttpError(404, 'Mobile registration not found');
+  }
+
+  await verifyMobileOtp(user._id, mobile, code);
+  if (user.status !== AccountStatus.ACTIVE) {
+    user.status = AccountStatus.ACTIVE;
+    await user.save();
+  }
 
   return {
     user: publicUser(user),

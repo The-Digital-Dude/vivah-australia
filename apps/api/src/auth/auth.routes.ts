@@ -5,8 +5,11 @@ import {
   forgotPasswordSchema,
   loginSchema,
   logoutSchema,
+  mobileOtpRequestSchema,
+  mobileOtpVerifySchema,
   refreshTokenSchema,
   registerEmailSchema,
+  registerMobileSchema,
   resetPasswordSchema,
   verifyEmailSchema,
 } from '@vivah/shared';
@@ -18,9 +21,12 @@ import {
   logout,
   refreshSession,
   registerWithEmail,
+  registerWithMobile,
+  resendMobileRegistrationOtp,
   requestPasswordReset,
   resetPassword,
   verifyEmail,
+  verifyMobileRegistration,
 } from './auth.service.js';
 
 const authRateLimit = rateLimit({
@@ -55,6 +61,38 @@ export function createAuthRouter(config: AuthConfig): Router {
       const input = registerEmailSchema.parse(request.body);
       const result = await registerWithEmail(input, config);
       response.status(201).json(result);
+    }),
+  );
+
+  router.post(
+    '/register/mobile',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const input = registerMobileSchema.parse(request.body);
+      const result = await registerWithMobile(input);
+      response.status(201).json({
+        ...result,
+        message: 'Mobile registration created. Verification code sent.',
+      });
+    }),
+  );
+
+  router.post(
+    '/otp/send',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const input = mobileOtpRequestSchema.parse(request.body);
+      response.status(201).json(await resendMobileRegistrationOtp(input.mobile));
+    }),
+  );
+
+  router.post(
+    '/otp/verify',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const input = mobileOtpVerifySchema.parse(request.body);
+      const result = await verifyMobileRegistration(input.mobile, input.code, config);
+      response.status(200).json(result);
     }),
   );
 
