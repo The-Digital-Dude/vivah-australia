@@ -102,6 +102,21 @@ const quickFilterDefinitions = [
     label: 'Hindi speaking',
     apply: () => ({ motherTongue: ['Hindi'] }),
   },
+  {
+    key: 'visaStatus',
+    label: 'Citizen / PR',
+    apply: () => ({ visaStatus: ['Australian Citizen', 'Permanent Resident'] }),
+  },
+] as const;
+
+const visaStatusSuggestions = [
+  'Australian Citizen',
+  'Permanent Resident',
+  'Student Visa',
+  'Temporary Skilled Visa',
+  'Partner Visa',
+  'Work Visa',
+  'Graduate Visa',
 ] as const;
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -172,6 +187,9 @@ function normalizeQuickFilterLabel(key: string, value: unknown) {
   }
   if (key === 'city' && Array.isArray(value)) {
     return `Near: ${value.join(', ')}`;
+  }
+  if (key === 'visaStatus' && Array.isArray(value)) {
+    return `Visa: ${value.join(', ')}`;
   }
   if (key === 'recentlyActive' && value === true) {
     return 'Recently active';
@@ -323,6 +341,7 @@ export default function MatchDiscovery() {
       education: csvList(form.get('education')),
       occupation: csvList(form.get('occupation')),
       maritalStatus: csvList(form.get('maritalStatus')),
+      visaStatus: csvList(form.get('visaStatus')),
       heightMinCm: optionalNumber(form.get('heightMinCm')),
       heightMaxCm: optionalNumber(form.get('heightMaxCm')),
       incomeMin: optionalNumber(form.get('incomeMin')),
@@ -396,6 +415,14 @@ export default function MatchDiscovery() {
   }
 
   function renderFilterForm() {
+    const queryValue = (key: string) =>
+      typeof currentQuery[key] === 'string' ? String(currentQuery[key]) : undefined;
+    const queryCsv = (key: string) =>
+      Array.isArray(currentQuery[key]) ? (currentQuery[key] as string[]).join(', ') : undefined;
+    const queryNumber = (key: string) =>
+      typeof currentQuery[key] === 'number' ? String(currentQuery[key]) : undefined;
+    const queryBoolean = (key: string) => currentQuery[key] === true;
+
     return (
       <form onSubmit={(event) => void handleFilterSubmit(event)} className="grid gap-5">
         <div className="flex items-start justify-between gap-4">
@@ -417,21 +444,68 @@ export default function MatchDiscovery() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Select label="Looking for" name="gender" options={['FEMALE', 'MALE']} />
+          <Select
+            label="Looking for"
+            name="gender"
+            options={['FEMALE', 'MALE']}
+            defaultValue={queryValue('gender')}
+          />
           <Select
             label="Sort results"
             name="sort"
             options={['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED']}
             defaultValue={typeof currentQuery.sort === 'string' ? currentQuery.sort : 'RECOMMENDED'}
           />
-          <Field label="Age min" name="ageMin" type="number" placeholder="25" />
-          <Field label="Age max" name="ageMax" type="number" placeholder="36" />
-          <Field label="City" name="city" placeholder="Melbourne, Sydney" />
-          <Field label="State" name="state" placeholder="VIC, NSW" />
-          <Field label="Religion" name="religion" placeholder="Hindu" />
-          <Field label="Community" name="community" placeholder="Punjabi, Tamil" />
-          <Field label="Mother tongue" name="motherTongue" placeholder="Hindi, Gujarati" />
-          <Field label="Occupation" name="occupation" placeholder="Engineer, Doctor" />
+          <Field
+            label="Age min"
+            name="ageMin"
+            type="number"
+            placeholder="25"
+            defaultValue={queryNumber('ageMin')}
+          />
+          <Field
+            label="Age max"
+            name="ageMax"
+            type="number"
+            placeholder="36"
+            defaultValue={queryNumber('ageMax')}
+          />
+          <Field
+            label="City"
+            name="city"
+            placeholder="Melbourne, Sydney"
+            defaultValue={queryCsv('city')}
+          />
+          <Field
+            label="State"
+            name="state"
+            placeholder="VIC, NSW"
+            defaultValue={queryCsv('state')}
+          />
+          <Field
+            label="Religion"
+            name="religion"
+            placeholder="Hindu"
+            defaultValue={queryCsv('religion')}
+          />
+          <Field
+            label="Community"
+            name="community"
+            placeholder="Punjabi, Tamil"
+            defaultValue={queryCsv('community')}
+          />
+          <Field
+            label="Mother tongue"
+            name="motherTongue"
+            placeholder="Hindi, Gujarati"
+            defaultValue={queryCsv('motherTongue')}
+          />
+          <Field
+            label="Occupation"
+            name="occupation"
+            placeholder="Engineer, Doctor"
+            defaultValue={queryCsv('occupation')}
+          />
         </div>
 
         <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
@@ -439,24 +513,74 @@ export default function MatchDiscovery() {
             More filters
           </summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Field label="Education" name="education" placeholder="Masters, MBA" />
-            <Field label="Marital status" name="maritalStatus" placeholder="NEVER_MARRIED" />
-            <Field label="Height min" name="heightMinCm" type="number" placeholder="155" />
-            <Field label="Height max" name="heightMaxCm" type="number" placeholder="185" />
-            <Field label="Income min" name="incomeMin" type="number" placeholder="90000" />
+            <Field
+              label="Education"
+              name="education"
+              placeholder="Masters, MBA"
+              defaultValue={queryCsv('education')}
+            />
+            <Field
+              label="Marital status"
+              name="maritalStatus"
+              placeholder="NEVER_MARRIED"
+              defaultValue={queryCsv('maritalStatus')}
+            />
+            <Field
+              label="Visa status"
+              name="visaStatus"
+              placeholder="Permanent Resident, Student Visa"
+              defaultValue={queryCsv('visaStatus')}
+            />
+            <Field
+              label="Height min"
+              name="heightMinCm"
+              type="number"
+              placeholder="155"
+              defaultValue={queryNumber('heightMinCm')}
+            />
+            <Field
+              label="Height max"
+              name="heightMaxCm"
+              type="number"
+              placeholder="185"
+              defaultValue={queryNumber('heightMaxCm')}
+            />
+            <Field
+              label="Income min"
+              name="incomeMin"
+              type="number"
+              placeholder="90000"
+              defaultValue={queryNumber('incomeMin')}
+            />
             <Select
               label="Verification level"
               name="verificationLevel"
               options={['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED']}
+              defaultValue={queryValue('verificationLevel')}
             />
             <label className="flex items-center gap-2.5 text-sm font-semibold text-[#1A1A1A]">
               <input
                 name="recentlyActive"
                 type="checkbox"
+                defaultChecked={queryBoolean('recentlyActive')}
                 className="size-4 rounded accent-[#7A1F2B]"
               />
               Recently active only
             </label>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {visaStatusSuggestions.map((value) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() =>
+                  void applyQuickFilter({ ...currentQuery, page: 1, visaStatus: [value] })
+                }
+                className="rounded-full border border-[#D4AF37]/30 bg-white px-3 py-1 text-xs font-semibold text-[#7A1F2B] transition hover:bg-[#FFF8EC]"
+              >
+                {value}
+              </button>
+            ))}
           </div>
         </details>
 
@@ -495,9 +619,32 @@ export default function MatchDiscovery() {
 
     if (!search || search.results.length === 0) {
       return (
-        <EmptyState title="No matches found">
-          Try broadening your city, age, or community filters to discover more compatible members.
-        </EmptyState>
+        <PremiumCard className="rounded-[30px] border border-dashed border-[#D4AF37]/60 bg-white p-8 text-center">
+          <Search className="mx-auto size-8 text-[#D4AF37]" />
+          <h3 className="mt-4 text-xl font-semibold text-[#1A1A1A]">
+            No matches for this combination yet
+          </h3>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[#6B7280]">
+            Try widening your city, age, community, or visa preferences. In most cases, removing
+            just one or two strict filters is enough to surface stronger results.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <PremiumButton onClick={() => void clearFilters()} variant="secondary">
+              Clear all filters
+            </PremiumButton>
+            <PremiumButton
+              onClick={() => void applyQuickFilter({ ...defaultFilters, sort: 'RECENTLY_ACTIVE' })}
+            >
+              Show recently active
+            </PremiumButton>
+          </div>
+          {activeFilterCount > 0 ? (
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#7A1F2B]/70">
+              {activeFilterCount} active filter{activeFilterCount === 1 ? '' : 's'} may be
+              narrowing your results
+            </p>
+          ) : null}
+        </PremiumCard>
       );
     }
 
@@ -921,7 +1068,7 @@ function Field({
   name: string;
   type?: string;
   placeholder?: string;
-  defaultValue?: string;
+  defaultValue?: string | undefined;
 }>) {
   return (
     <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
@@ -942,7 +1089,12 @@ function Select({
   name,
   options,
   defaultValue,
-}: Readonly<{ label: string; name: string; options: string[]; defaultValue?: string }>) {
+}: Readonly<{
+  label: string;
+  name: string;
+  options: string[];
+  defaultValue?: string | undefined;
+}>) {
   return (
     <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
       {label}
