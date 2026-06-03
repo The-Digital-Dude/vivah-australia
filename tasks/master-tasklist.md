@@ -156,7 +156,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Unsubscribed marketing users do not receive marketing emails. *(from "Tests" L1753)*
 - [ ] Transactional emails still send when required. *(from "Tests" L1754)*
 - [ ] Register -> verify email -> create profile -> submit profile *(from "Required Flows" L2144)*
-- [ ] Add payment webhook failure alerts. *(from "Tasks" L2250)*
+- [x] Add payment webhook failure alerts. _(Stripe webhook verification/processing failures now emit explicit error-tracking alerts in addition to request logging)_ *(from "Tasks" L2250)*
 - [ ] Add background job failure alerts. *(from "Tasks" L2251)*
 
 ### 🟢 Concierge / Manual Assistance

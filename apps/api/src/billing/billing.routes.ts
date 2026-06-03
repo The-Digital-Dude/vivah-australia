@@ -11,6 +11,7 @@ import {
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
+import { reportApplicationError } from '../common/error-tracking.service.js';
 import {
   cancelSubscription,
   createBillingPortalSession,
@@ -236,12 +237,28 @@ export function createStripeWebhookRouter(): Router {
     '/billing/webhook',
     express.raw({ type: 'application/json' }),
     asyncHandler(async (request, response) => {
-      const body = Buffer.isBuffer(request.body)
-        ? request.body
-        : Buffer.from(JSON.stringify(request.body));
-      const event = constructStripeEvent(body, request.header('stripe-signature') ?? undefined);
-      await handleStripeEvent(event);
-      response.status(200).json({ received: true });
+      try {
+        const body = Buffer.isBuffer(request.body)
+          ? request.body
+          : Buffer.from(JSON.stringify(request.body));
+        const event = constructStripeEvent(body, request.header('stripe-signature') ?? undefined);
+        await handleStripeEvent(event);
+        response.status(200).json({ received: true });
+      } catch (error) {
+        void reportApplicationError({
+          source: 'express',
+          message:
+            error instanceof Error ? `Stripe webhook failure: ${error.message}` : 'Stripe webhook failure',
+          ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
+          method: request.method,
+          url: request.originalUrl,
+          statusCode: error instanceof HttpError ? error.statusCode : 500,
+          metadata: {
+            hasStripeSignature: !!request.header('stripe-signature'),
+          },
+        });
+        throw error;
+      }
     }),
   );
 
