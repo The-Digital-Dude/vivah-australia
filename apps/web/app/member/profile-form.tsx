@@ -605,6 +605,10 @@ function StepBasicDetails({
   return (
     <div className="grid gap-5">
       <SectionTitle icon="👤" title="Basic Details" />
+      <p className="text-sm leading-6 text-[#6B7280]">
+        Start with the essentials. You can add more personal detail after your core profile is in
+        place.
+      </p>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
           label="First name"
@@ -653,43 +657,50 @@ function StepBasicDetails({
           { value: 'ANNULLED', label: 'Annulled' },
         ]}
       />
-      <div className="grid gap-5 sm:grid-cols-3">
-        <Field
-          label="Height (cm)"
-          optional
-          type="number"
-          placeholder="e.g. 165"
-          value={p.heightCm}
-          onChange={(v) => onChange({ heightCm: v })}
-          error={errors.heightCm}
-        />
-        <Field
-          label="Weight (kg)"
-          optional
-          type="number"
-          placeholder="e.g. 60"
-          value={p.weightKg}
-          onChange={(v) => onChange({ weightKg: v })}
-          error={errors.weightKg}
-        />
-        <Field
-          label="Number of children"
-          optional
-          type="number"
-          placeholder="0"
-          value={p.numberOfChildren}
-          onChange={(v) => onChange({ numberOfChildren: v })}
-          error={errors.numberOfChildren}
-        />
-      </div>
-      <Field
-        label="Disability / accessibility needs"
-        optional
-        placeholder="e.g. None"
-        value={p.disabilityStatus}
-        onChange={(v) => onChange({ disabilityStatus: v })}
-        error={errors.disabilityStatus}
-      />
+      <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+          Add optional personal details now
+        </summary>
+        <div className="mt-4 grid gap-5">
+          <div className="grid gap-5 sm:grid-cols-3">
+            <Field
+              label="Height (cm)"
+              optional
+              type="number"
+              placeholder="e.g. 165"
+              value={p.heightCm}
+              onChange={(v) => onChange({ heightCm: v })}
+              error={errors.heightCm}
+            />
+            <Field
+              label="Weight (kg)"
+              optional
+              type="number"
+              placeholder="e.g. 60"
+              value={p.weightKg}
+              onChange={(v) => onChange({ weightKg: v })}
+              error={errors.weightKg}
+            />
+            <Field
+              label="Number of children"
+              optional
+              type="number"
+              placeholder="0"
+              value={p.numberOfChildren}
+              onChange={(v) => onChange({ numberOfChildren: v })}
+              error={errors.numberOfChildren}
+            />
+          </div>
+          <Field
+            label="Disability / accessibility needs"
+            optional
+            placeholder="e.g. None"
+            value={p.disabilityStatus}
+            onChange={(v) => onChange({ disabilityStatus: v })}
+            error={errors.disabilityStatus}
+          />
+        </div>
+      </details>
     </div>
   );
 }
@@ -708,6 +719,9 @@ function StepLocation({
   return (
     <div className="grid gap-5">
       <SectionTitle icon="📍" title="Location & Residency" />
+      <p className="text-sm leading-6 text-[#6B7280]">
+        Your main location is enough to keep moving. Residency detail can be added now or later.
+      </p>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
           label="Country"
@@ -722,39 +736,42 @@ function StepLocation({
           error={errors.state}
         />
       </div>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field
-          label="City"
-          value={l.city}
-          onChange={(v) => onChange({ city: v })}
-          error={errors.city}
-        />
-        <Field
-          label="Suburb"
-          optional
-          value={l.suburb}
-          onChange={(v) => onChange({ suburb: v })}
-          error={errors.suburb}
-        />
-      </div>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field
-          label="Citizenship status"
-          optional
-          placeholder="e.g. Australian Citizen"
-          value={l.citizenshipStatus}
-          onChange={(v) => onChange({ citizenshipStatus: v })}
-          error={errors.citizenshipStatus}
-        />
-        <Field
-          label="Visa status"
-          optional
-          placeholder="e.g. Permanent Resident"
-          value={l.visaStatus}
-          onChange={(v) => onChange({ visaStatus: v })}
-          error={errors.visaStatus}
-        />
-      </div>
+      <Field
+        label="City"
+        value={l.city}
+        onChange={(v) => onChange({ city: v })}
+        error={errors.city}
+      />
+      <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+          Add suburb and residency details
+        </summary>
+        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+          <Field
+            label="Suburb"
+            optional
+            value={l.suburb}
+            onChange={(v) => onChange({ suburb: v })}
+            error={errors.suburb}
+          />
+          <Field
+            label="Citizenship status"
+            optional
+            placeholder="e.g. Australian Citizen"
+            value={l.citizenshipStatus}
+            onChange={(v) => onChange({ citizenshipStatus: v })}
+            error={errors.citizenshipStatus}
+          />
+          <Field
+            label="Visa status"
+            optional
+            placeholder="e.g. Permanent Resident"
+            value={l.visaStatus}
+            onChange={(v) => onChange({ visaStatus: v })}
+            error={errors.visaStatus}
+          />
+        </div>
+      </details>
     </div>
   );
 }
@@ -773,6 +790,9 @@ function StepReligion({
   return (
     <div className="grid gap-5">
       <SectionTitle icon="🕌" title="Religion & Community" />
+      <p className="text-sm leading-6 text-[#6B7280]">
+        Share only what helps introductions feel aligned. This can stay light and still be useful.
+      </p>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
           label="Religion"
@@ -791,42 +811,49 @@ function StepReligion({
           error={errors.community}
         />
       </div>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field
-          label="Caste"
-          optional
-          placeholder="e.g. Brahmin"
-          value={r.caste}
-          onChange={(v) => onChange({ caste: v })}
-          error={errors.caste}
-        />
-        <Field
-          label="Sub-caste"
-          optional
-          value={r.subCaste}
-          onChange={(v) => onChange({ subCaste: v })}
-          error={errors.subCaste}
-        />
-      </div>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field
-          label="Mother tongue"
-          optional
-          placeholder="e.g. Hindi, Tamil"
-          value={r.motherTongue}
-          onChange={(v) => onChange({ motherTongue: v })}
-          error={errors.motherTongue}
-        />
-        <Field
-          label="Languages spoken"
-          optional
-          placeholder="English, Hindi, Tamil"
-          value={r.languagesSpoken}
-          onChange={(v) => onChange({ languagesSpoken: v })}
-          hint="Comma-separated list"
-          error={errors.languagesSpoken}
-        />
-      </div>
+      <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+          Add language, caste, or sub-community details
+        </summary>
+        <div className="mt-4 grid gap-5">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              label="Caste"
+              optional
+              placeholder="e.g. Brahmin"
+              value={r.caste}
+              onChange={(v) => onChange({ caste: v })}
+              error={errors.caste}
+            />
+            <Field
+              label="Sub-caste"
+              optional
+              value={r.subCaste}
+              onChange={(v) => onChange({ subCaste: v })}
+              error={errors.subCaste}
+            />
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              label="Mother tongue"
+              optional
+              placeholder="e.g. Hindi, Tamil"
+              value={r.motherTongue}
+              onChange={(v) => onChange({ motherTongue: v })}
+              error={errors.motherTongue}
+            />
+            <Field
+              label="Languages spoken"
+              optional
+              placeholder="English, Hindi, Tamil"
+              value={r.languagesSpoken}
+              onChange={(v) => onChange({ languagesSpoken: v })}
+              hint="Comma-separated list"
+              error={errors.languagesSpoken}
+            />
+          </div>
+        </div>
+      </details>
     </div>
   );
 }
@@ -848,50 +875,57 @@ function StepEducation({
   return (
     <div className="grid gap-6">
       <SectionTitle icon="🎓" title="Education & Career" />
+      <p className="text-sm leading-6 text-[#6B7280]">
+        Keep this practical: the basics first, deeper academic and income context only if you want
+        to add it now.
+      </p>
 
       <div className="grid gap-4 bg-[#FCFAF7] p-4 rounded-2xl border border-[#7A1F2B]/5">
         <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">
           Education Details
         </p>
         <div className="grid gap-5">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              label="Highest qualification"
-              optional
-              placeholder="e.g. Bachelor's Degree"
-              value={ed.highestQualification}
-              onChange={(v) => onEdChange({ highestQualification: v })}
-              error={errors.highestQualification}
-            />
-            <Field
-              label="Institution name"
-              optional
-              placeholder="e.g. University of Sydney"
-              value={ed.institutionName}
-              onChange={(v) => onEdChange({ institutionName: v })}
-              error={errors.highestQualification}
-            />
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              label="Graduation year"
-              optional
-              type="number"
-              placeholder="e.g. 2015"
-              value={ed.graduationYear}
-              onChange={(v) => onEdChange({ graduationYear: v })}
-              error={errors.highestQualification}
-            />
-            <Field
-              label="Additional certifications"
-              optional
-              placeholder="CPA, CFA, MBA"
-              value={ed.additionalCertifications}
-              onChange={(v) => onEdChange({ additionalCertifications: v })}
-              hint="Comma-separated list"
-              error={errors.highestQualification}
-            />
-          </div>
+          <Field
+            label="Highest qualification"
+            optional
+            placeholder="e.g. Bachelor's Degree"
+            value={ed.highestQualification}
+            onChange={(v) => onEdChange({ highestQualification: v })}
+            error={errors.highestQualification}
+          />
+          <details className="rounded-2xl border border-[#7A1F2B]/10 bg-white/70 p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+              Add institution and certification details
+            </summary>
+            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+              <Field
+                label="Institution name"
+                optional
+                placeholder="e.g. University of Sydney"
+                value={ed.institutionName}
+                onChange={(v) => onEdChange({ institutionName: v })}
+                error={errors.highestQualification}
+              />
+              <Field
+                label="Graduation year"
+                optional
+                type="number"
+                placeholder="e.g. 2015"
+                value={ed.graduationYear}
+                onChange={(v) => onEdChange({ graduationYear: v })}
+                error={errors.highestQualification}
+              />
+              <Field
+                label="Additional certifications"
+                optional
+                placeholder="CPA, CFA, MBA"
+                value={ed.additionalCertifications}
+                onChange={(v) => onEdChange({ additionalCertifications: v })}
+                hint="Comma-separated list"
+                error={errors.highestQualification}
+              />
+            </div>
+          </details>
         </div>
       </div>
 
@@ -918,53 +952,60 @@ function StepEducation({
               error={errors.highestQualification}
             />
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <SelectField
-              label="Employment status"
-              optional
-              value={em.employmentStatus}
-              onChange={(v) => onEmChange({ employmentStatus: v })}
-              error={errors.highestQualification}
-              options={[
-                { value: 'EMPLOYED', label: 'Employed' },
-                { value: 'SELF_EMPLOYED', label: 'Self-employed' },
-                { value: 'BUSINESS_OWNER', label: 'Business owner' },
-                { value: 'STUDENT', label: 'Student' },
-                { value: 'NOT_EMPLOYED', label: 'Not employed' },
-                { value: 'RETIRED', label: 'Retired' },
-              ]}
-            />
-            <Field
-              label="Employer name"
-              optional
-              value={em.employerName}
-              onChange={(v) => onEmChange({ employerName: v })}
-              error={errors.highestQualification}
-            />
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              label="Annual income (AUD)"
-              optional
-              type="number"
-              placeholder="e.g. 80000"
-              value={em.annualIncome}
-              onChange={(v) => onEmChange({ annualIncome: v })}
-              error={errors.highestQualification}
-            />
-            <SelectField
-              label="Income visibility"
-              optional
-              value={em.annualIncomeVisibility}
-              onChange={(v) => onEmChange({ annualIncomeVisibility: v })}
-              error={errors.highestQualification}
-              options={[
-                { value: 'PRIVATE', label: 'Private (hidden from all)' },
-                { value: 'MATCHES_ONLY', label: 'Matches only' },
-                { value: 'PUBLIC', label: 'Public' },
-              ]}
-            />
-          </div>
+          <details className="rounded-2xl border border-[#7A1F2B]/10 bg-white/70 p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+              Add employer and income details
+            </summary>
+            <div className="mt-4 grid gap-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <SelectField
+                  label="Employment status"
+                  optional
+                  value={em.employmentStatus}
+                  onChange={(v) => onEmChange({ employmentStatus: v })}
+                  error={errors.highestQualification}
+                  options={[
+                    { value: 'EMPLOYED', label: 'Employed' },
+                    { value: 'SELF_EMPLOYED', label: 'Self-employed' },
+                    { value: 'BUSINESS_OWNER', label: 'Business owner' },
+                    { value: 'STUDENT', label: 'Student' },
+                    { value: 'NOT_EMPLOYED', label: 'Not employed' },
+                    { value: 'RETIRED', label: 'Retired' },
+                  ]}
+                />
+                <Field
+                  label="Employer name"
+                  optional
+                  value={em.employerName}
+                  onChange={(v) => onEmChange({ employerName: v })}
+                  error={errors.highestQualification}
+                />
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field
+                  label="Annual income (AUD)"
+                  optional
+                  type="number"
+                  placeholder="e.g. 80000"
+                  value={em.annualIncome}
+                  onChange={(v) => onEmChange({ annualIncome: v })}
+                  error={errors.highestQualification}
+                />
+                <SelectField
+                  label="Income visibility"
+                  optional
+                  value={em.annualIncomeVisibility}
+                  onChange={(v) => onEmChange({ annualIncomeVisibility: v })}
+                  error={errors.highestQualification}
+                  options={[
+                    { value: 'PRIVATE', label: 'Private (hidden from all)' },
+                    { value: 'MATCHES_ONLY', label: 'Matches only' },
+                    { value: 'PUBLIC', label: 'Public' },
+                  ]}
+                />
+              </div>
+            </div>
+          </details>
         </div>
       </div>
     </div>
