@@ -38,6 +38,8 @@ export const apiEnvSchema = z.object({
   PUSH_PROVIDER: z.enum(['console', 'webpush']).default('console'),
   WEB_PUSH_PUBLIC_KEY: nonEmptyString.optional(),
   WEB_PUSH_PRIVATE_KEY: nonEmptyString.optional(),
+  ERROR_TRACKING_PROVIDER: z.enum(['none', 'webhook']).default('none'),
+  ERROR_TRACKING_WEBHOOK_URL: nonEmptyString.optional(),
 });
 
 export const webEnvSchema = z.object({

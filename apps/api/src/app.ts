@@ -17,6 +17,7 @@ import { createMessagesRouter } from './messages/messages.routes.js';
 import { createNotificationsRouter } from './notifications/notifications.routes.js';
 import { createPublicRouter } from './public/public.routes.js';
 import { createProfileRouter } from './profile/profile.routes.js';
+import { reportApplicationError } from './common/error-tracking.service.js';
 
 function isZodValidationError(error: unknown): error is z.ZodError {
   return (
@@ -124,6 +125,16 @@ export function createApp(options: CreateAppOptions): Express {
         stack: error instanceof Error ? error.stack : undefined,
       }));
     }
+
+    void reportApplicationError({
+      source: 'express',
+      ...(typeof reqId === 'string' ? { requestId: reqId } : {}),
+      method: request.method,
+      url: request.originalUrl,
+      statusCode: 500,
+      message: error instanceof Error ? error.message : String(error),
+      ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
+    });
 
     response.status(500).json({ message: 'Internal server error', requestId: reqId });
   });
