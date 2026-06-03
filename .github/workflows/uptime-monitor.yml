@@ -1,0 +1,27 @@
+name: Uptime Monitor
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  uptime-check:
+    name: Check Public Health Endpoints
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run uptime checks
+        env:
+          UPTIME_API_URL: ${{ secrets.UPTIME_API_URL }}
+          UPTIME_WEB_URL: ${{ secrets.UPTIME_WEB_URL }}
+          UPTIME_TIMEOUT_MS: 15000
+        run: node scripts/uptime-check.mjs

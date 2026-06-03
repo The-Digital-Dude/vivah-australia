@@ -90,7 +90,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Run database migration/seed scripts safely. *(from "Tasks" L2239)*
 - [x] Add structured API logs. _(request ID and JSON API request/error logging already exist in `apps/api/src/app.ts`)_ *(from "Tasks" L2247)*
 - [ ] Add error tracking with Sentry or equivalent. *(from "Tasks" L2248)*
-- [ ] Add uptime monitoring. *(from "Tasks" L2249)*
+- [x] Add uptime monitoring. _(scheduled GitHub Actions health checks now run against configured public API/web URLs via `scripts/uptime-check.mjs`)_ *(from "Tasks" L2249)*
 - [ ] Configure MongoDB backups. *(from "Tasks" L2260)*
 - [ ] Configure file storage lifecycle policy. *(from "Tasks" L2261)*
 - [ ] Configure CDN caching for public assets. *(from "Tasks" L2262)*

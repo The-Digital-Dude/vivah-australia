@@ -10,6 +10,7 @@
     "typecheck": "pnpm --filter @vivah/shared build && pnpm --filter @vivah/ui build && pnpm -r typecheck",
     "test": "pnpm -r test",
     "route:qa": "node scripts/route-qa.mjs",
+    "uptime:check": "node scripts/uptime-check.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

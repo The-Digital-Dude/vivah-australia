@@ -2246,7 +2246,7 @@ ADMIN_SEED_PASSWORD=
 
 - [x] Add structured API logs.
 - [ ] Add error tracking with Sentry or equivalent.
-- [ ] Add uptime monitoring.
+- [x] Add uptime monitoring.
 - [ ] Add payment webhook failure alerts.
 - [ ] Add background job failure alerts.
 - [x] Add admin audit log view.

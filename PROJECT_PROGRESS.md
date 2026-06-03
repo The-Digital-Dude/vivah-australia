@@ -13,6 +13,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Realistic demo database seeding now creates deterministic admin/member accounts, 40 detailed matrimonial profiles, media, interactions, conversations, verification requests, notifications, billing records, CMS/blog/community content, reports, audit/activity logs, and fraud/risk examples; `seed`, `seed:demo`, and guarded `seed:reset` are documented in `SEEDING_GUIDE.md`.
 - Tests currently cover shared validators, database model/index registration, auth routes, public/CMS/contact routes, profile routes, admin/RBAC, media, match, interactions, messaging, billing, community moderation, and API health routes.
 - `pnpm route:qa` provides repeatable local route checks for public, auth, admin, member, API, CMS, and seeded dynamic profile routes.
+- Scheduled uptime monitoring is wired through `.github/workflows/uptime-monitor.yml` and `scripts/uptime-check.mjs`, using configured public health-check URLs for the API and web app.
 - `.env.example` files exist for API and web.
 - Real environment files, build outputs, logs, and dependencies are ignored by git.
 - `vivah_australia_ui_ux_planning.md` is now the standing UI/UX source of truth for all frontend and product work.
