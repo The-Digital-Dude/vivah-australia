@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronRight,
+  Clock3,
   Loader2,
   Mail,
   MapPin,
@@ -168,11 +169,14 @@ export type ProfileMatchCardProfile = {
   city?: string | undefined;
   community?: string | undefined;
   education?: string | undefined;
+  highlights?: string[] | undefined;
   id: string;
+  lastActiveLabel?: string | undefined;
   matchScore?: number | undefined;
   name?: string | undefined;
   occupation?: string | undefined;
   photoUrl?: string | undefined;
+  privacyHint?: string | undefined;
   religion?: string | undefined;
   slug?: string | undefined;
   verificationLevel?: string | undefined;
@@ -218,8 +222,14 @@ export function ProfileMatchCard({
             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D6A84F] to-[#C0923C] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2C1707] shadow-md">
               <Sparkles className="size-3" /> Boosted
             </div>
-            ) : null}
-          </div>
+          ) : null}
+          {profile.lastActiveLabel ? (
+            <div className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#1F6F4A] shadow-sm backdrop-blur">
+              <Clock3 className="size-3" />
+              {profile.lastActiveLabel}
+            </div>
+          ) : null}
+        </div>
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -259,6 +269,27 @@ export function ProfileMatchCard({
                 ))}
             </div>
 
+            {profile.highlights?.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {profile.highlights.slice(0, compact ? 2 : 3).map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-semibold text-[#1F6F4A]"
+                  >
+                    <ShieldCheck className="size-3.5" />
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            {profile.privacyHint ? (
+              <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/35 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#8B6714]">
+                <ShieldCheck className="size-3.5" />
+                {profile.privacyHint}
+              </div>
+            ) : null}
+
             <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#7A1F2B]">
               View profile <ChevronRight className="size-4" />
             </span>
@@ -283,10 +314,31 @@ export function ProfileDetailSection({
 
 export function VerificationBadge({ level }: Readonly<{ level?: string | undefined }>) {
   const label = level ? level.replaceAll('_', ' ') : 'Verification pending';
+  const detail =
+    level === 'FULLY_VERIFIED'
+      ? 'Identity, address, employment, and higher-trust checks have been reviewed.'
+      : level === 'PLATINUM'
+        ? 'Higher-trust profile with deeper review signals beyond standard verification.'
+        : level === 'GOLD'
+          ? 'Includes stronger trust review such as address, employment, or residency-related checks.'
+          : level === 'SILVER'
+            ? 'Carries a stronger review signal than basic account verification.'
+            : level === 'BASIC'
+              ? 'Basic account verification is completed for this member.'
+              : 'This profile has not completed visible verification yet.';
+
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[#F8E8E8] px-3 py-1 text-xs font-bold text-[#7A1F2B]">
-      <ShieldCheck className="size-3.5" />
-      {label}
+    <span className="group relative inline-flex">
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#F8E8E8] px-3 py-1 text-xs font-bold text-[#7A1F2B]">
+        <ShieldCheck className="size-3.5" />
+        {label}
+      </span>
+      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-56 -translate-x-1/2 rounded-2xl border border-[#7A1F2B]/10 bg-white p-3 text-left text-[11px] font-medium leading-5 text-[#6B7280] shadow-xl group-hover:block group-focus-within:block">
+        <span className="block text-xs font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+          Verification
+        </span>
+        <span className="mt-1 block">{detail}</span>
+      </span>
     </span>
   );
 }

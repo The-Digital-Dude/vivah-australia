@@ -41,6 +41,8 @@ interface MatchCard {
   photoUrl?: string;
   matchScore: number;
   matchReasons: string[];
+  lastActiveAt?: string;
+  isBoosted?: boolean;
 }
 
 interface MatchResponse {
@@ -173,6 +175,20 @@ function queryToParams(query: Record<string, unknown>) {
   });
 
   return params;
+}
+
+function formatRelativeDate(value?: string) {
+  if (!value) {
+    return undefined;
+  }
+
+  const diff = Date.now() - new Date(value).getTime();
+  const mins = Math.max(1, Math.floor(diff / 60000));
+  if (mins < 60) return `Active ${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `Active ${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `Active ${days}d ago`;
 }
 
 function normalizeQuickFilterLabel(key: string, value: unknown) {
@@ -1012,32 +1028,23 @@ function ProfileCard({
         age: profile.age ?? 'Age hidden',
         city: [profile.city, profile.state, profile.country].filter(Boolean).join(', '),
         community: profile.community ?? profile.motherTongue,
+        highlights: profile.matchReasons,
         id: profile.id,
+        isBoosted: profile.isBoosted,
+        lastActiveLabel: formatRelativeDate(profile.lastActiveAt),
         matchScore: profile.matchScore,
         name: profile.firstName ?? 'Vivah member',
         occupation: profile.occupation,
         photoUrl: profile.photoUrl,
+        privacyHint: 'Private photos and direct introductions stay protected until you connect.',
         verificationLevel: profile.verificationLevel,
         slug: profile.id,
       }}
       actions={
-        <div className="grid gap-3">
-          <div className="flex flex-wrap gap-2">
-            {profile.matchReasons.slice(0, 2).map((reason) => (
-              <span
-                key={reason}
-                className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-semibold text-[#1F6F4A]"
-              >
-                <ShieldCheck className="size-3.5" />
-                {reason}
-              </span>
-            ))}
-          </div>
-          <ProfileActions
-            profileId={profile.id}
-            {...(onProfileHidden ? { onProfileHidden } : {})}
-          />
-        </div>
+        <ProfileActions
+          profileId={profile.id}
+          {...(onProfileHidden ? { onProfileHidden } : {})}
+        />
       }
     />
   );
