@@ -12,6 +12,7 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  Circle,
   ShieldCheck,
   Upload,
   Lock,
@@ -220,12 +221,105 @@ export default function MemberVerificationPage() {
   };
 
   const isPendingReview = profile?.moderation?.approvalStatus === 'PENDING';
+  const approvedTypes = uniqueApprovedTypes(requests);
+  const pendingTypes = uniquePendingTypes(requests);
+  const trustScore = trustScoreForLevel(profile?.verification?.level);
+  const completedCount =
+    (profile?.verification?.emailVerified ? 1 : 0) +
+    (profile?.verification?.mobileVerified ? 1 : 0) +
+    approvedTypes.size;
+  const totalCheckpoints = verificationRoadmap.length;
+  const progressPercent = Math.min(100, Math.round((completedCount / totalCheckpoints) * 100));
+  const trustTierLabel =
+    trustScore >= 90 ? 'Exceptional trust' : trustScore >= 70 ? 'High trust' : trustScore >= 45 ? 'Growing trust' : 'Early trust';
 
   return (
     <MemberShell
       title="Trust & Verification"
       subtitle="Submit identity, visa, and background documents to unlock higher trust badges and premium matching tiers."
     >
+      <PremiumCard className="mb-8 overflow-hidden rounded-[34px] border border-[#A10E4D]/10 bg-[linear-gradient(135deg,#FFF9F5_0%,#FFF1F4_52%,#FFF8EC_100%)] p-0 shadow-[0_24px_60px_rgba(122,31,43,0.08)]">
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_320px]">
+          <div className="p-6 sm:p-8">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
+              Verification centre
+            </p>
+            <h2 className="mt-3 font-playfair text-4xl font-semibold leading-tight text-[#2F2F2F]">
+              Build trust before the first conversation gets serious
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#6B7280]">
+              Verified profiles feel safer, earn stronger visibility, and make family-led
+              introductions more comfortable. Keep every trust step in one place without changing
+              your current verification workflow.
+            </p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-[24px] border border-[#A10E4D]/10 bg-white/85 px-4 py-4">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                  Trust score
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-[#2F2F2F]">{trustScore}%</p>
+                <p className="mt-1 text-xs text-[#6B7280]">{trustTierLabel}</p>
+              </div>
+              <div className="rounded-[24px] border border-[#A10E4D]/10 bg-white/85 px-4 py-4">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                  Completed
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-[#2F2F2F]">{completedCount}</p>
+                <p className="mt-1 text-xs text-[#6B7280]">of {totalCheckpoints} trust checkpoints</p>
+              </div>
+              <div className="rounded-[24px] border border-[#A10E4D]/10 bg-white/85 px-4 py-4">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                  Under review
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-[#2F2F2F]">{pendingTypes.size}</p>
+                <p className="mt-1 text-xs text-[#6B7280]">documents still awaiting moderation</p>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-[26px] border border-[#A10E4D]/10 bg-white/85 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-[#2F2F2F]">Your verification progress</p>
+                  <p className="mt-1 text-xs text-[#6B7280]">
+                    Every completed step strengthens your public trust signals.
+                  </p>
+                </div>
+                <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
+                  {progressPercent}% complete
+                </span>
+              </div>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-[#F6E7EA]">
+                <div
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#A10E4D_0%,#D4A04C_100%)] transition-all"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-[#A10E4D]/8 bg-white/80 p-6 lg:border-l lg:border-t-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+              Why verify
+            </p>
+            <div className="mt-5 grid gap-3 text-sm text-[#2F2F2F]">
+              <div className="flex gap-3 rounded-[22px] bg-[#FFF9F5] px-4 py-4">
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#A10E4D]" />
+                <span>Higher trust helps other members and families feel safer reaching out.</span>
+              </div>
+              <div className="flex gap-3 rounded-[22px] bg-[#FFF9F5] px-4 py-4">
+                <Sparkles className="mt-0.5 size-4 shrink-0 text-[#A10E4D]" />
+                <span>Verified profiles usually feel more serious and more complete in discovery.</span>
+              </div>
+              <div className="flex gap-3 rounded-[22px] bg-[#FFF9F5] px-4 py-4">
+                <Users className="mt-0.5 size-4 shrink-0 text-[#A10E4D]" />
+                <span>Trust signals reduce friction when conversations move from interest to family introductions.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </PremiumCard>
+
       {/* ─── Pending Moderation Banner ───────────────────────────────────── */}
       {isPendingReview && (
         <div className="mb-8 flex items-start gap-4 rounded-3xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
@@ -244,7 +338,7 @@ export default function MemberVerificationPage() {
         </div>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr]">
+      <div className="grid gap-8 lg:grid-cols-[1.28fr_0.92fr]">
         <div className="space-y-8">
           {/* ─── Premium Mobile OTP Verification Card ─────────────────────── */}
           {profile?.verification?.mobileVerified ? (
@@ -539,6 +633,59 @@ export default function MemberVerificationPage() {
         {/* ─── Verification Badges Ladder ───────────────────────────────────── */}
         <aside className="space-y-6">
           <PremiumCard className="p-6 space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-[#2F2F2F]">Your trust score</h2>
+                <p className="text-xs text-[#6B7280] mt-1">
+                  A quick view of how strong your public trust signals currently feel.
+                </p>
+              </div>
+              <div className="flex h-20 w-20 items-center justify-center rounded-full border-[6px] border-[#A10E4D]/15 bg-[#FFF9F5] text-2xl font-semibold text-[#A10E4D]">
+                {trustScore}
+              </div>
+            </div>
+
+            <div className="rounded-[24px] bg-[#FFF9F5] px-4 py-4">
+              <p className="text-sm font-semibold text-[#2F2F2F]">{trustTierLabel}</p>
+              <p className="mt-1 text-sm leading-6 text-[#6B7280]">
+                Continue completing document and identity steps to improve visibility and comfort in serious introductions.
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              {verificationRoadmap.slice(0, 6).map((item) => {
+                const complete =
+                  (item.key === 'EMAIL' && profile?.verification?.emailVerified) ||
+                  (item.key === 'MOBILE' && profile?.verification?.mobileVerified) ||
+                  approvedTypes.has(item.key);
+                const pending = pendingTypes.has(item.key);
+
+                return (
+                  <div
+                    key={item.key}
+                    className="flex items-start gap-3 rounded-[22px] border border-[#A10E4D]/10 bg-white px-4 py-4"
+                  >
+                    <div
+                      className={cx(
+                        'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                        complete && 'bg-emerald-100 text-emerald-700',
+                        pending && 'bg-amber-100 text-amber-700',
+                        !complete && !pending && 'bg-[#FFF0F3] text-[#A10E4D]',
+                      )}
+                    >
+                      {complete ? <CheckCircle2 className="size-4" /> : pending ? <Clock className="size-4" /> : <Circle className="size-3 fill-current" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#2F2F2F]">{item.title}</p>
+                      <p className="mt-1 text-xs leading-5 text-[#6B7280]">{item.helper}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </PremiumCard>
+
+          <PremiumCard className="p-6 space-y-5">
             <div>
               <h2 className="text-lg font-semibold text-[#2F2F2F]">Trust Badge Ladder</h2>
               <p className="text-xs text-[#6B7280] mt-1">
@@ -602,6 +749,27 @@ export default function MemberVerificationPage() {
                 </div>
               </div>
             </div>
+          </PremiumCard>
+
+          <PremiumCard className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFF8EC] text-[#B7832E]">
+                <Lock className="size-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-[#2F2F2F]">Need help?</h2>
+                <p className="text-xs text-[#6B7280] mt-1">
+                  Your documents stay encrypted and moderation remains manual.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 rounded-[22px] bg-[#FFF9F5] px-4 py-4 text-sm leading-6 text-[#6B7280]">
+              If a document is unclear, rejected, or pending longer than expected, the support team can guide you on what to resubmit and why.
+            </div>
+            <PremiumButton href="/help" variant="secondary" className="mt-4 w-full">
+              Contact support
+              <ArrowRight className="size-4" />
+            </PremiumButton>
           </PremiumCard>
         </aside>
       </div>
