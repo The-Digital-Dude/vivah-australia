@@ -5,6 +5,7 @@ import {
   getPlans,
   getSuccessStories,
   getTestimonials,
+  getCmsSections,
   type FeaturedProfile,
   type PublicContentItem,
   type PublicPlan,
@@ -118,7 +119,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [home, { profiles }, { plans }, { stories }, { testimonials }, { blogs }] =
+  const [home, { profiles }, { plans }, { stories }, { testimonials }, { blogs }, { sections }] =
     await Promise.all([
       getHomeContent(),
       getFeaturedProfiles(),
@@ -126,6 +127,7 @@ export default async function HomePage() {
       getSuccessStories(),
       getTestimonials(),
       getBlogs(3),
+      getCmsSections('home'),
     ]);
 
   const profileItems = profiles.length ? profiles : fallbackProfiles;
@@ -142,6 +144,7 @@ export default async function HomePage() {
       stories={storyItems}
       testimonials={testimonialItems}
       blogs={blogItems}
+      dynamicSections={sections || []}
     />
   );
 }

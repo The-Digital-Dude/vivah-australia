@@ -9,12 +9,38 @@ import {
   cmsPageInputSchema,
   cmsSuccessStoryInputSchema,
   cmsTestimonialInputSchema,
+  cmsSectionInputSchema,
+  cmsFaqInputSchema,
 } from '@vivah/shared';
 import AdminShell from '../admin-shell';
 import { formString, optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
 import { AlertCircle, FileEdit, Trash2, ShieldAlert, Eye } from 'lucide-react';
 
-type SectionKey = 'home' | 'pages' | 'blogs' | 'stories' | 'testimonials' | 'banners';
+type SectionKey = 'home' | 'sections' | 'pages' | 'blogs' | 'stories' | 'testimonials' | 'banners' | 'faqs';
+
+interface CmsSection {
+  _id: string;
+  key: string;
+  pageKey: string;
+  title?: string;
+  subtitle?: string;
+  body?: string;
+  imageUrl?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  visible: boolean;
+  sortOrder: number;
+  status: 'DRAFT' | 'PUBLISHED';
+}
+
+interface Faq {
+  _id: string;
+  question: string;
+  answer: string;
+  category: 'GENERAL' | 'MEMBERSHIP' | 'VERIFICATION' | 'SAFETY' | 'BILLING';
+  displayOrder: number;
+  active: boolean;
+}
 
 interface CmsPage {
   _id: string;
@@ -83,6 +109,31 @@ const emptyContent = {
   body: '',
   coupleName: '',
   published: false,
+  coverImage: '',
+  tags: [] as string[],
+  readTimeMinutes: 3,
+};
+
+const emptySection = {
+  key: '',
+  pageKey: '',
+  title: '',
+  subtitle: '',
+  body: '',
+  imageUrl: '',
+  ctaLabel: '',
+  ctaHref: '',
+  visible: true,
+  sortOrder: 0,
+  status: 'DRAFT' as 'DRAFT' | 'PUBLISHED',
+};
+
+const emptyFaq = {
+  question: '',
+  answer: '',
+  category: 'GENERAL' as 'GENERAL' | 'MEMBERSHIP' | 'VERIFICATION' | 'SAFETY' | 'BILLING',
+  displayOrder: 0,
+  active: true,
 };
 
 const emptyTestimonial = {
@@ -121,11 +172,13 @@ const emptyHome: HomeContent = {
 
 const sections: Array<{ key: SectionKey; label: string }> = [
   { key: 'home', label: 'Homepage' },
+  { key: 'sections', label: 'Dynamic Sections' },
   { key: 'pages', label: 'Pages' },
   { key: 'blogs', label: 'Blogs' },
   { key: 'stories', label: 'Success stories' },
   { key: 'testimonials', label: 'Testimonials' },
   { key: 'banners', label: 'Banners' },
+  { key: 'faqs', label: 'FAQs' },
 ];
 
 export default function AdminCmsPage() {
@@ -139,6 +192,8 @@ export default function AdminCmsPage() {
   const [stories, setStories] = useState<CmsContent[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [cmsSections, setCmsSections] = useState<CmsSection[]>([]);
+  const [faqs, setFaqs] = useState<Faq[]>([]);
 
   // Custom confirmation dialog
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -148,7 +203,7 @@ export default function AdminCmsPage() {
   } | null>(null);
 
   async function loadAll() {
-    const [homeResult, pageResult, blogResult, storyResult, testimonialResult, bannerResult] =
+    const [homeResult, pageResult, blogResult, storyResult, testimonialResult, bannerResult, sectionResult, faqResult] =
       await Promise.all([
         memberRequest('/api/admin/cms/home'),
         memberRequest('/api/admin/cms/pages'),
@@ -156,6 +211,8 @@ export default function AdminCmsPage() {
         memberRequest('/api/admin/cms/success-stories'),
         memberRequest('/api/admin/cms/testimonials'),
         memberRequest('/api/admin/cms/banners'),
+        memberRequest('/api/admin/cms/sections'),
+        memberRequest('/api/admin/cms/faqs'),
       ]);
 
     if (homeResult.ok) {
@@ -170,6 +227,12 @@ export default function AdminCmsPage() {
       );
     }
     if (bannerResult.ok) setBanners((bannerResult.data as { banners?: Banner[] }).banners ?? []);
+    if (sectionResult.ok) {
+      setCmsSections((sectionResult.data as { sections?: CmsSection[] }).sections ?? []);
+    }
+    if (faqResult.ok) {
+      setFaqs((faqResult.data as { faqs?: Faq[] }).faqs ?? []);
+    }
 
     const failed = [
       homeResult,
@@ -178,6 +241,7 @@ export default function AdminCmsPage() {
       storyResult,
       testimonialResult,
       bannerResult,
+      faqResult,
     ].find((result) => !result.ok);
     if (failed) setMessage(failed.message);
   }
@@ -324,6 +388,30 @@ export default function AdminCmsPage() {
             reload={loadAll}
             request={memberRequest}
             onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/banners', id, label })}
+          />
+        )}
+
+        {activeSection === 'sections' && (
+          <SectionManager
+            items={cmsSections}
+            pending={pending}
+            setPending={setPending}
+            setMessage={setMessage}
+            reload={loadAll}
+            request={memberRequest}
+            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/sections', id, label })}
+          />
+        )}
+
+        {activeSection === 'faqs' && (
+          <FaqManager
+            items={faqs}
+            pending={pending}
+            setPending={setPending}
+            setMessage={setMessage}
+            reload={loadAll}
+            request={memberRequest}
+            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/faqs', id, label })}
           />
         )}
       </div>
@@ -623,7 +711,7 @@ function ContentManager({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editor, setEditor] = useState(initialEmptyEditor);
 
-  function selectItem(item: CmsContent) {
+  function selectItem(item: any) {
     setSelectedId(item._id);
     setEditor({
       slug: item.slug,
@@ -631,6 +719,9 @@ function ContentManager({
       body: item.body,
       coupleName: item.coupleName ?? '',
       published: item.published,
+      coverImage: item.coverImage ?? '',
+      tags: item.tags ?? [],
+      readTimeMinutes: item.readTimeMinutes ?? 3,
     });
     setMessage('');
   }
@@ -686,6 +777,35 @@ function ContentManager({
               value={editor.coupleName}
               onChange={(coupleName) => setEditor((current) => ({ ...current, coupleName }))}
             />
+          ) : null}
+          {collectionLabel === 'Blog' ? (
+            <>
+              <Field
+                label="Cover Image URL"
+                name="coverImage"
+                value={editor.coverImage || ''}
+                onChange={(coverImage) => setEditor((current) => ({ ...current, coverImage }))}
+              />
+              <Field
+                label="Tags (comma separated)"
+                name="tags"
+                value={(editor.tags || []).join(', ')}
+                onChange={(tagsStr) => setEditor((current) => ({ 
+                  ...current, 
+                  tags: tagsStr.split(',').map(t => t.trim()).filter(Boolean) 
+                }))}
+              />
+              <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
+                <span className="uppercase tracking-wider text-neutral-400">Read Time (Minutes)</span>
+                <input
+                  type="number"
+                  name="readTimeMinutes"
+                  value={editor.readTimeMinutes || 3}
+                  onChange={(e) => setEditor((current) => ({ ...current, readTimeMinutes: parseInt(e.target.value) || 3 }))}
+                  className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                />
+              </div>
+            </>
           ) : null}
         </div>
         <RichTextEditor
@@ -853,6 +973,409 @@ function BannerManager({
       </form>
     </div>
   );
+}
+
+function SectionManager({
+  items,
+  pending,
+  reload,
+  request,
+  setMessage,
+  setPending,
+  onDeleteTrigger,
+}: Readonly<ManagerPropsExtended<CmsSection>>) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editor, setEditor] = useState(emptySection);
+
+  function selectItem(item: CmsSection) {
+    setSelectedId(item._id);
+    setEditor({
+      key: item.key,
+      pageKey: item.pageKey,
+      title: item.title ?? '',
+      subtitle: item.subtitle ?? '',
+      body: item.body ?? '',
+      imageUrl: item.imageUrl ?? '',
+      ctaLabel: item.ctaLabel ?? '',
+      ctaHref: item.ctaHref ?? '',
+      visible: item.visible,
+      sortOrder: item.sortOrder,
+      status: item.status,
+    });
+    setMessage('');
+  }
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[280px_1fr]">
+      <ContentList
+        items={items}
+        selectedId={selectedId}
+        title="Dynamic Sections"
+        onNew={() => {
+          setSelectedId(null);
+          setEditor(emptySection);
+        }}
+        onSelect={selectItem}
+        labelFor={(item) => `${item.pageKey} / ${item.key}`}
+        metaFor={(item) => `${item.title || 'No Title'} · ${item.status} · Order: ${item.sortOrder}`}
+      />
+      <form
+        onSubmit={(event) =>
+          void saveSection(event, {
+            editor,
+            reload,
+            request,
+            selectedId,
+            setMessage,
+            setPending,
+          })
+        }
+        className="grid gap-4 bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm"
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field
+            label="Page Key (e.g. home, about)"
+            name="pageKey"
+            value={editor.pageKey}
+            onChange={(pageKey) => setEditor((current) => ({ ...current, pageKey }))}
+          />
+          <Field
+            label="Section Key (Unique on page, e.g. hero, stats)"
+            name="key"
+            value={editor.key}
+            onChange={(key) => setEditor((current) => ({ ...current, key }))}
+          />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field
+            label="Section Title"
+            name="title"
+            value={editor.title}
+            onChange={(title) => setEditor((current) => ({ ...current, title }))}
+          />
+          <Field
+            label="Section Subtitle"
+            name="subtitle"
+            value={editor.subtitle}
+            onChange={(subtitle) => setEditor((current) => ({ ...current, subtitle }))}
+          />
+        </div>
+        <RichTextEditor
+          value={editor.body}
+          onChange={(body) => setEditor((current) => ({ ...current, body }))}
+        />
+        <div className="grid gap-4 md:grid-cols-3">
+          <Field
+            label="Image URL"
+            name="imageUrl"
+            value={editor.imageUrl}
+            onChange={(imageUrl) => setEditor((current) => ({ ...current, imageUrl }))}
+          />
+          <Field
+            label="CTA Button Label"
+            name="ctaLabel"
+            value={editor.ctaLabel}
+            onChange={(ctaLabel) => setEditor((current) => ({ ...current, ctaLabel }))}
+          />
+          <Field
+            label="CTA Button Href"
+            name="ctaHref"
+            value={editor.ctaHref}
+            onChange={(ctaHref) => setEditor((current) => ({ ...current, ctaHref }))}
+          />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-1.5 text-xs font-bold text-neutral-850">
+            <span className="uppercase tracking-wider text-neutral-400">Display Order</span>
+            <input
+              type="number"
+              name="sortOrder"
+              value={editor.sortOrder}
+              onChange={(e) => setEditor((current) => ({ ...current, sortOrder: parseInt(e.target.value) || 0 }))}
+              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+            />
+          </div>
+          <div className="grid gap-1.5 text-xs font-bold text-neutral-850">
+            <span className="uppercase tracking-wider text-neutral-400">Status</span>
+            <select
+              value={editor.status}
+              onChange={(e) => setEditor((current) => ({ ...current, status: e.target.value as 'DRAFT' | 'PUBLISHED' }))}
+              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+            >
+              <option value="DRAFT">Draft</option>
+              <option value="PUBLISHED">Published</option>
+            </select>
+          </div>
+        </div>
+        <ActionBar
+          selectedId={selectedId}
+          pending={pending}
+          published={editor.visible}
+          publishLabel="Visible on site"
+          onPublishedChange={(visible) => setEditor((current) => ({ ...current, visible }))}
+          onDelete={() => selectedId && onDeleteTrigger(selectedId, 'Section')}
+          submitLabel={selectedId ? 'Save Changes' : 'Create Section'}
+        />
+      </form>
+    </div>
+  );
+}
+
+async function saveSection(
+  event: FormEvent<HTMLFormElement>,
+  options: {
+    editor: typeof emptySection;
+    reload: () => Promise<void>;
+    request: ReturnType<typeof useMemberRequest>;
+    selectedId: string | null;
+    setMessage: (message: string) => void;
+    setPending: (pending: boolean) => void;
+  },
+) {
+  event.preventDefault();
+  options.setPending(true);
+  options.setMessage('');
+  const form = new FormData(event.currentTarget);
+  const parsed = cmsSectionInputSchema.safeParse({
+    key: formString(form.get('key')),
+    pageKey: formString(form.get('pageKey')),
+    title: optionalString(form.get('title')),
+    subtitle: optionalString(form.get('subtitle')),
+    body: options.editor.body || undefined,
+    imageUrl: optionalString(form.get('imageUrl')),
+    ctaLabel: optionalString(form.get('ctaLabel')),
+    ctaHref: optionalString(form.get('ctaHref')),
+    visible: options.editor.visible,
+    sortOrder: options.editor.sortOrder,
+    status: options.editor.status,
+  });
+  if (!parsed.success) {
+    options.setMessage(validationMessage(parsed.error.issues));
+    options.setPending(false);
+    return;
+  }
+  const result = await options.request(
+    options.selectedId
+      ? `/api/admin/cms/sections/${options.selectedId}`
+      : '/api/admin/cms/sections',
+    { method: options.selectedId ? 'PUT' : 'POST', body: parsed.data },
+  );
+  options.setPending(false);
+  options.setMessage(result.ok ? 'CMS section updated.' : result.message);
+  if (result.ok) await options.reload();
+}
+
+function FaqManager({
+  items,
+  pending,
+  reload,
+  request,
+  setMessage,
+  setPending,
+  onDeleteTrigger,
+}: Readonly<ManagerPropsExtended<Faq>>) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editor, setEditor] = useState(emptyFaq);
+  const [filterCategory, setFilterCategory] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = useMemo(() => {
+    return items.filter((faq) => {
+      const matchCategory = filterCategory === 'ALL' || faq.category === filterCategory;
+      const matchSearch =
+        faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchCategory && matchSearch;
+    });
+  }, [items, filterCategory, searchQuery]);
+
+  function selectItem(item: Faq) {
+    setSelectedId(item._id);
+    setEditor({
+      question: item.question,
+      answer: item.answer,
+      category: item.category,
+      displayOrder: item.displayOrder,
+      active: item.active,
+    });
+    setMessage('');
+  }
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+      <div className="bg-neutral-50/50 border border-neutral-200 rounded-2xl p-4 space-y-4">
+        <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
+          <h4 className="text-sm font-bold text-neutral-800">FAQs</h4>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedId(null);
+              setEditor(emptyFaq);
+            }}
+            className="inline-flex h-8 items-center gap-1 rounded-xl bg-white border border-[#A10E4D]/10 hover:bg-[#FFF0F3] px-3 text-xs font-bold text-[#A10E4D]"
+          >
+            <FileEdit className="h-3.5 w-3.5" />
+            <span>New</span>
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search FAQs..."
+            className="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+          />
+
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+          >
+            <option value="ALL">All Categories</option>
+            <option value="GENERAL">General</option>
+            <option value="MEMBERSHIP">Membership</option>
+            <option value="VERIFICATION">Verification</option>
+            <option value="SAFETY">Safety</option>
+            <option value="BILLING">Billing</option>
+          </select>
+        </div>
+
+        <div className="space-y-2 max-h-[400px] overflow-y-auto pt-2">
+          {filteredItems.map((item) => (
+            <button
+              key={item._id}
+              type="button"
+              onClick={() => selectItem(item)}
+              className={`flex w-full flex-col rounded-xl border p-3.5 text-left transition ${
+                selectedId === item._id
+                  ? 'border-[#A10E4D] bg-white ring-1 ring-[#A10E4D]/10 shadow-sm'
+                  : 'border-neutral-200 bg-white/75 hover:bg-white'
+              }`}
+            >
+              <span className="text-xs font-bold text-neutral-800 truncate w-full">{item.question}</span>
+              <span className="mt-1 text-[10px] font-semibold text-neutral-450 uppercase">
+                {item.category} · Order: {item.displayOrder} · {item.active ? 'Active' : 'Inactive'}
+              </span>
+            </button>
+          ))}
+          {filteredItems.length === 0 && (
+            <p className="rounded-xl border border-dashed border-neutral-200 bg-white/80 p-5 text-center text-xs text-neutral-400 italic">
+              No matching FAQs found.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <form
+        onSubmit={(event) =>
+          void saveFaq(event, {
+            editor,
+            reload,
+            request,
+            selectedId,
+            setMessage,
+            setPending,
+          })
+        }
+        className="grid gap-4 bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm"
+      >
+        <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
+          <span className="uppercase tracking-wider text-neutral-400">Question</span>
+          <input
+            name="question"
+            value={editor.question}
+            onChange={(e) => setEditor((current) => ({ ...current, question: e.target.value }))}
+            placeholder="e.g. How does verification work?"
+            className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+          />
+        </div>
+
+        <TextBlock
+          label="Answer"
+          name="answer"
+          value={editor.answer}
+          onChange={(ans) => setEditor((current) => ({ ...current, answer: ans }))}
+        />
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-1.5 text-xs font-bold text-neutral-850">
+            <span className="uppercase tracking-wider text-neutral-400">Category</span>
+            <select
+              value={editor.category}
+              onChange={(e) => setEditor((current) => ({ ...current, category: e.target.value as any }))}
+              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+            >
+              <option value="GENERAL">General</option>
+              <option value="MEMBERSHIP">Membership</option>
+              <option value="VERIFICATION">Verification</option>
+              <option value="SAFETY">Safety</option>
+              <option value="BILLING">Billing</option>
+            </select>
+          </div>
+          <div className="grid gap-1.5 text-xs font-bold text-neutral-855">
+            <span className="uppercase tracking-wider text-neutral-400">Display Order</span>
+            <input
+              type="number"
+              name="displayOrder"
+              value={editor.displayOrder}
+              onChange={(e) => setEditor((current) => ({ ...current, displayOrder: parseInt(e.target.value) || 0 }))}
+              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+            />
+          </div>
+        </div>
+
+        <ActionBar
+          selectedId={selectedId}
+          pending={pending}
+          published={editor.active}
+          publishLabel="Active (Rendered to help center)"
+          onPublishedChange={(active) => setEditor((current) => ({ ...current, active }))}
+          onDelete={() => selectedId && onDeleteTrigger(selectedId, 'FAQ')}
+          submitLabel={selectedId ? 'Save Changes' : 'Create FAQ'}
+        />
+      </form>
+    </div>
+  );
+}
+
+async function saveFaq(
+  event: FormEvent<HTMLFormElement>,
+  options: {
+    editor: typeof emptyFaq;
+    reload: () => Promise<void>;
+    request: ReturnType<typeof useMemberRequest>;
+    selectedId: string | null;
+    setMessage: (message: string) => void;
+    setPending: (pending: boolean) => void;
+  },
+) {
+  event.preventDefault();
+  options.setPending(true);
+  options.setMessage('');
+  const form = new FormData(event.currentTarget);
+  const parsed = cmsFaqInputSchema.safeParse({
+    question: formString(form.get('question')),
+    answer: options.editor.answer,
+    category: options.editor.category,
+    displayOrder: options.editor.displayOrder,
+    active: options.editor.active,
+  });
+  if (!parsed.success) {
+    options.setMessage(validationMessage(parsed.error.issues));
+    options.setPending(false);
+    return;
+  }
+  const result = await options.request(
+    options.selectedId
+      ? `/api/admin/cms/faqs/${options.selectedId}`
+      : '/api/admin/cms/faqs',
+    { method: options.selectedId ? 'PUT' : 'POST', body: parsed.data },
+  );
+  options.setPending(false);
+  options.setMessage(result.ok ? 'FAQ details updated.' : result.message);
+  if (result.ok) await options.reload();
 }
 
 function RichTextEditor({
@@ -1183,6 +1706,11 @@ async function saveContent(
     body: options.editor.body,
     ...(options.showCoupleName ? { coupleName: optionalString(form.get('coupleName')) } : {}),
     published: options.editor.published,
+    ...(options.collectionLabel === 'Blog' ? {
+      coverImage: optionalString(form.get('coverImage')),
+      tags: options.editor.tags,
+      readTimeMinutes: options.editor.readTimeMinutes,
+    } : {}),
   };
   const parsed = options.schema.safeParse(payload);
   if (!parsed.success) {

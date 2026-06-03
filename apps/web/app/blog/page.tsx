@@ -68,7 +68,7 @@ export default async function BlogPage() {
                 </p>
               </div>
               <Link
-                href={`/pages/${blog.slug}`}
+                href={`/blog/${blog.slug}`}
                 className="text-sm font-bold text-[#A10E4D] inline-flex items-center gap-1 hover:text-[#890B40]"
               >
                 Read Article <ChevronRight className="size-4" />

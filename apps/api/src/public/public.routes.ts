@@ -8,6 +8,9 @@ import {
   cmsPageInputSchema,
   cmsSuccessStoryInputSchema,
   cmsTestimonialInputSchema,
+  cmsSectionInputSchema,
+  cmsFaqInputSchema,
+  cmsTemplateInputSchema,
   contactInquirySchema,
   UserRole,
 } from '@vivah/shared';
@@ -16,6 +19,7 @@ import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { sendEmail } from '../common/email.service.js';
 import { recordDuplicateContactAttempts } from '../common/fraud.service.js';
+import { logAudit } from '../common/audit.service.js';
 import {
   BlogPostModel,
   BannerModel,
@@ -27,6 +31,9 @@ import {
   SuccessStoryModel,
   SystemSettingModel,
   TestimonialModel,
+  CmsSectionModel,
+  FaqModel,
+  TemplateModel,
 } from '../models/index.js';
 
 const PUBLIC_PROFILE_LIMIT = 6;
@@ -344,6 +351,53 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       }
 
       response.status(200).json({ page });
+    }),
+  );
+
+  router.get(
+    '/public/blogs/:slug',
+    asyncHandler(async (request, response) => {
+      const blog = await BlogPostModel.findOne({
+        slug: request.params.slug,
+        published: true,
+        isDeleted: false,
+      })
+        .populate('authorId', 'firstName lastName')
+        .lean();
+
+      if (!blog) {
+        throw new HttpError(404, 'Blog post not found');
+      }
+
+      response.status(200).json({ blog });
+    }),
+  );
+
+  router.get(
+    '/public/sections/:pageKey',
+    asyncHandler(async (request, response) => {
+      const sections = await CmsSectionModel.find({
+        pageKey: request.params.pageKey,
+        visible: true,
+        status: 'PUBLISHED',
+        isDeleted: false,
+      })
+        .sort({ sortOrder: 1 })
+        .lean();
+      response.status(200).json({ sections });
+    }),
+  );
+
+  router.get(
+    '/public/faqs',
+    asyncHandler(async (request, response) => {
+      const faqs = await FaqModel.find({
+        active: true,
+        isDeleted: false,
+      })
+        .sort({ displayOrder: 1 })
+        .lean();
+      response.status(200).json({ faqs });
     }),
   );
 
@@ -762,6 +816,265 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       }
 
       response.status(204).send();
+    }),
+  );
+
+  // --- ADMIN CMS SECTIONS ---
+  router.get(
+    '/admin/cms/sections',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const sections = await CmsSectionModel.find({ isDeleted: false })
+        .sort({ sortOrder: 1 })
+        .lean();
+      response.status(200).json({ sections });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/sections',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsSectionInputSchema.parse(request.body);
+      const section = await CmsSectionModel.create(input);
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_SECTION_CREATED',
+        targetType: 'CmsSection',
+        targetId: section._id,
+        metadata: { key: section.key },
+      });
+      response.status(201).json({ section });
+    }),
+  );
+
+  router.put(
+    '/admin/cms/sections/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsSectionInputSchema.parse(request.body);
+      const section = await CmsSectionModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+      if (!section) throw new HttpError(404, 'Section not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_SECTION_UPDATED',
+        targetType: 'CmsSection',
+        targetId: section._id,
+        metadata: { key: section.key },
+      });
+      response.status(200).json({ section });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/sections/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const section = await CmsSectionModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+      if (!section) throw new HttpError(404, 'Section not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_SECTION_DELETED',
+        targetType: 'CmsSection',
+        targetId: section._id,
+        metadata: { key: section.key },
+      });
+      response.status(204).send();
+    }),
+  );
+
+  // --- ADMIN CMS FAQS ---
+  router.get(
+    '/admin/cms/faqs',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const faqs = await FaqModel.find({ isDeleted: false })
+        .sort({ displayOrder: 1 })
+        .lean();
+      response.status(200).json({ faqs });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/faqs',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsFaqInputSchema.parse(request.body);
+      const faq = await FaqModel.create(input);
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_FAQ_CREATED',
+        targetType: 'Faq',
+        targetId: faq._id,
+      });
+      response.status(201).json({ faq });
+    }),
+  );
+
+  router.put(
+    '/admin/cms/faqs/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsFaqInputSchema.parse(request.body);
+      const faq = await FaqModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+      if (!faq) throw new HttpError(404, 'FAQ not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_FAQ_UPDATED',
+        targetType: 'Faq',
+        targetId: faq._id,
+      });
+      response.status(200).json({ faq });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/faqs/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const faq = await FaqModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+      if (!faq) throw new HttpError(404, 'FAQ not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_FAQ_DELETED',
+        targetType: 'Faq',
+        targetId: faq._id,
+      });
+      response.status(204).send();
+    }),
+  );
+
+  // --- ADMIN CMS TEMPLATES ---
+  router.get(
+    '/admin/cms/templates',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const templates = await TemplateModel.find({ isDeleted: false })
+        .sort({ key: 1 })
+        .lean();
+      response.status(200).json({ templates });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/templates',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsTemplateInputSchema.parse(request.body);
+      const template = await TemplateModel.create(input);
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_TEMPLATE_CREATED',
+        targetType: 'Template',
+        targetId: template._id,
+        metadata: { key: template.key },
+      });
+      response.status(201).json({ template });
+    }),
+  );
+
+  router.put(
+    '/admin/cms/templates/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsTemplateInputSchema.parse(request.body);
+      const template = await TemplateModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+      if (!template) throw new HttpError(404, 'Template not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_TEMPLATE_UPDATED',
+        targetType: 'Template',
+        targetId: template._id,
+        metadata: { key: template.key },
+      });
+      response.status(200).json({ template });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/templates/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const template = await TemplateModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+      if (!template) throw new HttpError(404, 'Template not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_TEMPLATE_DELETED',
+        targetType: 'Template',
+        targetId: template._id,
+        metadata: { key: template.key },
+      });
+      response.status(204).send();
+    }),
+  );
+
+  // --- ADMIN SETTINGS ---
+  router.get(
+    '/admin/settings',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const settings = await SystemSettingModel.find({ isDeleted: false }).lean();
+      response.status(200).json({ settings });
+    }),
+  );
+
+  router.put(
+    '/admin/settings/:key',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const setting = await SystemSettingModel.findOneAndUpdate(
+        { key: request.params.key },
+        {
+          key: request.params.key,
+          value: request.body.value,
+          description: request.body.description,
+          isDeleted: false,
+        },
+        { upsert: true, returnDocument: 'after', runValidators: true },
+      );
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'SYSTEM_SETTING_UPDATED',
+        targetType: 'SystemSetting',
+        targetId: setting._id,
+        metadata: { key: setting.key },
+      });
+      response.status(200).json({ setting });
     }),
   );
 

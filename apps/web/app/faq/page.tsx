@@ -5,7 +5,7 @@ import {
   StaticPageHero,
   StaticPageLayout,
 } from '@/app/components';
-import { getCmsPage } from '@/lib/public-api';
+import { getCmsPage, getFaqs } from '@/lib/public-api';
 
 const slug = 'faq';
 const fallback = {
@@ -68,26 +68,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function FaqPage() {
   const { page } = await getCmsPage(slug);
+  const { faqs } = await getFaqs();
 
-  // Parse FAQs from page body if set, otherwise use high-fidelity fallbacks
-  let faqItems = fallbackFaqs;
-  if (page?.body) {
-    try {
-      // If CMS page body contains a structured list or custom split
-      const lines = page.body.split('\n').filter(Boolean);
-      const parsed = lines
-        .map((line) => {
-          const [q, ...a] = line.split('|');
-          return { question: (q ?? '').trim(), answer: a.join('|').trim() };
-        })
-        .filter((item) => item.question && item.answer);
-      if (parsed.length > 0) {
-        faqItems = parsed;
-      }
-    } catch {
-      // Fallback on parser error
-    }
-  }
+  const faqItems = faqs && faqs.length > 0
+    ? faqs.map(f => ({ question: f.question, answer: f.answer }))
+    : fallbackFaqs;
 
   return (
     <StaticPageLayout
@@ -95,7 +80,7 @@ export default async function FaqPage() {
         <StaticPageHero
           eyebrow="Help Centre"
           title={page?.title ?? fallback.title}
-          subtitle={page?.body ? fallback.body : fallback.body}
+          subtitle={page?.body || fallback.body}
         />
       }
     >

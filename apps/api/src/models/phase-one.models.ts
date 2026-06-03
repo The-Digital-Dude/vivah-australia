@@ -1046,6 +1046,9 @@ const blogPostSchema = new Schema(
   {
     ...simpleContentFields,
     authorId: { type: Schema.Types.ObjectId, ref: 'User' },
+    coverImage: { type: String, trim: true },
+    tags: [{ type: String, trim: true }],
+    readTimeMinutes: { type: Number, default: 0 },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'blog_posts' },
@@ -1085,6 +1088,54 @@ const systemSettingSchema = new Schema(
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'system_settings' },
+);
+
+const cmsSectionSchema = new Schema(
+  {
+    key: { type: String, required: true, unique: true, trim: true, index: true },
+    pageKey: { type: String, required: true, trim: true, index: true },
+    title: { type: String, trim: true },
+    subtitle: { type: String, trim: true },
+    body: { type: String, trim: true },
+    imageUrl: { type: String, trim: true },
+    ctaLabel: { type: String, trim: true },
+    ctaHref: { type: String, trim: true },
+    visible: { type: Boolean, default: true, index: true },
+    sortOrder: { type: Number, default: 0, index: true },
+    status: { type: String, enum: ['DRAFT', 'PUBLISHED'], default: 'DRAFT', index: true },
+    metadata: { type: Schema.Types.Mixed },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'cms_sections' },
+);
+
+const faqSchema = new Schema(
+  {
+    question: { type: String, required: true, trim: true },
+    answer: { type: String, required: true, trim: true },
+    category: {
+      type: String,
+      required: true,
+      enum: ['GENERAL', 'MEMBERSHIP', 'VERIFICATION', 'SAFETY', 'BILLING'],
+      index: true,
+    },
+    displayOrder: { type: Number, default: 0, index: true },
+    active: { type: Boolean, default: true, index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'faqs' },
+);
+
+const templateSchema = new Schema(
+  {
+    key: { type: String, required: true, unique: true, trim: true, index: true },
+    type: { type: String, required: true, enum: ['EMAIL', 'SMS', 'PUSH'], index: true },
+    subject: { type: String, trim: true },
+    body: { type: String, required: true, trim: true },
+    variables: [{ type: String }],
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'templates' },
 );
 
 export interface AdminNote {
@@ -1225,6 +1276,9 @@ export const TestimonialModel = getOrCreateModel('Testimonial', testimonialSchem
 export const SuccessStoryModel = getOrCreateModel('SuccessStory', successStorySchema);
 export const BannerModel = getOrCreateModel('Banner', bannerSchema);
 export const SystemSettingModel = getOrCreateModel('SystemSetting', systemSettingSchema);
+export const CmsSectionModel = getOrCreateModel('CmsSection', cmsSectionSchema);
+export const FaqModel = getOrCreateModel('Faq', faqSchema);
+export const TemplateModel = getOrCreateModel('Template', templateSchema);
 export const AdminNoteModel = getOrCreateModel<AdminNote>('AdminNote', adminNoteSchema);
 export const ContactInquiryModel = getOrCreateModel<ContactInquiry>(
   'ContactInquiry',
@@ -1272,6 +1326,9 @@ export const phaseOneSchemas = {
   successStorySchema,
   bannerSchema,
   systemSettingSchema,
+  cmsSectionSchema,
+  faqSchema,
+  templateSchema,
   adminNoteSchema,
   contactInquirySchema,
   photoRequestSchema,
@@ -1317,6 +1374,9 @@ export const phaseOneModels = [
   SuccessStoryModel,
   BannerModel,
   SystemSettingModel,
+  CmsSectionModel,
+  FaqModel,
+  TemplateModel,
   AdminNoteModel,
   ContactInquiryModel,
   PhotoRequestModel,

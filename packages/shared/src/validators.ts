@@ -144,6 +144,52 @@ export const cmsBannerInputSchema = z.object({
   active: z.boolean().default(true),
 });
 
+export const cmsSectionInputSchema = z.object({
+  key: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  pageKey: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  title: z.string().trim().max(160).optional(),
+  subtitle: z.string().trim().max(500).optional(),
+  body: z.string().trim().max(50000).optional(),
+  imageUrl: z.string().trim().optional(),
+  ctaLabel: z.string().trim().max(80).optional(),
+  ctaHref: z.string().trim().max(256).optional(),
+  visible: z.boolean().default(true),
+  sortOrder: z.number().int().default(0),
+  status: z.enum(['DRAFT', 'PUBLISHED']).default('DRAFT'),
+  metadata: z.record(z.unknown()).optional(),
+});
+
+export const cmsFaqInputSchema = z.object({
+  question: z.string().trim().min(2).max(500),
+  answer: z.string().trim().min(2).max(10000),
+  category: z.enum(['GENERAL', 'MEMBERSHIP', 'VERIFICATION', 'SAFETY', 'BILLING']),
+  displayOrder: z.number().int().default(0),
+  active: z.boolean().default(true),
+});
+
+export const cmsTemplateInputSchema = z.object({
+  key: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-zA-Z0-9_-]+$/),
+  type: z.enum(['EMAIL', 'SMS', 'PUSH']),
+  subject: z.string().trim().max(200).optional(),
+  body: z.string().trim().min(2).max(50000),
+  variables: z.array(z.string().trim().min(1).max(80)).optional(),
+});
+
 export const cmsHomeContentSchema = z.object({
   hero: z.object({
     title: z.string().trim().min(2).max(160),
@@ -768,6 +814,9 @@ export type CmsContentInput = z.infer<typeof cmsContentInputSchema>;
 export type CmsSuccessStoryInput = z.infer<typeof cmsSuccessStoryInputSchema>;
 export type CmsTestimonialInput = z.infer<typeof cmsTestimonialInputSchema>;
 export type CmsBannerInput = z.infer<typeof cmsBannerInputSchema>;
+export type CmsSectionInput = z.infer<typeof cmsSectionInputSchema>;
+export type CmsFaqInput = z.infer<typeof cmsFaqInputSchema>;
+export type CmsTemplateInput = z.infer<typeof cmsTemplateInputSchema>;
 export type CmsHomeContentInput = z.infer<typeof cmsHomeContentSchema>;
 export type ContactInquiryInput = z.infer<typeof contactInquirySchema>;
 export type MediaSignUploadInput = z.infer<typeof mediaSignUploadSchema>;

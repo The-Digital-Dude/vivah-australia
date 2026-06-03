@@ -139,8 +139,20 @@ export async function getBlogs(limit = 3) {
   return getJson<{ blogs: PublicContentItem[] }>(`/api/public/blogs?limit=${limit}`, { blogs: [] });
 }
 
+export async function getCmsSections(pageKey: string) {
+  return getJson<{ sections: any[] }>(`/api/public/sections/${pageKey}`, { sections: [] });
+}
+
 export async function getCmsPage(slug: string) {
   return getJson<{ page: PublicPage | null }>(`/api/public/pages/${slug}`, { page: null });
+}
+
+export async function getFaqs() {
+  return getJson<{ faqs: any[] }>('/api/public/faqs', { faqs: [] });
+}
+
+export async function getBlogBySlug(slug: string) {
+  return getJson<{ blog: any | null }>(`/api/public/blogs/${slug}`, { blog: null });
 }
 
 export async function submitContactInquiry(body: Record<string, unknown>) {
