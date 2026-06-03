@@ -19,4 +19,6 @@ yarn-error.log*
 .mongo.err.log
 .mongo-data
 data
-
+playwright-report/
+test-results/
+tmp-web-dev.log
