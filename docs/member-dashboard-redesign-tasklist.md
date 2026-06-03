@@ -11,7 +11,12 @@
 - [x] Simplify discovery profile cards
 - [x] Add Activity hub
 - [x] Polish mobile member experience
-- [ ] Final UX QA and regression pass
+- [x] Final UX QA and regression pass
+
+Completed evidence:
+- `pnpm route:qa`
+- Playwright smoke coverage for homepage, login, pricing, public match preview, and seeded member access to `/member/matches` and `/member/subscription`
+- Login redirect regression fixed during QA
 
 ## Notes
 

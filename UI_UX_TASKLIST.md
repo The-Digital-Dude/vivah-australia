@@ -82,7 +82,7 @@ Historical FE-001 audit note: the component inventory below has since been imple
 | FE-011 | Complete | Verification page now uses premium trust cards, OTP/document flows, clearer status treatment, and stronger empty/loading states.                                     |
 | FE-012 | Complete | Notifications page now uses premium inbox tabs, clearer status/action treatment, and improved empty states.                                                          |
 | FE-013 | Complete | Membership/pricing page now includes the redesigned premium funnel, billing toggle, comparison table, trust/social proof/FAQ, and sticky mobile CTA.                |
-| FE-014 | Pending  | Final frontend QA and fixes.                                                                                                                                           |
+| FE-014 | Complete | Route QA and Playwright smoke checks were run across the redesigned public/member flows, and a login redirect regression found during QA was fixed.                  |
 
 ## Implementation Order
 
