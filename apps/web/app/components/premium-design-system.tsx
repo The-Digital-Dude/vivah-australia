@@ -586,8 +586,16 @@ export function PublicHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/90 backdrop-blur-xl font-poppins">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="text-xl font-bold text-[#A10E4D] font-playfair">
-          Vivah Australia
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo.png"
+            alt="Vivah Australia Logo"
+            width={180}
+            height={72}
+            className="w-auto object-contain"
+            style={{ width: 'auto', height: '72px' }}
+            priority
+          />
         </Link>
         <nav className="hidden items-center gap-7 text-sm font-semibold text-[#5F5F5F] lg:flex">
           {links.map(([label, href]) => (
@@ -642,10 +650,18 @@ export function PublicHeader() {
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/"
-                className="font-bold text-[#A10E4D] font-playfair"
+                className="flex items-center"
                 onClick={() => setOpen(false)}
               >
-                Vivah Australia
+                <Image
+                  src="/logo.png"
+                  alt="Vivah Australia Logo"
+                  width={140}
+                  height={56}
+                  className="w-auto object-contain"
+                  style={{ width: 'auto', height: '56px' }}
+                  priority
+                />
               </Link>
               <button
                 type="button"
