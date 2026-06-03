@@ -57,7 +57,7 @@ export default function LoginPage() {
       title="Welcome back to Vivah Australia"
       subtitle="Sign in to your Vivah Australia account to discover your perfect match."
     >
-      <form className="grid gap-5" onSubmit={(event) => void handleSubmit(event)}>
+      <form method="post" className="grid gap-5" onSubmit={(event) => void handleSubmit(event)}>
         {error && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700">
             {error}

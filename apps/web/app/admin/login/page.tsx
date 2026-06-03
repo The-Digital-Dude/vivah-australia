@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
             <p className="text-sm text-[#5E6470]">Restricted to moderators and administrators.</p>
           </div>
         </div>
-        <form className="mt-8 grid gap-4" onSubmit={(event) => void handleSubmit(event)}>
+        <form method="post" className="mt-8 grid gap-4" onSubmit={(event) => void handleSubmit(event)}>
           {error ? (
             <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               {error}

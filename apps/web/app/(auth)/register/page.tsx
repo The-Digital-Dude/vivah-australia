@@ -186,7 +186,7 @@ export default function RegisterPage() {
       </div>
 
       {mode === 'email' ? (
-        <form className="grid gap-5" onSubmit={(event) => void onEmailSubmit(event)}>
+        <form method="post" className="grid gap-5" onSubmit={(event) => void onEmailSubmit(event)}>
           {error && (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700">
               {error}
@@ -252,7 +252,7 @@ export default function RegisterPage() {
           </div>
         </form>
       ) : mobileOtpStep === 'register' ? (
-        <form className="grid gap-5" onSubmit={(event) => void onMobileRegister(event)}>
+        <form method="post" className="grid gap-5" onSubmit={(event) => void onMobileRegister(event)}>
           {error && (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700">
               {error}
@@ -314,7 +314,7 @@ export default function RegisterPage() {
           </div>
         </form>
       ) : (
-        <form className="grid gap-5" onSubmit={(event) => void onVerifyMobileOtp(event)}>
+        <form method="post" className="grid gap-5" onSubmit={(event) => void onVerifyMobileOtp(event)}>
           {error && (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700">
               {error}
