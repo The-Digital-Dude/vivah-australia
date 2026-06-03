@@ -17,11 +17,12 @@ import {
   type VerificationRequestCreateInput,
   type VerificationReviewInput,
 } from '@vivah/shared';
-import type { Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
 import { listFraudEvents, reviewFraudEvent } from '../common/fraud.service.js';
 import { createNotification } from '../notifications/notifications.service.js';
+import { assignVerificationProvider } from './verification-providers.js';
 import {
   AdminNoteModel,
   AuditLogModel,
@@ -675,13 +676,24 @@ export async function createVerificationRequest(
   input: VerificationRequestCreateInput,
 ) {
   const profile = await ProfileModel.findOne({ userId, isDeleted: false });
+  const requestId = new Types.ObjectId();
+  const submittedAt = new Date();
+  const providerAssignment = await assignVerificationProvider(input.type, {
+    requestId: requestId.toString(),
+    userId: userId.toString(),
+    ...(profile ? { profileId: profile._id.toString() } : {}),
+    submittedAt,
+  });
   const request = await VerificationRequestModel.create({
+    _id: requestId,
     userId,
     ...(profile ? { profileId: profile._id } : {}),
     type: input.type,
+    provider: providerAssignment.provider,
+    providerReferenceId: providerAssignment.providerReferenceId,
     status: VerificationStatus.PENDING,
     documentUrls: input.documentUrls,
-    submittedAt: new Date(),
+    submittedAt,
   });
   if (input.documentType && input.storageKey) {
     await VerificationDocumentModel.create({

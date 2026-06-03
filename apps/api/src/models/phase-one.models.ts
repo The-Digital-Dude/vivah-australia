@@ -107,6 +107,8 @@ export interface VerificationRequest {
   userId: ObjectId;
   profileId?: ObjectId;
   type: string;
+  provider: string;
+  providerReferenceId: string;
   status: VerificationStatusType;
   documentUrls: string[];
   submittedAt: Date;
@@ -126,6 +128,8 @@ const verificationRequestSchema = new Schema<VerificationRequest>(
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     profileId: { type: Schema.Types.ObjectId, ref: 'Profile' },
     type: { type: String, required: true, trim: true, index: true },
+    provider: { type: String, required: true, trim: true, default: 'manual-review', index: true },
+    providerReferenceId: { type: String, required: true, trim: true, index: true },
     status: {
       type: String,
       enum: Object.values(VerificationStatus),

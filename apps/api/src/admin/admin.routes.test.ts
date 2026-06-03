@@ -307,7 +307,13 @@ describe('admin production readiness routes', () => {
       .send({ type: 'IDENTITY', documentType: 'Passport', storageKey: 'secure/passport.jpg' })
       .expect(201);
 
-    const created = bodyAs<{ request: { _id: string } }>(createResponse);
+    const created = bodyAs<{
+      request: { _id: string; provider: string; providerReferenceId: string };
+    }>(createResponse);
+    expect(created.request.provider).toBe('manual-review');
+    expect(created.request.providerReferenceId).toMatch(
+      new RegExp(`^manual-identity-${created.request._id}-`),
+    );
 
     const listResponse = await request(app)
       .get('/api/admin/verifications?status=PENDING')
@@ -343,6 +349,11 @@ describe('admin production readiness routes', () => {
     expect(
       await VerificationRequestModel.countDocuments({ status: VerificationStatus.APPROVED }),
     ).toBe(1);
+    const storedRequest = await VerificationRequestModel.findById(created.request._id).lean();
+    expect(storedRequest?.provider).toBe('manual-review');
+    expect(storedRequest?.providerReferenceId).toMatch(
+      new RegExp(`^manual-identity-${created.request._id}-`),
+    );
     expect(await ActivityLogModel.countDocuments({ event: 'VERIFICATION_REQUEST_CREATED' })).toBe(
       1,
     );

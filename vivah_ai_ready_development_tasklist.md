@@ -1041,12 +1041,12 @@ Do not build full integrations immediately unless required, but create clean ada
 
 #### Tasks
 
-- [ ] Create `IdentityVerificationProvider` interface.
-- [ ] Create `FacialVerificationProvider` interface.
-- [ ] Create `PoliceCheckProvider` interface.
-- [ ] Create `VisaVerificationProvider` interface.
-- [ ] Implement manual-review provider as default.
-- [ ] Store provider reference IDs for future integrations.
+- [x] Create `IdentityVerificationProvider` interface.
+- [x] Create `FacialVerificationProvider` interface.
+- [x] Create `PoliceCheckProvider` interface.
+- [x] Create `VisaVerificationProvider` interface.
+- [x] Implement manual-review provider as default.
+- [x] Store provider reference IDs for future integrations.
 
 #### Acceptance Criteria
 

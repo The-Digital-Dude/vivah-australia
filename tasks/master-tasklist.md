@@ -63,12 +63,12 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Show processing/approval state. *(from "Frontend Tasks" L899)*
 - [ ] Create secure upload flow. *(from "Backend Tasks" L975)*
 - [ ] Make rules configurable in system settings. *(from "Backend Tasks" L1027)*
-- [ ] Create `IdentityVerificationProvider` interface. *(from "Tasks" L1044)*
-- [ ] Create `FacialVerificationProvider` interface. *(from "Tasks" L1045)*
-- [ ] Create `PoliceCheckProvider` interface. *(from "Tasks" L1046)*
-- [ ] Create `VisaVerificationProvider` interface. *(from "Tasks" L1047)*
-- [ ] Implement manual-review provider as default. *(from "Tasks" L1048)*
-- [ ] Store provider reference IDs for future integrations. *(from "Tasks" L1049)*
+- [x] Create `IdentityVerificationProvider` interface. _(implemented in `apps/api/src/admin/verification-providers.ts`)_ *(from "Tasks" L1044)*
+- [x] Create `FacialVerificationProvider` interface. _(implemented in `apps/api/src/admin/verification-providers.ts`)_ *(from "Tasks" L1045)*
+- [x] Create `PoliceCheckProvider` interface. _(implemented in `apps/api/src/admin/verification-providers.ts`)_ *(from "Tasks" L1046)*
+- [x] Create `VisaVerificationProvider` interface. _(implemented in `apps/api/src/admin/verification-providers.ts`)_ *(from "Tasks" L1047)*
+- [x] Implement manual-review provider as default. _(verification requests now route through the manual-review provider assignment layer before persistence)_ *(from "Tasks" L1048)*
+- [x] Store provider reference IDs for future integrations. _(verification requests now persist `provider` and `providerReferenceId`)_ *(from "Tasks" L1049)*
 - [ ] Add auto-risk counter per reported user. _(outstanding gap)_ *(from "Backend Tasks" L1278)*
 - [ ] Use secure upload flow. *(from "Backend Tasks" L1395)*
 - [ ] Show document links with signed access. *(from "Frontend Tasks" L1403)*

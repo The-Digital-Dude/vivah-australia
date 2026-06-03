@@ -18,6 +18,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Stripe webhook verification/processing failures now trigger explicit error-tracking alerts, so payment webhook breakages surface even when they resolve into handled HTTP responses.
 - Scheduled uptime monitoring failures now trigger background-job webhook alerts through the GitHub Actions workflow path, covering the repo's current background-job surface.
 - Deployment and disaster-recovery guidance now exists in `docs/deployment/operations-runbook.md`, including backup expectations, storage lifecycle guidance, CDN caching rules, and current signed-access evidence for private media and verification previews.
+- Verification requests now persist `provider` and `providerReferenceId`, and a default manual-review provider assignment layer exists for identity, facial, police-clearance, and visa verification extension points.
 - `.env.example` files exist for API and web.
 - Real environment files, build outputs, logs, and dependencies are ignored by git.
 - `vivah_australia_ui_ux_planning.md` is now the standing UI/UX source of truth for all frontend and product work.
@@ -77,6 +78,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | ADMIN-008 Reporting and Analytics                          | Partial                   | `/api/admin/analytics/summary` and `/admin/analytics` provide user, profile, verification, report, subscription, payment, and monthly revenue aggregates. Date filters, CSV export, chart library visuals, match/interest, messaging, and community analytics remain.                                                                              |
 | VERIFY-001 Verification Request System                     | Complete for sprint scope | Member verification dashboard, request API, verification request/document models, manual document URL submission, admin review workflow, owner/admin detail endpoints, notification/email outcomes, and tests. Signed upload/viewing remains.                                                                                                      |
 | VERIFY-002 Verification Badge Logic                        | Complete for sprint scope | Shared badge helper calculates BASIC/SILVER/GOLD/PLATINUM/FULLY_VERIFIED-style levels from email/mobile and approved verification flags, recalculates on review approval, profile cards/search filters expose badge, and tests cover approval updates. Configurable system-setting rules remain.                                                   |
+| VERIFY-003 External Provider Extension Points              | Complete                  | `apps/api/src/admin/verification-providers.ts` defines identity/facial/police/visa provider interfaces, manual-review is the default provider, verification requests persist `provider` and `providerReferenceId`, and admin verification route tests cover the stored assignment.                                                               |
 | NOTIF-001 In-App Notifications                             | Complete for sprint scope | Typed notification model with data payloads, notification service, member list/read/read-all/delete APIs, unread count, member bell, notifications page, triggers for profile/verification/report/interest flows, and tests.                                                                                                                       |
 | NOTIF-002 Email Notifications                              | Complete for sprint scope | Email provider abstraction supports console local delivery and configurable SendGrid/Mailgun providers, env validation/examples, auth/contact/moderation/verification notification wiring. Template library and preference-gated queueing remain.                                                                                                  |
 | NOTIF-003 SMS Notifications and OTP                        | Complete for sprint scope | SMS provider abstraction supports console and Twilio configuration, mobile OTP request/verify endpoints, settings UI for sending/verifying OTP, mobile verification flag updates, and backend tests. Dedicated SMS rate limiter and cost dashboard remain.                                                                                         |
@@ -102,7 +104,6 @@ The following modules do not yet have full business-feature implementations in t
 
 - AUTH-003 Social Login
 - MEDIA-002 Video Introduction Upload
-- VERIFY-003 External Provider Extension Points
 - TEST-003 Frontend Tests
 - TEST-004 Broader E2E Matrix
 - DEVOPS-001 Environment Setup beyond local examples

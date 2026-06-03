@@ -1,8 +1,8 @@
 import PricingClient from '../pricing/pricing-client';
 
 export const metadata = {
-  title: 'Membership Pricing | Vivah Australia',
-  description: 'Compare Vivah Australia membership plans and choose the right level of access.',
+  title: 'Premium Membership Plans & Pricing | Vivah Australia',
+  description: 'Choose a premium Vivah Australia membership plan to connect directly with serious, verified matches. Find your life partner faster with outcome-based matching.',
 };
 
 export default function MembershipPage() {
