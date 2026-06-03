@@ -196,6 +196,7 @@ export function ProfileMatchCard({
 }>) {
   const initials = (profile.name ?? 'V').slice(0, 1).toUpperCase();
   const href = `/profiles/${profile.slug || profile.id}`;
+  const [imageLoaded, setImageLoaded] = useState(!profile.photoUrl);
 
   return (
     <article
@@ -207,14 +208,25 @@ export function ProfileMatchCard({
       <Link href={href} className={cx('grid gap-4 p-4', compact ? '' : '')}>
         <div className="relative grid aspect-[4/4.8] place-items-center overflow-hidden rounded-[24px] bg-[#F8E8E8] text-3xl font-semibold text-[#7A1F2B]">
           {profile.photoUrl ? (
-            <Image
-              src={profile.photoUrl}
-              alt={`${profile.name ?? 'Vivah member'} profile`}
-              fill
-              sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-              className="object-cover"
-              priority
-            />
+            <>
+              <div
+                className={cx(
+                  'absolute inset-0 bg-[linear-gradient(120deg,#F8E8E8_20%,#FCFAF7_45%,#F8E8E8_70%)] bg-[length:200%_100%] transition-opacity duration-500',
+                  imageLoaded ? 'opacity-0' : 'animate-pulse opacity-100',
+                )}
+              />
+              <Image
+                src={profile.photoUrl}
+                alt={`${profile.name ?? 'Vivah member'} profile`}
+                fill
+                sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                className={cx(
+                  'object-cover transition-opacity duration-500',
+                  imageLoaded ? 'opacity-100' : 'opacity-0',
+                )}
+                onLoad={() => setImageLoaded(true)}
+              />
+            </>
           ) : (
             initials
           )}
@@ -374,6 +386,63 @@ export function LoadingState({ label = 'Loading' }: Readonly<{ label?: string }>
     <div className="flex min-h-40 items-center justify-center rounded-3xl border border-[#7A1F2B]/10 bg-white text-sm font-semibold text-[#6B7280]">
       <Loader2 className="mr-2 size-4 animate-spin text-[#7A1F2B]" />
       {label}
+    </div>
+  );
+}
+
+export function MatchGridSkeleton({
+  count = 6,
+}: Readonly<{
+  count?: number;
+}>) {
+  return (
+    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          key={index}
+          className="overflow-hidden rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm animate-pulse"
+        >
+          <div className="aspect-[4/4.8] rounded-2xl bg-[#F8E8E8]" />
+          <div className="mt-4 grid content-start gap-3">
+            <div className="h-5 w-2/3 rounded-lg bg-[#F8E8E8]" />
+            <div className="h-4 w-1/2 rounded-lg bg-[#F8E8E8]" />
+            <div className="h-4 w-5/6 rounded-lg bg-[#F8E8E8]" />
+            <div className="h-7 w-24 rounded-full bg-[#F8E8E8]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function OnboardingFormSkeleton() {
+  return (
+    <div className="grid gap-6">
+      <div className="flex flex-col gap-4 border-b border-[#7A1F2B]/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="h-9 w-24 shrink-0 rounded-full bg-[#F8E8E8] animate-pulse" />
+          ))}
+        </div>
+        <div className="h-4 w-40 rounded bg-[#F8E8E8] animate-pulse" />
+      </div>
+
+      <div className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-5 shadow-sm sm:p-6">
+        <div className="h-6 w-48 rounded bg-[#F8E8E8] animate-pulse" />
+        <div className="mt-3 h-4 w-72 max-w-full rounded bg-[#F8E8E8] animate-pulse" />
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="grid gap-2">
+              <div className="h-4 w-28 rounded bg-[#F8E8E8] animate-pulse" />
+              <div className="h-12 rounded-2xl bg-[#F8E8E8] animate-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
+          <div className="h-11 w-full rounded-2xl bg-[#F8E8E8] animate-pulse sm:w-32" />
+          <div className="h-11 w-full rounded-2xl bg-[#F8E8E8] animate-pulse sm:w-40" />
+        </div>
+      </div>
     </div>
   );
 }

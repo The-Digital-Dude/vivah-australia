@@ -15,6 +15,7 @@ import { profileSearchQuerySchema, savedSearchCreateSchema } from '@vivah/shared
 import {
   EmptyState,
   FilterDrawer,
+  MatchGridSkeleton,
   PremiumButton,
   PremiumCard,
   ProfileMatchCard,
@@ -624,13 +625,7 @@ export default function MatchDiscovery() {
 
   function renderSearchResultsGrid() {
     if (loading) {
-      return (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <SkeletonCard key={index} />
-          ))}
-        </div>
-      );
+      return <MatchGridSkeleton />;
     }
 
     if (!search || search.results.length === 0) {
@@ -881,11 +876,7 @@ export default function MatchDiscovery() {
           />
 
           {loading ? (
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <SkeletonCard key={index} />
-              ))}
-            </div>
+            <MatchGridSkeleton />
           ) : recommended.length === 0 ? (
             <EmptyState title="No recommendations available">
               Update your partner preferences in your profile to unlock stronger recommendations.
@@ -1047,20 +1038,6 @@ function ProfileCard({
         />
       }
     />
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <div className="overflow-hidden rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm animate-pulse">
-      <div className="aspect-[4/4.8] rounded-2xl bg-[#F8E8E8]" />
-      <div className="mt-4 grid content-start gap-3">
-        <div className="h-5 w-2/3 rounded-lg bg-[#F8E8E8]" />
-        <div className="h-4 w-1/2 rounded-lg bg-[#F8E8E8]" />
-        <div className="h-4 w-5/6 rounded-lg bg-[#F8E8E8]" />
-        <div className="h-7 w-24 rounded-full bg-[#F8E8E8]" />
-      </div>
-    </div>
   );
 }
 
