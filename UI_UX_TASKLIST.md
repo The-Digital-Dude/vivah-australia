@@ -1,6 +1,6 @@
 # UI/UX Tasklist
 
-Last updated: 2026-06-02
+Last updated: 2026-06-03
 
 ## Sprint Scope
 
@@ -44,16 +44,20 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 
 ### Pages Needing Redesign
 
+Historical FE-001 audit note: several items below have since been completed and are tracked in the Task Status table.
+
 - Static/CMS and contact pages need the ivory/burgundy/gold premium layout.
 - Auth pages need one split premium layout and consistent form controls.
 - Public profile detail needs full section coverage, media treatment, verification state, and action layout.
 - Match discovery needs shared clickable profile cards, tabbed discovery, and mobile filter drawer.
 - Member onboarding/edit needs step-by-step workflow.
 - Verification and notifications need premium status cards, empty states, and loading states.
-- Member dashboard route is missing and should be created for FE-008.
-- `/verify-email` is missing and should be created or routed for FE-007.
+- Member dashboard route was missing during the initial audit and has since been redesigned for FE-008.
+- `/verify-email` was missing during the initial audit and has since been implemented for FE-007.
 
 ### Missing Components
+
+Historical FE-001 audit note: the component inventory below has since been implemented in the web-local premium design system.
 
 - `PremiumButton`, `PremiumCard`, `PageHero`, `SectionHeader`
 - `ProfileMatchCard`, `ProfileDetailSection`, `VerificationBadge`, `MatchScoreBadge`
@@ -72,12 +76,12 @@ Public-facing and member-facing frontend only. Admin panel UI, admin routes, and
 | FE-005 | Complete | Premium public profile detail page now includes hero, sticky/mobile actions, full profile sections, verification state, and locked private gallery messaging.          |
 | FE-006 | Complete | Aligned static public pages using the premium brand layout and reusable components (StaticPageHero, FAQAccordion, ContactCard, etc.) with dynamic CMS API integration. |
 | FE-007 | Complete | Aligned authentication and password recovery pages under the premium dynamic split-screen layout, and created a dedicated auto-verifying /verify-email route.          |
-| FE-008 | Pending  | Redesign member dashboard UX.                                                                                                                                          |
-| FE-009 | Pending  | Improve onboarding/profile editing UX.                                                                                                                                 |
-| FE-010 | Pending  | Improve match discovery UX.                                                                                                                                            |
-| FE-011 | Pending  | Polish verification page UX.                                                                                                                                           |
-| FE-012 | Pending  | Polish notifications page UX.                                                                                                                                          |
-| FE-013 | Pending  | Polish membership/pricing page.                                                                                                                                        |
+| FE-008 | Complete | Member dashboard shell, command-center layout, activity hub, and mobile navigation polish have been implemented.                                                     |
+| FE-009 | Complete | Onboarding/profile editing now uses a lighter progressive-disclosure flow with optional-detail sections and stronger save feedback.                                  |
+| FE-010 | Complete | Match discovery now uses top-level quick filters, visa filtering, better empty states, shared trust-rich cards, and responsive filter-sheet behavior.               |
+| FE-011 | Complete | Verification page now uses premium trust cards, OTP/document flows, clearer status treatment, and stronger empty/loading states.                                     |
+| FE-012 | Complete | Notifications page now uses premium inbox tabs, clearer status/action treatment, and improved empty states.                                                          |
+| FE-013 | Complete | Membership/pricing page now includes the redesigned premium funnel, billing toggle, comparison table, trust/social proof/FAQ, and sticky mobile CTA.                |
 | FE-014 | Pending  | Final frontend QA and fixes.                                                                                                                                           |
 
 ## Implementation Order

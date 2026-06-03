@@ -141,7 +141,7 @@ Create a clean, scalable project foundation that supports frontend, backend, sha
 - [x] Add ESLint and Prettier.
 - [x] Add environment config validation.
 - [x] Add `.env.example` files for frontend and backend.
-- [ ] Add GitHub Actions or equivalent CI pipeline. _(deferred — DEVOPS-002)_
+- [x] Add GitHub Actions or equivalent CI pipeline. _(implemented in `.github/workflows/ci.yml`; deployment automation still tracked in DEVOPS-002)_
 - [x] Add base README with setup instructions.
 
 #### Acceptance Criteria
@@ -692,21 +692,21 @@ DELETE /api/admin/cms/pages/:id
 
 #### Backend Tasks
 
-- [ ] Create contact inquiry model.
-- [ ] Create `POST /api/public/contact`.
-- [ ] Send admin email notification.
-- [ ] Add spam protection using rate limit and CAPTCHA.
+- [x] Create contact inquiry model.
+- [x] Create `POST /api/public/contact`.
+- [x] Send admin email notification.
+- [ ] Add spam protection using rate limit and CAPTCHA. _(rate limiting is covered; CAPTCHA is still pending)_
 
 #### Frontend Tasks
 
-- [ ] Build contact form.
-- [ ] Add validation and success/error states.
+- [x] Build contact form.
+- [x] Add validation and success/error states.
 
 #### Tests
 
-- [ ] Reject invalid email.
-- [ ] Rate limit repeated submissions.
-- [ ] Contact inquiry saved and email sent.
+- [x] Reject invalid email.
+- [x] Rate limit repeated submissions.
+- [x] Contact inquiry saved and email sent.
 
 ---
 
@@ -2230,10 +2230,10 @@ ADMIN_SEED_PASSWORD=
 
 #### Tasks
 
-- [ ] Run lint on pull requests.
-- [ ] Run typecheck.
-- [ ] Run tests.
-- [ ] Build frontend and backend.
+- [x] Run lint on pull requests.
+- [x] Run typecheck.
+- [x] Run tests.
+- [x] Build frontend and backend.
 - [ ] Deploy frontend to Vercel or selected host.
 - [ ] Deploy backend to selected host.
 - [ ] Run database migration/seed scripts safely.
@@ -2540,7 +2540,7 @@ Set up CI/CD, staging/production environments, logging, monitoring, backups, and
 
 - [x] Unit tests pass
 - [x] Integration tests pass
-- [ ] E2E tests pass _(not started)_
+- [ ] E2E tests pass _(Playwright smoke coverage exists, but the full scenario matrix is still pending)_
 - [x] Responsive QA complete
 - [x] Payment webhook QA complete
 - [x] Email/SMS QA complete
