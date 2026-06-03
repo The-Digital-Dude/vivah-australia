@@ -1,8 +1,6 @@
 # Vivah Australia — Master Tasklist
 
-This master tasklist consolidates all tasks across the project workspace and classifies them into clear, actionable phases to align with the roadmap: **Must Have Before Beta**, **Nice To Have**, and **Post Launch**.
-
----
+This document is a living audit tracker mapping all **118 remaining individual tasks** from `vivah_ai_ready_development_tasklist.md` into launch-critical phases.
 
 ## 📅 Sprint Schedule & Plan
 
@@ -19,86 +17,153 @@ This master tasklist consolidates all tasks across the project workspace and cla
 
 ## 📋 Must Have Before Beta
 
-These tasks represent the critical path for launch readiness: Core backend engines, security, Stripe compliance, responsive branding, QA/Playwright coverage, and production safety.
+### 🔴 QA
+- [ ] Social login creates user correctly. *(from "Tests" L553)*
+- [ ] Suspended users cannot login through social provider. *(from "Tests" L554)*
+- [ ] Oversized videos rejected. *(from "Tests" L904)*
+- [ ] Unapproved videos hidden from profile view. *(from "Tests" L905)*
+- [ ] Existing conversation becomes inaccessible or read-only. *(from "Tests" L1266)*
+- [ ] Expired subscription removes entitlements. *(from "Tests" L1561)*
+- [ ] Auth services *(from "Required Coverage" L2128)*
+- [ ] OTP service *(from "Required Coverage" L2129)*
+- [ ] Token service *(from "Required Coverage" L2130)*
+- [ ] Profile completion service *(from "Required Coverage" L2131)*
+- [ ] Match scoring service *(from "Required Coverage" L2132)*
+- [ ] Entitlement service *(from "Required Coverage" L2133)*
+- [ ] Verification badge service *(from "Required Coverage" L2134)*
+- [ ] Notification service *(from "Required Coverage" L2135)*
+- [ ] Audit log service *(from "Required Coverage" L2136)*
+- [ ] Admin approves profile *(from "Required Flows" L2145)*
+- [ ] Search approved profile *(from "Required Flows" L2146)*
+- [ ] Send interest -> accept interest -> start conversation *(from "Required Flows" L2147)*
+- [ ] Send message realtime and via REST fallback *(from "Required Flows" L2148)*
+- [ ] Free limit blocked after quota reached *(from "Required Flows" L2150)*
+- [ ] Submit verification -> admin approves -> badge updates *(from "Required Flows" L2151)*
+- [ ] Report user -> admin resolves *(from "Required Flows" L2152)*
+- [ ] Auth forms validate input. *(from "Required Tests" L2160)*
+- [ ] Profile wizard saves each step. *(from "Required Tests" L2161)*
+- [ ] Search filters update query. *(from "Required Tests" L2162)*
+- [ ] Interest buttons update state. *(from "Required Tests" L2163)*
+- [ ] Chat UI renders messages. *(from "Required Tests" L2164)*
+- [ ] Pricing page triggers checkout. *(from "Required Tests" L2165)*
+- [ ] Admin tables load and filter data. *(from "Required Tests" L2166)*
+- [ ] TEST-001 to TEST-004 *(from "Sprint 7 - Reporting, Notifications, QA, Deployment" L2333)*
+- [ ] DEVOPS-001 to DEVOPS-004 *(from "Sprint 7 - Reporting, Notifications, QA, Deployment" L2334)*
+- [ ] E2E tests pass _(Playwright smoke coverage exists, but the full scenario matrix is still pending)_ *(from "QA and Deployment" L2543)*
+- [ ] Admin handover documentation complete _(future)_ *(from "QA and Deployment" L2547)*
+- [ ] Production deployment complete _(future)_ *(from "QA and Deployment" L2548)*
+- [ ] Backup configured _(future)_ *(from "QA and Deployment" L2549)*
+- [ ] Monitoring configured _(future)_ *(from "QA and Deployment" L2550)*
 
-| ID | Feature / Task | Type | Owner | Status | Priority | Dependencies | Notes / Source File |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **BRD-001** | Create design token constants | Brand | Design | **Completed** | P0 | None | `apps/web/styles/brand-tokens.ts` |
-| **BRD-002** | Create brand migration document | Brand | Design | **Completed** | P0 | None | `docs/brand-system-migration.md` |
-| **BRD-003** | Update Tailwind config extensions | Brand | Design | **Completed** | P0 | BRD-001 | `apps/web/tailwind.config.ts` |
-| **BRD-004** | Import Google Fonts & style body | Brand | Design | **Completed** | P0 | BRD-003 | `apps/web/app/globals.css` |
-| **BRD-005** | Refactor design system primitives | Brand | Design | **Completed** | P0 | BRD-004 | `apps/web/app/components/premium-design-system.tsx` |
-| **FE-001** | Apply shared premium layouts to pages | Frontend | Dev | **Completed** | P0 | BRD-005 | `UI_UX_TASKLIST.md` |
-| **FE-002** | Homepage styling migration | Frontend | Dev | **Completed** | P1 | FE-001 | `home-client.tsx` / `UI_UX_TASKLIST.md` |
-| **FE-003** | Public Static & CMS pages migration | Frontend | Dev | **Completed** | P1 | FE-001 | `apps/web/app/about` / `UI_UX_TASKLIST.md` |
-| **FE-004** | Auth split-pane responsive redesign | Frontend | Dev | **Completed** | P0 | FE-001 | `apps/web/app/(auth)/login` |
-| **FE-005** | Member shell & sidebar navigation | Frontend | Dev | **Completed** | P0 | FE-001 | `member-shell.tsx` |
-| **FE-006** | Onboarding progressive stepper flow | Frontend | Dev | **Completed** | P1 | FE-005 | `profile-form.tsx` / `UI_UX_TASKLIST.md` |
-| **FE-007** | Match discovery filter-sheet | Frontend | Dev | **Completed** | P1 | FE-005 | `match-discovery.tsx` / `UI_UX_TASKLIST.md` |
-| **FE-008** | Verification portal & document uploads | Frontend | Dev | **Completed** | P1 | FE-005 | `verification/page.tsx` |
-| **FE-009** | Inbox system & chat window polish | Frontend | Dev | **Completed** | P1 | FE-005 | `member/messages` |
-| **FE-010** | Pricing details & subscription cards | Frontend | Dev | **Completed** | P0 | FE-001 | `pricing-client.tsx` |
-| **FE-011** | Mobile menu & responsive wrappers | Frontend | Dev | **Completed** | P1 | FE-001 | `premium-design-system.tsx` |
-| **CORE-001**| Monorepo and build pipeline foundation | Backend | Dev | **Completed** | P0 | None | `vivah_ai_ready_development_tasklist.md` |
-| **CORE-002**| Shared constants and schema validators | Backend | Dev | **Completed** | P0 | CORE-001 | `packages/shared/src` |
-| **DB-001**  | Define Phase 1 Mongoose Collections | Backend | Dev | **Completed** | P0 | CORE-002 | `phase-one.models.ts` |
-| **DB-002**  | User authorization attributes schema | Backend | Dev | **Completed** | P0 | DB-001 | `phase-one.models.ts` |
-| **DB-003**  | Profile matching attributes schema | Backend | Dev | **Completed** | P0 | DB-001 | `phase-one.models.ts` |
-| **AUTH-001**| Email and Password Signup endpoint | Backend | Dev | **Completed** | P0 | DB-002 | `apps/api/src/auth` |
-| **AUTH-002**| OTP SMS sending & verification gates | Backend | Dev | **Completed** | P0 | DB-002 | `apps/api/src/auth/otp` |
-| **AUTH-004**| Refresh token rotation & logout route | Backend | Dev | **Completed** | P0 | AUTH-001 | `apps/api/src/auth` |
-| **AUTH-005**| Forgot password token flow & reset | Backend | Dev | **Completed** | P1 | AUTH-001 | `apps/api/src/auth` |
-| **WEB-101** | CMS static pages content fetch API | Backend | Dev | **Completed** | P1 | DB-001 | `apps/api/src/public` |
-| **WEB-102** | Contact Inquiry storage & Admin email | Backend | Dev | **Completed** | P1 | DB-001 | `apps/api/src/public` |
-| **WEB-103** | hCaptcha spam enforcement on public forms | Backend | Dev | **Pending** | P1 | WEB-102 | Production Safety / `vivah_ai_ready_development_tasklist.md` |
-| **PROF-001**| Profile step updates & completion calc | Backend | Dev | **Completed** | P0 | DB-003 | `apps/api/src/profile` |
-| **PROF-002**| Profile detail visibility & privacy checks | Backend | Dev | **Completed** | P0 | DB-003 | `apps/api/src/profile` |
-| **MATCH-101**| Multi-attribute search & visa filtering | Backend | Dev | **Completed** | P0 | DB-003 | `apps/api/src/match` |
-| **MSG-101** | Chat conversation lists & inbox | Backend | Dev | **Completed** | P0 | DB-001 | `apps/api/src/messages` |
-| **PAY-101** | Stripe product pricing checkouts | Backend | Dev | **Completed** | P0 | DB-001 | `apps/api/src/billing` |
-| **PAY-102** | Stripe webhook handlers & plan sync | Backend | Dev | **Completed** | P0 | PAY-101 | Stripe Validation / `apps/api/src/billing/billing.service.ts` |
-| **ADM-101** | Admin dashboard statistics compilation | Backend | Dev | **Completed** | P1 | DB-001 | `apps/api/src/admin` |
-| **ADM-102** | Verification and Media Review Queues | Backend | Dev | **Completed** | P0 | DB-001 | `apps/api/src/admin` |
-| **ADM-103** | Abuse report logs and profiles banning | Backend | Dev | **Completed** | P0 | DB-001 | `apps/api/src/admin` |
-| **SYS-101** | In-app notification triggers & status | Backend | Dev | **Completed** | P1 | DB-001 | `apps/api/src/notifications` |
-| **SYS-102** | Actionable transaction emails & alerts | Backend | Dev | **Completed** | P1 | None | `apps/api/src/common/email.service.ts` |
-| **TST-001** | Core API Controller unit testing | QA | Tester | **Completed** | P0 | CORE-001 | QA / Vitest Suite |
-| **TST-002** | Route-level integration test cases | QA | Tester | **Completed** | P0 | TST-001 | QA / Vitest Suite |
-| **TST-003** | Playwright frontend browser smoke tests | QA | Tester | **In Progress** | P1 | FE-001 | QA / Playwright E2E |
-| **TST-004** | Accessibility contrast & audit verification | QA | Tester | **Completed** | P1 | BRD-002 | Accessibility / `docs/brand-system-migration.md` |
-| **DEV-001** | GitHub Actions Automated CI quality gate | DevOps | Dev | **Completed** | P0 | CORE-001 | QA / `.github/workflows/ci.yml` |
-| **DEV-004** | MongoDB backup and restore cron | DevOps | Dev | **Pending** | P2 | None | Production Safety / `vivah_ai_ready_development_tasklist.md` |
+### 🔴 Production Safety
+- [ ] Create account if no existing user. *(from "Backend Tasks" L542)*
+- [ ] Add spam protection using rate limit and CAPTCHA. _(rate limiting is covered; CAPTCHA is still pending)_ *(from "Backend Tasks" L698)*
+- [ ] Add visibility settings. *(from "Backend Tasks" L893)*
+- [ ] Add file size and duration limits. *(from "Backend Tasks" L894)*
+- [ ] Show processing/approval state. *(from "Frontend Tasks" L899)*
+- [ ] Create secure upload flow. *(from "Backend Tasks" L975)*
+- [ ] Make rules configurable in system settings. *(from "Backend Tasks" L1027)*
+- [ ] Create `IdentityVerificationProvider` interface. *(from "Tasks" L1044)*
+- [ ] Create `FacialVerificationProvider` interface. *(from "Tasks" L1045)*
+- [ ] Create `PoliceCheckProvider` interface. *(from "Tasks" L1046)*
+- [ ] Create `VisaVerificationProvider` interface. *(from "Tasks" L1047)*
+- [ ] Implement manual-review provider as default. *(from "Tasks" L1048)*
+- [ ] Store provider reference IDs for future integrations. *(from "Tasks" L1049)*
+- [ ] Add auto-risk counter per reported user. _(outstanding gap)_ *(from "Backend Tasks" L1278)*
+- [ ] Use secure upload flow. *(from "Backend Tasks" L1395)*
+- [ ] Show document links with signed access. *(from "Frontend Tasks" L1403)*
+- [ ] Create billing portal endpoint. _(outstanding gap)_ *(from "Backend Tasks" L1573)*
+- [ ] Respect notification preferences. *(from "Backend Tasks" L1748)*
+- [ ] Add secure cookie config if cookies used. _(deferred — auth uses localStorage JWT)_ *(from "Backend Tasks" L1996)*
+- [ ] Profile card *(from "Components" L2106)*
+- [ ] Plan card *(from "Components" L2107)*
+- [ ] New user registration and onboarding. *(from "E2E Scenarios" L2176)*
+- [ ] Second user accepts interest. *(from "E2E Scenarios" L2179)*
+- [ ] Both users chat. *(from "E2E Scenarios" L2180)*
+- [ ] User submits verification documents. *(from "E2E Scenarios" L2182)*
+- [ ] Moderator reviews report. *(from "E2E Scenarios" L2183)*
+- [ ] Create development environment. *(from "Tasks" L2193)*
+- [ ] Create staging environment. *(from "Tasks" L2194)*
+- [ ] Create production environment. *(from "Tasks" L2195)*
+- [ ] Use separate databases and storage buckets. *(from "Tasks" L2196)*
+- [ ] Add environment variable validation. *(from "Tasks" L2197)*
+- [ ] Run database migration/seed scripts safely. *(from "Tasks" L2239)*
+- [ ] Add structured API logs. *(from "Tasks" L2247)*
+- [ ] Add error tracking with Sentry or equivalent. *(from "Tasks" L2248)*
+- [ ] Add uptime monitoring. *(from "Tasks" L2249)*
+- [ ] Configure MongoDB backups. *(from "Tasks" L2260)*
+- [ ] Configure file storage lifecycle policy. *(from "Tasks" L2261)*
+- [ ] Configure CDN caching for public assets. *(from "Tasks" L2262)*
+- [ ] Ensure private documents use signed URLs. *(from "Tasks" L2263)*
+- [ ] Document disaster recovery steps. *(from "Tasks" L2264)*
+- [ ] SSL enforced in production _(DEVOPS)_ *(from "Security" L2527)*
+
+### 🔴 Stripe Validation
+- [ ] Use Stripe Payment Element where possible for card, Apple Pay, and Google Pay. *(from "Tasks" L1646)*
+- [ ] Upgrade subscription via Stripe webhook *(from "Required Flows" L2149)*
+
+### 🔴 Mobile Bugs / Responsive
+- [ ] Date picker *(from "Components" L2098)*
+- [ ] Toast *(from "Components" L2103)*
+
+### 🔴 Accessibility
+*No remaining tasks.*
 
 ---
 
 ## 📋 Nice To Have
 
-These tasks provide supplementary features, payment flexibility, deployment automation, and additional analytics that are highly beneficial but not strictly blockings for a pilot/beta launch.
+### 🟡 Extra Filters
+- [ ] Add filters: subscription, date joined. _(outstanding gap)_ *(from "Backend Tasks" L1817)*
+- [ ] User searches and sends interest. *(from "E2E Scenarios" L2178)*
 
-| ID | Feature / Task | Type | Owner | Status | Priority | Dependencies | Notes / Source File |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **AUTH-003**| Social login integration (Google/Apple) | Backend | Dev | **Pending** | P2 | DB-002 | Nice To Have / Phase 2 Exclusion |
-| **PAY-103** | PayPal payment checks | Backend | Dev | **Pending** | P3 | PAY-101 | Nice To Have / Phase 2 Exclusion |
-| **DEV-002** | CD deployment workflow pipelines | DevOps | Dev | **Pending** | P2 | DEV-001 | Nice To Have / Pipeline automation |
-| **DEV-003** | Health endpoints & uptime monitoring | DevOps | Dev | **Completed** | P1 | None | Nice To Have / `/health` |
+### 🟡 Extra Admin Analytics
+- [ ] Admin approves profile. *(from "E2E Scenarios" L2177)*
+- [ ] Add admin audit log view. *(from "Tasks" L2252)*
+
+### 🟡 Cosmetic & UI Enhancements
+- [ ] Add Google OAuth. *(from "Backend Tasks" L538)*
+- [ ] Add Facebook OAuth. *(from "Backend Tasks" L539)*
+- [ ] Add Apple OAuth. *(from "Backend Tasks" L540)*
+- [ ] Require terms acceptance after first social login. *(from "Backend Tasks" L543)*
+- [ ] Add social login buttons. *(from "Frontend Tasks" L547)*
+- [ ] Add first-time social login onboarding page. *(from "Frontend Tasks" L548)*
+- [ ] Support video upload records. *(from "Backend Tasks" L891)*
+- [ ] Add video approval workflow. *(from "Backend Tasks" L892)*
+- [ ] Build video uploader. *(from "Frontend Tasks" L898)*
+- [ ] Render video intro on profile if approved and visible. *(from "Frontend Tasks" L900)*
+- [ ] Add PayPal provider abstraction but keep disabled unless required. *(from "Tasks" L1647)*
+- [ ] File uploader *(from "Components" L2112)*
+- [ ] User upgrades to premium. *(from "E2E Scenarios" L2181)*
+- [ ] Deploy frontend to Vercel or selected host. *(from "Tasks" L2237)*
+- [ ] Deploy backend to selected host. *(from "Tasks" L2238)*
 
 ---
 
 ## 📋 Post Launch
 
-Advanced matching algorithms, AI features, concierge services, and post-beta scaling optimizations.
+### 🟢 AI / Smart Matching
+- [ ] Link social identity to existing email account if safe. *(from "Backend Tasks" L541)*
+- [ ] Existing email account links correctly. *(from "Tests" L552)*
+- [ ] Generate thumbnails. _(future enhancement)_ *(from "Backend Tasks" L851)*
+- [ ] Store optional recommendation snapshots. *(from "Backend Tasks" L1120)*
+- [ ] Failed payment marks subscription past due. *(from "Tests" L1606)*
+- [ ] Unsubscribed marketing users do not receive marketing emails. *(from "Tests" L1753)*
+- [ ] Transactional emails still send when required. *(from "Tests" L1754)*
+- [ ] Register -> verify email -> create profile -> submit profile *(from "Required Flows" L2144)*
+- [ ] Add payment webhook failure alerts. *(from "Tasks" L2250)*
+- [ ] Add background job failure alerts. *(from "Tasks" L2251)*
 
-| ID | Feature / Task | Type | Owner | Status | Priority | Dependencies | Notes / Source File |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **MATCH-102**| Rules-based Match Score calculation | Backend | Dev | **Completed** | P1 | MATCH-101 | Post Launch / Advanced Matching |
-| **MATCH-103**| Profile search ranking boost logic | Backend | Dev | **Completed** | P1 | MATCH-101 | Post Launch / Advanced Matching |
-| **MSG-102** | Socket.IO real-time message delivery | Backend | Dev | **Completed** | P1 | MSG-101 | Post Launch / Live Chat Optimization |
-| **MSG-103** | Private gallery access unlock check | Backend | Dev | **Completed** | P1 | MSG-101 | Post Launch / Advanced Security |
+### 🟢 Concierge / Manual Assistance
+*No remaining tasks.*
 
----
+### 🟢 Advanced Matching / Boosts
+- [ ] Support featured member listing. *(from "Backend Tasks" L1665)*
+- [ ] Support homepage featured placement. *(from "Backend Tasks" L1666)*
+- [ ] Support search priority placement. *(from "Backend Tasks" L1667)*
+- [ ] Show boosted badge where needed. *(from "Frontend Tasks" L1683)*
+- [ ] Boosted profiles should rank higher but must not bypass filters. *(from "Search Integration" L1687)*
+- [ ] Expired boosts should not affect rankings. *(from "Search Integration" L1688)*
+- [ ] Boosted profiles rank higher in eligible search. *(from "Tests" L1693)*
+- [ ] Hidden/suspended profiles are never boosted publicly. *(from "Tests" L1694)*
 
-## 📈 Categorized Progress Tracking
-
-*   **Must Have Before Beta**: 40 / 42 Tasks Completed (95.2%)
-*   **Nice To Have**: 1 / 4 Tasks Completed (25%)
-*   **Post Launch**: 4 / 4 Tasks Completed (100%)
