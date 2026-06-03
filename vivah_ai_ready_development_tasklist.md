@@ -2159,7 +2159,7 @@ GET /api/admin/activity-logs
 
 - [x] Auth forms validate input.
 - [ ] Profile wizard saves each step.
-- [ ] Search filters update query.
+- [x] Search filters update query.
 - [ ] Interest buttons update state.
 - [ ] Chat UI renders messages.
 - [ ] Pricing page triggers checkout.
