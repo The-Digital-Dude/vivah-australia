@@ -8,6 +8,7 @@ import {
   mobileOtpVerifySchema,
 } from '@vivah/shared';
 import {
+  ArrowRight,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -16,6 +17,8 @@ import {
   Lock,
   FileText,
   Smartphone,
+  Sparkles,
+  Users,
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { formString, optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
@@ -54,6 +57,42 @@ interface VerificationRequestItem {
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
+}
+
+const verificationRoadmap = [
+  { key: 'EMAIL', title: 'Email verification', helper: 'Protect account recovery and approval updates.' },
+  { key: 'MOBILE', title: 'Mobile verification', helper: 'Build immediate trust and unlock onboarding access.' },
+  { key: 'IDENTITY', title: 'Identity verification', helper: 'Confirm authenticity with passport or licence.' },
+  { key: 'ADDRESS', title: 'Address verification', helper: 'Show Australian residence and stronger trust.' },
+  { key: 'EMPLOYMENT', title: 'Employment verification', helper: 'Support professional credibility and profile strength.' },
+  { key: 'VISA', title: 'Visa status verification', helper: 'Clarify residency and long-term location confidence.' },
+  { key: 'FACIAL', title: 'Facial match selfie', helper: 'Reinforce that the profile matches the member.' },
+  { key: 'POLICE_CLEARANCE', title: 'Police clearance', helper: 'Highest trust signal for serious introductions.' },
+] as const;
+
+function trustScoreForLevel(level?: string) {
+  switch (level) {
+    case 'FULLY_VERIFIED':
+      return 100;
+    case 'PLATINUM':
+      return 90;
+    case 'GOLD':
+      return 76;
+    case 'SILVER':
+      return 58;
+    case 'BASIC':
+      return 36;
+    default:
+      return 18;
+  }
+}
+
+function uniqueApprovedTypes(requests: VerificationRequestItem[]) {
+  return new Set(requests.filter((request) => request.status === 'APPROVED').map((request) => request.type));
+}
+
+function uniquePendingTypes(requests: VerificationRequestItem[]) {
+  return new Set(requests.filter((request) => request.status === 'PENDING').map((request) => request.type));
 }
 
 export default function MemberVerificationPage() {

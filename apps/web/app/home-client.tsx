@@ -287,7 +287,7 @@ export default function HomeClient({
             </div>
           </div>
 
-          <div className="relative mt-[-1.25rem] lg:mt-[-3.5rem]">
+          <div className="relative mt-6 lg:mt-[-3.5rem]">
             <div className="mx-auto max-w-6xl rounded-[34px] border border-[#A10E4D]/10 bg-white px-5 py-8 shadow-[0_30px_80px_rgba(47,47,47,0.10)] sm:px-8">
               <div className="text-center">
                 <h2 className="font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">
@@ -356,7 +356,7 @@ export default function HomeClient({
 
                 <PremiumButton
                   type="submit"
-                  className="h-[58px] rounded-2xl px-8 text-base shadow-[0_20px_45px_rgba(161,14,77,0.22)]"
+                  className="h-[58px] w-full lg:w-auto rounded-2xl px-8 text-base shadow-[0_20px_45px_rgba(161,14,77,0.22)]"
                 >
                   <Search className="size-4" />
                   Search Now
@@ -379,18 +379,18 @@ export default function HomeClient({
       <section className="pb-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-[30px] bg-[linear-gradient(135deg,#8E0D43_0%,#A10E4D_46%,#7B123F_100%)] px-6 py-6 text-white shadow-[0_24px_60px_rgba(161,14,77,0.22)] sm:px-8">
-            <div className="grid gap-5 md:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
               {trustStats.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/6 px-4 py-4"
+                  className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/6 px-4 py-4 last:col-span-2 last:md:col-span-1"
                 >
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-white/12 text-[#F7D88A]">
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-white/12 text-[#F7D88A] shrink-0">
                     <ShieldCheck className="size-6" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-white">{item.value}</p>
-                    <p className="text-sm text-white/80">{item.label}</p>
+                    <p className="text-2xl font-bold text-white leading-none">{item.value}</p>
+                    <p className="text-xs sm:text-sm text-white/80 mt-1">{item.label}</p>
                   </div>
                 </div>
               ))}
@@ -466,7 +466,7 @@ export default function HomeClient({
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {howItWorks.map((item) => {
               const Icon = item.icon;
               return (
@@ -676,7 +676,7 @@ export default function HomeClient({
             </PremiumButton>
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {resourceCards.map((blog, index) => (
               <article
                 key={`${blog.slug || blog.title}-${index}`}

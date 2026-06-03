@@ -590,10 +590,10 @@ export function PublicHeader() {
           <Image
             src="/logo.png"
             alt="Vivah Australia Logo"
-            width={180}
-            height={72}
+            width={160}
+            height={64}
             className="w-auto object-contain"
-            style={{ width: 'auto', height: '72px' }}
+            style={{ width: 'auto', height: '64px' }}
             priority
           />
         </Link>
@@ -656,10 +656,10 @@ export function PublicHeader() {
                 <Image
                   src="/logo.png"
                   alt="Vivah Australia Logo"
-                  width={140}
-                  height={56}
+                  width={120}
+                  height={48}
                   className="w-auto object-contain"
-                  style={{ width: 'auto', height: '56px' }}
+                  style={{ width: 'auto', height: '48px' }}
                   priority
                 />
               </Link>
