@@ -9,7 +9,7 @@ export default function MessagesPage() {
   return (
     <MemberShell
       title="Messages"
-      subtitle="Message accepted interests safely, with read receipts, attachments, and chat safety actions."
+      subtitle="Continue serious conversations in a safer, more relationship-focused messaging space."
     >
       <MessagesClient />
     </MemberShell>

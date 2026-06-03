@@ -1,17 +1,30 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { io, type Socket } from 'socket.io-client';
-import { FileText, ImageIcon, Loader2, Paperclip, Send, Trash2, Upload } from 'lucide-react';
 import {
-  messageAttachmentSignUploadSchema,
-  messageCreateSchema,
-} from '@vivah/shared';
+  BellOff,
+  Briefcase,
+  Circle,
+  FileText,
+  ImageIcon,
+  Loader2,
+  MapPin,
+  MessageCircleHeart,
+  MoreHorizontal,
+  Paperclip,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Trash2,
+  Upload,
+} from 'lucide-react';
+import { messageAttachmentSignUploadSchema, messageCreateSchema } from '@vivah/shared';
 import { useAuth } from '@/app/auth-context';
-import {
-  useMemberRequest,
-  validationMessage,
-} from '@/lib/member-api';
+import { PremiumButton, PremiumCard } from '@/app/components';
+import { useMemberRequest, validationMessage } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -64,10 +77,45 @@ interface PendingAttachment {
   mimeType: string;
 }
 
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
+
+function formatRelativeTime(value?: string) {
+  if (!value) {
+    return 'Recently active';
+  }
+
+  const date = new Date(value).getTime();
+  const diffMinutes = Math.max(1, Math.floor((Date.now() - date) / 60000));
+
+  if (diffMinutes < 60) return `${diffMinutes} min ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
+}
+
+function formatMessageTime(value: string) {
+  return new Date(value).toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function formatMessageDate(value: string) {
+  return new Date(value).toLocaleDateString([], {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export default function MessagesClient() {
   const { token } = useAuth();
   const memberRequest = useMemberRequest();
   const socketRef = useRef<Socket | null>(null);
+  const messageListRef = useRef<HTMLDivElement | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selected, setSelected] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -143,6 +191,11 @@ export default function MessagesClient() {
     };
   }, [selected?.id, token]);
 
+  useEffect(() => {
+    if (!messageListRef.current) return;
+    messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+  }, [messages, typing]);
+
   const activeTitle = useMemo(() => {
     if (!selected?.otherProfile) {
       return 'Select a conversation';
@@ -152,6 +205,22 @@ export default function MessagesClient() {
     }`;
   }, [selected]);
 
+  const activeSubtitle = useMemo(() => {
+    if (typing) {
+      return typing;
+    }
+
+    if (!selected?.otherProfile) {
+      return 'Safe chat';
+    }
+
+    const details = [selected.otherProfile.city, selected.otherProfile.occupation]
+      .filter(Boolean)
+      .join(' • ');
+
+    return details ? `Based in ${details}` : 'Safe chat';
+  }, [selected, typing]);
+
   async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selected) {
@@ -160,7 +229,8 @@ export default function MessagesClient() {
 
     const form = new FormData(event.currentTarget);
     const payload = {
-      body: typeof form.get('body') === 'string' ? String(form.get('body')).trim() || undefined : undefined,
+      body:
+        typeof form.get('body') === 'string' ? String(form.get('body')).trim() || undefined : undefined,
       attachments: pendingAttachments.map((attachment) => ({ attachmentId: attachment.id })),
     };
     const parsed = messageCreateSchema.safeParse(payload);
@@ -197,8 +267,7 @@ export default function MessagesClient() {
       return;
     }
 
-    const attachmentType =
-      file.type.startsWith('image/') ? 'IMAGE' : 'DOCUMENT';
+    const attachmentType = file.type.startsWith('image/') ? 'IMAGE' : 'DOCUMENT';
     const parsed = messageAttachmentSignUploadSchema.safeParse({
       attachmentType,
       fileName: file.name,
@@ -313,179 +382,384 @@ export default function MessagesClient() {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
-      <aside className="rounded-lg border border-[#F0D6DA] bg-white p-4 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#232323]">Conversations</h2>
-        <div className="mt-4 grid gap-2">
-          {conversations.map((conversation) => (
-            <button
-              key={conversation.id}
-              type="button"
-              onClick={() => setSelected(conversation)}
-              className={`rounded-md border p-3 text-left ${
-                selected?.id === conversation.id
-                  ? 'border-[#7A1E3A] bg-[#FFF8F1]'
-                  : 'border-[#F0D6DA] bg-white'
-              }`}
-            >
-              <p className="font-semibold text-[#232323]">
-                {conversation.otherProfile?.firstName ?? 'Vivah member'}
+    <div className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)_300px]">
+      <motion.aside
+        initial={{ opacity: 0, x: -16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        <PremiumCard className="rounded-[30px] p-5 shadow-[0_20px_45px_rgba(122,31,43,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+                Conversations
               </p>
-              <p className="text-sm text-[#5E6470]">
-                {[conversation.otherProfile?.city, conversation.otherProfile?.occupation]
-                  .filter(Boolean)
-                  .join(' • ')}
-              </p>
-            </button>
-          ))}
-          {conversations.length === 0 ? (
-            <p className="rounded-md border border-dashed border-[#D6A84F] p-4 text-sm text-[#5E6470]">
-              Accepted interests will appear here.
-            </p>
-          ) : null}
-        </div>
-      </aside>
+              <h2 className="mt-2 font-playfair text-3xl font-semibold text-[#2F2F2F]">
+                Messages
+              </h2>
+            </div>
+            <div className="rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
+              {conversations.length} active
+            </div>
+          </div>
 
-      <section className="rounded-lg border border-[#F0D6DA] bg-white shadow-sm">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F0D6DA] p-4">
-          <div>
-            <h2 className="text-xl font-semibold text-[#232323]">{activeTitle}</h2>
-            <p className="text-sm text-[#5E6470]">
-              {typing ?? selected?.otherProfile?.city ?? 'Safe chat'}
+          <div className="mt-5 rounded-[24px] border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3">
+            <p className="text-sm font-semibold text-[#2F2F2F]">Search conversations</p>
+            <p className="mt-1 text-xs leading-5 text-[#6B7280]">
+              Accepted interests and active chats stay grouped here so you can keep serious
+              conversations moving.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {selectedProfileId ? <ProfileActions profileId={selectedProfileId} compact /> : null}
-            {selected ? (
-              <button
-                type="button"
-                onClick={() => void deleteConversation()}
-                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#F0D6DA] px-3 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
-              >
-                <Trash2 className="size-3.5" />
-                Delete chat
-              </button>
-            ) : null}
-          </div>
-        </header>
 
-        <div className="grid max-h-[520px] gap-3 overflow-y-auto p-4">
-          {messages.map((item) => (
-            <article key={item.id} className="rounded-lg bg-[#FFF8F1] p-3">
-              {item.body ? <p className="text-sm leading-6 text-[#232323]">{item.body}</p> : null}
-              {item.attachments.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {item.attachments.map((attachment, index) => (
-                    <a
-                      key={`${item.id}-${index}`}
-                      href={attachment.assetUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-md border border-[#F0D6DA] bg-white px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
-                    >
-                      {attachment.attachmentType === 'DOCUMENT' ? (
-                        <FileText className="size-3.5" />
-                      ) : (
-                        <ImageIcon className="size-3.5" />
-                      )}
-                      {attachment.fileName ?? 'Attachment'}
-                    </a>
-                  ))}
-                </div>
-              ) : null}
-              <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[#5E6470]">
-                <span>{new Date(item.createdAt).toLocaleString()}</span>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
+              All
+            </span>
+            <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#6B7280]">
+              Safe chat
+            </span>
+            <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#6B7280]">
+              New replies
+            </span>
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            {conversations.map((conversation) => {
+              const active = selected?.id === conversation.id;
+              const name = conversation.otherProfile?.firstName ?? 'Vivah member';
+              const meta = [conversation.otherProfile?.city, conversation.otherProfile?.occupation]
+                .filter(Boolean)
+                .join(' • ');
+
+              return (
                 <button
+                  key={conversation.id}
                   type="button"
-                  onClick={() => void deleteMessage(item.id)}
-                  className="font-semibold"
+                  onClick={() => setSelected(conversation)}
+                  className={cx(
+                    'rounded-[24px] border p-4 text-left transition',
+                    active
+                      ? 'border-[#A10E4D]/16 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFF9F5_100%)] shadow-[0_18px_38px_rgba(161,14,77,0.08)]'
+                      : 'border-[#F0D6DA] bg-white hover:border-[#A10E4D]/12 hover:bg-[#FFF9F5]',
+                  )}
                 >
-                  Delete
-                </button>
-              </div>
-            </article>
-          ))}
-          {selected && messages.length === 0 ? (
-            <p className="rounded-md border border-dashed border-[#D6A84F] p-5 text-center text-sm text-[#5E6470]">
-              Start the conversation after your interest has been accepted.
-            </p>
-          ) : null}
-        </div>
-
-        {selected ? (
-          <div className="grid gap-3 border-t border-[#F0D6DA] p-4">
-            <form className="grid gap-3" onSubmit={(event) => void sendMessage(event)}>
-            <textarea
-              name="body"
-              rows={3}
-              onFocus={() =>
-                socketRef.current?.emit('typing', { conversationId: selected.id, typing: true })
-              }
-              onBlur={() =>
-                socketRef.current?.emit('typing', { conversationId: selected.id, typing: false })
-              }
-              placeholder="Write a respectful message"
-              className="rounded-md border border-[#E8D5D8] px-3 py-2 outline-none focus:border-[#7A1E3A] focus:ring-2 focus:ring-[#FDECEF]"
-            />
-            {pendingAttachments.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {pendingAttachments.map((attachment) => (
-                  <div
-                    key={attachment.id}
-                    className="inline-flex items-center gap-2 rounded-md border border-[#F0D6DA] bg-[#FFF8F1] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
-                  >
-                    {attachment.attachmentType === 'DOCUMENT' ? (
-                      <FileText className="size-3.5" />
-                    ) : (
-                      <ImageIcon className="size-3.5" />
-                    )}
-                    {attachment.fileName}
-                    <button type="button" onClick={() => removePendingAttachment(attachment.id)}>
-                      Remove
-                    </button>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-[#232323]">{name}</p>
+                      <p className="mt-1 text-sm text-[#5E6470]">{meta}</p>
+                    </div>
+                    <span className="text-xs font-medium text-[#8B8B8B]">
+                      {formatRelativeTime(conversation.lastMessageAt)}
+                    </span>
                   </div>
-                ))}
+                  <div className="mt-3 flex items-center gap-2 text-xs text-[#6B7280]">
+                    <Circle className="size-2.5 fill-[#1F6F4A] text-[#1F6F4A]" />
+                    Available for respectful conversation
+                  </div>
+                </button>
+              );
+            })}
+            {conversations.length === 0 ? (
+              <p className="rounded-[24px] border border-dashed border-[#D6A84F] p-5 text-sm leading-6 text-[#5E6470]">
+                Accepted interests will appear here.
+              </p>
+            ) : null}
+          </div>
+        </PremiumCard>
+      </motion.aside>
+
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
+      >
+        <PremiumCard className="overflow-hidden rounded-[30px] border border-[#F0D6DA] p-0 shadow-[0_20px_50px_rgba(122,31,43,0.08)]">
+          <header className="border-b border-[#F0D6DA] bg-[linear-gradient(180deg,#FFFDFB_0%,#FFF8F1_100%)] px-5 py-5 sm:px-6">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FFF0F3] text-lg font-semibold text-[#A10E4D]">
+                    {(selected?.otherProfile?.firstName ?? 'V').slice(0, 1)}
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-2xl font-semibold text-[#232323]">{activeTitle}</h2>
+                    <p className="mt-1 text-sm text-[#5E6470]">{activeSubtitle || 'Safe chat'}</p>
+                  </div>
+                </div>
+
+                {selected?.otherProfile ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
+                      <MapPin className="size-3.5" />
+                      {selected.otherProfile.city ?? 'Location hidden'}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#9A6F1E]">
+                      <Briefcase className="size-3.5" />
+                      {selected.otherProfile.occupation ?? 'Occupation hidden'}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FBF6] px-3 py-1 text-xs font-semibold text-[#1F6F4A]">
+                      <ShieldCheck className="size-3.5" />
+                      Safe, member-only messaging
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {selectedProfileId ? <ProfileActions profileId={selectedProfileId} compact /> : null}
+                {selected ? (
+                  <button
+                    type="button"
+                    onClick={() => void deleteConversation()}
+                    className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-white px-4 text-xs font-semibold text-[#7A1E3A] transition hover:bg-[#FFF8F1]"
+                  >
+                    <Trash2 className="size-3.5" />
+                    Delete chat
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </header>
+
+          <div
+            ref={messageListRef}
+            className="grid max-h-[620px] gap-4 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] px-5 py-5 sm:px-6"
+          >
+            {messages.map((item) => (
+              <div key={item.id} className="flex justify-start">
+                <article className="max-w-[85%] rounded-[24px] border border-[#F0D6DA] bg-white px-4 py-3 shadow-sm">
+                    {item.body ? (
+                      <p className="text-sm leading-7 text-[#232323]">{item.body}</p>
+                    ) : null}
+
+                    {item.attachments.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {item.attachments.map((attachment, index) => (
+                          <a
+                            key={`${item.id}-${index}`}
+                            href={attachment.assetUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-2xl border border-[#F0D6DA] bg-[#FFF9F5] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
+                          >
+                            {attachment.attachmentType === 'DOCUMENT' ? (
+                              <FileText className="size-3.5" />
+                            ) : (
+                              <ImageIcon className="size-3.5" />
+                            )}
+                            {attachment.fileName ?? 'Attachment'}
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    <div className="mt-3 flex items-center justify-between gap-3 text-xs text-[#7B7280]">
+                      <span>
+                        {formatMessageDate(item.createdAt)} · {formatMessageTime(item.createdAt)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => void deleteMessage(item.id)}
+                        className="font-semibold text-[#A10E4D]"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                </article>
+              </div>
+            ))}
+
+            {selected && messages.length === 0 ? (
+              <div className="rounded-[26px] border border-dashed border-[#D6A84F] bg-[#FFF9F5] p-6 text-center">
+                <MessageCircleHeart className="mx-auto size-7 text-[#D4A04C]" />
+                <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">
+                  Start the conversation after your interest has been accepted.
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+                  Use warm, respectful first messages and let the conversation unfold naturally.
+                </p>
               </div>
             ) : null}
-            <button className="inline-flex h-11 w-fit items-center gap-2 rounded-md bg-[#7A1E3A] px-5 text-sm font-semibold text-white">
-              <Send className="size-4" />
-              Send message
-            </button>
-            </form>
-            <form
-              className="grid gap-3 rounded-md border border-[#F0D6DA] bg-[#FFF8F1] p-3"
-              onSubmit={(event) => void uploadAttachment(event)}
-            >
-              <div className="flex items-center gap-2 text-sm font-semibold text-[#7A1E3A]">
-                <Paperclip className="size-4" />
-                Secure attachment upload
-              </div>
-              <input
-                name="attachmentFile"
-                type="file"
-                accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                className="block w-full text-sm text-[#232323]"
-              />
-              <button
-                type="submit"
-                disabled={uploadingAttachment}
-                className="inline-flex h-10 w-fit items-center gap-2 rounded-md border border-[#F0D6DA] bg-white px-4 text-sm font-semibold text-[#7A1E3A] disabled:opacity-60"
-              >
-                {uploadingAttachment ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Upload className="size-4" />
-                )}
-                {uploadingAttachment ? 'Uploading...' : 'Upload attachment'}
-              </button>
-            </form>
           </div>
-        ) : null}
 
-        {message ? (
-          <p className="border-t border-[#F0D6DA] p-3 text-sm text-[#7A1E3A]">{message}</p>
-        ) : null}
-      </section>
+          {selected ? (
+            <div className="grid gap-4 border-t border-[#F0D6DA] bg-white px-5 py-5 sm:px-6">
+              <form className="grid gap-3" onSubmit={(event) => void sendMessage(event)}>
+                <textarea
+                  name="body"
+                  rows={4}
+                  onFocus={() =>
+                    socketRef.current?.emit('typing', { conversationId: selected.id, typing: true })
+                  }
+                  onBlur={() =>
+                    socketRef.current?.emit('typing', { conversationId: selected.id, typing: false })
+                  }
+                  placeholder="Write a thoughtful, respectful message"
+                  className="rounded-[24px] border border-[#E8D5D8] bg-[#FFF9F5] px-4 py-3 outline-none transition focus:border-[#7A1E3A] focus:ring-4 focus:ring-[#FDECEF]"
+                />
+
+                {pendingAttachments.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {pendingAttachments.map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-[#FFF8F1] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
+                      >
+                        {attachment.attachmentType === 'DOCUMENT' ? (
+                          <FileText className="size-3.5" />
+                        ) : (
+                          <ImageIcon className="size-3.5" />
+                        )}
+                        {attachment.fileName}
+                        <button type="button" onClick={() => removePendingAttachment(attachment.id)}>
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <PremiumButton type="submit">
+                    <Send className="size-4" />
+                    Send message
+                  </PremiumButton>
+                  <span className="text-xs text-[#6B7280]">
+                    Your conversations are end-to-end secure inside the Vivah member experience.
+                  </span>
+                </div>
+              </form>
+
+              <form
+                className="grid gap-3 rounded-[26px] border border-[#F0D6DA] bg-[linear-gradient(180deg,#FFF8F1_0%,#FFFFFF_100%)] p-4"
+                onSubmit={(event) => void uploadAttachment(event)}
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold text-[#7A1E3A]">
+                  <Paperclip className="size-4" />
+                  Secure attachment upload
+                </div>
+                <input
+                  name="attachmentFile"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="block w-full text-sm text-[#232323]"
+                />
+                <button
+                  type="submit"
+                  disabled={uploadingAttachment}
+                  className="inline-flex min-h-11 w-fit items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-white px-4 text-sm font-semibold text-[#7A1E3A] disabled:opacity-60"
+                >
+                  {uploadingAttachment ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Upload className="size-4" />
+                  )}
+                  {uploadingAttachment ? 'Uploading...' : 'Upload attachment'}
+                </button>
+              </form>
+            </div>
+          ) : null}
+
+          {message ? (
+            <p className="border-t border-[#F0D6DA] bg-[#FFF9F5] px-5 py-3 text-sm text-[#7A1E3A] sm:px-6">
+              {message}
+            </p>
+          ) : null}
+        </PremiumCard>
+      </motion.section>
+
+      <motion.aside
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut', delay: 0.08 }}
+        className="grid gap-4"
+      >
+        <PremiumCard className="rounded-[30px] p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+            About {selected?.otherProfile?.firstName ?? 'member'}
+          </p>
+          {selected?.otherProfile ? (
+            <div className="mt-4 grid gap-3">
+              <div className="rounded-[22px] bg-[#FFF9F5] px-4 py-3">
+                <p className="text-sm font-semibold text-[#2F2F2F]">Profile summary</p>
+                <p className="mt-1 text-sm text-[#6B7280]">
+                  {selected.otherProfile.city ?? 'Location hidden'}
+                </p>
+              </div>
+              <div className="rounded-[22px] bg-[#FFF9F5] px-4 py-3 text-sm text-[#2F2F2F]">
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-[#A10E4D]" />
+                  {selected.otherProfile.city ?? 'Location hidden'}
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <Briefcase className="size-4 text-[#A10E4D]" />
+                  {selected.otherProfile.occupation ?? 'Occupation hidden'}
+                </div>
+              </div>
+              <div className="rounded-[22px] bg-[#FFF9F5] px-4 py-3 text-sm leading-6 text-[#6B7280]">
+                This member is part of the accepted-interest messaging flow, so the conversation is
+                already permissioned and member-only.
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm leading-6 text-[#6B7280]">
+              Select a conversation to see more context about the member you are chatting with.
+            </p>
+          )}
+        </PremiumCard>
+
+        <PremiumCard className="rounded-[30px] p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+            Chat settings
+          </p>
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between rounded-[22px] border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3 text-sm text-[#2F2F2F]">
+              <span className="flex items-center gap-2">
+                <BellOff className="size-4 text-[#A10E4D]" />
+                Mute notifications
+              </span>
+              <span className="text-xs font-semibold text-[#6B7280]">Off</span>
+            </div>
+            <div className="flex items-center justify-between rounded-[22px] border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3 text-sm text-[#2F2F2F]">
+              <span className="flex items-center gap-2">
+                <MoreHorizontal className="size-4 text-[#A10E4D]" />
+                Chat privacy
+              </span>
+              <span className="text-xs font-semibold text-[#6B7280]">Member-only</span>
+            </div>
+            <div className="flex items-center justify-between rounded-[22px] border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3 text-sm text-[#2F2F2F]">
+              <span className="flex items-center gap-2">
+                <Star className="size-4 text-[#A10E4D]" />
+                Priority safety review
+              </span>
+              <span className="text-xs font-semibold text-[#6B7280]">Available</span>
+            </div>
+          </div>
+        </PremiumCard>
+
+        <PremiumCard className="rounded-[30px] border border-[#D4A04C]/18 bg-[linear-gradient(180deg,#FFF8EC_0%,#FFFFFF_100%)] p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+            Stay safe
+          </p>
+          <h3 className="mt-3 font-playfair text-2xl font-semibold text-[#2F2F2F]">
+            Respect first, details later
+          </h3>
+          <div className="mt-4 grid gap-3 text-sm leading-6 text-[#6B7280]">
+            <div className="flex items-start gap-2">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#A10E4D]" />
+              Never share financial information or identity documents in chat.
+            </div>
+            <div className="flex items-start gap-2">
+              <Sparkles className="mt-0.5 size-4 shrink-0 text-[#A10E4D]" />
+              Use profile actions if something feels unsafe or disrespectful.
+            </div>
+            <div className="flex items-start gap-2">
+              <MessageCircleHeart className="mt-0.5 size-4 shrink-0 text-[#A10E4D]" />
+              Warm, thoughtful messages usually create stronger replies than rushed introductions.
+            </div>
+          </div>
+        </PremiumCard>
+      </motion.aside>
     </div>
   );
 }
