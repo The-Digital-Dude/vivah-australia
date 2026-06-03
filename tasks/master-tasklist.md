@@ -40,7 +40,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Free limit blocked after quota reached *(from "Required Flows" L2150)*
 - [ ] Submit verification -> admin approves -> badge updates *(from "Required Flows" L2151)*
 - [ ] Report user -> admin resolves *(from "Required Flows" L2152)*
-- [ ] Auth forms validate input. *(from "Required Tests" L2160)*
+- [x] Auth forms validate input. _(Vitest + Testing Library coverage now exercises successful and failing login flows plus email/mobile OTP registration flows in `apps/web/app/(auth)/*.test.tsx`)_ *(from "Required Tests" L2160)*
 - [ ] Profile wizard saves each step. *(from "Required Tests" L2161)*
 - [ ] Search filters update query. *(from "Required Tests" L2162)*
 - [ ] Interest buttons update state. *(from "Required Tests" L2163)*

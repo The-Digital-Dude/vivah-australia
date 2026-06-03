@@ -98,13 +98,13 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 | SEC-001 Core Security Middleware          | Helmet, CORS, JSON limit, route rate limits, password hashing are in place.                                                                                     | Full security middleware checklist, centralized abuse controls, security tests beyond current route coverage. |
 | TEST-001 / TEST-002 Backend and API Tests | Meaningful backend/API tests exist for implemented modules.                                                                                                     | Coverage for future modules and deeper negative/security cases.                                               |
 
-## Not Started Modules
+## Incomplete Modules
 
 The following modules do not yet have full business-feature implementations in the codebase:
 
 - AUTH-003 Social Login
 - MEDIA-002 Video Introduction Upload
-- TEST-003 Frontend Tests
+- TEST-003 Frontend Tests (started: Vitest + Testing Library are now set up in `apps/web`, and auth page coverage exists; broader UI coverage is still pending)
 - TEST-004 Broader E2E Matrix
 - DEVOPS-001 Environment Setup beyond local examples
 - DEVOPS-002 Full CI/CD Deployment Pipeline

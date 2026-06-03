@@ -2157,7 +2157,7 @@ GET /api/admin/activity-logs
 
 #### Required Tests
 
-- [ ] Auth forms validate input.
+- [x] Auth forms validate input.
 - [ ] Profile wizard saves each step.
 - [ ] Search filters update query.
 - [ ] Interest buttons update state.
