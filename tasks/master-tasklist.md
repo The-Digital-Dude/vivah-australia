@@ -73,7 +73,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Use secure upload flow. *(from "Backend Tasks" L1395)*
 - [ ] Show document links with signed access. *(from "Frontend Tasks" L1403)*
 - [x] Create billing portal endpoint. _(implemented via authenticated member billing portal session API and subscription-page action)_ *(from "Backend Tasks" L1573)*
-- [ ] Respect notification preferences. *(from "Backend Tasks" L1748)*
+- [x] Respect notification preferences. _(email, SMS, and push delivery already check persisted member notification preferences in the notification service)_ *(from "Backend Tasks" L1748)*
 - [ ] Add secure cookie config if cookies used. _(deferred — auth uses localStorage JWT)_ *(from "Backend Tasks" L1996)*
 - [ ] Profile card *(from "Components" L2106)*
 - [ ] Plan card *(from "Components" L2107)*
@@ -88,7 +88,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Use separate databases and storage buckets. *(from "Tasks" L2196)*
 - [x] Add environment variable validation. _(implemented via shared Zod env schemas and runtime parsing in `packages/shared/src/env.ts`, `apps/api/src/env.ts`, and `apps/web/env.ts`)_ *(from "Tasks" L2197)*
 - [ ] Run database migration/seed scripts safely. *(from "Tasks" L2239)*
-- [ ] Add structured API logs. *(from "Tasks" L2247)*
+- [x] Add structured API logs. _(request ID and JSON API request/error logging already exist in `apps/api/src/app.ts`)_ *(from "Tasks" L2247)*
 - [ ] Add error tracking with Sentry or equivalent. *(from "Tasks" L2248)*
 - [ ] Add uptime monitoring. *(from "Tasks" L2249)*
 - [ ] Configure MongoDB backups. *(from "Tasks" L2260)*

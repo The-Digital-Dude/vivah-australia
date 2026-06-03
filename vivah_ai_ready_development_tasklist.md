@@ -1745,7 +1745,7 @@ DELETE /api/me/notifications/:id
   - [x] Interest notifications
   - Message notifications
   - [x] Subscription updates
-- [ ] Respect notification preferences.
+- [x] Respect notification preferences.
 
 #### Tests
 
@@ -2244,12 +2244,12 @@ ADMIN_SEED_PASSWORD=
 
 #### Tasks
 
-- [ ] Add structured API logs.
+- [x] Add structured API logs.
 - [ ] Add error tracking with Sentry or equivalent.
 - [ ] Add uptime monitoring.
 - [ ] Add payment webhook failure alerts.
 - [ ] Add background job failure alerts.
-- [ ] Add admin audit log view.
+- [x] Add admin audit log view.
 
 ---
 

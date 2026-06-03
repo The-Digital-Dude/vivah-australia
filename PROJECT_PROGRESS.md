@@ -109,7 +109,7 @@ The following modules do not yet have full business-feature implementations in t
 
 - Email sending uses console locally and can use SendGrid or Mailgun when configured. Template library, async queueing, and preference-gated sends remain.
 - Contact form uses hCaptcha when configured and skips server verification only when `HCAPTCHA_SECRET` is unset for local development.
-- Profile notification preferences currently validate and echo preferences but are not persisted to a dedicated user settings document.
+- Profile notification preferences are persisted on the user document and currently gate email, SMS, and push delivery paths. Marketing-specific unsubscribe coverage is still incomplete.
 - Account deactivate and delete-request endpoints currently return accepted responses but do not yet perform lifecycle workflows.
 - Public homepage now supports CMS-managed hero, how-it-works, safety, FAQ, and contact copy through `/admin/cms`; deeper per-section visual layout controls remain future work.
 - Media upload uses Cloudinary signed-upload parameters when `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are configured; local development falls back to mock signed upload metadata.
