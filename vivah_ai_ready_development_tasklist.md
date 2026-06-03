@@ -2158,7 +2158,7 @@ GET /api/admin/activity-logs
 #### Required Tests
 
 - [x] Auth forms validate input.
-- [ ] Profile wizard saves each step.
+- [x] Profile wizard saves each step.
 - [x] Search filters update query.
 - [ ] Interest buttons update state.
 - [ ] Chat UI renders messages.

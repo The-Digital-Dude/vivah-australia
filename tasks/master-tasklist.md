@@ -41,7 +41,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Submit verification -> admin approves -> badge updates *(from "Required Flows" L2151)*
 - [ ] Report user -> admin resolves *(from "Required Flows" L2152)*
 - [x] Auth forms validate input. _(Vitest + Testing Library coverage now exercises successful and failing login flows plus email/mobile OTP registration flows in `apps/web/app/(auth)/*.test.tsx`)_ *(from "Required Tests" L2160)*
-- [ ] Profile wizard saves each step. *(from "Required Tests" L2161)*
+- [x] Profile wizard saves each step. _(Vitest coverage now verifies explicit draft saving and consecutive “Save & continue” PATCH persistence across wizard steps in `apps/web/app/member/profile-form.test.tsx`)_ *(from "Required Tests" L2161)*
 - [x] Search filters update query. _(Vitest coverage now proves quick filters and advanced discovery filters update the outgoing `/api/matches/search` query, including visa-status filters, in `apps/web/app/member/matches/match-discovery.test.tsx`)_ *(from "Required Tests" L2162)*
 - [ ] Interest buttons update state. *(from "Required Tests" L2163)*
 - [ ] Chat UI renders messages. *(from "Required Tests" L2164)*
