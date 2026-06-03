@@ -1392,7 +1392,7 @@ server: error
 
 - [x] Allow image sharing.
 - [x] Allow document sharing if enabled.
-- [ ] Use secure upload flow.
+- [x] Use secure upload flow.
 - [x] Scan file type and size.
 - [x] Store attachment metadata.
 
@@ -1400,7 +1400,7 @@ server: error
 
 - [x] Add attachment upload button.
 - [x] Show image previews.
-- [ ] Show document links with signed access.
+- [x] Show document links with signed access.
 
 #### Security
 

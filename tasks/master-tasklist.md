@@ -70,8 +70,8 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [x] Implement manual-review provider as default. _(verification requests now route through the manual-review provider assignment layer before persistence)_ *(from "Tasks" L1048)*
 - [x] Store provider reference IDs for future integrations. _(verification requests now persist `provider` and `providerReferenceId`)_ *(from "Tasks" L1049)*
 - [x] Add auto-risk counter per reported user. _(report creation/review now keeps a `REPORTED_USER_RISK_SCORE` fraud event in sync with active report volume and severity)_ *(from "Backend Tasks" L1278)*
-- [ ] Use secure upload flow. *(from "Backend Tasks" L1395)*
-- [ ] Show document links with signed access. *(from "Frontend Tasks" L1403)*
+- [x] Use secure upload flow. _(message attachments now use signed upload preparation and completion endpoints instead of trusting raw client URLs)_ *(from "Backend Tasks" L1395)*
+- [x] Show document links with signed access. _(message reads now return signed private access URLs for stored attachments)_ *(from "Frontend Tasks" L1403)*
 - [x] Create billing portal endpoint. _(implemented via authenticated member billing portal session API and subscription-page action)_ *(from "Backend Tasks" L1573)*
 - [x] Respect notification preferences. _(email, SMS, and push delivery already check persisted member notification preferences in the notification service)_ *(from "Backend Tasks" L1748)*
 - [ ] Add secure cookie config if cookies used. _(deferred — auth uses localStorage JWT)_ *(from "Backend Tasks" L1996)*

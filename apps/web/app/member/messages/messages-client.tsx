@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { io, type Socket } from 'socket.io-client';
-import { FileText, ImageIcon, Send, Trash2 } from 'lucide-react';
-import { messageCreateSchema } from '@vivah/shared';
+import { FileText, ImageIcon, Loader2, Paperclip, Send, Trash2, Upload } from 'lucide-react';
+import {
+  messageAttachmentSignUploadSchema,
+  messageCreateSchema,
+} from '@vivah/shared';
 import { useAuth } from '@/app/auth-context';
 import {
-  optionalNumber,
-  optionalString,
   useMemberRequest,
   validationMessage,
 } from '@/lib/member-api';
@@ -42,6 +43,27 @@ interface Message {
   createdAt: string;
 }
 
+interface SignedAttachmentUploadResponse {
+  attachment: {
+    id: string;
+    fileName?: string;
+    mimeType?: string;
+    attachmentType?: string;
+  };
+  upload: {
+    provider: 'cloudinary' | 'mock';
+    url: string;
+    fields: Record<string, string>;
+  };
+}
+
+interface PendingAttachment {
+  id: string;
+  fileName: string;
+  attachmentType: 'IMAGE' | 'DOCUMENT';
+  mimeType: string;
+}
+
 export default function MessagesClient() {
   const { token } = useAuth();
   const memberRequest = useMemberRequest();
@@ -51,6 +73,8 @@ export default function MessagesClient() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [typing, setTyping] = useState<string | null>(null);
+  const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
 
   const selectedProfileId = selected?.otherProfile?.id;
 
@@ -135,17 +159,9 @@ export default function MessagesClient() {
     }
 
     const form = new FormData(event.currentTarget);
-    const attachmentUrl = optionalString(form.get('attachmentUrl'));
-    const attachmentType = optionalString(form.get('attachmentType')) ?? 'IMAGE';
-    const fileName = optionalString(form.get('fileName'));
-    const mimeType = optionalString(form.get('mimeType'));
-    const fileSizeBytes = optionalNumber(form.get('fileSizeBytes'));
     const payload = {
-      body: optionalString(form.get('body')),
-      attachments:
-        attachmentUrl && fileName && mimeType && fileSizeBytes
-          ? [{ attachmentType, assetUrl: attachmentUrl, fileName, mimeType, fileSizeBytes }]
-          : [],
+      body: typeof form.get('body') === 'string' ? String(form.get('body')).trim() || undefined : undefined,
+      attachments: pendingAttachments.map((attachment) => ({ attachmentId: attachment.id })),
     };
     const parsed = messageCreateSchema.safeParse(payload);
 
@@ -161,9 +177,116 @@ export default function MessagesClient() {
     setMessage(result.message);
     if (result.ok) {
       event.currentTarget.reset();
+      setPendingAttachments([]);
       await loadMessages(selected.id);
       socketRef.current?.emit('message:read', { conversationId: selected.id });
     }
+  }
+
+  async function uploadAttachment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selected) {
+      return;
+    }
+
+    const form = new FormData(event.currentTarget);
+    const file = form.get('attachmentFile');
+
+    if (!(file instanceof File)) {
+      setMessage('Choose a file to attach.');
+      return;
+    }
+
+    const attachmentType =
+      file.type.startsWith('image/') ? 'IMAGE' : 'DOCUMENT';
+    const parsed = messageAttachmentSignUploadSchema.safeParse({
+      attachmentType,
+      fileName: file.name,
+      mimeType: file.type,
+      fileSizeBytes: file.size,
+    });
+
+    if (!parsed.success) {
+      setMessage(validationMessage(parsed.error.issues));
+      return;
+    }
+
+    setUploadingAttachment(true);
+    setMessage(null);
+
+    const signed = await memberRequest('/api/me/message-attachments/sign-upload', {
+      method: 'POST',
+      body: parsed.data,
+    });
+
+    if (!signed.ok) {
+      setMessage(signed.message);
+      setUploadingAttachment(false);
+      return;
+    }
+
+    const signedBody = signed.data as SignedAttachmentUploadResponse;
+    let assetUrl = `http://localhost:4000/api/mock-storage/${signedBody.upload.fields.public_id}`;
+    let storageKey = signedBody.upload.fields.public_id;
+
+    if (signedBody.upload.provider === 'cloudinary') {
+      const cloudinaryForm = new FormData();
+      Object.entries(signedBody.upload.fields).forEach(([key, value]) => {
+        cloudinaryForm.append(key, value);
+      });
+      cloudinaryForm.append('file', file);
+      const uploadResponse = await fetch(signedBody.upload.url, {
+        method: 'POST',
+        body: cloudinaryForm,
+      });
+      const uploadJson = (await uploadResponse.json()) as {
+        secure_url?: string;
+        public_id?: string;
+        message?: string;
+      };
+
+      if (!uploadResponse.ok || !uploadJson.secure_url) {
+        setMessage(uploadJson.message ?? 'Attachment upload failed.');
+        setUploadingAttachment(false);
+        return;
+      }
+
+      assetUrl = uploadJson.secure_url;
+      storageKey = uploadJson.public_id ?? storageKey;
+    }
+
+    const completed = await memberRequest('/api/me/message-attachments/complete', {
+      method: 'POST',
+      body: {
+        attachmentId: signedBody.attachment.id,
+        assetUrl,
+        storageKey,
+        bytes: file.size,
+      },
+    });
+
+    if (!completed.ok) {
+      setMessage(completed.message);
+      setUploadingAttachment(false);
+      return;
+    }
+
+    setPendingAttachments((current) => [
+      ...current,
+      {
+        id: signedBody.attachment.id,
+        fileName: file.name,
+        attachmentType,
+        mimeType: file.type,
+      },
+    ]);
+    setMessage('Attachment uploaded securely and ready to send.');
+    setUploadingAttachment(false);
+    event.currentTarget.reset();
+  }
+
+  function removePendingAttachment(id: string) {
+    setPendingAttachments((current) => current.filter((attachment) => attachment.id !== id));
   }
 
   async function deleteConversation() {
@@ -290,10 +413,8 @@ export default function MessagesClient() {
         </div>
 
         {selected ? (
-          <form
-            className="grid gap-3 border-t border-[#F0D6DA] p-4"
-            onSubmit={(event) => void sendMessage(event)}
-          >
+          <div className="grid gap-3 border-t border-[#F0D6DA] p-4">
+            <form className="grid gap-3" onSubmit={(event) => void sendMessage(event)}>
             <textarea
               name="body"
               rows={3}
@@ -306,36 +427,59 @@ export default function MessagesClient() {
               placeholder="Write a respectful message"
               className="rounded-md border border-[#E8D5D8] px-3 py-2 outline-none focus:border-[#7A1E3A] focus:ring-2 focus:ring-[#FDECEF]"
             />
-            <details className="rounded-md border border-[#F0D6DA] bg-[#FFF8F1] p-3">
-              <summary className="cursor-pointer text-sm font-semibold text-[#7A1E3A]">
-                Add attachment by URL
-              </summary>
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <Field label="URL" name="attachmentUrl" />
-                <Field label="File name" name="fileName" />
-                <Field
-                  label="MIME type"
-                  name="mimeType"
-                  placeholder="image/jpeg or application/pdf"
-                />
-                <Field label="File size bytes" name="fileSizeBytes" type="number" />
-                <label className="grid gap-1.5 text-sm font-medium text-[#232323]">
-                  Type
-                  <select
-                    name="attachmentType"
-                    className="h-10 rounded-md border border-[#E8D5D8] px-3"
+            {pendingAttachments.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {pendingAttachments.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="inline-flex items-center gap-2 rounded-md border border-[#F0D6DA] bg-[#FFF8F1] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
                   >
-                    <option value="IMAGE">Image</option>
-                    <option value="DOCUMENT">Document</option>
-                  </select>
-                </label>
+                    {attachment.attachmentType === 'DOCUMENT' ? (
+                      <FileText className="size-3.5" />
+                    ) : (
+                      <ImageIcon className="size-3.5" />
+                    )}
+                    {attachment.fileName}
+                    <button type="button" onClick={() => removePendingAttachment(attachment.id)}>
+                      Remove
+                    </button>
+                  </div>
+                ))}
               </div>
-            </details>
+            ) : null}
             <button className="inline-flex h-11 w-fit items-center gap-2 rounded-md bg-[#7A1E3A] px-5 text-sm font-semibold text-white">
               <Send className="size-4" />
               Send message
             </button>
-          </form>
+            </form>
+            <form
+              className="grid gap-3 rounded-md border border-[#F0D6DA] bg-[#FFF8F1] p-3"
+              onSubmit={(event) => void uploadAttachment(event)}
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#7A1E3A]">
+                <Paperclip className="size-4" />
+                Secure attachment upload
+              </div>
+              <input
+                name="attachmentFile"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="block w-full text-sm text-[#232323]"
+              />
+              <button
+                type="submit"
+                disabled={uploadingAttachment}
+                className="inline-flex h-10 w-fit items-center gap-2 rounded-md border border-[#F0D6DA] bg-white px-4 text-sm font-semibold text-[#7A1E3A] disabled:opacity-60"
+              >
+                {uploadingAttachment ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Upload className="size-4" />
+                )}
+                {uploadingAttachment ? 'Uploading...' : 'Upload attachment'}
+              </button>
+            </form>
+          </div>
         ) : null}
 
         {message ? (
@@ -343,24 +487,5 @@ export default function MessagesClient() {
         ) : null}
       </section>
     </div>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = 'text',
-  placeholder,
-}: Readonly<{ label: string; name: string; type?: string; placeholder?: string }>) {
-  return (
-    <label className="grid gap-1.5 text-sm font-medium text-[#232323]">
-      {label}
-      <input
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        className="h-10 rounded-md border border-[#E8D5D8] bg-white px-3 outline-none focus:border-[#7A1E3A] focus:ring-2 focus:ring-[#FDECEF]"
-      />
-    </label>
   );
 }

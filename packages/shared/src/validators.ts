@@ -474,9 +474,11 @@ export const auditLogQuerySchema = z.object({
 });
 
 export const messageAttachmentSchema = z.object({
+  attachmentId: objectIdSchema,
+});
+
+export const messageAttachmentSignUploadSchema = z.object({
   attachmentType: z.enum(['IMAGE', 'DOCUMENT']),
-  assetUrl: z.string().trim().url(),
-  storageKey: z.string().trim().min(1).max(500).optional(),
   fileName: z.string().trim().min(1).max(180),
   mimeType: z
     .string()
@@ -485,11 +487,14 @@ export const messageAttachmentSchema = z.object({
       /^(image\/(jpeg|png|webp)|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)$/,
       'Unsupported attachment type',
     ),
-  fileSizeBytes: z
-    .number()
-    .int()
-    .min(1)
-    .max(10 * 1024 * 1024),
+  fileSizeBytes: z.number().int().min(1).max(10 * 1024 * 1024),
+});
+
+export const messageAttachmentCompleteUploadSchema = z.object({
+  attachmentId: objectIdSchema,
+  assetUrl: z.string().trim().url(),
+  storageKey: z.string().trim().min(1).max(500).optional(),
+  bytes: z.number().int().min(1).max(10 * 1024 * 1024).optional(),
 });
 
 export const messageCreateSchema = z
@@ -792,6 +797,10 @@ export type MobileOtpVerifyInput = z.infer<typeof mobileOtpVerifySchema>;
 export type PushSubscriptionInput = z.infer<typeof pushSubscriptionSchema>;
 export type AuditLogQueryInput = z.infer<typeof auditLogQuerySchema>;
 export type MessageAttachmentInput = z.infer<typeof messageAttachmentSchema>;
+export type MessageAttachmentSignUploadInput = z.infer<typeof messageAttachmentSignUploadSchema>;
+export type MessageAttachmentCompleteUploadInput = z.infer<
+  typeof messageAttachmentCompleteUploadSchema
+>;
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
 export type TypingEventInput = z.infer<typeof typingEventSchema>;
 export type ConversationCreateInput = z.infer<typeof conversationCreateSchema>;

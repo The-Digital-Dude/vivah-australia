@@ -1,12 +1,19 @@
-import { conversationCreateSchema, messageCreateSchema } from '@vivah/shared';
+import {
+  conversationCreateSchema,
+  messageAttachmentCompleteUploadSchema,
+  messageAttachmentSignUploadSchema,
+  messageCreateSchema,
+} from '@vivah/shared';
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import { HttpError } from '../auth/auth-errors.js';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import {
   createOrGetConversation,
+  createSignedMessageAttachmentUpload,
   deleteConversationForUser,
   deleteMessageForUser,
+  completeMessageAttachmentUpload,
   listConversations,
   listMessages,
   markConversationRead,
@@ -31,6 +38,28 @@ function requireRequestAuth(request: AuthenticatedRequest) {
 
 export function createMessagesRouter(config: AuthConfig): Router {
   const router = Router();
+
+  router.post(
+    '/me/message-attachments/sign-upload',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const input = messageAttachmentSignUploadSchema.parse(request.body);
+      const signed = await createSignedMessageAttachmentUpload(auth.userId, input);
+      response.status(201).json(signed);
+    }),
+  );
+
+  router.post(
+    '/me/message-attachments/complete',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const input = messageAttachmentCompleteUploadSchema.parse(request.body);
+      const attachment = await completeMessageAttachmentUpload(auth.userId, input);
+      response.status(200).json({ attachment, message: 'Attachment upload completed' });
+    }),
+  );
 
   router.get(
     '/me/conversations',

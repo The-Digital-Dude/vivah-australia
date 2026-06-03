@@ -43,6 +43,43 @@ function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
 }
 
+async function createUploadedAttachment(
+  accessToken: string,
+  input: {
+    attachmentType: 'IMAGE' | 'DOCUMENT';
+    fileName: string;
+    mimeType: string;
+    fileSizeBytes: number;
+    assetUrl: string;
+    storageKey: string;
+  },
+) {
+  const signed = await request(app)
+    .post('/api/me/message-attachments/sign-upload')
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      attachmentType: input.attachmentType,
+      fileName: input.fileName,
+      mimeType: input.mimeType,
+      fileSizeBytes: input.fileSizeBytes,
+    })
+    .expect(201);
+  const attachmentId = bodyAs<{ attachment: { id: string } }>(signed).attachment.id;
+
+  const completed = await request(app)
+    .post('/api/me/message-attachments/complete')
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      attachmentId,
+      assetUrl: input.assetUrl,
+      storageKey: input.storageKey,
+      bytes: input.fileSizeBytes,
+    })
+    .expect(200);
+
+  return bodyAs<{ attachment: { id: string } }>(completed).attachment.id;
+}
+
 async function createUser(email: string) {
   const user = await UserModel.create({
     email,
@@ -206,6 +243,22 @@ describe('message routes and realtime server', () => {
 
   it('sends messages with attachments, marks read, and deletes for current user', async () => {
     const { sender, receiver, conversation } = await createAcceptedConversation();
+    const imageAttachmentId = await createUploadedAttachment(sender.accessToken, {
+      attachmentType: 'IMAGE',
+      fileName: 'photo.jpg',
+      mimeType: 'image/jpeg',
+      fileSizeBytes: 2048,
+      assetUrl: 'https://cdn.example.com/photo.jpg',
+      storageKey: 'vivah/messages/test/photo.jpg',
+    });
+    const documentAttachmentId = await createUploadedAttachment(sender.accessToken, {
+      attachmentType: 'DOCUMENT',
+      fileName: 'profile.pdf',
+      mimeType: 'application/pdf',
+      fileSizeBytes: 4096,
+      assetUrl: 'https://cdn.example.com/profile.pdf',
+      storageKey: 'vivah/messages/test/profile.pdf',
+    });
 
     const response = await request(app)
       .post(`/api/me/conversations/${conversation.id}/messages`)
@@ -213,20 +266,8 @@ describe('message routes and realtime server', () => {
       .send({
         body: 'Hello, nice to connect.',
         attachments: [
-          {
-            attachmentType: 'IMAGE',
-            assetUrl: 'https://cdn.example.com/photo.jpg',
-            fileName: 'photo.jpg',
-            mimeType: 'image/jpeg',
-            fileSizeBytes: 2048,
-          },
-          {
-            attachmentType: 'DOCUMENT',
-            assetUrl: 'https://cdn.example.com/profile.pdf',
-            fileName: 'profile.pdf',
-            mimeType: 'application/pdf',
-            fileSizeBytes: 4096,
-          },
+          { attachmentId: imageAttachmentId },
+          { attachmentId: documentAttachmentId },
         ],
       })
       .expect(201);
@@ -235,6 +276,7 @@ describe('message routes and realtime server', () => {
     );
 
     expect(body.message.attachments).toHaveLength(2);
+    expect(body.message.attachments[0]?.assetUrl).toContain('attachmentAccessToken=');
     expect(body.message.readBy).toContain(String(sender.user._id));
     expect(await MessageAttachmentModel.countDocuments({ uploadedBy: sender.user._id })).toBe(2);
 
@@ -256,6 +298,27 @@ describe('message routes and realtime server', () => {
       .set('Authorization', `Bearer ${receiver.accessToken}`)
       .expect(200);
     expect(bodyAs<{ messages: unknown[] }>(receiverMessages).messages).toHaveLength(0);
+  });
+
+  it('requires owned uploaded attachments before a message can reference them', async () => {
+    const { sender, receiver, conversation } = await createAcceptedConversation();
+    const attachmentId = await createUploadedAttachment(receiver.accessToken, {
+      attachmentType: 'IMAGE',
+      fileName: 'not-yours.jpg',
+      mimeType: 'image/jpeg',
+      fileSizeBytes: 1024,
+      assetUrl: 'https://cdn.example.com/not-yours.jpg',
+      storageKey: 'vivah/messages/test/not-yours.jpg',
+    });
+
+    await request(app)
+      .post(`/api/me/conversations/${conversation.id}/messages`)
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({
+        body: 'Trying to attach another member file.',
+        attachments: [{ attachmentId }],
+      })
+      .expect(404);
   });
 
   it('blocks messaging when either participant blocks the other', async () => {

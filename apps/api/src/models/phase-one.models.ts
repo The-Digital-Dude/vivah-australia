@@ -516,6 +516,7 @@ export interface MessageAttachment {
   attachmentType: 'IMAGE' | 'DOCUMENT';
   assetUrl: string;
   storageKey?: string;
+  uploadStatus: MediaUploadStatusType;
   fileName: string;
   mimeType: string;
   fileSizeBytes: number;
@@ -532,6 +533,13 @@ const messageAttachmentSchema = new Schema<MessageAttachment>(
     attachmentType: { type: String, enum: ['IMAGE', 'DOCUMENT'], required: true, index: true },
     assetUrl: { type: String, required: true, trim: true },
     storageKey: { type: String, trim: true },
+    uploadStatus: {
+      type: String,
+      enum: Object.values(MediaUploadStatus),
+      default: MediaUploadStatus.SIGNED,
+      required: true,
+      index: true,
+    },
     fileName: { type: String, required: true, trim: true },
     mimeType: { type: String, required: true, trim: true },
     fileSizeBytes: { type: Number, required: true, min: 1 },
