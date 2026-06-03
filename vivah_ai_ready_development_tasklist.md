@@ -2009,7 +2009,7 @@ GET /api/admin/reports/activity
 
 - [x] Create `requireAuth` middleware.
 - [x] Create `requireRole` middleware.
-- [ ] Create `requirePermission` middleware.
+- [x] Create `requirePermission` middleware.
 - [x] Apply to all admin APIs.
 - [x] Apply ownership checks to member APIs.
 
@@ -2027,7 +2027,7 @@ GET /api/admin/reports/activity
 
 - [x] Create audit log service.
 - [x] Log admin actions.
-- [ ] Log verification document access.
+- [x] Log verification document access.
 - [x] Log account status changes.
 - [x] Log payment/subscription changes.
 - [x] Log user activity events.
@@ -2042,7 +2042,7 @@ GET /api/admin/activity-logs
 #### Tests
 
 - [x] Admin action creates audit log.
-- [ ] Sensitive document view creates audit log.
+- [x] Sensitive document view creates audit log.
 
 ---
 

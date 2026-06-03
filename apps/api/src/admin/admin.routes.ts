@@ -13,7 +13,11 @@ import {
   VerificationStatus,
   verificationStatusSchema,
 } from '@vivah/shared';
-import { requireAdmin, requireAuth, requireRoles } from '../auth/auth.middleware.js';
+import {
+  AdminPermission,
+  requireAuth,
+  requirePermission,
+} from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
 import {
@@ -83,7 +87,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/dashboard/summary',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.DASHBOARD_READ),
     asyncHandler(async (_request, response) => {
       response.status(200).json(await getDashboardSummary());
     }),
@@ -92,7 +96,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/moderation/dashboard',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.DASHBOARD_READ),
     asyncHandler(async (_request, response) => {
       response.status(200).json(await getModerationDashboard());
     }),
@@ -101,7 +105,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/analytics/summary',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.ANALYTICS_READ),
     asyncHandler(async (request, response) => {
       response.status(200).json(await getAnalyticsSummary(analyticsRangeFromQuery(request.query)));
     }),
@@ -110,7 +114,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/analytics/export.csv',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.ANALYTICS_READ),
     asyncHandler(async (request, response) => {
       const csv = await getAnalyticsCsv(analyticsRangeFromQuery(request.query));
       response
@@ -124,7 +128,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/fraud/events',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.FRAUD_MANAGE),
     asyncHandler(async (_request, response) => {
       response.status(200).json(await getFraudEvents());
     }),
@@ -133,7 +137,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/fraud/events/:id',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.FRAUD_MANAGE),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const eventId = request.params.id;
@@ -151,7 +155,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/moderation/reports/:id/action',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.MODERATION_MANAGE),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const reportId = request.params.id;
@@ -175,7 +179,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/users',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.USERS_READ),
     asyncHandler(async (request, response) => {
       response.status(200).json(await listUsers(adminUserQuerySchema.parse(request.query)));
     }),
@@ -184,7 +188,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/users/:id',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.USERS_MANAGE),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const userId = request.params.id;
@@ -203,7 +207,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/users/:id',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.USERS_READ),
     asyncHandler(async (request, response) => {
       const userId = request.params.id;
       if (!userId) throw new HttpError(404, 'User not found');
@@ -214,7 +218,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/users/:id/status',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.USERS_MANAGE),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const userId = request.params.id;
@@ -233,7 +237,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/users/:id/role',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.USER_ROLES_MANAGE),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const userId = request.params.id;
@@ -252,7 +256,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/users/:id/notes',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.USERS_READ),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const userId = request.params.id;
@@ -271,7 +275,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/audit-logs',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.AUDIT_READ),
     asyncHandler(async (request, response) => {
       response.status(200).json(await listAuditLogs(auditLogQuerySchema.parse(request.query)));
     }),
@@ -280,7 +284,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/profiles',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.PROFILES_REVIEW),
     asyncHandler(async (request, response) => {
       const input = profileModerationQuerySchema.parse(request.query);
       response.status(200).json({ profiles: await listProfilesForModeration(input) });
@@ -290,7 +294,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/profiles/:id',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.PROFILES_REVIEW),
     asyncHandler(async (request, response) => {
       const profileId = request.params.id;
       if (!profileId) throw new HttpError(404, 'Profile not found');
@@ -301,7 +305,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/profiles/:id/review',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.PROFILES_REVIEW),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const input = profileModerationReviewSchema.parse(request.body);
@@ -352,7 +356,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/verifications',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.VERIFICATIONS_REVIEW),
     asyncHandler(async (request, response) => {
       const status =
         typeof request.query.status === 'string'
@@ -365,7 +369,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.post(
     '/admin/verifications/recalculate-badges',
     requireAuth(config),
-    requireRoles(['SUPER_ADMIN', 'ADMIN']),
+    requirePermission(AdminPermission.ANALYTICS_READ),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       response.status(200).json({
@@ -378,7 +382,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.patch(
     '/admin/verifications/:id/review',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.VERIFICATIONS_REVIEW),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const input = verificationReviewSchema.parse(request.body);
@@ -394,7 +398,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/verifications/:id',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.VERIFICATIONS_REVIEW),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const requestId = request.params.id;
@@ -406,7 +410,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   router.get(
     '/admin/verifications/:id/documents/:documentId/preview',
     requireAuth(config),
-    requireAdmin,
+    requirePermission(AdminPermission.VERIFICATIONS_REVIEW),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const requestId = request.params.id;

@@ -171,6 +171,28 @@ describe('admin production readiness routes', () => {
     expect(csvResponse.text).toContain('section,key,count,totalCents');
   });
 
+  it('applies permission-based admin access consistently by role', async () => {
+    const moderator = await createUser('permission-moderator@example.com', UserRole.MODERATOR);
+    const member = await createUser('permission-member@example.com');
+    await createProfile(member.user._id);
+
+    await request(app)
+      .get('/api/admin/dashboard/summary')
+      .set('Authorization', `Bearer ${moderator.accessToken}`)
+      .expect(200);
+
+    await request(app)
+      .get('/api/admin/analytics/summary')
+      .set('Authorization', `Bearer ${moderator.accessToken}`)
+      .expect(403);
+
+    await request(app)
+      .patch(`/api/admin/users/${member.user.id}/role`)
+      .set('Authorization', `Bearer ${moderator.accessToken}`)
+      .send({ role: UserRole.PREMIUM_USER })
+      .expect(403);
+  });
+
   it('manages users and writes audit logs', async () => {
     const admin = await createUser('admin-users@example.com', UserRole.ADMIN);
     const member = await createUser('target@example.com');
