@@ -45,7 +45,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [x] Search filters update query. _(Vitest coverage now proves quick filters and advanced discovery filters update the outgoing `/api/matches/search` query, including visa-status filters, in `apps/web/app/member/matches/match-discovery.test.tsx`)_ *(from "Required Tests" L2162)*
 - [ ] Interest buttons update state. *(from "Required Tests" L2163)*
 - [ ] Chat UI renders messages. *(from "Required Tests" L2164)*
-- [ ] Pricing page triggers checkout. *(from "Required Tests" L2165)*
+- [x] Pricing page triggers checkout. _(Vitest coverage now proves the pricing page opens the real upgrade modal for a paid tier and posts `/api/me/subscription/checkout` with the selected plan code in `apps/web/app/pricing/pricing-client.test.tsx`)_ *(from "Required Tests" L2165)*
 - [ ] Admin tables load and filter data. *(from "Required Tests" L2166)*
 - [ ] TEST-001 to TEST-004 *(from "Sprint 7 - Reporting, Notifications, QA, Deployment" L2333)*
 - [ ] DEVOPS-001 to DEVOPS-004 *(from "Sprint 7 - Reporting, Notifications, QA, Deployment" L2334)*

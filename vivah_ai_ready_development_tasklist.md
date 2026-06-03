@@ -2162,7 +2162,7 @@ GET /api/admin/activity-logs
 - [x] Search filters update query.
 - [ ] Interest buttons update state.
 - [ ] Chat UI renders messages.
-- [ ] Pricing page triggers checkout.
+- [x] Pricing page triggers checkout.
 - [ ] Admin tables load and filter data.
 
 ---
