@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from './auth-context';
+import CampaignBannerStrip from './components/campaign-banner-strip';
 
 export const metadata: Metadata = {
   title: 'Vivah Australia',
@@ -11,6 +12,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en-AU">
       <body>
+        <CampaignBannerStrip />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

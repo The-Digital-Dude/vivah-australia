@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
+  Tag,
   TrendingUp,
   Users,
   X,
@@ -29,6 +30,7 @@ import { FAQAccordion, PremiumButton, PublicFooter, PublicHeader } from '@/app/c
 import { Badge } from '@/app/components/ui/badge';
 import { track } from '@/lib/analytics';
 import UpgradeModal from '../member/upgrade-modal';
+import { validateCoupon } from '@/lib/public-api';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
@@ -825,6 +827,13 @@ export default function PricingClient() {
   const trustStripRef = useRef<HTMLDivElement>(null);
   const [trustStripSeen, setTrustStripSeen] = useState(false);
 
+  // Coupon state
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponPending, setCouponPending] = useState(false);
+  const [couponApplied, setCouponApplied] = useState<{ code: string; label: string; discountPercent: number } | null>(null);
+  const [couponError, setCouponError] = useState('');
+
   // Track page view
   useEffect(() => {
     track('membership_page_viewed');
@@ -1241,6 +1250,95 @@ export default function PricingClient() {
                 onSelect={() => openPaidPlan(plan)}
               />
             ))}
+          </div>
+
+          {/* Coupon Code Section */}
+          <div className="mt-6 rounded-[24px] border border-dashed border-[#A10E4D]/20 bg-[#FFF9FB] p-5">
+            <button
+              type="button"
+              onClick={() => setCouponOpen(o => !o)}
+              className="flex w-full items-center justify-between text-sm font-bold text-[#A10E4D] hover:text-[#890B40] transition"
+            >
+              <span className="flex items-center gap-2">
+                <Tag className="size-4" />
+                Have a coupon code?
+              </span>
+              <ChevronDown className={cx('size-4 transition-transform', couponOpen ? 'rotate-180' : '')} />
+            </button>
+
+            <AnimatePresence>
+              {couponOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-4 space-y-3">
+                    {couponApplied ? (
+                      <div className="flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <Check className="size-5 text-emerald-600" />
+                          <div>
+                            <p className="text-sm font-extrabold text-emerald-800">
+                              {couponApplied.discountPercent}% off applied — {couponApplied.code}
+                            </p>
+                            <p className="text-xs text-emerald-600">{couponApplied.label}</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setCouponApplied(null); setCouponInput(''); setCouponError(''); }}
+                          className="rounded-full p-1 hover:bg-emerald-100 transition"
+                          aria-label="Remove coupon"
+                        >
+                          <X className="size-4 text-emerald-600" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          value={couponInput}
+                          onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(''); }}
+                          placeholder="Enter coupon code..."
+                          className="h-11 flex-1 rounded-2xl border border-[#A10E4D]/20 bg-white px-4 font-mono text-sm font-bold uppercase tracking-widest text-neutral-800 outline-none focus:border-[#A10E4D] placeholder:normal-case placeholder:tracking-normal placeholder:text-neutral-400"
+                        />
+                        <button
+                          type="button"
+                          disabled={couponPending || !couponInput.trim()}
+                          onClick={async () => {
+                            if (!couponInput.trim()) return;
+                            setCouponPending(true);
+                            setCouponError('');
+                            const result = await validateCoupon(couponInput.trim(), effectivePlan?.code);
+                            setCouponPending(false);
+                            if (result.ok && result.data.discountPercent) {
+                              setCouponApplied({
+                                code: result.data.code ?? couponInput,
+                                label: result.data.label ?? '',
+                                discountPercent: result.data.discountPercent,
+                              });
+                              track('membership_coupon_applied', { code: couponInput });
+                            } else {
+                              setCouponError(result.data.message ?? 'Invalid coupon code.');
+                            }
+                          }}
+                          className="h-11 rounded-2xl bg-[#A10E4D] hover:bg-[#890B40] px-5 text-sm font-bold text-white disabled:opacity-50 transition"
+                        >
+                          {couponPending ? 'Checking...' : 'Apply'}
+                        </button>
+                      </div>
+                    )}
+                    {couponError && (
+                      <p className="flex items-center gap-1.5 text-xs font-semibold text-rose-600">
+                        <X className="size-3.5" />{couponError}
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Recommendation helper */}

@@ -1138,6 +1138,59 @@ const templateSchema = new Schema(
   { ...timestampedSchemaOptions, collection: 'templates' },
 );
 
+// ── Landing Page (Phase B: SEO Landing Pages) ──────────────────────────────
+
+const landingPageSchema = new Schema(
+  {
+    slug: { type: String, required: true, unique: true, trim: true, index: true },
+    title: { type: String, required: true, trim: true },
+    metaDescription: { type: String, trim: true },
+    city: { type: String, trim: true, index: true },
+    religion: { type: String, trim: true, index: true },
+    heroHeadline: { type: String, trim: true },
+    heroSubheadline: { type: String, trim: true },
+    customBody: { type: String, trim: true },
+    active: { type: Boolean, default: true, index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'landing_pages' },
+);
+
+// ── Promotion / Coupon (Phase B: Promotions & Offers) ──────────────────────
+
+const promotionSchema = new Schema(
+  {
+    code: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
+    label: { type: String, required: true, trim: true },
+    discountPercent: { type: Number, required: true, min: 1, max: 100 },
+    expiresAt: { type: Date },
+    targetPlans: [{ type: String, trim: true }],
+    maxUses: { type: Number, min: 1 },
+    usedCount: { type: Number, default: 0, min: 0 },
+    active: { type: Boolean, default: true, index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'promotions' },
+);
+
+// ── Campaign Banner (Phase B: Site-wide Announcement Strips) ───────────────
+
+const campaignBannerSchema = new Schema(
+  {
+    key: { type: String, required: true, unique: true, trim: true, index: true },
+    message: { type: String, required: true, trim: true },
+    ctaLabel: { type: String, trim: true },
+    ctaHref: { type: String, trim: true },
+    type: { type: String, enum: ['INFO', 'WARNING', 'PROMO'], default: 'INFO', index: true },
+    active: { type: Boolean, default: true, index: true },
+    startsAt: { type: Date },
+    endsAt: { type: Date },
+    segment: { type: String, enum: ['ALL', 'PREMIUM', 'FREE'], default: 'ALL', index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'campaign_banners' },
+);
+
 export interface AdminNote {
   userId: ObjectId;
   authorId: ObjectId;
@@ -1279,6 +1332,9 @@ export const SystemSettingModel = getOrCreateModel('SystemSetting', systemSettin
 export const CmsSectionModel = getOrCreateModel('CmsSection', cmsSectionSchema);
 export const FaqModel = getOrCreateModel('Faq', faqSchema);
 export const TemplateModel = getOrCreateModel('Template', templateSchema);
+export const LandingPageModel = getOrCreateModel('LandingPage', landingPageSchema);
+export const PromotionModel = getOrCreateModel('Promotion', promotionSchema);
+export const CampaignBannerModel = getOrCreateModel('CampaignBanner', campaignBannerSchema);
 export const AdminNoteModel = getOrCreateModel<AdminNote>('AdminNote', adminNoteSchema);
 export const ContactInquiryModel = getOrCreateModel<ContactInquiry>(
   'ContactInquiry',
@@ -1329,6 +1385,9 @@ export const phaseOneSchemas = {
   cmsSectionSchema,
   faqSchema,
   templateSchema,
+  landingPageSchema,
+  promotionSchema,
+  campaignBannerSchema,
   adminNoteSchema,
   contactInquirySchema,
   photoRequestSchema,
@@ -1377,6 +1436,9 @@ export const phaseOneModels = [
   CmsSectionModel,
   FaqModel,
   TemplateModel,
+  LandingPageModel,
+  PromotionModel,
+  CampaignBannerModel,
   AdminNoteModel,
   ContactInquiryModel,
   PhotoRequestModel,

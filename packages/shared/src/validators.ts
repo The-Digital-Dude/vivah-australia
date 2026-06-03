@@ -190,6 +190,55 @@ export const cmsTemplateInputSchema = z.object({
   variables: z.array(z.string().trim().min(1).max(80)).optional(),
 });
 
+export const cmsLandingPageInputSchema = z.object({
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(120)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase kebab-case'),
+  title: z.string().trim().min(2).max(160),
+  metaDescription: z.string().trim().max(320).optional(),
+  city: z.string().trim().max(80).optional(),
+  religion: z.string().trim().max(80).optional(),
+  heroHeadline: z.string().trim().max(200).optional(),
+  heroSubheadline: z.string().trim().max(500).optional(),
+  customBody: z.string().trim().max(50000).optional(),
+  active: z.boolean().default(true),
+});
+
+export const cmsPromotionInputSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase alphanumeric'),
+  label: z.string().trim().min(2).max(160),
+  discountPercent: z.number().int().min(1).max(100),
+  expiresAt: z.string().datetime().optional(),
+  targetPlans: z.array(z.string().trim()).optional(),
+  maxUses: z.number().int().min(1).optional(),
+  active: z.boolean().default(true),
+});
+
+export const cmsCampaignBannerInputSchema = z.object({
+  key: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-zA-Z0-9_-]+$/),
+  message: z.string().trim().min(2).max(500),
+  ctaLabel: z.string().trim().max(80).optional(),
+  ctaHref: z.string().trim().max(256).optional(),
+  type: z.enum(['INFO', 'WARNING', 'PROMO']).default('INFO'),
+  active: z.boolean().default(true),
+  startsAt: z.string().datetime().optional(),
+  endsAt: z.string().datetime().optional(),
+  segment: z.enum(['ALL', 'PREMIUM', 'FREE']).default('ALL'),
+});
+
 export const cmsHomeContentSchema = z.object({
   hero: z.object({
     title: z.string().trim().min(2).max(160),

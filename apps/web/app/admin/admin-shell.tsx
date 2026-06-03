@@ -28,6 +28,9 @@ import {
   ChevronRight,
   LogOut,
   Settings,
+  Tag,
+  Megaphone,
+  MapPin,
 } from 'lucide-react';
 
 interface NavItem {
@@ -75,8 +78,17 @@ const navigationGroups: NavGroup[] = [
     ],
   },
   {
+    title: 'Growth',
+    items: [
+      { label: 'Landing Pages', href: '/admin/cms/landing-pages', icon: MapPin },
+      { label: 'Promotions', href: '/admin/cms/promotions', icon: Tag },
+      { label: 'Campaigns', href: '/admin/cms/campaigns', icon: Megaphone },
+    ],
+  },
+  {
     title: 'System',
     items: [
+      { label: 'Settings', href: '/admin/settings', icon: Settings },
       { label: 'Audit Logs', href: '/admin/audit-logs', icon: History },
     ],
   },

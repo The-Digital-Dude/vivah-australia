@@ -11,6 +11,9 @@ import {
   cmsSectionInputSchema,
   cmsFaqInputSchema,
   cmsTemplateInputSchema,
+  cmsLandingPageInputSchema,
+  cmsPromotionInputSchema,
+  cmsCampaignBannerInputSchema,
   contactInquirySchema,
   UserRole,
 } from '@vivah/shared';
@@ -34,6 +37,9 @@ import {
   CmsSectionModel,
   FaqModel,
   TemplateModel,
+  LandingPageModel,
+  PromotionModel,
+  CampaignBannerModel,
 } from '../models/index.js';
 
 const PUBLIC_PROFILE_LIMIT = 6;
@@ -1075,6 +1081,348 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         metadata: { key: setting.key },
       });
       response.status(200).json({ setting });
+    }),
+  );
+
+  // ── PHASE B: LANDING PAGES (public) ──────────────────────────────────────
+
+  router.get(
+    '/public/matrimony/:slug',
+    asyncHandler(async (request, response) => {
+      const page = await LandingPageModel.findOne({
+        slug: request.params.slug,
+        active: true,
+        isDeleted: false,
+      }).lean();
+
+      if (!page) {
+        throw new HttpError(404, 'Landing page not found');
+      }
+
+      // Fetch matching profiles filtered by city/religion
+      const profileFilter: Record<string, unknown> = {
+        isDeleted: false,
+        'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+        'visibility.status': { $ne: 'HIDDEN' },
+      };
+
+      if ((page as { city?: string }).city) {
+        profileFilter['location.city'] = { $regex: `^${(page as { city?: string }).city}$`, $options: 'i' };
+      }
+
+      if ((page as { religion?: string }).religion) {
+        profileFilter['religion.religion'] = { $regex: `^${(page as { religion?: string }).religion}$`, $options: 'i' };
+      }
+
+      const profiles = await ProfileModel.find(profileFilter)
+        .sort({ 'stats.lastActiveAt': -1, updatedAt: -1 })
+        .limit(6)
+        .select('displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level')
+        .lean();
+
+      response.status(200).json({ page, profiles });
+    }),
+  );
+
+  // ── PHASE B: PROMOTIONS (public validate) ────────────────────────────────
+
+  router.post(
+    '/public/promotions/validate',
+    contactRateLimit,
+    asyncHandler(async (request, response) => {
+      const { code, planCode } = request.body as { code?: string; planCode?: string };
+
+      if (!code || typeof code !== 'string') {
+        throw new HttpError(400, 'Coupon code is required');
+      }
+
+      const promo = await PromotionModel.findOne({
+        code: code.toUpperCase().trim(),
+        active: true,
+        isDeleted: false,
+      }).lean();
+
+      if (!promo) {
+        throw new HttpError(404, 'Coupon code not found or inactive');
+      }
+
+      const typed = promo as unknown as {
+        expiresAt?: Date;
+        maxUses?: number;
+        usedCount: number;
+        targetPlans?: string[];
+        discountPercent: number;
+        code: string;
+        label: string;
+      };
+
+      if (typed.expiresAt && new Date(typed.expiresAt) < new Date()) {
+        throw new HttpError(410, 'Coupon code has expired');
+      }
+
+      if (typed.maxUses && typed.usedCount >= typed.maxUses) {
+        throw new HttpError(410, 'Coupon code has reached its usage limit');
+      }
+
+      if (planCode && typed.targetPlans && typed.targetPlans.length > 0) {
+        if (!typed.targetPlans.includes(planCode)) {
+          throw new HttpError(422, 'Coupon is not valid for this plan');
+        }
+      }
+
+      response.status(200).json({
+        valid: true,
+        code: typed.code,
+        label: typed.label,
+        discountPercent: typed.discountPercent,
+      });
+    }),
+  );
+
+  // ── PHASE B: CAMPAIGN BANNERS (public) ───────────────────────────────────
+
+  router.get(
+    '/public/banners',
+    asyncHandler(async (_request, response) => {
+      const now = new Date();
+      const banners = await CampaignBannerModel.find({
+        active: true,
+        isDeleted: false,
+        $or: [{ startsAt: { $exists: false } }, { startsAt: { $lte: now } }],
+        $and: [{ $or: [{ endsAt: { $exists: false } }, { endsAt: { $gte: now } }] }],
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      response.status(200).json({ banners });
+    }),
+  );
+
+  // ── PHASE B: ADMIN LANDING PAGES CRUD ────────────────────────────────────
+
+  router.get(
+    '/admin/cms/landing-pages',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const pages = await LandingPageModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .lean();
+      response.status(200).json({ pages });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/landing-pages',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsLandingPageInputSchema.parse(request.body);
+      const page = await LandingPageModel.create(input);
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_LANDING_PAGE_CREATED',
+        targetType: 'LandingPage',
+        targetId: page._id,
+        metadata: { slug: page.slug },
+      });
+      response.status(201).json({ page });
+    }),
+  );
+
+  router.put(
+    '/admin/cms/landing-pages/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsLandingPageInputSchema.parse(request.body);
+      const page = await LandingPageModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+      if (!page) throw new HttpError(404, 'Landing page not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_LANDING_PAGE_UPDATED',
+        targetType: 'LandingPage',
+        targetId: page._id,
+        metadata: { slug: page.slug },
+      });
+      response.status(200).json({ page });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/landing-pages/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const page = await LandingPageModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+      if (!page) throw new HttpError(404, 'Landing page not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_LANDING_PAGE_DELETED',
+        targetType: 'LandingPage',
+        targetId: page._id,
+        metadata: { slug: page.slug },
+      });
+      response.status(204).send();
+    }),
+  );
+
+  // ── PHASE B: ADMIN PROMOTIONS CRUD ───────────────────────────────────────
+
+  router.get(
+    '/admin/cms/promotions',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const promotions = await PromotionModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .lean();
+      response.status(200).json({ promotions });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/promotions',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsPromotionInputSchema.parse(request.body);
+      const promotion = await PromotionModel.create(input);
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_PROMOTION_CREATED',
+        targetType: 'Promotion',
+        targetId: promotion._id,
+        metadata: { code: promotion.code },
+      });
+      response.status(201).json({ promotion });
+    }),
+  );
+
+  router.put(
+    '/admin/cms/promotions/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsPromotionInputSchema.parse(request.body);
+      const promotion = await PromotionModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+      if (!promotion) throw new HttpError(404, 'Promotion not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_PROMOTION_UPDATED',
+        targetType: 'Promotion',
+        targetId: promotion._id,
+        metadata: { code: promotion.code },
+      });
+      response.status(200).json({ promotion });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/promotions/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const promotion = await PromotionModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+      if (!promotion) throw new HttpError(404, 'Promotion not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_PROMOTION_DELETED',
+        targetType: 'Promotion',
+        targetId: promotion._id,
+        metadata: { code: promotion.code },
+      });
+      response.status(204).send();
+    }),
+  );
+
+  // ── PHASE B: ADMIN CAMPAIGN BANNERS CRUD ─────────────────────────────────
+
+  router.get(
+    '/admin/cms/campaign-banners',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const banners = await CampaignBannerModel.find({ isDeleted: false })
+        .sort({ updatedAt: -1 })
+        .lean();
+      response.status(200).json({ banners });
+    }),
+  );
+
+  router.post(
+    '/admin/cms/campaign-banners',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsCampaignBannerInputSchema.parse(request.body);
+      const banner = await CampaignBannerModel.create(input);
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_CAMPAIGN_BANNER_CREATED',
+        targetType: 'CampaignBanner',
+        targetId: banner._id,
+        metadata: { key: banner.key },
+      });
+      response.status(201).json({ banner });
+    }),
+  );
+
+  router.put(
+    '/admin/cms/campaign-banners/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const input = cmsCampaignBannerInputSchema.parse(request.body);
+      const banner = await CampaignBannerModel.findByIdAndUpdate(request.params.id, input, {
+        returnDocument: 'after',
+        runValidators: true,
+      });
+      if (!banner) throw new HttpError(404, 'Campaign banner not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_CAMPAIGN_BANNER_UPDATED',
+        targetType: 'CampaignBanner',
+        targetId: banner._id,
+        metadata: { key: banner.key },
+      });
+      response.status(200).json({ banner });
+    }),
+  );
+
+  router.delete(
+    '/admin/cms/campaign-banners/:id',
+    requireAuth(authConfig),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdminRole(request);
+      const banner = await CampaignBannerModel.findByIdAndUpdate(
+        request.params.id,
+        { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
+        { returnDocument: 'after' },
+      );
+      if (!banner) throw new HttpError(404, 'Campaign banner not found');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_CAMPAIGN_BANNER_DELETED',
+        targetType: 'CampaignBanner',
+        targetId: banner._id,
+        metadata: { key: banner.key },
+      });
+      response.status(204).send();
     }),
   );
 

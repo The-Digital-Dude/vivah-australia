@@ -168,3 +168,58 @@ export async function submitContactInquiry(body: Record<string, unknown>) {
     message: data.message ?? (response.ok ? 'Message sent.' : 'Unable to send message.'),
   };
 }
+
+// ── Phase B helpers ────────────────────────────────────────────────────────
+
+export interface LandingPageData {
+  slug: string;
+  title: string;
+  metaDescription?: string;
+  city?: string;
+  religion?: string;
+  heroHeadline?: string;
+  heroSubheadline?: string;
+  customBody?: string;
+  active: boolean;
+}
+
+export async function getLandingPage(slug: string) {
+  return getJson<{ page: LandingPageData | null; profiles: FeaturedProfile[] }>(
+    `/api/public/matrimony/${slug}`,
+    { page: null, profiles: [] },
+  );
+}
+
+export async function validateCoupon(code: string, planCode?: string) {
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/public/promotions/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, planCode }),
+    });
+    const data = (await response.json()) as {
+      valid?: boolean;
+      code?: string;
+      label?: string;
+      discountPercent?: number;
+      message?: string;
+    };
+    return { ok: response.ok, data };
+  } catch {
+    return { ok: false, data: { message: 'Unable to validate coupon.' } };
+  }
+}
+
+export interface CampaignBannerData {
+  _id: string;
+  key: string;
+  message: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  type: 'INFO' | 'WARNING' | 'PROMO';
+  segment: 'ALL' | 'PREMIUM' | 'FREE';
+}
+
+export async function getCampaignBanners() {
+  return getJson<{ banners: CampaignBannerData[] }>('/api/public/banners', { banners: [] });
+}
