@@ -178,13 +178,29 @@ export default function MediaManager() {
   return (
     <div className="grid gap-8">
       <form
-        className="grid gap-4 rounded-md border border-[#7A1E3A]/10 bg-[#FFF8F1] p-5"
+        className="grid gap-5 rounded-[32px] border border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFF9F5_0%,#FFFFFF_100%)] p-6 shadow-[0_18px_45px_rgba(122,31,43,0.06)]"
         onSubmit={(event) => void upload(event)}
       >
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+            Photo manager
+          </p>
+          <h2 className="mt-3 font-playfair text-3xl font-semibold text-[#2F2F2F]">
+            Curate the images members remember
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6B7280]">
+            Upload public, private, and profile photos while keeping approval status, primary
+            images, and visibility choices easy to manage.
+          </p>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-3">
           <label className="grid gap-2 text-sm font-semibold text-[#232323]">
             Gallery
-            <select name="category" className="h-11 rounded-md border border-[#7A1E3A]/20 px-3">
+            <select
+              name="category"
+              className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 outline-none focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
+            >
               <option value="PROFILE_PHOTO">Profile photo</option>
               <option value="PUBLIC_GALLERY">Public gallery</option>
               <option value="PRIVATE_GALLERY">Private gallery</option>
@@ -192,7 +208,10 @@ export default function MediaManager() {
           </label>
           <label className="grid gap-2 text-sm font-semibold text-[#232323]">
             Visibility
-            <select name="visibility" className="h-11 rounded-md border border-[#7A1E3A]/20 px-3">
+            <select
+              name="visibility"
+              className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 outline-none focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
+            >
               <option value="PUBLIC">Public</option>
               <option value="MATCHES_ONLY">Matches only</option>
               <option value="PRIVATE">Private</option>
@@ -205,16 +224,33 @@ export default function MediaManager() {
               type="file"
               accept="image/jpeg,image/png,image/webp"
               required
-              className="h-11 rounded-md border border-[#7A1E3A]/20 bg-white px-3 py-2 text-sm"
+              className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 py-3 text-sm"
             />
           </label>
         </div>
-        <p className="text-sm text-[#5E6470]">
-          JPEG, PNG, or WebP only. Maximum size is 10MB. Uploads require admin approval before
-          public display.
-        </p>
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="rounded-[26px] border-2 border-dashed border-[#A10E4D]/14 bg-white/80 p-5">
+            <p className="text-sm font-semibold text-[#2F2F2F]">Upload guidance</p>
+            <ul className="mt-3 grid gap-2 text-sm leading-6 text-[#6B7280]">
+              <li>Use bright, recent solo photos for your main profile image.</li>
+              <li>Keep private images for deeper trust once a conversation becomes serious.</li>
+              <li>Uploads still require moderation approval before they become publicly visible.</li>
+            </ul>
+          </div>
+          <div className="rounded-[26px] border border-[#D4A04C]/20 bg-[#FFF8EC] p-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#B7832E]">
+              Visibility note
+            </p>
+            <p className="mt-3 text-sm leading-6 text-[#6B7280]">
+              Public images improve discovery, private images support trust after interest is
+              exchanged, and your primary photo becomes the first impression used across the app.
+            </p>
+          </div>
+        </div>
+
         <button
-          className="h-11 rounded-md bg-[#7A1E3A] px-5 text-sm font-bold text-white disabled:opacity-60"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#A10E4D] px-5 text-sm font-bold text-white shadow-[0_18px_35px_rgba(161,14,77,0.18)] disabled:opacity-60 sm:w-auto"
           disabled={pending}
         >
           {pending ? 'Preparing upload...' : 'Upload for review'}
@@ -222,16 +258,18 @@ export default function MediaManager() {
       </form>
 
       {message ? (
-        <p className="rounded-md bg-[#FDECEF] p-3 text-sm text-[#7A1E3A]">{message}</p>
+        <p className="rounded-[24px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4 text-sm text-[#7A1E3A]">
+          {message}
+        </p>
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         {media.map((item) => (
           <article
             key={item.id}
-            className="rounded-md border border-neutral-200 bg-white p-4 shadow-sm"
+            className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_18px_45px_rgba(122,31,43,0.05)]"
           >
-            <div className="aspect-[4/3] overflow-hidden rounded-md bg-neutral-100">
+            <div className="aspect-[4/3] overflow-hidden rounded-[22px] bg-neutral-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={item.assetUrl}
@@ -240,31 +278,33 @@ export default function MediaManager() {
               />
             </div>
             <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wide">
-              <span className="rounded-md bg-[#FFF8F1] px-2 py-1 text-[#7A1E3A]">
+              <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-[#7A1E3A]">
                 {item.category}
               </span>
-              <span className="rounded-md bg-neutral-100 px-2 py-1 text-neutral-600">
+              <span className="rounded-full bg-neutral-100 px-3 py-1 text-neutral-600">
                 {item.visibility}
               </span>
-              <span className="rounded-md bg-neutral-100 px-2 py-1 text-neutral-600">
+              <span className="rounded-full bg-neutral-100 px-3 py-1 text-neutral-600">
                 {item.approvalStatus}
               </span>
               {item.isPrimary ? (
-                <span className="rounded-md bg-[#D6A84F]/20 px-2 py-1 text-[#7A1E3A]">Primary</span>
+                <span className="rounded-full bg-[#FFF1D2] px-3 py-1 text-[#7A1E3A]">Primary</span>
               ) : null}
             </div>
             {item.moderationReason ? (
-              <p className="mt-3 text-sm text-red-700">{item.moderationReason}</p>
+              <p className="mt-3 rounded-[18px] bg-red-50 px-3 py-2 text-sm text-red-700">
+                {item.moderationReason}
+              </p>
             ) : null}
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
               <button
-                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-semibold"
+                className="rounded-2xl border border-[#A10E4D]/15 px-3 py-2.5 text-sm font-semibold text-[#2F2F2F]"
                 onClick={() => void updateMedia(item, item.visibility, true)}
               >
                 Make primary
               </button>
               <button
-                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-semibold"
+                className="rounded-2xl border border-[#A10E4D]/15 px-3 py-2.5 text-sm font-semibold text-[#2F2F2F]"
                 onClick={() =>
                   void updateMedia(
                     item,
@@ -276,7 +316,7 @@ export default function MediaManager() {
                 Toggle privacy
               </button>
               <button
-                className="rounded-md bg-[#7A1E3A] px-3 py-2 text-sm font-semibold text-white"
+                className="rounded-2xl bg-[#A10E4D] px-3 py-2.5 text-sm font-semibold text-white"
                 onClick={() => void getAccess(item)}
               >
                 Signed access

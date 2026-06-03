@@ -1,13 +1,14 @@
-import MemberShell from '../member-shell';
+import ProfileManagementShell from '../profile-management-shell';
 import MediaManager from './media-manager';
 
 export default function MemberMediaPage() {
   return (
-    <MemberShell
-      title="Media gallery"
-      subtitle="Upload profile photos, manage public and private galleries, and track approval status."
+    <ProfileManagementShell
+      title="Photo manager"
+      subtitle="Curate the images that introduce you first, while keeping visibility and moderation status easy to understand."
+      active="media"
     >
       <MediaManager />
-    </MemberShell>
+    </ProfileManagementShell>
   );
 }
