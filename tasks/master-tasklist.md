@@ -23,7 +23,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Oversized videos rejected. *(from "Tests" L904)*
 - [ ] Unapproved videos hidden from profile view. *(from "Tests" L905)*
 - [ ] Existing conversation becomes inaccessible or read-only. *(from "Tests" L1266)*
-- [ ] Expired subscription removes entitlements. *(from "Tests" L1561)*
+- [x] Expired subscription removes entitlements. _(covered by billing route tests that verify expired plans no longer allow paid boosts)_ *(from "Tests" L1561)*
 - [ ] Auth services *(from "Required Coverage" L2128)*
 - [ ] OTP service *(from "Required Coverage" L2129)*
 - [ ] Token service *(from "Required Coverage" L2130)*

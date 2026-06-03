@@ -356,6 +356,40 @@ describe('billing routes and webhooks', () => {
     expect(await ProfileBoostModel.countDocuments({ userId: user.user._id })).toBe(1);
   });
 
+  it('removes paid entitlements when a subscription is expired', async () => {
+    const user = await createUser('expired-entitlement@example.com');
+    await createProfile(user.user._id);
+    const plan = await PlanModel.create({
+      code: 'EXPIRED_GOLD',
+      name: 'Expired Gold',
+      priceCents: 9900,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: [],
+      limits: { profileBoostsMonthly: 2 },
+      active: true,
+    });
+
+    await SubscriptionModel.create({
+      userId: user.user._id,
+      planId: plan._id,
+      status: SubscriptionStatus.EXPIRED,
+      startsAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
+      endsAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      currentPeriodEnd: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      provider: 'stripe',
+      cancelAtPeriodEnd: false,
+    });
+
+    await request(app)
+      .post('/api/me/boosts')
+      .set('Authorization', `Bearer ${user.accessToken}`)
+      .send({ durationHours: 24 })
+      .expect(403);
+
+    expect(await ProfileBoostModel.countDocuments({ userId: user.user._id })).toBe(0);
+  });
+
   it('enforces production safety guardrails when NODE_ENV is production', async () => {
     const { env } = await import('../env.js');
     const originalNodeEnv = env.NODE_ENV;
