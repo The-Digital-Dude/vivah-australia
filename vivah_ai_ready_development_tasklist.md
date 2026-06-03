@@ -2163,7 +2163,7 @@ GET /api/admin/activity-logs
 - [x] Interest buttons update state.
 - [x] Chat UI renders messages.
 - [x] Pricing page triggers checkout.
-- [ ] Admin tables load and filter data.
+- [x] Admin tables load and filter data.
 
 ---
 

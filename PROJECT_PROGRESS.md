@@ -104,12 +104,15 @@ The following modules do not yet have full business-feature implementations in t
 
 - AUTH-003 Social Login
 - MEDIA-002 Video Introduction Upload
-- TEST-003 Frontend Tests (started: Vitest + Testing Library are now set up in `apps/web`, with auth-form coverage, profile-wizard save coverage, match-discovery filter coverage, pricing checkout coverage, member action-state coverage, and chat rendering coverage in place; broader UI coverage is still pending)
 - TEST-004 Broader E2E Matrix
 - DEVOPS-001 Environment Setup beyond local examples
 - DEVOPS-002 Full CI/CD Deployment Pipeline
 - DEVOPS-003 Logging and Monitoring
 - DEVOPS-004 Backups and File Storage Safety
+
+## Recently Completed Modules
+
+- TEST-003 Frontend Tests: Vitest + Testing Library are now set up in `apps/web`, with verified coverage for auth forms, profile wizard saves, discovery filters, membership checkout trigger, member action states, chat rendering, and admin user table loading/filtering.
 
 ## Known Gaps In Implemented Areas
 

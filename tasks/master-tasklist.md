@@ -46,7 +46,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [x] Interest buttons update state. _(Vitest coverage now proves member interest/save actions enter pending states, call the correct endpoints, and show success feedback in `apps/web/app/member/profile-actions.test.tsx`)_ *(from "Required Tests" L2163)*
 - [x] Chat UI renders messages. _(Vitest coverage now proves the member chat UI loads the selected conversation, renders message bodies and attachments, and shows the empty-conversation state in `apps/web/app/member/messages/messages-client.test.tsx`)_ *(from "Required Tests" L2164)*
 - [x] Pricing page triggers checkout. _(Vitest coverage now proves the pricing page opens the real upgrade modal for a paid tier and posts `/api/me/subscription/checkout` with the selected plan code in `apps/web/app/pricing/pricing-client.test.tsx`)_ *(from "Required Tests" L2165)*
-- [ ] Admin tables load and filter data. *(from "Required Tests" L2166)*
+- [x] Admin tables load and filter data. _(Vitest coverage now proves the admin users table loads initial rows and applies server-backed search/role/status/verification filters in `apps/web/app/admin/users/page.test.tsx`)_ *(from "Required Tests" L2166)*
 - [ ] TEST-001 to TEST-004 *(from "Sprint 7 - Reporting, Notifications, QA, Deployment" L2333)*
 - [ ] DEVOPS-001 to DEVOPS-004 *(from "Sprint 7 - Reporting, Notifications, QA, Deployment" L2334)*
 - [ ] E2E tests pass _(Playwright smoke coverage exists, but the full scenario matrix is still pending)_ *(from "QA and Deployment" L2543)*
