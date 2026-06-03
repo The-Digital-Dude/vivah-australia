@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Ban, Flag, Heart, Send, X } from 'lucide-react';
+import { AlertTriangle, Ban, CheckCircle2, Flag, Heart, Send, ShieldAlert, X } from 'lucide-react';
 import { reportCreateSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 
@@ -12,20 +12,28 @@ export default function ProfileActions({
   onProfileHidden,
 }: Readonly<{ profileId: string; compact?: boolean; onProfileHidden?: () => void }>) {
   const memberRequest = useMemberRequest();
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' } | null>(
+    null,
+  );
   const [reportOpen, setReportOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!feedback) return;
+    const timeout = window.setTimeout(() => setFeedback(null), 3200);
+    return () => window.clearTimeout(timeout);
+  }, [feedback]);
+
   async function action(label: string, path: string, body?: Record<string, unknown>) {
     setPending(label);
-    setMessage(null);
+    setFeedback(null);
     const result = await memberRequest(path, {
       method: 'POST',
       ...(body ? { body } : {}),
     });
     setPending(null);
-    setMessage(result.message);
+    setFeedback({ message: result.message, tone: result.ok ? 'success' : 'error' });
     return result.ok;
   }
 
@@ -45,7 +53,7 @@ export default function ProfileActions({
     });
 
     if (!parsed.success) {
-      setMessage(validationMessage(parsed.error.issues));
+      setFeedback({ message: validationMessage(parsed.error.issues), tone: 'error' });
       return;
     }
 
@@ -64,34 +72,67 @@ export default function ProfileActions({
 
   return (
     <div className="grid gap-2">
-      <div className={compact ? 'flex flex-wrap gap-2' : 'grid grid-cols-2 gap-2'}>
-        <ActionButton
-          label={pending === 'interest' ? 'Sending' : 'Interest'}
-          icon={<Send className="size-3.5" />}
-          onClick={() => void action('interest', '/api/interests', { profileId })}
-        />
-        <ActionButton
-          label={pending === 'favourite' ? 'Saving' : 'Save'}
-          icon={<Heart className="size-3.5" />}
-          onClick={() => void action('favourite', '/api/me/favourites', { profileId })}
-        />
-        <ActionButton
-          label="Report"
-          icon={<Flag className="size-3.5" />}
-          onClick={() => setReportOpen(true)}
-        />
-        <ActionButton
-          label="Block"
-          icon={<Ban className="size-3.5" />}
-          onClick={() => setBlockOpen(true)}
-        />
-        <ActionButton
-          label={pending === 'hide' ? 'Hiding' : 'Ignore'}
-          icon={<X className="size-3.5" />}
-          onClick={() => void hide()}
-        />
+      <div className="grid gap-2">
+        <div className={compact ? 'flex flex-wrap gap-2' : 'grid grid-cols-2 gap-2'}>
+          <ActionButton
+            label={pending === 'interest' ? 'Sending' : 'Interest'}
+            icon={<Send className="size-3.5" />}
+            onClick={() => void action('interest', '/api/interests', { profileId })}
+          />
+          <ActionButton
+            label={pending === 'favourite' ? 'Saving' : 'Save'}
+            icon={<Heart className="size-3.5" />}
+            onClick={() => void action('favourite', '/api/me/favourites', { profileId })}
+          />
+          <ActionButton
+            label={pending === 'hide' ? 'Hiding' : 'Ignore'}
+            icon={<X className="size-3.5" />}
+            onClick={() => void hide()}
+          />
+        </div>
+
+        <div className="rounded-2xl border border-[#D4AF37]/25 bg-[#FFF8EC] px-3 py-2">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8B6714]">
+              Safety options
+            </p>
+            <ShieldAlert className="size-4 text-[#8B6714]" />
+          </div>
+          <div className={compact ? 'mt-2 flex flex-wrap gap-2' : 'mt-2 grid grid-cols-2 gap-2'}>
+            <ActionButton
+              label="Report issue"
+              icon={<Flag className="size-3.5" />}
+              onClick={() => setReportOpen(true)}
+              variant="safety"
+            />
+            <ActionButton
+              label="Block member"
+              icon={<Ban className="size-3.5" />}
+              onClick={() => setBlockOpen(true)}
+              variant="safety"
+            />
+          </div>
+        </div>
       </div>
-      {message ? <p className="text-xs font-medium text-[#7A1E3A]">{message}</p> : null}
+      {feedback ? (
+        <div
+          className={`fixed inset-x-4 bottom-24 z-40 mx-auto w-full max-w-sm rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl md:inset-x-auto md:right-6 md:bottom-6 ${
+            feedback.tone === 'success'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'border-[#F0D6DA] bg-white text-[#7A1E3A]'
+          }`}
+          style={{ bottom: 'calc(env(safe-area-inset-bottom) + 6rem)' }}
+        >
+          <div className="flex items-start gap-3">
+            {feedback.tone === 'success' ? (
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+            ) : (
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            )}
+            <span>{feedback.message}</span>
+          </div>
+        </div>
+      ) : null}
       {reportOpen ? (
         <ReportModal
           onClose={() => setReportOpen(false)}
@@ -115,12 +156,22 @@ function ActionButton({
   label,
   icon,
   onClick,
-}: Readonly<{ label: string; icon: ReactNode; onClick: () => void }>) {
+  variant = 'default',
+}: Readonly<{
+  label: string;
+  icon: ReactNode;
+  onClick: () => void;
+  variant?: 'default' | 'safety';
+}>) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#F0D6DA] bg-white px-3 text-xs font-semibold text-[#7A1E3A] transition hover:bg-[#FFF8F1]"
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition ${
+        variant === 'safety'
+          ? 'border-[#D4AF37]/35 bg-white text-[#7A1E3A] hover:bg-[#FFF4D9]'
+          : 'border-[#F0D6DA] bg-white text-[#7A1E3A] hover:bg-[#FFF8F1]'
+      }`}
     >
       {icon}
       {label}
