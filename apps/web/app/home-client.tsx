@@ -229,7 +229,7 @@ export default function HomeClient({
       <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(212,160,76,0.18),_transparent_26%),radial-gradient(circle_at_top_right,_rgba(231,76,124,0.12),_transparent_22%),linear-gradient(180deg,#fffaf7_0%,#fff6f0_100%)] pt-28 pb-24">
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(161,14,77,0.02)_100%)]" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-[0.96fr_1.04fr]">
+          <div className="grid items-center gap-10 lg:grid-cols-[0.96fr_1.04fr] pb-12 lg:pb-20">
             <div className="max-w-2xl">
               <div className="mb-4 inline-flex rounded-full border border-[#D4A04C]/30 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#A10E4D]">
                 Premium Australian Matrimony

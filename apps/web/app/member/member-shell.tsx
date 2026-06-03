@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
@@ -180,15 +181,15 @@ function DesktopRail({
   return (
     <aside className="sticky top-0 flex h-screen flex-col border-r border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFFCFA_0%,#FFF7F1_100%)] px-5 py-6">
       <Link href="/" className="flex items-center gap-3 px-2">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#A10E4D_0%,#D43D72_100%)] text-xl font-bold text-white shadow-[0_18px_35px_rgba(161,14,77,0.22)]">
-          V
-        </div>
-        <div>
-          <p className="font-playfair text-2xl font-bold text-[#A10E4D]">Vivah</p>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7D746D]">
-            Australia
-          </p>
-        </div>
+        <Image
+          src="/logo.png"
+          alt="Vivah Australia Logo"
+          width={150}
+          height={60}
+          className="w-auto object-contain"
+          style={{ width: 'auto', height: '48px' }}
+          priority
+        />
       </Link>
 
       <nav className="mt-8 flex-1 space-y-7 overflow-y-auto pr-1">
