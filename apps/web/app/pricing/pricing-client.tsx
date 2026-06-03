@@ -1006,7 +1006,7 @@ export default function PricingClient() {
         <div className="pointer-events-none absolute -left-32 -top-32 size-80 rounded-full bg-[#D4A04C]/8 blur-3xl" />
         <div className="pointer-events-none absolute -right-32 top-0 size-96 rounded-full bg-[#A10E4D]/6 blur-3xl" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.3fr_0.7fr] lg:items-center lg:px-8 lg:py-24">
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-24">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1067,7 +1067,7 @@ export default function PricingClient() {
             </div>
           </motion.div>
 
-          {/* Hero side card */}
+          {/* Hero visual cluster */}
           <motion.div
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
@@ -1076,26 +1076,87 @@ export default function PricingClient() {
           >
             <LossAversionBanner viewCount={12} />
 
-            <div className="rounded-[32px] border border-[#D4A04C]/30 bg-white/90 p-6 shadow-[0_24px_60px_rgba(122,31,43,0.12)] backdrop-blur">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4A04C]">
-                Why members upgrade
-              </p>
-              <div className="mt-5 grid gap-4">
-                {[
-                  { icon: MessageCircle, title: 'Connect directly with verified members', body: 'Not just browse — actually reach out and get responses.' },
-                  { icon: TrendingUp, title: 'Reach more compatible matches', body: 'Advanced filters find who is right for you, not just nearby.' },
-                  { icon: Star, title: 'Get noticed by serious members', body: 'Priority discovery puts you in front of the most engaged profiles.' },
-                ].map((item) => (
-                  <div key={item.title} className="flex items-start gap-3 rounded-2xl border border-[#A10E4D]/8 bg-[#FFF9F5] p-4">
-                    <div className="mt-0.5 grid size-8 place-items-center rounded-full bg-[#A10E4D]/10 text-[#A10E4D]">
-                      <item.icon className="size-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-[#2F2F2F]">{item.title}</p>
-                      <p className="mt-1 text-xs leading-5 text-[#6B7280]">{item.body}</p>
+            <div className="relative overflow-hidden rounded-[34px] border border-[#D4A04C]/25 bg-[linear-gradient(135deg,#FFF7F2_0%,#FFF1F4_48%,#FFF8EC_100%)] p-4 shadow-[0_24px_60px_rgba(122,31,43,0.14)]">
+              <div className="grid gap-4 md:grid-cols-[1.08fr_0.92fr]">
+                <div className="relative min-h-[340px] overflow-hidden rounded-[28px] bg-[#F8E8DE]">
+                  <Image
+                    src="/success-stories/couple-melbourne.jpg"
+                    alt="Vivah Australia premium couple membership experience"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 420px"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(47,47,47,0.04)_0%,rgba(47,47,47,0.34)_100%)]" />
+                  <div className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1.5 text-xs font-semibold text-[#A10E4D] shadow-sm">
+                    Best value for serious members
+                  </div>
+                  <div className="absolute inset-x-4 bottom-4 rounded-[22px] border border-white/30 bg-white/16 p-4 text-white backdrop-blur-md">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/80">
+                      Premium confidence
+                    </p>
+                    <p className="mt-2 font-playfair text-2xl font-semibold leading-tight">
+                      Better visibility, safer conversations, and more serious introductions
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-4">
+                  <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white/92 p-5 backdrop-blur">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4A04C]">
+                      Why members upgrade
+                    </p>
+                    <div className="mt-4 grid gap-3">
+                      {[
+                        { icon: MessageCircle, title: 'Connect directly with verified members', body: 'Move from browsing to real conversations with people ready to engage.' },
+                        { icon: TrendingUp, title: 'Reach more compatible matches', body: 'Use sharper filters and stronger discovery placement to save time.' },
+                        { icon: Star, title: 'Get noticed faster', body: 'Priority discovery keeps your profile visible during high-intent browsing windows.' },
+                      ].map((item) => (
+                        <div key={item.title} className="flex items-start gap-3 rounded-2xl bg-[#FFF9F5] p-4">
+                          <div className="mt-0.5 grid size-8 place-items-center rounded-full bg-[#A10E4D]/10 text-[#A10E4D]">
+                            <item.icon className="size-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-[#2F2F2F]">{item.title}</p>
+                            <p className="mt-1 text-xs leading-5 text-[#6B7280]">{item.body}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+
+                  <div className="rounded-[28px] border border-[#D4A04C]/20 bg-white/92 p-5 backdrop-blur">
+                    <div className="flex items-center gap-3">
+                      <div className="grid size-11 place-items-center rounded-full bg-[#FFF8EC] text-[#D4A04C]">
+                        <ShieldCheck className="size-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#2F2F2F]">Trusted by serious members across Australia</p>
+                        <p className="mt-1 text-xs text-[#6B7280]">Secure billing, privacy-first controls, and verified profile signals.</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex -space-x-2">
+                      {[
+                        '/success-stories/couple-sydney.jpg',
+                        '/success-stories/couple-melbourne.jpg',
+                        '/success-stories/couple-brisbane.jpg',
+                      ].map((src, index) => (
+                        <div key={src} className="relative size-11 overflow-hidden rounded-full border-2 border-white shadow-sm">
+                          <Image
+                            src={src}
+                            alt={`Vivah Australia member couple ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            sizes="44px"
+                          />
+                        </div>
+                      ))}
+                      <div className="flex size-11 items-center justify-center rounded-full border-2 border-white bg-[#FFF0F3] text-xs font-bold text-[#A10E4D] shadow-sm">
+                        +50k
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -1604,6 +1665,56 @@ export default function PricingClient() {
                       <p className="text-2xl font-extrabold text-white">{stat.value}</p>
                       <p className="text-sm text-white/65">{stat.label}</p>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        <motion.section {...fadeInUp}>
+          <div className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-8">
+            <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+              <div>
+                <Badge variant="outline" className="mb-3">
+                  Secure payments
+                </Badge>
+                <h2 className="font-playfair text-3xl font-bold text-[#A10E4D] sm:text-4xl">
+                  Checkout that feels as trustworthy as the platform
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5E6470]">
+                  Membership payments stay encrypted through Stripe, your privacy controls remain yours,
+                  and our Australian support team is here if you need help before or after upgrade.
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {PAYMENT_METHODS.map((method) => (
+                    <div
+                      key={method}
+                      className="rounded-2xl border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3 text-sm font-semibold text-[#2F2F2F]"
+                    >
+                      {method}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { icon: ShieldCheck, title: '30-day confidence', body: 'Refund requests are reviewed under our published policy.' },
+                  { icon: Lock, title: 'Encrypted checkout', body: 'Card handling stays inside Stripe’s secure environment.' },
+                  { icon: Users, title: 'Trusted by members', body: 'Serious members choose Vivah for safer, more respectful introductions.' },
+                  { icon: Phone, title: 'Australian support', body: 'A local team can help with billing or membership questions.' },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-[24px] border border-[#D4A04C]/18 bg-[linear-gradient(180deg,#FFFDF9_0%,#FFF8EC_100%)] p-4"
+                  >
+                    <div className="grid size-10 place-items-center rounded-full bg-white text-[#A10E4D] shadow-sm">
+                      <item.icon className="size-4" />
+                    </div>
+                    <p className="mt-4 text-sm font-bold text-[#2F2F2F]">{item.title}</p>
+                    <p className="mt-1 text-xs leading-5 text-[#6B7280]">{item.body}</p>
                   </div>
                 ))}
               </div>
