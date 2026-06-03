@@ -299,6 +299,8 @@ const TRUST_INDICATORS = [
   { icon: Phone, label: 'Australian Support', sub: 'Local team, real humans' },
 ] as const;
 
+const PAYMENT_METHODS = ['Visa', 'Mastercard', 'Amex', 'Apple Pay', 'Google Pay', 'PayPal'] as const;
+
 const OUTCOME_BENEFITS = [
   {
     icon: <MessageCircle className="size-6" />,

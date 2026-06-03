@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
@@ -151,15 +152,20 @@ export default function AdminShell({
     <div className="flex h-full flex-col justify-between bg-[#1F1F2E] text-white">
       <div className="space-y-6 py-4">
         {/* Branding header */}
-        <div className="flex h-16 items-center px-6 border-b border-white/5">
-          <Link href="/admin/dashboard" className="flex items-center gap-2.5 font-bold text-white tracking-wider">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#A10E4D] to-[#E74C7C] font-extrabold shadow-lg text-white">
-              V
-            </span>
-            <div className="flex flex-col">
-              <span className="text-sm font-extrabold tracking-widest text-neutral-100">VIVAH</span>
-              <span className="text-[10px] font-bold text-[#D4A04C] tracking-[0.25em]">OPERATIONS</span>
+        <div className="flex h-20 items-center px-6 border-b border-white/5 bg-[#181824]/50">
+          <Link href="/admin/dashboard" className="flex items-center gap-2">
+            <div className="bg-white/95 rounded-xl px-3.5 py-1.5 shadow-md flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Vivah Australia Logo"
+                width={120}
+                height={40}
+                className="w-auto object-contain animate-fade-in"
+                style={{ width: 'auto', height: '36px' }}
+                priority
+              />
             </div>
+            <span className="text-[10px] font-bold text-[#D4A04C] tracking-[0.2em] uppercase pl-1.5 shrink-0">OPS</span>
           </Link>
         </div>
 
