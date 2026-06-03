@@ -226,7 +226,7 @@ export default function MemberVerificationPage() {
                   <PremiumButton
                     onClick={() => router.push('/member/onboarding')}
                     variant="gold"
-                    className="shadow-md shadow-[#D4AF37]/20"
+                    className="shadow-md shadow-[#D4A04C]/20"
                   >
                     Proceed to Profile Onboarding
                   </PremiumButton>
@@ -235,12 +235,12 @@ export default function MemberVerificationPage() {
             </PremiumCard>
           ) : (
             <PremiumCard className="p-6">
-              <div className="flex items-center gap-3 border-b border-[#7A1F2B]/10 pb-4 mb-6">
-                <div className="size-10 rounded-full bg-[#F8E8E8] flex items-center justify-center text-[#7A1F2B] border border-[#7A1F2B]/10 shrink-0">
+              <div className="flex items-center gap-3 border-b border-[#A10E4D]/10 pb-4 mb-6">
+                <div className="size-10 rounded-full bg-[#FFF0F3] flex items-center justify-center text-[#A10E4D] border border-[#A10E4D]/10 shrink-0">
                   <Smartphone className="size-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-[#1A1A1A]">
+                  <h2 className="text-lg font-semibold text-[#2F2F2F]">
                     Verify Mobile Number via OTP
                   </h2>
                   <p className="text-xs text-[#6B7280]">
@@ -251,7 +251,7 @@ export default function MemberVerificationPage() {
 
               {otpStep === 'request' ? (
                 <form onSubmit={(event) => void requestOtp(event)} className="grid gap-4">
-                  <div className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+                  <div className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                     Enter Australian Mobile Number
                     <div className="relative mt-1">
                       <input
@@ -259,13 +259,13 @@ export default function MemberVerificationPage() {
                         type="tel"
                         required
                         placeholder="+61412345678"
-                        className="h-12 w-full rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                        className="h-12 w-full rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                       />
                     </div>
                   </div>
 
                   {otpMessage && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-[#7A1F2B]">
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-[#A10E4D]">
                       {otpMessage}
                     </div>
                   )}
@@ -278,10 +278,10 @@ export default function MemberVerificationPage() {
                 <form onSubmit={(event) => void verifyOtp(event)} className="grid gap-4">
                   <div className="grid gap-2">
                     <p className="text-xs font-semibold text-[#6B7280]">
-                      Verification code sent to <strong className="text-[#1A1A1A]">{mobileNumber}</strong>.
+                      Verification code sent to <strong className="text-[#2F2F2F]">{mobileNumber}</strong>.
                     </p>
                   </div>
-                  <div className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+                  <div className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                     6-Digit Verification Code
                     <input
                       name="code"
@@ -289,16 +289,16 @@ export default function MemberVerificationPage() {
                       required
                       placeholder="123456"
                       maxLength={6}
-                      className="h-12 w-full rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-center tracking-widest text-lg font-bold outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                      className="h-12 w-full rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-center tracking-widest text-lg font-bold outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                     />
                   </div>
 
-                  <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-3 border border-amber-200/50 text-[#7A1F2B] text-xs">
+                  <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-3 border border-amber-200/50 text-[#A10E4D] text-xs">
                     <span>💡 <strong>Sandbox Tip:</strong> Enter <strong>123456</strong> to automatically verify.</span>
                   </div>
 
                   {otpMessage && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-[#7A1F2B]">
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-[#A10E4D]">
                       {otpMessage}
                     </div>
                   )}
@@ -310,7 +310,7 @@ export default function MemberVerificationPage() {
                         setOtpStep('request');
                         setOtpMessage(null);
                       }}
-                      className="inline-flex min-h-11 flex-1 items-center justify-center rounded-2xl border border-[#7A1F2B]/20 bg-white text-sm font-semibold text-[#7A1F2B] hover:bg-[#F8E8E8] transition"
+                      className="inline-flex min-h-11 flex-1 items-center justify-center rounded-2xl border border-[#A10E4D]/20 bg-white text-sm font-semibold text-[#A10E4D] hover:bg-[#FFF0F3] transition"
                     >
                       Back
                     </button>
@@ -325,10 +325,10 @@ export default function MemberVerificationPage() {
 
           {/* ─── Document Submission Form ────────────────────────────────────── */}
           <PremiumCard className="p-6">
-            <div className="flex items-center gap-3 border-b border-[#7A1F2B]/10 pb-4 mb-6">
-              <ShieldCheck className="size-6 text-[#7A1F2B]" />
+            <div className="flex items-center gap-3 border-b border-[#A10E4D]/10 pb-4 mb-6">
+              <ShieldCheck className="size-6 text-[#A10E4D]" />
               <div>
-                <h2 className="text-lg font-semibold text-[#1A1A1A]">
+                <h2 className="text-lg font-semibold text-[#2F2F2F]">
                   Submit Verification Documents
                 </h2>
                 <p className="text-xs text-[#6B7280]">
@@ -339,11 +339,11 @@ export default function MemberVerificationPage() {
 
             <form onSubmit={(event) => void submit(event)} className="grid gap-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+                <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                   Verification Type
                   <select
                     name="type"
-                    className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                    className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                   >
                     {verificationTypes.map((t) => (
                       <option key={t.value} value={t.value}>
@@ -353,27 +353,27 @@ export default function MemberVerificationPage() {
                   </select>
                 </label>
 
-                <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+                <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                   Document Title
                   <input
                     name="documentType"
                     placeholder="e.g. Passport, Australian Visa Card"
                     required
-                    className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                    className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                   />
                 </label>
               </div>
 
               {/* Secure simulated uploader dropzone */}
-              <div className="relative rounded-3xl border-2 border-dashed border-[#7A1F2B]/15 bg-[#FCFAF7]/20 p-6 text-center hover:bg-[#F8E8E8]/10 transition duration-200">
+              <div className="relative rounded-3xl border-2 border-dashed border-[#A10E4D]/15 bg-[#FFF9F5]/20 p-6 text-center hover:bg-[#FFF0F3]/10 transition duration-200">
                 <input
                   type="file"
                   accept="image/*,application/pdf"
                   onChange={handleSimulatedFile}
                   className="absolute inset-0 cursor-pointer opacity-0"
                 />
-                <Upload className="mx-auto size-8 text-[#7A1F2B]/60" />
-                <h3 className="mt-3 text-sm font-bold text-[#1A1A1A]">
+                <Upload className="mx-auto size-8 text-[#A10E4D]/60" />
+                <h3 className="mt-3 text-sm font-bold text-[#2F2F2F]">
                   {fileName ? `Selected: ${fileName}` : 'Choose file or drag here'}
                 </h3>
                 <p className="mt-1.5 text-xs text-[#6B7280]">Supports PDF, PNG, JPG up to 10MB.</p>
@@ -384,8 +384,8 @@ export default function MemberVerificationPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-4 border border-amber-200/50 text-[#7A1F2B] text-xs">
-                <Lock className="size-4 text-[#7A1F2B]/70 shrink-0" />
+              <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-4 border border-amber-200/50 text-[#A10E4D] text-xs">
+                <Lock className="size-4 text-[#A10E4D]/70 shrink-0" />
                 <p className="leading-5">
                   <strong>Secure Upload Notice:</strong> Your documents are fully isolated in
                   high-security, encrypted AWS S3 buckets. Verification is executed manually by
@@ -399,7 +399,7 @@ export default function MemberVerificationPage() {
                     'rounded-2xl border p-4 text-sm font-semibold',
                     isSuccess
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                      : 'border-red-200 bg-red-50 text-[#7A1F2B]',
+                      : 'border-red-200 bg-red-50 text-[#A10E4D]',
                   )}
                 >
                   {message}
@@ -414,7 +414,7 @@ export default function MemberVerificationPage() {
 
           {/* ─── Verification Requests History ────────────────────────────────── */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-[#1A1A1A]">Your Verification History</h2>
+            <h2 className="text-xl font-bold text-[#2F2F2F]">Your Verification History</h2>
             {requests.length === 0 ? (
               <PremiumCard className="p-6 text-center border-dashed text-[#6B7280]">
                 <FileText className="mx-auto size-7 text-[#6B7280]/40 mb-2" />
@@ -463,7 +463,7 @@ export default function MemberVerificationPage() {
                       <div className="mt-0.5 shrink-0">{statusInfo.icon}</div>
                       <div className="min-w-0 flex-1 grid gap-1.5">
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                          <h3 className="font-semibold text-sm text-[#1A1A1A]">
+                          <h3 className="font-semibold text-sm text-[#2F2F2F]">
                             {r.type.replaceAll('_', ' ')} Verified
                           </h3>
                           <span
@@ -478,7 +478,7 @@ export default function MemberVerificationPage() {
                         {r.documentType && (
                           <p className="text-xs font-medium text-[#6B7280]">
                             Attached Document:{' '}
-                            <span className="text-[#1A1A1A]">{r.documentType}</span>
+                            <span className="text-[#2F2F2F]">{r.documentType}</span>
                           </p>
                         )}
                         <p className="text-xs leading-5 text-[#6B7280]">{statusInfo.desc}</p>
@@ -501,7 +501,7 @@ export default function MemberVerificationPage() {
         <aside className="space-y-6">
           <PremiumCard className="p-6 space-y-5">
             <div>
-              <h2 className="text-lg font-semibold text-[#1A1A1A]">Trust Badge Ladder</h2>
+              <h2 className="text-lg font-semibold text-[#2F2F2F]">Trust Badge Ladder</h2>
               <p className="text-xs text-[#6B7280] mt-1">
                 Matrimonial accounts unlock higher trust and match scores with badge progression.
               </p>
@@ -511,7 +511,7 @@ export default function MemberVerificationPage() {
               <div className="flex gap-4 items-start p-4 rounded-2xl bg-amber-50/30 border border-amber-200/40">
                 <VerificationBadge level="BASIC" />
                 <div className="min-w-0">
-                  <h3 className="text-xs font-bold text-[#1A1A1A]">Basic Level</h3>
+                  <h3 className="text-xs font-bold text-[#2F2F2F]">Basic Level</h3>
                   <p className="text-[11px] text-[#6B7280] mt-1 leading-4">
                     Unlocked by verifying **Email & Mobile OTP**. Grants access to discover profiles
                     and request match interests.
@@ -522,7 +522,7 @@ export default function MemberVerificationPage() {
               <div className="flex gap-4 items-start p-4 rounded-2xl bg-slate-50 border border-slate-200/40">
                 <VerificationBadge level="SILVER" />
                 <div className="min-w-0">
-                  <h3 className="text-xs font-bold text-[#1A1A1A]">Silver Level</h3>
+                  <h3 className="text-xs font-bold text-[#2F2F2F]">Silver Level</h3>
                   <p className="text-[11px] text-[#6B7280] mt-1 leading-4">
                     Unlocked by verifying **Identity & Address**. Grants visual search
                     prioritization and direct interest approvals.
@@ -533,7 +533,7 @@ export default function MemberVerificationPage() {
               <div className="flex gap-4 items-start p-4 rounded-2xl bg-yellow-50/30 border border-yellow-200/40">
                 <VerificationBadge level="GOLD" />
                 <div className="min-w-0">
-                  <h3 className="text-xs font-bold text-[#1A1A1A]">Gold Level</h3>
+                  <h3 className="text-xs font-bold text-[#2F2F2F]">Gold Level</h3>
                   <p className="text-[11px] text-[#6B7280] mt-1 leading-4">
                     Unlocked by verifying **Employment & Visa Status**. Adds a golden badge, unlocks
                     custom video intros, and increases matches visibility.
@@ -544,7 +544,7 @@ export default function MemberVerificationPage() {
               <div className="flex gap-4 items-start p-4 rounded-2xl bg-indigo-50/20 border border-indigo-200/30">
                 <VerificationBadge level="PLATINUM" />
                 <div className="min-w-0">
-                  <h3 className="text-xs font-bold text-[#1A1A1A]">Platinum Level</h3>
+                  <h3 className="text-xs font-bold text-[#2F2F2F]">Platinum Level</h3>
                   <p className="text-[11px] text-[#6B7280] mt-1 leading-4">
                     Unlocked by submitting a clean **Police Clearance Certificate** and **Facial
                     Selfie matching**. Grants top priority matching.
@@ -552,10 +552,10 @@ export default function MemberVerificationPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4 items-start p-4 rounded-2xl bg-[#7A1F2B]/5 border border-[#7A1F2B]/10">
+              <div className="flex gap-4 items-start p-4 rounded-2xl bg-[#A10E4D]/5 border border-[#A10E4D]/10">
                 <VerificationBadge level="FULLY_VERIFIED" />
                 <div className="min-w-0">
-                  <h3 className="text-xs font-bold text-[#1A1A1A]">Fully Verified</h3>
+                  <h3 className="text-xs font-bold text-[#2F2F2F]">Fully Verified</h3>
                   <p className="text-[11px] text-[#6B7280] mt-1 leading-4">
                     All 5 trust levels fully verified. Matrimonial Crown displayed, with a 35%
                     higher search algorithm boost.

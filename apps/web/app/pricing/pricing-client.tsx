@@ -437,7 +437,7 @@ function getRecommendedTier(answers: RecommendationAnswers): Exclude<TierKey, 'F
 
 function renderBooleanCell(value: boolean, highlight = false) {
   return value ? (
-    <Check className={cx('mx-auto size-4', highlight ? 'text-[#7A1F2B]' : 'text-emerald-600')} />
+    <Check className={cx('mx-auto size-4', highlight ? 'text-[#A10E4D]' : 'text-emerald-600')} />
   ) : (
     <X className="mx-auto size-4 text-[#B8B0A6]" />
   );
@@ -591,18 +591,18 @@ export default function PricingClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F]">
       <PublicHeader />
 
-      <section className="relative overflow-hidden border-b border-[#7A1F2B]/10 bg-[#FCFAF7]">
+      <section className="relative overflow-hidden border-b border-[#A10E4D]/10 bg-[#FFF9F5]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(212,175,55,0.16),transparent_34%),radial-gradient(circle_at_top_right,rgba(122,31,43,0.12),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.7),rgba(252,250,247,0.96))]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:px-8 lg:py-24">
           <div className="max-w-3xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/40 bg-white/80 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-[#7A1F2B] shadow-sm">
-              <Sparkles className="size-3.5 text-[#D4AF37]" />
+            <p className="inline-flex items-center gap-2 rounded-full border border-[#D4A04C]/40 bg-white/80 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-[#A10E4D] shadow-sm">
+              <Sparkles className="size-3.5 text-[#D4A04C]" />
               Premium Matchmaking Access
             </p>
-            <h1 className="mt-6 text-4xl font-serif font-bold leading-tight text-[#7A1F2B] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-6 text-4xl font-serif font-bold leading-tight text-[#A10E4D] sm:text-5xl lg:text-6xl">
               Upgrade your search with verified contact access and priority visibility
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-[#5E6470] sm:text-lg">
@@ -633,9 +633,9 @@ export default function PricingClient() {
               ].map(({ label, icon: Icon }) => (
                 <div
                   key={label}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#7A1F2B]/10 bg-white/90 px-4 py-2 text-sm font-semibold text-[#7A1F2B] shadow-sm"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#A10E4D]/10 bg-white/90 px-4 py-2 text-sm font-semibold text-[#A10E4D] shadow-sm"
                 >
-                  <Icon className="size-4 text-[#D4AF37]" />
+                  <Icon className="size-4 text-[#D4A04C]" />
                   {label}
                 </div>
               ))}
@@ -643,8 +643,8 @@ export default function PricingClient() {
           </div>
 
           <div className="grid gap-4">
-            <div className="rounded-[32px] border border-[#D4AF37]/30 bg-white/90 p-6 shadow-[0_24px_60px_rgba(122,31,43,0.12)] backdrop-blur">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4AF37]">
+            <div className="rounded-[32px] border border-[#D4A04C]/30 bg-white/90 p-6 shadow-[0_24px_60px_rgba(122,31,43,0.12)] backdrop-blur">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4A04C]">
                 Why members upgrade
               </p>
               <div className="mt-5 grid gap-4">
@@ -664,14 +664,14 @@ export default function PricingClient() {
                 ].map((item) => (
                   <div
                     key={item.title}
-                    className="rounded-2xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4"
+                    className="rounded-2xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="mt-0.5 rounded-full bg-[#7A1F2B] p-1.5 text-white">
+                      <div className="mt-0.5 rounded-full bg-[#A10E4D] p-1.5 text-white">
                         <Check className="size-3.5" />
                       </div>
                       <div>
-                        <h2 className="text-sm font-bold text-[#1A1A1A]">{item.title}</h2>
+                        <h2 className="text-sm font-bold text-[#2F2F2F]">{item.title}</h2>
                         <p className="mt-1 text-sm leading-6 text-[#6B7280]">{item.body}</p>
                       </div>
                     </div>
@@ -686,7 +686,7 @@ export default function PricingClient() {
       <main className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-16 pb-32 sm:px-6 lg:px-8">
         <section
           id="membership-benefits"
-          className="grid gap-4 rounded-[32px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] md:grid-cols-3"
+          className="grid gap-4 rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] md:grid-cols-3"
         >
           {[
             {
@@ -702,23 +702,23 @@ export default function PricingClient() {
               body: 'Use premium access to reduce friction once mutual interest starts to build.',
             },
           ].map((item) => (
-            <article key={item.title} className="rounded-3xl bg-[#FCFAF7] p-5">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+            <article key={item.title} className="rounded-3xl bg-[#FFF9F5] p-5">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                 Benefit
               </p>
-              <h2 className="mt-3 text-xl font-semibold text-[#7A1F2B]">{item.title}</h2>
+              <h2 className="mt-3 text-xl font-semibold text-[#A10E4D]">{item.title}</h2>
               <p className="mt-3 text-sm leading-7 text-[#5E6470]">{item.body}</p>
             </article>
           ))}
         </section>
 
-        <section className="rounded-[32px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+        <section className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                 Help me choose
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#7A1F2B] sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-semibold text-[#A10E4D] sm:text-3xl">
                 Get a recommendation based on how you want to search
               </h2>
               <p className="mt-2 text-sm leading-7 text-[#5E6470]">
@@ -727,9 +727,9 @@ export default function PricingClient() {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-[#D4AF37]/30 bg-[#FFF9EC] px-5 py-4 text-sm text-[#7A1F2B] shadow-sm lg:max-w-sm">
-              <p className="font-bold uppercase tracking-[0.16em] text-[#D4AF37]">Recommended now</p>
-              <p className="mt-2 text-xl font-semibold text-[#7A1F2B]">
+            <div className="rounded-3xl border border-[#D4A04C]/30 bg-[#FFF9EC] px-5 py-4 text-sm text-[#A10E4D] shadow-sm lg:max-w-sm">
+              <p className="font-bold uppercase tracking-[0.16em] text-[#D4A04C]">Recommended now</p>
+              <p className="mt-2 text-xl font-semibold text-[#A10E4D]">
                 {TIER_CONTENT[recommendedTier].displayName}
               </p>
               <p className="mt-2 leading-6 text-[#6B7280]">
@@ -738,7 +738,7 @@ export default function PricingClient() {
               <button
                 type="button"
                 onClick={highlightRecommendedPlan}
-                className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#7A1F2B] hover:text-[#5F1621]"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#A10E4D] hover:text-[#5F1621]"
               >
                 Highlight this plan
                 <ArrowRight className="size-4" />
@@ -748,8 +748,8 @@ export default function PricingClient() {
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             {RECOMMENDATION_QUESTIONS.map((question) => (
-              <div key={question.key} className="rounded-3xl bg-[#FCFAF7] p-5">
-                <p className="text-sm font-semibold text-[#1A1A1A]">{question.prompt}</p>
+              <div key={question.key} className="rounded-3xl bg-[#FFF9F5] p-5">
+                <p className="text-sm font-semibold text-[#2F2F2F]">{question.prompt}</p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   {question.options.map((option) => {
                     const currentValue = recommendationAnswers[question.key];
@@ -767,8 +767,8 @@ export default function PricingClient() {
                         className={cx(
                           'rounded-full border px-4 py-2 text-sm font-semibold transition duration-200',
                           isSelected
-                            ? 'border-[#7A1F2B] bg-[#7A1F2B] text-white shadow-sm'
-                            : 'border-[#7A1F2B]/10 bg-white text-[#7A1F2B] hover:bg-[#FFF7EA]',
+                            ? 'border-[#A10E4D] bg-[#A10E4D] text-white shadow-sm'
+                            : 'border-[#A10E4D]/10 bg-white text-[#A10E4D] hover:bg-[#FFF7EA]',
                         )}
                       >
                         {option.label}
@@ -783,14 +783,14 @@ export default function PricingClient() {
 
         <section
           id="membership-plans"
-          className="rounded-[32px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]"
+          className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]"
         >
-          <div className="flex flex-col gap-5 border-b border-[#7A1F2B]/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-5 border-b border-[#A10E4D]/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                 Billing duration
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#7A1F2B] sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-semibold text-[#A10E4D] sm:text-3xl">
                 Choose the membership cadence that fits your search
               </h2>
               <p className="mt-2 text-sm leading-7 text-[#5E6470]">
@@ -800,7 +800,7 @@ export default function PricingClient() {
             </div>
 
             <div
-              className="inline-grid gap-3 rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-2 md:grid-cols-3"
+              className="inline-grid gap-3 rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-2 md:grid-cols-3"
               role="radiogroup"
               aria-label="Billing duration"
             >
@@ -814,10 +814,10 @@ export default function PricingClient() {
                     aria-checked={isSelected}
                     onClick={() => setSelectedBilling(option.value)}
                     className={cx(
-                      'min-w-[150px] rounded-3xl px-4 py-3 text-left transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#7A1F2B]/30',
+                      'min-w-[150px] rounded-3xl px-4 py-3 text-left transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#A10E4D]/30',
                       isSelected
-                        ? 'bg-[#7A1F2B] text-white shadow-[0_16px_40px_rgba(122,31,43,0.22)]'
-                        : 'bg-white text-[#7A1F2B] hover:bg-[#FFF7EA]',
+                        ? 'bg-[#A10E4D] text-white shadow-[0_16px_40px_rgba(122,31,43,0.22)]'
+                        : 'bg-white text-[#A10E4D] hover:bg-[#FFF7EA]',
                     )}
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -827,8 +827,8 @@ export default function PricingClient() {
                           className={cx(
                             'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em]',
                             isSelected
-                              ? 'bg-[#D4AF37] text-[#1A1A1A]'
-                              : 'bg-[#FFF2CD] text-[#7A1F2B]',
+                              ? 'bg-[#D4A04C] text-[#2F2F2F]'
+                              : 'bg-[#FFF2CD] text-[#A10E4D]',
                           )}
                         >
                           {option.badge}
@@ -856,23 +856,23 @@ export default function PricingClient() {
                   className={cx(
                     'relative flex min-h-[560px] flex-col justify-between rounded-[30px] border p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] transition duration-300 hover:-translate-y-1',
                     isRecommended || isSelected
-                      ? 'border-[#D4AF37] bg-[linear-gradient(180deg,#fffdf7_0%,#fff8ec_100%)] shadow-[0_22px_60px_rgba(212,175,55,0.16)]'
-                      : 'border-[#7A1F2B]/10 bg-white',
+                      ? 'border-[#D4A04C] bg-[linear-gradient(180deg,#fffdf7_0%,#fff8ec_100%)] shadow-[0_22px_60px_rgba(212,175,55,0.16)]'
+                      : 'border-[#A10E4D]/10 bg-white',
                     isUnavailable && 'bg-[#FFFCF5]',
                   )}
                 >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-[#F8E8E8] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+                      <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
                         {plan.billingLabel}
                       </span>
                       {plan.savingsLabel && !isFree ? (
-                        <span className="rounded-full bg-[#FFF2CD] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+                        <span className="rounded-full bg-[#FFF2CD] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
                           {plan.savingsLabel}
                         </span>
                       ) : null}
                       {isRecommended ? (
-                        <span className="rounded-full bg-[#7A1F2B] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                        <span className="rounded-full bg-[#A10E4D] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
                           Recommended
                         </span>
                       ) : null}
@@ -880,24 +880,24 @@ export default function PricingClient() {
 
                     <div className="mt-5 flex items-start justify-between gap-4">
                       <div>
-                        <h2 className="text-2xl font-bold text-[#1A1A1A]">{plan.tierName}</h2>
-                        <p className="mt-2 text-sm font-semibold text-[#7A1F2B]">
+                        <h2 className="text-2xl font-bold text-[#2F2F2F]">{plan.tierName}</h2>
+                        <p className="mt-2 text-sm font-semibold text-[#A10E4D]">
                           {plan.positioning}
                         </p>
                       </div>
                       {!isFree ? (
-                        <div className="rounded-full bg-[#FFF2CD] p-2.5 text-[#D4AF37]">
+                        <div className="rounded-full bg-[#FFF2CD] p-2.5 text-[#D4A04C]">
                           <Crown className="size-5" />
                         </div>
                       ) : (
-                        <div className="rounded-full bg-[#F3EEE7] p-2.5 text-[#7A1F2B]">
+                        <div className="rounded-full bg-[#F3EEE7] p-2.5 text-[#A10E4D]">
                           <Sparkles className="size-5" />
                         </div>
                       )}
                     </div>
 
                     <div className="mt-6 flex items-baseline gap-2">
-                      <span className="text-4xl font-extrabold text-[#1A1A1A] sm:text-5xl">
+                      <span className="text-4xl font-extrabold text-[#2F2F2F] sm:text-5xl">
                         {displayPrice}
                       </span>
                       {!isUnavailable ? (
@@ -908,7 +908,7 @@ export default function PricingClient() {
                     </div>
 
                     {isUnavailable && plan.availabilityNote ? (
-                      <p className="mt-4 rounded-2xl border border-[#D4AF37]/30 bg-[#FFF7EA] px-4 py-3 text-xs font-semibold leading-5 text-[#7A1F2B]">
+                      <p className="mt-4 rounded-2xl border border-[#D4A04C]/30 bg-[#FFF7EA] px-4 py-3 text-xs font-semibold leading-5 text-[#A10E4D]">
                         {plan.availabilityNote}
                       </p>
                     ) : null}
@@ -953,22 +953,22 @@ export default function PricingClient() {
 
         <section
           id="membership-comparison"
-          className="rounded-[32px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]"
+          className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]"
         >
           <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
               Compare benefits
             </p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#7A1F2B] sm:text-3xl">
+            <h2 className="mt-2 text-2xl font-semibold text-[#A10E4D] sm:text-3xl">
               See how each plan supports a more intentional search
             </h2>
           </div>
 
-          <div className="mt-8 hidden overflow-hidden rounded-[28px] border border-[#7A1F2B]/10 lg:block">
+          <div className="mt-8 hidden overflow-hidden rounded-[28px] border border-[#A10E4D]/10 lg:block">
             <table className="min-w-full border-collapse">
-              <thead className="bg-[#FCFAF7]">
+              <thead className="bg-[#FFF9F5]">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-[#7A1F2B]">Feature</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-[#A10E4D]">Feature</th>
                   {displayPlans.map((plan) => {
                     const isRecommended = plan.tierKey === recommendedTier;
                     return (
@@ -976,13 +976,13 @@ export default function PricingClient() {
                         key={`heading-${plan.tierKey}`}
                         className={cx(
                           'px-4 py-4 text-center text-sm font-bold',
-                          isRecommended ? 'bg-[#FFF7EA] text-[#7A1F2B]' : 'text-[#1A1A1A]',
+                          isRecommended ? 'bg-[#FFF7EA] text-[#A10E4D]' : 'text-[#2F2F2F]',
                         )}
                       >
                         <div className="flex flex-col items-center gap-1">
                           <span>{plan.tierName}</span>
                           {isRecommended ? (
-                            <span className="rounded-full bg-[#7A1F2B] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white">
+                            <span className="rounded-full bg-[#A10E4D] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white">
                               Recommended
                             </span>
                           ) : null}
@@ -998,10 +998,10 @@ export default function PricingClient() {
                     key={row.key}
                     className={cx(
                       rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#FFFCF8]',
-                      'border-t border-[#7A1F2B]/8',
+                      'border-t border-[#A10E4D]/8',
                     )}
                   >
-                    <td className="px-6 py-4 text-sm font-semibold text-[#1A1A1A]">{row.label}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-[#2F2F2F]">{row.label}</td>
                     {displayPlans.map((plan) => {
                       const value = plan.comparison[row.key];
                       const isRecommended = plan.tierKey === recommendedTier;
@@ -1031,23 +1031,23 @@ export default function PricingClient() {
               return (
                 <div
                   key={row.key}
-                  className="overflow-hidden rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7]"
+                  className="overflow-hidden rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5]"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenComparisonRow(isOpen ? 'monthlyInterests' : row.key)}
                     className="flex w-full items-center justify-between px-5 py-4 text-left"
                   >
-                    <span className="text-sm font-semibold text-[#1A1A1A]">{row.label}</span>
+                    <span className="text-sm font-semibold text-[#2F2F2F]">{row.label}</span>
                     <ChevronDown
                       className={cx(
-                        'size-4 text-[#7A1F2B] transition-transform duration-200',
+                        'size-4 text-[#A10E4D] transition-transform duration-200',
                         isOpen && 'rotate-180',
                       )}
                     />
                   </button>
                   {isOpen ? (
-                    <div className="border-t border-[#7A1F2B]/10 bg-white px-5 py-4">
+                    <div className="border-t border-[#A10E4D]/10 bg-white px-5 py-4">
                       <div className="space-y-3">
                         {displayPlans.map((plan) => {
                           const value = plan.comparison[row.key];
@@ -1057,15 +1057,15 @@ export default function PricingClient() {
                               key={`${row.key}-${plan.tierKey}-mobile`}
                               className={cx(
                                 'flex items-center justify-between rounded-2xl px-4 py-3',
-                                isRecommended ? 'bg-[#FFF7EA]' : 'bg-[#FCFAF7]',
+                                isRecommended ? 'bg-[#FFF7EA]' : 'bg-[#FFF9F5]',
                               )}
                             >
                               <div>
-                                <p className="text-sm font-semibold text-[#1A1A1A]">
+                                <p className="text-sm font-semibold text-[#2F2F2F]">
                                   {plan.tierName}
                                 </p>
                                 {isRecommended ? (
-                                  <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+                                  <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
                                     Recommended
                                   </p>
                                 ) : null}
@@ -1087,13 +1087,13 @@ export default function PricingClient() {
           </div>
         </section>
 
-        <section className="rounded-[32px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+        <section className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                 Trust and safety
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#7A1F2B] sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-semibold text-[#A10E4D] sm:text-3xl">
                 Premium access with clear billing and privacy-first controls
               </h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -1106,16 +1106,16 @@ export default function PricingClient() {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="flex items-center gap-3 rounded-2xl bg-[#FCFAF7] px-4 py-3 text-sm font-semibold text-[#1A1A1A]"
+                    className="flex items-center gap-3 rounded-2xl bg-[#FFF9F5] px-4 py-3 text-sm font-semibold text-[#2F2F2F]"
                   >
-                    <ShieldCheck className="size-4 text-[#D4AF37]" />
+                    <ShieldCheck className="size-4 text-[#D4A04C]" />
                     {item}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-[#D4AF37]/25 bg-[#FFF8EC] p-6">
+            <div className="rounded-[28px] border border-[#D4A04C]/25 bg-[#FFF8EC] p-6">
               <p className="text-sm leading-7 text-[#5E6470]">
                 Need clarity before you pay? Review how billing, support, and refunds work before
                 checkout so your upgrade feels fully informed.
@@ -1132,12 +1132,12 @@ export default function PricingClient() {
           </div>
         </section>
 
-        <section className="rounded-[32px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+        <section className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
           <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
               Social proof
             </p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#7A1F2B] sm:text-3xl">
+            <h2 className="mt-2 text-2xl font-semibold text-[#A10E4D] sm:text-3xl">
               Members upgrade when they want more clarity and steadier momentum
             </h2>
           </div>
@@ -1147,20 +1147,20 @@ export default function PricingClient() {
               {SOCIAL_PROOF.map((item) => (
                 <article
                   key={item.attribution}
-                  className="rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-5"
+                  className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5"
                 >
-                  <Star className="size-5 text-[#D4AF37]" />
+                  <Star className="size-5 text-[#D4A04C]" />
                   <p className="mt-4 text-sm leading-7 text-[#5E6470]">&quot;{item.quote}&quot;</p>
-                  <p className="mt-4 text-sm font-bold text-[#7A1F2B]">{item.attribution}</p>
+                  <p className="mt-4 text-sm font-bold text-[#A10E4D]">{item.attribution}</p>
                 </article>
               ))}
             </div>
 
-            <article className="rounded-[30px] border border-[#D4AF37]/25 bg-[linear-gradient(180deg,#fffdf7_0%,#fff4dc_100%)] p-6 shadow-[0_18px_40px_rgba(212,175,55,0.12)]">
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+            <article className="rounded-[30px] border border-[#D4A04C]/25 bg-[linear-gradient(180deg,#fffdf7_0%,#fff4dc_100%)] p-6 shadow-[0_18px_40px_rgba(212,175,55,0.12)]">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                 A calmer premium path
               </p>
-              <h3 className="mt-3 text-2xl font-semibold text-[#7A1F2B]">
+              <h3 className="mt-3 text-2xl font-semibold text-[#A10E4D]">
                 Built for quality conversations rather than endless volume
               </h3>
               <p className="mt-4 text-sm leading-7 text-[#5E6470]">
@@ -1184,10 +1184,10 @@ export default function PricingClient() {
           </div>
         </section>
 
-        <section className="rounded-[32px] border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+        <section className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
           <div className="max-w-2xl">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4AF37]">FAQ</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#7A1F2B] sm:text-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#D4A04C]">FAQ</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#A10E4D] sm:text-3xl">
               Common questions before you upgrade
             </h2>
           </div>
@@ -1203,16 +1203,16 @@ export default function PricingClient() {
         {...(selectedPlan?.periodLabel ? { displayIntervalLabel: selectedPlan.periodLabel } : {})}
       />
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#7A1F2B]/10 bg-white/95 px-4 py-3 shadow-[0_-16px_40px_rgba(122,31,43,0.14)] backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#A10E4D]/10 bg-white/95 px-4 py-3 shadow-[0_-16px_40px_rgba(122,31,43,0.14)] backdrop-blur md:hidden">
         <div
-          className="mx-auto flex max-w-7xl items-center gap-3 rounded-[24px] border border-[#D4AF37]/30 bg-[#FFF8EC] p-3"
+          className="mx-auto flex max-w-7xl items-center gap-3 rounded-[24px] border border-[#D4A04C]/30 bg-[#FFF8EC] p-3"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
         >
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
               Selected plan
             </p>
-            <p className="truncate text-sm font-semibold text-[#7A1F2B]">
+            <p className="truncate text-sm font-semibold text-[#A10E4D]">
               {effectivePlan?.tierName ?? TIER_CONTENT[recommendedTier].displayName}
             </p>
             <p className="text-xs text-[#6B7280]">

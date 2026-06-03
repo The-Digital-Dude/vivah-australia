@@ -279,6 +279,7 @@ describe('match routes', () => {
     await BlockModel.create({ blockerId: viewer.user._id, blockedId: blocked.user._id });
     await HiddenProfileModel.create({
       userId: viewer.user._id,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       profileId: ignoredProfile._id,
       hiddenUserId: ignored.user._id,
     });
@@ -385,6 +386,7 @@ describe('match routes', () => {
     });
     await HiddenProfileModel.create({
       userId: viewer.user._id,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       profileId: strongProfile._id,
       hiddenUserId: strong.user._id,
     });

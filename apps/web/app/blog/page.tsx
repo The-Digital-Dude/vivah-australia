@@ -56,20 +56,20 @@ export default async function BlogPage() {
               className="flex flex-col justify-between h-full hover:-translate-y-1 transition duration-300"
             >
               <div>
-                <div className="w-full h-44 bg-[#F8E8E8] rounded-2xl mb-5 flex items-center justify-center border border-[#7A1F2B]/5 text-[#7A1F2B]/45">
+                <div className="w-full h-44 bg-[#FFF0F3] rounded-2xl mb-5 flex items-center justify-center border border-[#A10E4D]/5 text-[#A10E4D]/45">
                   <PlayCircle className="size-10" />
                 </div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37] mb-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#D4A04C] mb-2">
                   Advice
                 </p>
-                <h3 className="text-lg font-bold text-[#1A1A1A] mb-3 leading-snug">{blog.title}</h3>
+                <h3 className="text-lg font-bold text-[#2F2F2F] mb-3 leading-snug">{blog.title}</h3>
                 <p className="text-sm text-[#6B7280] leading-relaxed line-clamp-3 mb-6">
                   {blog.body}
                 </p>
               </div>
               <Link
                 href={`/pages/${blog.slug}`}
-                className="text-sm font-bold text-[#7A1F2B] inline-flex items-center gap-1 hover:text-[#651925]"
+                className="text-sm font-bold text-[#A10E4D] inline-flex items-center gap-1 hover:text-[#890B40]"
               >
                 Read Article <ChevronRight className="size-4" />
               </Link>

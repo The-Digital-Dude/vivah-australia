@@ -112,15 +112,15 @@ function IncomingCard({
   const sub = [req.requester?.occupation, req.requester?.city].filter(Boolean).join(' · ');
 
   return (
-    <div className="flex items-start gap-4 rounded-2xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
+    <div className="flex items-start gap-4 rounded-2xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
       {/* Avatar */}
-      <div className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#7A1F2B] to-[#D4AF37] text-lg font-bold text-white shadow">
+      <div className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A10E4D] to-[#D4A04C] text-lg font-bold text-white shadow">
         {name.slice(0, 1).toUpperCase()}
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-semibold text-[#1A1A1A]">
+          <p className="font-semibold text-[#2F2F2F]">
             {name}
             {req.requester?.age ? `, ${req.requester.age}` : ''}
           </p>
@@ -129,7 +129,7 @@ function IncomingCard({
         </div>
         {sub && <p className="mt-0.5 text-xs text-[#6B7280]">{sub}</p>}
         {req.message && (
-          <p className="mt-2 rounded-xl bg-white px-3 py-2 text-sm text-[#1A1A1A] border border-[#7A1F2B]/10 italic">
+          <p className="mt-2 rounded-xl bg-white px-3 py-2 text-sm text-[#2F2F2F] border border-[#A10E4D]/10 italic">
             &ldquo;{req.message}&rdquo;
           </p>
         )}
@@ -144,7 +144,7 @@ function IncomingCard({
         {req.requester && (
           <Link
             href={`/profiles/${req.requester.id}`}
-            className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#7A1F2B] hover:underline"
+            className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#A10E4D] hover:underline"
           >
             View profile <ExternalLink className="size-3" />
           </Link>
@@ -192,14 +192,14 @@ function OutgoingCard({
   const name = req.owner?.firstName ?? 'Member';
 
   return (
-    <div className="flex items-start gap-4 rounded-2xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
-      <div className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#7A1F2B] to-[#D4AF37] text-lg font-bold text-white shadow">
+    <div className="flex items-start gap-4 rounded-2xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
+      <div className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#A10E4D] to-[#D4A04C] text-lg font-bold text-white shadow">
         {name.slice(0, 1).toUpperCase()}
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-semibold text-[#1A1A1A]">
+          <p className="font-semibold text-[#2F2F2F]">
             {name}
             {req.owner?.age ? `, ${req.owner.age}` : ''}
           </p>
@@ -218,7 +218,7 @@ function OutgoingCard({
         {req.owner && (
           <Link
             href={`/profiles/${req.owner.id}`}
-            className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#7A1F2B] hover:underline"
+            className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#A10E4D] hover:underline"
           >
             View profile <ExternalLink className="size-3" />
           </Link>
@@ -302,30 +302,30 @@ export default function PhotoRequestsPage() {
       {loading ? (
         <LoadingState label="Loading photo requests" />
       ) : error ? (
-        <p className="rounded-2xl bg-[#F8E8E8] p-4 text-sm font-semibold text-[#7A1F2B]">{error}</p>
+        <p className="rounded-2xl bg-[#FFF0F3] p-4 text-sm font-semibold text-[#A10E4D]">{error}</p>
       ) : (
         <div className="space-y-6">
           {/* Summary banner */}
           {pendingIncoming > 0 && (
-            <div className="flex items-center gap-3 rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-r from-[#FFFBEB] to-[#FDF6F0] px-5 py-4">
-              <Camera className="size-5 shrink-0 text-[#D4AF37]" />
-              <p className="text-sm font-semibold text-[#1A1A1A]">
+            <div className="flex items-center gap-3 rounded-2xl border border-[#D4A04C]/40 bg-gradient-to-r from-[#FFFBEB] to-[#FDF6F0] px-5 py-4">
+              <Camera className="size-5 shrink-0 text-[#D4A04C]" />
+              <p className="text-sm font-semibold text-[#2F2F2F]">
                 You have{' '}
-                <span className="text-[#7A1F2B]">{pendingIncoming} pending</span> photo access{' '}
+                <span className="text-[#A10E4D]">{pendingIncoming} pending</span> photo access{' '}
                 {pendingIncoming === 1 ? 'request' : 'requests'} to review.
               </p>
             </div>
           )}
 
           {/* Tabs */}
-          <div className="flex gap-1 rounded-2xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-1">
+          <div className="flex gap-1 rounded-2xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-1">
             <button
               type="button"
               onClick={() => setActiveTab('incoming')}
               className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition ${
                 activeTab === 'incoming'
-                  ? 'bg-[#7A1F2B] text-white shadow'
-                  : 'text-[#6B7280] hover:text-[#7A1F2B]'
+                  ? 'bg-[#A10E4D] text-white shadow'
+                  : 'text-[#6B7280] hover:text-[#A10E4D]'
               }`}
             >
               Received{pendingIncoming > 0 ? ` (${pendingIncoming})` : ''}
@@ -335,8 +335,8 @@ export default function PhotoRequestsPage() {
               onClick={() => setActiveTab('outgoing')}
               className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition ${
                 activeTab === 'outgoing'
-                  ? 'bg-[#7A1F2B] text-white shadow'
-                  : 'text-[#6B7280] hover:text-[#7A1F2B]'
+                  ? 'bg-[#A10E4D] text-white shadow'
+                  : 'text-[#6B7280] hover:text-[#A10E4D]'
               }`}
             >
               Sent ({outgoing.length})
@@ -345,7 +345,7 @@ export default function PhotoRequestsPage() {
 
           {/* Content */}
           <PremiumCard className="p-0 overflow-hidden">
-            <div className="divide-y divide-[#7A1F2B]/5">
+            <div className="divide-y divide-[#A10E4D]/5">
               {activeTab === 'incoming' ? (
                 incoming.length === 0 ? (
                   <div className="p-6">
@@ -394,7 +394,7 @@ export default function PhotoRequestsPage() {
           {/* Upload tip */}
           <p className="text-xs text-center text-[#6B7280]">
             To add private photos for others to request access to, go to{' '}
-            <Link href="/member/media" className="font-semibold text-[#7A1F2B] hover:underline">
+            <Link href="/member/media" className="font-semibold text-[#A10E4D] hover:underline">
               Media uploads
             </Link>{' '}
             and set the visibility to Private.

@@ -225,24 +225,24 @@ export default function AdminDashboardPage() {
         {/* QUICK ACTIONS & RECENT REPORTS */}
         <div className="space-y-6">
           {/* QUICK ACTIONS */}
-          <section className="rounded-2xl border border-[#7A1F2B]/10 bg-[#F8E8E8]/40 p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-[#7A1F2B]">Operational Shortcuts</h2>
+          <section className="rounded-2xl border border-[#A10E4D]/10 bg-[#FFF0F3]/40 p-6 shadow-sm">
+            <h2 className="text-lg font-bold text-[#A10E4D]">Operational Shortcuts</h2>
             <div className="mt-4 grid gap-3">
               <Link
                 href="/admin/profiles"
-                className="flex items-center justify-center rounded-xl bg-white border border-[#7A1F2B]/20 py-2.5 text-sm font-bold text-[#7A1F2B] shadow-sm hover:bg-[#F8E8E8] transition"
+                className="flex items-center justify-center rounded-xl bg-white border border-[#A10E4D]/20 py-2.5 text-sm font-bold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition"
               >
                 Review Profiles
               </Link>
               <Link
                 href="/admin/verifications"
-                className="flex items-center justify-center rounded-xl bg-white border border-[#7A1F2B]/20 py-2.5 text-sm font-bold text-[#7A1F2B] shadow-sm hover:bg-[#F8E8E8] transition"
+                className="flex items-center justify-center rounded-xl bg-white border border-[#A10E4D]/20 py-2.5 text-sm font-bold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition"
               >
                 Verify Documents
               </Link>
               <Link
                 href="/admin/reports"
-                className="flex items-center justify-center rounded-xl bg-[#7A1F2B] py-2.5 text-sm font-bold text-white shadow-md hover:bg-[#651925] transition"
+                className="flex items-center justify-center rounded-xl bg-[#A10E4D] py-2.5 text-sm font-bold text-white shadow-md hover:bg-[#890B40] transition"
               >
                 Resolve Safety Reports
               </Link>

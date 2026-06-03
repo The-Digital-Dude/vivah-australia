@@ -54,7 +54,7 @@ export default function MemberProfileRedirectPage() {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#7A1F2B] border-t-transparent" />
+            <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#A10E4D] border-t-transparent" />
             <span className="text-sm font-semibold text-[#6B7280]">Loading details...</span>
           </div>
         )}

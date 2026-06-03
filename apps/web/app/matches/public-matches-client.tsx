@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo } from 'react';
 import {
   Lock,
@@ -79,7 +78,7 @@ export default function PublicMatchesClient({
   }, [initialQuery]);
 
   return (
-    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F]">
       <PublicHeader />
 
       <StaticPageHero
@@ -89,13 +88,13 @@ export default function PublicMatchesClient({
       />
 
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <section className="grid gap-6 rounded-[32px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.08)] sm:p-7">
+        <section className="grid gap-6 rounded-[32px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.08)] sm:p-7">
           <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                 Search preview
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#1A1A1A] sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-semibold text-[#2F2F2F] sm:text-3xl">
                 See who is active before you commit to signup
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-[#6B7280]">
@@ -105,25 +104,25 @@ export default function PublicMatchesClient({
               </p>
             </div>
 
-            <form action="/matches" className="grid gap-3 rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+            <form action="/matches" className="grid gap-3 rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4 sm:grid-cols-2">
+              <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                 Looking for
                 <select
                   name="gender"
                   defaultValue={initialQuery.gender ?? 'FEMALE'}
-                  className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                  className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                 >
                   <option value="FEMALE">A woman</option>
                   <option value="MALE">A man</option>
                 </select>
               </label>
 
-              <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+              <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                 Age range
                 <select
                   name="ageRange"
                   defaultValue={initialQuery.ageRange ?? '25-30'}
-                  className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                  className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                 >
                   <option value="25-30">25 - 30</option>
                   <option value="30-35">30 - 35</option>
@@ -131,12 +130,12 @@ export default function PublicMatchesClient({
                 </select>
               </label>
 
-              <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+              <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                 City
                 <select
                   name="city"
                   defaultValue={initialQuery.city ?? 'Sydney'}
-                  className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                  className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                 >
                   <option value="Sydney">Sydney</option>
                   <option value="Melbourne">Melbourne</option>
@@ -145,12 +144,12 @@ export default function PublicMatchesClient({
                 </select>
               </label>
 
-              <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+              <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                 Religion
                 <select
                   name="religion"
                   defaultValue={initialQuery.religion ?? 'Any'}
-                  className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                  className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                 >
                   <option value="Any">Any</option>
                   <option value="Hindu">Hindu</option>
@@ -171,12 +170,12 @@ export default function PublicMatchesClient({
             {activeFilters.map((chip) => (
               <span
                 key={chip}
-                className="inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#7A1F2B]"
+                className="inline-flex items-center rounded-full border border-[#D4A04C]/30 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#A10E4D]"
               >
                 {chip}
               </span>
             ))}
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#F8E8E8] px-3 py-1 text-xs font-semibold text-[#7A1F2B]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
               <Lock className="size-3.5" />
               Member actions stay protected
             </span>
@@ -244,9 +243,9 @@ export default function PublicMatchesClient({
               ))}
             </div>
           ) : (
-            <PremiumCard className="rounded-[30px] border border-dashed border-[#D4AF37]/60 bg-white p-8 text-center">
-              <Users className="mx-auto size-8 text-[#D4AF37]" />
-              <h3 className="mt-4 text-xl font-semibold text-[#1A1A1A]">
+            <PremiumCard className="rounded-[30px] border border-dashed border-[#D4A04C]/60 bg-white p-8 text-center">
+              <Users className="mx-auto size-8 text-[#D4A04C]" />
+              <h3 className="mt-4 text-xl font-semibold text-[#2F2F2F]">
                 No preview matches for this combination
               </h3>
               <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[#6B7280]">
@@ -284,17 +283,17 @@ export default function PublicMatchesClient({
             const Icon = item.icon;
             return (
               <PremiumCard key={item.title} className="rounded-[28px] p-6">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-[#F8E8E8] text-[#7A1F2B]">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-[#FFF0F3] text-[#A10E4D]">
                   <Icon className="size-5" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-[#1A1A1A]">{item.title}</h3>
+                <h3 className="mt-4 text-lg font-semibold text-[#2F2F2F]">{item.title}</h3>
                 <p className="mt-2 text-sm leading-7 text-[#6B7280]">{item.body}</p>
               </PremiumCard>
             );
           })}
         </section>
 
-        <section className="mt-10 overflow-hidden rounded-[32px] border border-[#7A1F2B]/10 bg-[linear-gradient(145deg,#7A1F2B_0%,#651925_48%,#D4AF37_100%)] p-6 text-white shadow-[0_24px_70px_rgba(122,31,43,0.18)] sm:p-8">
+        <section className="mt-10 overflow-hidden rounded-[32px] border border-[#A10E4D]/10 bg-[linear-gradient(145deg,#A10E4D_0%,#890B40_48%,#D4A04C_100%)] p-6 text-white shadow-[0_24px_70px_rgba(122,31,43,0.18)] sm:p-8">
           <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/70">

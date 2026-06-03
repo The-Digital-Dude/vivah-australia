@@ -27,7 +27,7 @@ export default function ContactPage() {
         <section className="grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-6">
             <PremiumCard>
-              <h2 className="text-xl font-semibold text-[#7A1F2B] mb-3">Member Care</h2>
+              <h2 className="text-xl font-semibold text-[#A10E4D] mb-3">Member Care</h2>
               <p className="text-sm leading-relaxed text-[#6B7280]">
                 Use this channel for account help, safety questions, billing support, partnerships,
                 and media inquiries. Our support team is here to assist you.
@@ -51,7 +51,7 @@ export default function ContactPage() {
             </div>
           </div>
           <PremiumCard>
-            <h2 className="text-xl font-semibold text-[#7A1F2B] mb-5">Send a Message</h2>
+            <h2 className="text-xl font-semibold text-[#A10E4D] mb-5">Send a Message</h2>
             <ContactForm />
           </PremiumCard>
         </section>

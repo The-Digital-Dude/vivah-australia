@@ -79,14 +79,14 @@ export default async function HelpPage() {
           ))}
         </section>
 
-        <div className="mt-12 text-center p-8 bg-[#FFF8F1] border border-[#7A1F2B]/10 rounded-3xl">
-          <h3 className="font-serif font-bold text-lg text-[#7A1F2B] mb-2">Still need help?</h3>
+        <div className="mt-12 text-center p-8 bg-[#FFF8F1] border border-[#A10E4D]/10 rounded-3xl">
+          <h3 className="font-serif font-bold text-lg text-[#A10E4D] mb-2">Still need help?</h3>
           <p className="text-sm text-[#6B7280] mb-6">
             Our member care team is available to assist you with any questions or account support.
           </p>
           <a
             href="/contact"
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#7A1F2B] px-6 py-2 text-sm font-bold text-white transition hover:bg-[#651925]"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#A10E4D] px-6 py-2 text-sm font-bold text-white transition hover:bg-[#890B40]"
           >
             Contact Member Care
           </a>

@@ -28,13 +28,13 @@ import {
 import { useAuth } from '@/app/auth-context';
 
 export const premiumTokens = {
-  burgundy: '#7A1F2B',
-  gold: '#D4AF37',
-  ivory: '#FCFAF7',
+  burgundy: '#A10E4D', // Deep Maroon
+  gold: '#D4A04C',     // Wedding Gold
+  ivory: '#FFF9F5',    // Warm Ivory
   surface: '#FFFFFF',
-  text: '#1A1A1A',
-  muted: '#6B7280',
-  blush: '#F8E8E8',
+  text: '#2F2F2F',     // Charcoal
+  muted: '#5F5F5F',
+  blush: '#E74C7C',    // Soft Rose
 } as const;
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -52,12 +52,12 @@ type PremiumButtonProps = {
 };
 
 const buttonStyles = {
-  primary: 'bg-[#7A1F2B] text-white shadow-lg shadow-[#7A1F2B]/15 hover:bg-[#651925]',
+  primary: 'bg-[#A10E4D] text-white shadow-lg shadow-[#A10E4D]/15 hover:opacity-90 font-poppins',
   secondary:
-    'border border-[#7A1F2B]/20 bg-white text-[#7A1F2B] shadow-sm hover:border-[#7A1F2B]/40 hover:bg-[#F8E8E8]',
-  ghost: 'text-[#7A1F2B] hover:bg-[#F8E8E8]',
-  gold: 'bg-[#D4AF37] text-[#1A1A1A] shadow-lg shadow-[#D4AF37]/20 hover:bg-[#c9a126]',
-  danger: 'border border-[#7A1F2B]/20 bg-[#F8E8E8] text-[#7A1F2B] hover:bg-[#f3d6d6]',
+    'border border-[#A10E4D]/20 bg-white text-[#A10E4D] shadow-sm hover:border-[#A10E4D]/40 hover:bg-[#E74C7C]/10 font-poppins',
+  ghost: 'text-[#A10E4D] hover:bg-[#E74C7C]/10 font-poppins',
+  gold: 'bg-[#D4A04C] text-[#2F2F2F] shadow-lg shadow-[#D4A04C]/20 hover:opacity-90 font-poppins',
+  danger: 'border border-[#A10E4D]/20 bg-[#E74C7C]/10 text-[#A10E4D] hover:bg-[#E74C7C]/20 font-poppins',
 } as const;
 
 export function PremiumButton({
@@ -70,7 +70,7 @@ export function PremiumButton({
   variant = 'primary',
 }: PremiumButtonProps) {
   const classes = cx(
-    'inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 disabled:cursor-not-allowed disabled:opacity-50',
+    'inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#D4A04C]/50 disabled:cursor-not-allowed disabled:opacity-50',
     buttonStyles[variant],
     className,
   );
@@ -97,7 +97,7 @@ export function PremiumCard({
   return (
     <section
       className={cx(
-        'rounded-3xl border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.08)]',
+        'rounded-3xl border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(161,14,77,0.06)]',
         className,
       )}
     >
@@ -113,17 +113,17 @@ export function PageHero({
   title,
 }: Readonly<{ actions?: ReactNode; children?: ReactNode; eyebrow?: string; title: string }>) {
   return (
-    <section className="overflow-hidden bg-[#FCFAF7] px-4 py-12 sm:px-6 lg:px-8">
+    <section className="overflow-hidden bg-[#FFF9F5] px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           {eyebrow ? (
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">{eyebrow}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">{eyebrow}</p>
           ) : null}
-          <h1 className="mt-4 text-4xl font-semibold leading-tight text-[#1A1A1A] md:text-5xl">
+          <h1 className="mt-4 text-4xl font-bold leading-tight text-[#2F2F2F] md:text-5xl font-playfair">
             {title}
           </h1>
           {children ? (
-            <div className="mt-5 text-base leading-7 text-[#6B7280]">{children}</div>
+            <div className="mt-5 text-base leading-7 text-[#5F5F5F] font-poppins">{children}</div>
           ) : null}
           {actions ? <div className="mt-8 flex flex-wrap gap-3">{actions}</div> : null}
         </div>
@@ -154,10 +154,10 @@ export function SectionHeader({
     >
       <div className="max-w-2xl">
         {eyebrow ? (
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">{eyebrow}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">{eyebrow}</p>
         ) : null}
-        <h2 className="mt-2 text-2xl font-semibold text-[#1A1A1A] md:text-3xl">{title}</h2>
-        {subtitle ? <p className="mt-3 text-sm leading-6 text-[#6B7280]">{subtitle}</p> : null}
+        <h2 className="mt-2 text-2xl font-bold text-[#2F2F2F] md:text-3xl font-cormorant">{title}</h2>
+        {subtitle ? <p className="mt-3 text-sm leading-6 text-[#5F5F5F] font-poppins">{subtitle}</p> : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
@@ -201,17 +201,17 @@ export function ProfileMatchCard({
   return (
     <article
       className={cx(
-        'overflow-hidden rounded-[30px] border border-[#7A1F2B]/10 bg-white shadow-[0_18px_45px_rgba(122,31,43,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(122,31,43,0.12)]',
+        'overflow-hidden rounded-[30px] border border-[#A10E4D]/10 bg-white shadow-[0_18px_45px_rgba(161,14,77,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(161,14,77,0.08)]',
         className,
       )}
     >
       <Link href={href} className={cx('grid gap-4 p-4', compact ? '' : '')}>
-        <div className="relative grid aspect-[4/4.8] place-items-center overflow-hidden rounded-[24px] bg-[#F8E8E8] text-3xl font-semibold text-[#7A1F2B]">
+        <div className="relative grid aspect-[4/4.8] place-items-center overflow-hidden rounded-[24px] bg-[#E74C7C]/10 text-3xl font-semibold text-[#A10E4D] font-cormorant">
           {profile.photoUrl ? (
             <>
               <div
                 className={cx(
-                  'absolute inset-0 bg-[linear-gradient(120deg,#F8E8E8_20%,#FCFAF7_45%,#F8E8E8_70%)] bg-[length:200%_100%] transition-opacity duration-500',
+                  'absolute inset-0 bg-[linear-gradient(120deg,rgba(231,76,124,0.1)_20%,#FFF9F5_45%,rgba(231,76,124,0.1)_70%)] bg-[length:200%_100%] transition-opacity duration-500',
                   imageLoaded ? 'opacity-0' : 'animate-pulse opacity-100',
                 )}
               />
@@ -231,12 +231,12 @@ export function ProfileMatchCard({
             initials
           )}
           {profile.isBoosted ? (
-            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D6A84F] to-[#C0923C] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2C1707] shadow-md">
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D4A04C] to-[#c7913c] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2F2F2F] shadow-md">
               <Sparkles className="size-3" /> Boosted
             </div>
           ) : null}
           {profile.lastActiveLabel ? (
-            <div className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#1F6F4A] shadow-sm backdrop-blur">
+            <div className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700 shadow-sm backdrop-blur">
               <Clock3 className="size-3" />
               {profile.lastActiveLabel}
             </div>
@@ -245,11 +245,11 @@ export function ProfileMatchCard({
           <div className="min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl font-semibold text-[#1A1A1A]">
+                <h3 className="text-xl font-semibold text-[#2F2F2F] font-cormorant">
                   {profile.name ?? 'Vivah member'}
                   {profile.age ? `, ${profile.age}` : ''}
                 </h3>
-                <p className="mt-1 text-sm text-[#6B7280]">
+                <p className="mt-1 text-sm text-[#5F5F5F]">
                   {profile.city || 'Australia'}
                 </p>
               </div>
@@ -261,7 +261,7 @@ export function ProfileMatchCard({
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <VerificationBadge level={profile.verificationLevel} />
               {profile.occupation ? (
-                <span className="rounded-full bg-[#FCFAF7] px-3 py-1 text-xs font-semibold text-[#6B7280]">
+                <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#5F5F5F]">
                   {profile.occupation}
                 </span>
               ) : null}
@@ -274,7 +274,7 @@ export function ProfileMatchCard({
                 .map((item) => (
                   <span
                     key={item}
-                    className="rounded-full border border-[#7A1F2B]/10 bg-white px-3 py-1 text-xs font-semibold text-[#6B7280]"
+                    className="rounded-full border border-[#A10E4D]/10 bg-white px-3 py-1 text-xs font-semibold text-[#5F5F5F]"
                   >
                     {item}
                   </span>
@@ -286,7 +286,7 @@ export function ProfileMatchCard({
                 {profile.highlights.slice(0, compact ? 2 : 3).map((item) => (
                   <span
                     key={item}
-                    className="inline-flex items-center gap-1 rounded-full bg-[#F7FBF8] px-2.5 py-1 text-xs font-semibold text-[#1F6F4A]"
+                    className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-emerald-700"
                   >
                     <ShieldCheck className="size-3.5" />
                     {item}
@@ -296,18 +296,18 @@ export function ProfileMatchCard({
             ) : null}
 
             {profile.privacyHint ? (
-              <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/35 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#8B6714]">
+              <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#D4A04C]/35 bg-[#D4A04C]/10 px-3 py-1 text-xs font-semibold text-[#D4A04C]">
                 <ShieldCheck className="size-3.5" />
                 {profile.privacyHint}
               </div>
             ) : null}
 
-            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#7A1F2B]">
+            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#A10E4D] font-poppins">
               View profile <ChevronRight className="size-4" />
             </span>
           </div>
         </Link>
-        {actions ? <div className="border-t border-[#7A1F2B]/10 px-4 py-3">{actions}</div> : null}
+        {actions ? <div className="border-t border-[#A10E4D]/10 px-4 py-3">{actions}</div> : null}
     </article>
   );
 }
@@ -318,8 +318,8 @@ export function ProfileDetailSection({
 }: Readonly<{ children: ReactNode; title: string }>) {
   return (
     <PremiumCard>
-      <h2 className="text-lg font-semibold text-[#1A1A1A]">{title}</h2>
-      <div className="mt-4 grid gap-2 text-sm leading-6 text-[#6B7280]">{children}</div>
+      <h2 className="text-lg font-semibold text-[#2F2F2F] font-cormorant">{title}</h2>
+      <div className="mt-4 grid gap-2 text-sm leading-6 text-[#5F5F5F] font-poppins">{children}</div>
     </PremiumCard>
   );
 }
@@ -341,12 +341,12 @@ export function VerificationBadge({ level }: Readonly<{ level?: string | undefin
 
   return (
     <span className="group relative inline-flex">
-      <span className="inline-flex items-center gap-1 rounded-full bg-[#F8E8E8] px-3 py-1 text-xs font-bold text-[#7A1F2B]">
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#E74C7C]/15 px-3 py-1 text-xs font-bold text-[#A10E4D]">
         <ShieldCheck className="size-3.5" />
         {label}
       </span>
-      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-56 -translate-x-1/2 rounded-2xl border border-[#7A1F2B]/10 bg-white p-3 text-left text-[11px] font-medium leading-5 text-[#6B7280] shadow-xl group-hover:block group-focus-within:block">
-        <span className="block text-xs font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-56 -translate-x-1/2 rounded-2xl border border-[#A10E4D]/10 bg-white p-3 text-left text-[11px] font-medium leading-5 text-[#5F5F5F] shadow-xl group-hover:block group-focus-within:block">
+        <span className="block text-xs font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
           Verification
         </span>
         <span className="mt-1 block">{detail}</span>
@@ -358,7 +358,7 @@ export function VerificationBadge({ level }: Readonly<{ level?: string | undefin
 export function MatchScoreBadge({ score }: Readonly<{ score?: number }>) {
   if (typeof score !== 'number') return null;
   return (
-    <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D6A84F]/20 to-[#7A1F2B]/10 px-3 py-1 text-xs font-bold text-[#7A1F2B] border border-[#D6A84F]/30 shadow-sm">
+    <span className="flex items-center gap-1 rounded-full bg-gradient-to-r from-[#D4A04C]/20 to-[#A10E4D]/10 px-3 py-1 text-xs font-bold text-[#A10E4D] border border-[#D4A04C]/30 shadow-sm">
       <span className="text-sm leading-none">🔥</span> {score}% Match
     </span>
   );
@@ -370,11 +370,11 @@ export function EmptyState({
   title = 'Nothing here yet',
 }: Readonly<{ action?: ReactNode; children?: ReactNode; title?: string }>) {
   return (
-    <div className="rounded-3xl border border-dashed border-[#D4AF37]/70 bg-white p-8 text-center">
-      <Search className="mx-auto size-7 text-[#D4AF37]" />
-      <h3 className="mt-4 text-lg font-semibold text-[#1A1A1A]">{title}</h3>
+    <div className="rounded-3xl border border-dashed border-[#D4A04C]/70 bg-white p-8 text-center font-poppins">
+      <Search className="mx-auto size-7 text-[#D4A04C]" />
+      <h3 className="mt-4 text-lg font-bold text-[#2F2F2F] font-cormorant">{title}</h3>
       {children ? (
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6B7280]">{children}</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#5F5F5F]">{children}</p>
       ) : null}
       {action ? <div className="mt-5 flex justify-center">{action}</div> : null}
     </div>
@@ -383,8 +383,8 @@ export function EmptyState({
 
 export function LoadingState({ label = 'Loading' }: Readonly<{ label?: string }>) {
   return (
-    <div className="flex min-h-40 items-center justify-center rounded-3xl border border-[#7A1F2B]/10 bg-white text-sm font-semibold text-[#6B7280]">
-      <Loader2 className="mr-2 size-4 animate-spin text-[#7A1F2B]" />
+    <div className="flex min-h-40 items-center justify-center rounded-3xl border border-[#A10E4D]/10 bg-white text-sm font-semibold text-[#5F5F5F] font-poppins">
+      <Loader2 className="mr-2 size-4 animate-spin text-[#A10E4D]" />
       {label}
     </div>
   );
@@ -400,14 +400,14 @@ export function MatchGridSkeleton({
       {Array.from({ length: count }).map((_, index) => (
         <div
           key={index}
-          className="overflow-hidden rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm animate-pulse"
+          className="overflow-hidden rounded-3xl border border-[#A10E4D]/10 bg-white p-4 shadow-sm animate-pulse"
         >
-          <div className="aspect-[4/4.8] rounded-2xl bg-[#F8E8E8]" />
+          <div className="aspect-[4/4.8] rounded-2xl bg-[#E74C7C]/10" />
           <div className="mt-4 grid content-start gap-3">
-            <div className="h-5 w-2/3 rounded-lg bg-[#F8E8E8]" />
-            <div className="h-4 w-1/2 rounded-lg bg-[#F8E8E8]" />
-            <div className="h-4 w-5/6 rounded-lg bg-[#F8E8E8]" />
-            <div className="h-7 w-24 rounded-full bg-[#F8E8E8]" />
+            <div className="h-5 w-2/3 rounded-lg bg-[#E74C7C]/10" />
+            <div className="h-4 w-1/2 rounded-lg bg-[#E74C7C]/10" />
+            <div className="h-4 w-5/6 rounded-lg bg-[#E74C7C]/10" />
+            <div className="h-7 w-24 rounded-full bg-[#E74C7C]/10" />
           </div>
         </div>
       ))}
@@ -418,29 +418,29 @@ export function MatchGridSkeleton({
 export function OnboardingFormSkeleton() {
   return (
     <div className="grid gap-6">
-      <div className="flex flex-col gap-4 border-b border-[#7A1F2B]/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-[#A10E4D]/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-9 w-24 shrink-0 rounded-full bg-[#F8E8E8] animate-pulse" />
+            <div key={index} className="h-9 w-24 shrink-0 rounded-full bg-[#E74C7C]/10 animate-pulse" />
           ))}
         </div>
-        <div className="h-4 w-40 rounded bg-[#F8E8E8] animate-pulse" />
+        <div className="h-4 w-40 rounded bg-[#E74C7C]/10 animate-pulse" />
       </div>
 
-      <div className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-5 shadow-sm sm:p-6">
-        <div className="h-6 w-48 rounded bg-[#F8E8E8] animate-pulse" />
-        <div className="mt-3 h-4 w-72 max-w-full rounded bg-[#F8E8E8] animate-pulse" />
+      <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-5 shadow-sm sm:p-6">
+        <div className="h-6 w-48 rounded bg-[#E74C7C]/10 animate-pulse" />
+        <div className="mt-3 h-4 w-72 max-w-full rounded bg-[#E74C7C]/10 animate-pulse" />
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className="grid gap-2">
-              <div className="h-4 w-28 rounded bg-[#F8E8E8] animate-pulse" />
-              <div className="h-12 rounded-2xl bg-[#F8E8E8] animate-pulse" />
+              <div className="h-4 w-28 rounded bg-[#E74C7C]/10 animate-pulse" />
+              <div className="h-12 rounded-2xl bg-[#E74C7C]/10 animate-pulse" />
             </div>
           ))}
         </div>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
-          <div className="h-11 w-full rounded-2xl bg-[#F8E8E8] animate-pulse sm:w-32" />
-          <div className="h-11 w-full rounded-2xl bg-[#F8E8E8] animate-pulse sm:w-40" />
+          <div className="h-11 w-full rounded-2xl bg-[#E74C7C]/10 animate-pulse sm:w-32" />
+          <div className="h-11 w-full rounded-2xl bg-[#E74C7C]/10 animate-pulse sm:w-40" />
         </div>
       </div>
     </div>
@@ -454,13 +454,13 @@ export function FormField({
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { label: string; optional?: boolean }) {
   return (
-    <label className={cx('grid gap-2 text-sm font-semibold text-[#1A1A1A]', className)}>
+    <label className={cx('grid gap-2 text-sm font-semibold text-[#2F2F2F] font-poppins', className)}>
       <span>
         {label}
-        {optional ? <span className="font-normal text-[#6B7280]"> optional</span> : null}
+        {optional ? <span className="font-normal text-[#5F5F5F]"> optional</span> : null}
       </span>
       <input
-        className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+        className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#E74C7C]/10"
         {...props}
       />
     </label>
@@ -479,13 +479,13 @@ export function SelectField({
   optional?: boolean;
 }) {
   return (
-    <label className={cx('grid gap-2 text-sm font-semibold text-[#1A1A1A]', className)}>
+    <label className={cx('grid gap-2 text-sm font-semibold text-[#2F2F2F] font-poppins', className)}>
       <span>
         {label}
-        {optional ? <span className="font-normal text-[#6B7280]"> optional</span> : null}
+        {optional ? <span className="font-normal text-[#5F5F5F]"> optional</span> : null}
       </span>
       <select
-        className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+        className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#E74C7C]/10"
         {...props}
       >
         {children}
@@ -510,16 +510,16 @@ export function FilterDrawer({
         onClick={onClose}
       />
       <aside
-        className="relative ml-auto h-full w-full max-w-md overflow-y-auto bg-[#FCFAF7] p-5 shadow-2xl sm:max-w-lg sm:rounded-l-[28px] sm:border-l sm:border-[#7A1F2B]/10 sm:p-6"
+        className="relative ml-auto h-full w-full max-w-md overflow-y-auto bg-[#FFF9F5] p-5 shadow-2xl sm:max-w-lg sm:rounded-l-[28px] sm:border-l sm:border-[#A10E4D]/10 sm:p-6 font-poppins"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}
       >
-        <div className="sticky top-0 z-10 -mx-5 -mt-5 mb-5 flex items-center justify-between gap-4 border-b border-[#7A1F2B]/10 bg-[#FCFAF7]/95 px-5 py-4 backdrop-blur sm:-mx-6 sm:-mt-6 sm:px-6">
-          <h2 className="text-lg font-semibold text-[#1A1A1A]">{title}</h2>
+        <div className="sticky top-0 z-10 -mx-5 -mt-5 mb-5 flex items-center justify-between gap-4 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/95 px-5 py-4 backdrop-blur sm:-mx-6 sm:-mt-6 sm:px-6">
+          <h2 className="text-lg font-bold text-[#2F2F2F] font-cormorant">{title}</h2>
           <button
             type="button"
             aria-label="Close filters"
             onClick={onClose}
-            className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B]"
+            className="rounded-full border border-[#A10E4D]/15 bg-white p-2 text-[#A10E4D]"
           >
             <X className="size-4" />
           </button>
@@ -535,7 +535,7 @@ export function StaticPageLayout({
   hero,
 }: Readonly<{ children: ReactNode; hero?: ReactNode }>) {
   return (
-    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F] font-poppins">
       <PublicHeader />
       {hero}
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">{children}</main>
@@ -550,7 +550,7 @@ export function MemberPageLayout({
   subtitle,
 }: Readonly<{ children: ReactNode; subtitle?: string | undefined; title: string }>) {
   return (
-    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F] font-poppins">
       <PublicHeader />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <SectionHeader eyebrow="Member" title={title} subtitle={subtitle} />
@@ -584,14 +584,14 @@ export function PublicHeader() {
   const links = initialized && token ? memberLinks : publicLinks;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#7A1F2B]/10 bg-[#FCFAF7]/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/90 backdrop-blur-xl font-poppins">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="text-xl font-semibold text-[#7A1F2B]">
+        <Link href="/" className="text-xl font-bold text-[#A10E4D] font-playfair">
           Vivah Australia
         </Link>
-        <nav className="hidden items-center gap-7 text-sm font-semibold text-[#6B7280] lg:flex">
+        <nav className="hidden items-center gap-7 text-sm font-semibold text-[#5F5F5F] lg:flex">
           {links.map(([label, href]) => (
-            <Link key={href} href={href} className="transition hover:text-[#7A1F2B]">
+            <Link key={href} href={href} className="transition hover:text-[#A10E4D]">
               {label}
             </Link>
           ))}
@@ -624,7 +624,7 @@ export function PublicHeader() {
         <button
           type="button"
           aria-label="Open menu"
-          className="rounded-full border border-[#7A1F2B]/15 bg-white p-2 text-[#7A1F2B] lg:hidden"
+          className="rounded-full border border-[#A10E4D]/15 bg-white p-2 text-[#A10E4D] lg:hidden"
           onClick={() => setOpen(true)}
         >
           <Menu className="size-5" />
@@ -638,11 +638,11 @@ export function PublicHeader() {
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative ml-auto h-full w-80 max-w-[85vw] bg-white p-5 shadow-2xl">
+          <aside className="relative ml-auto h-full w-80 max-w-[85vw] bg-[#FFF9F5] p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-4">
               <Link
                 href="/"
-                className="font-semibold text-[#7A1F2B]"
+                className="font-bold text-[#A10E4D] font-playfair"
                 onClick={() => setOpen(false)}
               >
                 Vivah Australia
@@ -650,7 +650,7 @@ export function PublicHeader() {
               <button
                 type="button"
                 aria-label="Close menu"
-                className="rounded-full border border-[#7A1F2B]/15 p-2 text-[#7A1F2B]"
+                className="rounded-full border border-[#A10E4D]/15 p-2 text-[#A10E4D]"
                 onClick={() => setOpen(false)}
               >
                 <X className="size-4" />
@@ -662,7 +662,7 @@ export function PublicHeader() {
                   key={href}
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-[#1A1A1A] hover:bg-[#F8E8E8]"
+                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-[#2F2F2F] hover:bg-[#E74C7C]/10"
                 >
                   {label}
                 </Link>
@@ -693,10 +693,10 @@ export function PublicHeader() {
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-[#7A1F2B]/10 bg-[#1A1A1A] px-4 py-12 text-white sm:px-6 lg:px-8">
+    <footer className="border-t border-[#A10E4D]/10 bg-[#2F2F2F] px-4 py-12 text-white sm:px-6 lg:px-8 font-poppins">
       <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <p className="text-xl font-semibold">Vivah Australia</p>
+          <p className="text-xl font-bold font-playfair">Vivah Australia</p>
           <p className="mt-4 max-w-sm text-sm leading-6 text-white/65">
             Premium matrimonial matchmaking for serious Australian singles and families.
           </p>
@@ -743,7 +743,7 @@ function FooterList({
       <ul className="mt-4 grid gap-3 text-sm text-white/65">
         {links.map(([label, href]) => (
           <li key={href}>
-            <Link href={href} className="transition hover:text-[#D4AF37]">
+            <Link href={href} className="transition hover:text-[#D4A04C]">
               {label}
             </Link>
           </li>
@@ -755,7 +755,7 @@ function FooterList({
 
 export function SuccessLine({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#1F6F4A]">
+    <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 font-poppins">
       <CheckCircle2 className="size-4" />
       {children}
     </span>
@@ -774,8 +774,8 @@ export function StaticPageHero({
   align?: 'left' | 'center';
 }>) {
   return (
-    <section className="bg-[#FCFAF7] pt-16 pb-12 overflow-hidden relative">
-      <div className="absolute inset-x-0 bottom-0 h-px bg-[#7A1F2B]/10" />
+    <section className="bg-[#FFF9F5] pt-16 pb-12 overflow-hidden relative font-poppins">
+      <div className="absolute inset-x-0 bottom-0 h-px bg-[#A10E4D]/10" />
       <div
         className={cx(
           'mx-auto max-w-5xl px-4 sm:px-6 lg:px-8',
@@ -783,18 +783,18 @@ export function StaticPageHero({
         )}
       >
         {eyebrow ? (
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37] mb-3">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C] mb-3">
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#7A1F2B] leading-tight mb-4">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#A10E4D] leading-tight mb-4 font-playfair">
           {title}
         </h1>
         <div
-          className={cx('h-1 w-16 bg-[#D4AF37] rounded mb-4', align === 'center' ? 'mx-auto' : '')}
+          className={cx('h-1 w-16 bg-[#D4A04C] rounded mb-4', align === 'center' ? 'mx-auto' : '')}
         />
         {subtitle ? (
-          <p className="max-w-2xl mx-auto text-base text-[#6B7280] leading-relaxed">{subtitle}</p>
+          <p className="max-w-2xl mx-auto text-base text-[#5F5F5F] leading-relaxed">{subtitle}</p>
         ) : null}
       </div>
     </section>
@@ -822,7 +822,7 @@ export function PolicyContentCard({
 }>) {
   return (
     <PremiumCard className={cx('p-8 sm:p-10', className)}>
-      <div className="max-w-none text-[#1A1A1A] leading-8 text-base space-y-6">{children}</div>
+      <div className="max-w-none text-[#2F2F2F] leading-8 text-base space-y-6">{children}</div>
     </PremiumCard>
   );
 }
@@ -835,29 +835,29 @@ export function FAQAccordion({
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-poppins">
       {items.map((item, idx) => {
         const isOpen = openIdx === idx;
         return (
           <div
             key={idx}
-            className="overflow-hidden rounded-2xl border border-[#7A1F2B]/10 bg-white transition shadow-sm hover:shadow-md animate-fade-in"
+            className="overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white transition shadow-sm hover:shadow-md animate-fade-in"
           >
             <button
               type="button"
               onClick={() => setOpenIdx(isOpen ? null : idx)}
-              className="flex w-full items-center justify-between px-6 py-5 text-left font-semibold text-[#1A1A1A] outline-none transition duration-200"
+              className="flex w-full items-center justify-between px-6 py-5 text-left font-semibold text-[#2F2F2F] outline-none transition duration-200"
             >
               <span>{item.question}</span>
               <ChevronDown
                 className={cx(
-                  'size-5 text-[#7A1F2B] transition-transform duration-300',
+                  'size-5 text-[#A10E4D] transition-transform duration-300',
                   isOpen && 'rotate-180',
                 )}
               />
             </button>
             {isOpen ? (
-              <div className="px-6 pb-5 text-sm leading-relaxed text-[#6B7280] border-t border-[#7A1F2B]/5 pt-4">
+              <div className="px-6 pb-5 text-sm leading-relaxed text-[#5F5F5F] border-t border-[#A10E4D]/5 pt-4">
                 {item.answer}
               </div>
             ) : null}
@@ -889,13 +889,13 @@ export function ContactCard({
   const Icon = icons[iconKey];
 
   const cardContent = (
-    <div className="flex flex-col items-center text-center p-6 bg-white border border-[#7A1F2B]/10 rounded-2xl shadow-sm hover:shadow-md transition duration-300">
-      <div className="size-12 rounded-xl bg-[#F8E8E8] flex items-center justify-center text-[#7A1F2B] mb-4">
+    <div className="flex flex-col items-center text-center p-6 bg-white border border-[#A10E4D]/10 rounded-2xl shadow-sm hover:shadow-md transition duration-300 font-poppins">
+      <div className="size-12 rounded-xl bg-[#E74C7C]/10 flex items-center justify-center text-[#A10E4D] mb-4">
         <Icon className="size-6" />
       </div>
-      <h4 className="font-bold text-[#1A1A1A] mb-1">{title}</h4>
-      <p className="text-sm font-semibold text-[#7A1F2B] mb-2">{value}</p>
-      {description ? <p className="text-xs text-[#6B7280]">{description}</p> : null}
+      <h4 className="font-bold text-[#2F2F2F] mb-1 font-cormorant">{title}</h4>
+      <p className="text-sm font-semibold text-[#A10E4D] mb-2">{value}</p>
+      {description ? <p className="text-xs text-[#5F5F5F]">{description}</p> : null}
     </div>
   );
 
@@ -938,14 +938,14 @@ export function HelpCategoryCard({
   return (
     <Link
       href={href}
-      className="flex gap-4 p-6 bg-white border border-[#7A1F2B]/10 rounded-3xl shadow-sm hover:shadow-md transition hover:-translate-y-0.5"
+      className="flex gap-4 p-6 bg-white border border-[#A10E4D]/10 rounded-3xl shadow-sm hover:shadow-md transition hover:-translate-y-0.5 font-poppins"
     >
-      <div className="size-12 rounded-2xl bg-[#F8E8E8] flex items-center justify-center text-[#7A1F2B] shrink-0">
+      <div className="size-12 rounded-2xl bg-[#E74C7C]/10 flex items-center justify-center text-[#A10E4D] shrink-0">
         <IconComponent className="size-6" />
       </div>
       <div className="min-w-0">
-        <h4 className="font-bold text-[#1A1A1A] mb-1 text-base">{title}</h4>
-        <p className="text-sm text-[#6B7280] leading-relaxed">{description}</p>
+        <h4 className="font-bold text-[#2F2F2F] mb-1 text-base font-cormorant">{title}</h4>
+        <p className="text-sm text-[#5F5F5F] leading-relaxed">{description}</p>
       </div>
     </Link>
   );

@@ -78,12 +78,12 @@ export default function LoginPage() {
           />
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label htmlFor="password" className="text-sm font-bold text-[#1A1A1A]">
+              <label htmlFor="password" className="text-sm font-bold text-[#2F2F2F]">
                 Password
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs font-semibold text-[#7A1F2B] hover:text-[#651925]"
+                className="text-xs font-semibold text-[#A10E4D] hover:text-[#890B40]"
               >
                 Forgot your password?
               </Link>
@@ -94,7 +94,7 @@ export default function LoginPage() {
               type="password"
               autoComplete="current-password"
               required
-              className="h-12 w-full rounded-2xl border border-[#7A1F2B]/20 bg-white px-4 text-[#1A1A1A] placeholder-[#6B7280] outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8] text-sm"
+              className="h-12 w-full rounded-2xl border border-[#A10E4D]/20 bg-white px-4 text-[#2F2F2F] placeholder-[#6B7280] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3] text-sm"
               placeholder="••••••••"
             />
           </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
         <div className="text-center mt-4">
           <p className="text-sm text-[#6B7280]">
             Don't have an account?{' '}
-            <Link href="/register" className="font-bold text-[#7A1F2B] hover:text-[#651925]">
+            <Link href="/register" className="font-bold text-[#A10E4D] hover:text-[#890B40]">
               Create free profile
             </Link>
           </p>

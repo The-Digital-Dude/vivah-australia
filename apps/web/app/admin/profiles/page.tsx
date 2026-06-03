@@ -98,7 +98,7 @@ export default function AdminProfilesPage() {
               }}
               className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                 status === option
-                  ? 'bg-[#7A1F2B] text-white shadow-sm'
+                  ? 'bg-[#A10E4D] text-white shadow-sm'
                   : 'text-neutral-500 hover:bg-neutral-100'
               }`}
             >
@@ -110,7 +110,7 @@ export default function AdminProfilesPage() {
 
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-[#7A1F2B]" />
+          <AlertCircle className="h-4 w-4 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -132,7 +132,7 @@ export default function AdminProfilesPage() {
               <div
                 key={profile._id}
                 className={`rounded-2xl border p-5 shadow-sm transition hover:shadow bg-white ${
-                  detail?._id === profile._id ? 'border-[#7A1F2B] ring-1 ring-[#7A1F2B]/10' : 'border-neutral-200'
+                  detail?._id === profile._id ? 'border-[#A10E4D] ring-1 ring-[#A10E4D]/10' : 'border-neutral-200'
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -260,7 +260,7 @@ export default function AdminProfilesPage() {
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
               Select details for updating profile moderation to{' '}
-              <strong className="text-[#7A1F2B]">{reviewItem.action}</strong>.
+              <strong className="text-[#A10E4D]">{reviewItem.action}</strong>.
             </p>
 
             <div className="mt-4 space-y-4">
@@ -274,7 +274,7 @@ export default function AdminProfilesPage() {
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Provide clear reasons/instructions for the user to update their profile..."
-                    className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#7A1F2B] min-h-[80px]"
+                    className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[80px]"
                   />
                 </div>
               )}
@@ -287,7 +287,7 @@ export default function AdminProfilesPage() {
                   value={internalNote}
                   onChange={(e) => setInternalNote(e.target.value)}
                   placeholder="Internal audit trail context..."
-                  className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#7A1F2B] min-h-[60px]"
+                  className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[60px]"
                 />
               </div>
             </div>
@@ -310,7 +310,7 @@ export default function AdminProfilesPage() {
               </button>
               <button
                 onClick={() => void submitReview()}
-                className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4 py-2 text-xs font-bold text-white shadow-sm"
+                className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2 text-xs font-bold text-white shadow-sm"
                 type="button"
               >
                 Submit Decision

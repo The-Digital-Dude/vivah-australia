@@ -91,7 +91,7 @@ export default function ProfileActions({
           />
         </div>
 
-        <div className="rounded-2xl border border-[#D4AF37]/25 bg-[#FFF8EC] px-3 py-2">
+        <div className="rounded-2xl border border-[#D4A04C]/25 bg-[#FFF8EC] px-3 py-2">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8B6714]">
               Safety options
@@ -169,7 +169,7 @@ function ActionButton({
       onClick={onClick}
       className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition ${
         variant === 'safety'
-          ? 'border-[#D4AF37]/35 bg-white text-[#7A1E3A] hover:bg-[#FFF4D9]'
+          ? 'border-[#D4A04C]/35 bg-white text-[#7A1E3A] hover:bg-[#FFF4D9]'
           : 'border-[#F0D6DA] bg-white text-[#7A1E3A] hover:bg-[#FFF8F1]'
       }`}
     >

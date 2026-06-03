@@ -50,7 +50,7 @@ export default function AdminFraudPage() {
     >
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2 mb-4">
-          <AlertTriangle className="h-4 w-4 text-[#7A1F2B]" />
+          <AlertTriangle className="h-4 w-4 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -102,7 +102,7 @@ export default function AdminFraudPage() {
                 <button
                   type="button"
                   onClick={() => void reviewEvent(event._id, 'REVIEWED')}
-                  className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4 py-2 text-xs font-bold text-white shadow-sm transition"
+                  className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2 text-xs font-bold text-white shadow-sm transition"
                 >
                   Mark Reviewed
                 </button>

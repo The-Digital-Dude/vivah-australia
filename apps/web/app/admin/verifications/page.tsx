@@ -132,7 +132,7 @@ export default function AdminVerificationsPage() {
               }}
               className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                 status === option
-                  ? 'bg-[#7A1F2B] text-white shadow-sm'
+                  ? 'bg-[#A10E4D] text-white shadow-sm'
                   : 'text-neutral-500 hover:bg-neutral-100'
               }`}
             >
@@ -144,7 +144,7 @@ export default function AdminVerificationsPage() {
         <button
           type="button"
           onClick={() => void recalculateBadges()}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#7A1F2B]/20 px-4 py-2 text-sm font-bold text-[#7A1F2B] hover:bg-[#F8E8E8] transition"
+          className="inline-flex items-center gap-2 rounded-xl border border-[#A10E4D]/20 px-4 py-2 text-sm font-bold text-[#A10E4D] hover:bg-[#FFF0F3] transition"
         >
           <Sparkles className="h-4 w-4" />
           <span>Recalculate Badges</span>
@@ -153,7 +153,7 @@ export default function AdminVerificationsPage() {
 
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-[#7A1F2B]" />
+          <AlertCircle className="h-4 w-4 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -173,7 +173,7 @@ export default function AdminVerificationsPage() {
               <div
                 key={item._id}
                 className={`rounded-2xl border p-5 shadow-sm transition hover:shadow bg-white ${
-                  detail?._id === item._id ? 'border-[#7A1F2B] ring-1 ring-[#7A1F2B]/10' : 'border-neutral-200'
+                  detail?._id === item._id ? 'border-[#A10E4D] ring-1 ring-[#A10E4D]/10' : 'border-neutral-200'
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -282,7 +282,7 @@ export default function AdminVerificationsPage() {
                         <button
                           type="button"
                           onClick={() => void previewDocument(detail._id, doc._id)}
-                          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#7A1F2B]/10 px-2.5 text-[11px] font-bold text-[#7A1F2B] hover:bg-[#F8E8E8] bg-white transition shrink-0"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#A10E4D]/10 px-2.5 text-[11px] font-bold text-[#A10E4D] hover:bg-[#FFF0F3] bg-white transition shrink-0"
                         >
                           <Eye className="h-3 w-3" />
                           <span>Preview</span>
@@ -339,7 +339,7 @@ export default function AdminVerificationsPage() {
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
               Select details for updating request status to{' '}
-              <strong className="text-[#7A1F2B]">{reviewItem.targetStatus}</strong>.
+              <strong className="text-[#A10E4D]">{reviewItem.targetStatus}</strong>.
             </p>
 
             <div className="mt-4 space-y-4">
@@ -353,7 +353,7 @@ export default function AdminVerificationsPage() {
                     value={memberReason}
                     onChange={(e) => setMemberReason(e.target.value)}
                     placeholder="Describe why this request requires changes..."
-                    className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#7A1F2B] min-h-[80px]"
+                    className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[80px]"
                   />
                 </div>
               )}
@@ -366,7 +366,7 @@ export default function AdminVerificationsPage() {
                   value={internalNote}
                   onChange={(e) => setInternalNote(e.target.value)}
                   placeholder="Internal comments for auditing logs..."
-                  className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#7A1F2B] min-h-[60px]"
+                  className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[60px]"
                 />
               </div>
             </div>
@@ -389,7 +389,7 @@ export default function AdminVerificationsPage() {
               </button>
               <button
                 onClick={() => void submitReview()}
-                className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4 py-2 text-xs font-bold text-white shadow-sm"
+                className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2 text-xs font-bold text-white shadow-sm"
                 type="button"
               >
                 Submit Decision

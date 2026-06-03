@@ -71,7 +71,7 @@ export default function OtpInput({
 
   return (
     <div className="grid gap-2">
-      <label className="text-sm font-bold text-[#1A1A1A]">Verification Code</label>
+      <label className="text-sm font-bold text-[#2F2F2F]">Verification Code</label>
       <div className="flex items-center justify-between gap-2 sm:gap-3">
         {digits.map((digit, index) => (
           <input
@@ -81,7 +81,7 @@ export default function OtpInput({
             }}
             aria-label={`Verification digit ${index + 1}`}
             autoComplete={index === 0 ? 'one-time-code' : 'off'}
-            className="h-14 w-full rounded-2xl border border-[#7A1F2B]/20 bg-white text-center text-xl font-bold tracking-[0.2em] text-[#1A1A1A] outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8] disabled:opacity-60"
+            className="h-14 w-full rounded-2xl border border-[#A10E4D]/20 bg-white text-center text-xl font-bold tracking-[0.2em] text-[#2F2F2F] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3] disabled:opacity-60"
             disabled={disabled}
             inputMode="numeric"
             maxLength={1}

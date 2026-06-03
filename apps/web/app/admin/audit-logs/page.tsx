@@ -119,22 +119,22 @@ export default function AdminAuditLogsPage() {
           value={action}
           onChange={(event) => setAction(event.target.value)}
           placeholder="Filter by action (e.g. UPDATE_STATUS, DELETE_PAGE)"
-          className="h-11 rounded-xl border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-450 outline-none focus:border-[#7A1F2B]"
+          className="h-11 rounded-xl border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-450 outline-none focus:border-[#A10E4D]"
         />
         <input
           value={entityType}
           onChange={(event) => setEntityType(event.target.value)}
           placeholder="Entity type (e.g. User, Page)"
-          className="h-11 rounded-xl border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-450 outline-none focus:border-[#7A1F2B]"
+          className="h-11 rounded-xl border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-450 outline-none focus:border-[#A10E4D]"
         />
-        <button className="h-11 rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-6 text-sm font-bold text-white shadow-sm transition">
+        <button className="h-11 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-6 text-sm font-bold text-white shadow-sm transition">
           Search Logs
         </button>
       </form>
 
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <AlertCircle className="h-4.5 w-4.5 text-[#7A1F2B]" />
+          <AlertCircle className="h-4.5 w-4.5 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}

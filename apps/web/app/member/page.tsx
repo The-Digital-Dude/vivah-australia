@@ -514,7 +514,7 @@ export default function MemberDashboardPage() {
         subtitle="Start from your profile, matches, messages, and account updates."
       >
         <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-[#7A1F2B]" />
+          <Loader2 className="h-10 w-10 animate-spin text-[#A10E4D]" />
           <p className="text-sm font-semibold text-[#6B7280]">Loading your premium dashboard...</p>
         </div>
       </MemberShell>
@@ -534,18 +534,18 @@ export default function MemberDashboardPage() {
       ) : null}
 
       <div className="grid gap-6 sm:gap-8">
-        <PremiumCard className="relative overflow-hidden border border-[#7A1F2B]/10 bg-[linear-gradient(135deg,#7A1F2B_0%,#651925_48%,#4A0A14_100%)] p-5 text-white shadow-[0_24px_70px_rgba(122,31,43,0.24)] sm:p-6">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+        <PremiumCard className="relative overflow-hidden border border-[#A10E4D]/10 bg-[linear-gradient(135deg,#A10E4D_0%,#890B40_48%,#4A0A14_100%)] p-5 text-white shadow-[0_24px_70px_rgba(122,31,43,0.24)] sm:p-6">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#D4A04C]/10 blur-3xl" />
           <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
           <div className="relative grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-center">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D4AF37]">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D4A04C]">
                 Matchmaking command center
               </p>
-              <h1 className="mt-3 text-2xl font-bold text-[#FCFAF7] sm:text-4xl">
+              <h1 className="mt-3 text-2xl font-bold text-[#FFF9F5] sm:text-4xl">
                 Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#FCFAF7]/80 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#FFF9F5]/80 sm:text-base">
                 Focus on the next best move for your search. We have surfaced your profile strength,
                 trust status, conversation momentum, and best matches in one calmer place.
               </p>
@@ -575,7 +575,7 @@ export default function MemberDashboardPage() {
                       key={item.label}
                       className="inline-flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur"
                     >
-                      <Icon className="size-4 text-[#D4AF37]" />
+                      <Icon className="size-4 text-[#D4A04C]" />
                       <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">
                           {item.label}
@@ -591,7 +591,7 @@ export default function MemberDashboardPage() {
             <div className="grid gap-4 rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                     Today&apos;s signal
                   </p>
                   <p className="mt-2 text-lg font-semibold text-white">{dashboardInsight}</p>
@@ -630,20 +630,20 @@ export default function MemberDashboardPage() {
             const Icon = card.icon;
             return (
               <Link key={card.label} href={card.href} className="group">
-                <PremiumCard className="h-full rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(122,31,43,0.12)]">
+                <PremiumCard className="h-full rounded-[28px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(122,31,43,0.12)]">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                         {card.label}
                       </p>
-                      <p className="mt-3 text-3xl font-bold text-[#1A1A1A]">{card.value}</p>
+                      <p className="mt-3 text-3xl font-bold text-[#2F2F2F]">{card.value}</p>
                     </div>
-                    <div className="rounded-2xl bg-[#F8E8E8] p-3 text-[#7A1F2B]">
+                    <div className="rounded-2xl bg-[#FFF0F3] p-3 text-[#A10E4D]">
                       <Icon className="size-5" />
                     </div>
                   </div>
                   <p className="mt-4 text-sm leading-6 text-[#6B7280]">{card.description}</p>
-                  <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]">
+                  <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]">
                     Open
                     <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
                   </p>
@@ -654,7 +654,7 @@ export default function MemberDashboardPage() {
         </section>
 
         <div className="grid gap-6 sm:gap-8 xl:grid-cols-[1.15fr_0.85fr]">
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+          <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <SectionHeader
               eyebrow="Your journey"
               title="Progress toward stronger introductions"
@@ -665,12 +665,12 @@ export default function MemberDashboardPage() {
               {journeySteps.map((step, index) => (
                 <div
                   key={step.label}
-                  className="flex items-start gap-4 rounded-3xl bg-[#FCFAF7] p-4"
+                  className="flex items-start gap-4 rounded-3xl bg-[#FFF9F5] p-4"
                 >
                   <div
                     className={cx(
                       'mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                      step.complete ? 'bg-[#7A1F2B] text-white' : 'bg-white text-[#D4AF37]',
+                      step.complete ? 'bg-[#A10E4D] text-white' : 'bg-white text-[#D4A04C]',
                     )}
                   >
                     {step.complete ? (
@@ -681,13 +681,13 @@ export default function MemberDashboardPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <h3 className="text-sm font-semibold text-[#1A1A1A]">{step.label}</h3>
+                      <h3 className="text-sm font-semibold text-[#2F2F2F]">{step.label}</h3>
                       <span
                         className={cx(
                           'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em]',
                           step.complete
                             ? 'bg-[#E8F7EF] text-[#1F6F4A]'
-                            : 'bg-[#FFF2CD] text-[#7A1F2B]',
+                            : 'bg-[#FFF2CD] text-[#A10E4D]',
                         )}
                       >
                         {step.complete ? 'Done' : 'Next up'}
@@ -701,7 +701,7 @@ export default function MemberDashboardPage() {
           </PremiumCard>
 
           <div className="grid gap-6">
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+            <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Recommended next actions"
                 title="What will improve your momentum fastest"
@@ -717,8 +717,8 @@ export default function MemberDashboardPage() {
                       href={action.href}
                       className={cx(
                         'rounded-3xl border p-4 transition duration-200 hover:-translate-y-0.5',
-                        action.tone === 'gold' && 'border-[#D4AF37]/30 bg-[#FFF8EC]',
-                        action.tone === 'burgundy' && 'border-[#7A1F2B]/10 bg-[#FCFAF7]',
+                        action.tone === 'gold' && 'border-[#D4A04C]/30 bg-[#FFF8EC]',
+                        action.tone === 'burgundy' && 'border-[#A10E4D]/10 bg-[#FFF9F5]',
                         action.tone === 'emerald' && 'border-[#DDEFE7] bg-[#F7FBF8]',
                       )}
                     >
@@ -726,17 +726,17 @@ export default function MemberDashboardPage() {
                         <div
                           className={cx(
                             'rounded-2xl p-3',
-                            action.tone === 'gold' && 'bg-white text-[#D4AF37]',
-                            action.tone === 'burgundy' && 'bg-white text-[#7A1F2B]',
+                            action.tone === 'gold' && 'bg-white text-[#D4A04C]',
+                            action.tone === 'burgundy' && 'bg-white text-[#A10E4D]',
                             action.tone === 'emerald' && 'bg-white text-[#1F6F4A]',
                           )}
                         >
                           <Icon className="size-5" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-sm font-semibold text-[#1A1A1A]">{action.title}</h3>
+                          <h3 className="text-sm font-semibold text-[#2F2F2F]">{action.title}</h3>
                           <p className="mt-2 text-sm leading-6 text-[#6B7280]">{action.body}</p>
-                          <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]">
+                          <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]">
                             {action.cta}
                             <ArrowRight className="size-4" />
                           </p>
@@ -748,7 +748,7 @@ export default function MemberDashboardPage() {
               </div>
             </PremiumCard>
 
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+            <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Spotlight"
                 title="Visibility and plan tools"
@@ -759,13 +759,13 @@ export default function MemberDashboardPage() {
                 {spotlightCards.map((card) => {
                   const Icon = card.icon;
                   return (
-                    <div key={card.title} className="rounded-3xl bg-[#FCFAF7] p-4">
+                    <div key={card.title} className="rounded-3xl bg-[#FFF9F5] p-4">
                       <div className="flex items-start gap-3">
-                        <div className="rounded-2xl bg-white p-3 text-[#7A1F2B]">
+                        <div className="rounded-2xl bg-white p-3 text-[#A10E4D]">
                           <Icon className="size-5" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-sm font-semibold text-[#1A1A1A]">{card.title}</h3>
+                          <h3 className="text-sm font-semibold text-[#2F2F2F]">{card.title}</h3>
                           <p className="mt-2 text-sm leading-6 text-[#6B7280]">
                             {card.description}
                           </p>
@@ -800,7 +800,7 @@ export default function MemberDashboardPage() {
               </div>
 
               {boostMessage ? (
-                <p className="mt-4 rounded-2xl border border-[#D4AF37]/30 bg-[#FFF8EC] p-3 text-sm font-semibold text-[#7A1F2B]">
+                <p className="mt-4 rounded-2xl border border-[#D4A04C]/30 bg-[#FFF8EC] p-3 text-sm font-semibold text-[#A10E4D]">
                   {boostMessage}
                 </p>
               ) : null}
@@ -809,7 +809,7 @@ export default function MemberDashboardPage() {
         </div>
 
         <div className="grid gap-6 sm:gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+          <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <SectionHeader
               eyebrow="People to discover today"
               title="A smaller, stronger shortlist to review now"
@@ -817,7 +817,7 @@ export default function MemberDashboardPage() {
               action={
                 <Link
                   href="/member/matches"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]"
                 >
                   Explore all
                   <ArrowRight className="size-4" />
@@ -858,7 +858,7 @@ export default function MemberDashboardPage() {
           </PremiumCard>
 
           <div className="grid gap-6">
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+            <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Attention and timing"
                 title="Stay aware of where your momentum is building"
@@ -866,16 +866,16 @@ export default function MemberDashboardPage() {
               />
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl bg-[#FCFAF7] p-4">
+                <div className="rounded-3xl bg-[#FFF9F5] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-white p-3 text-[#7A1F2B]">
+                    <div className="rounded-2xl bg-white p-3 text-[#A10E4D]">
                       <Eye className="size-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                         Viewed me
                       </p>
-                      <p className="mt-1 text-2xl font-bold text-[#1A1A1A]">{profileViewsCount}</p>
+                      <p className="mt-1 text-2xl font-bold text-[#2F2F2F]">{profileViewsCount}</p>
                     </div>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-[#6B7280]">
@@ -885,16 +885,16 @@ export default function MemberDashboardPage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-[#FCFAF7] p-4">
+                <div className="rounded-3xl bg-[#FFF9F5] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-white p-3 text-[#7A1F2B]">
+                    <div className="rounded-2xl bg-white p-3 text-[#A10E4D]">
                       <Clock3 className="size-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                         Pending replies
                       </p>
-                      <p className="mt-1 text-2xl font-bold text-[#1A1A1A]">{pendingInterests}</p>
+                      <p className="mt-1 text-2xl font-bold text-[#2F2F2F]">{pendingInterests}</p>
                     </div>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-[#6B7280]">
@@ -904,7 +904,7 @@ export default function MemberDashboardPage() {
               </div>
             </PremiumCard>
 
-            <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+            <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
               <SectionHeader
                 eyebrow="Plan and trust"
                 title="Your profile is easier to trust when signals stay strong"
@@ -912,12 +912,12 @@ export default function MemberDashboardPage() {
               />
 
               <div className="mt-6 space-y-4">
-                <div className="rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                <div className="rounded-3xl bg-[#FFF9F5] px-4 py-4">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <ShieldCheck className="size-5 text-[#7A1F2B]" />
+                      <ShieldCheck className="size-5 text-[#A10E4D]" />
                       <div>
-                        <p className="text-sm font-semibold text-[#1A1A1A]">Verification level</p>
+                        <p className="text-sm font-semibold text-[#2F2F2F]">Verification level</p>
                         <p className="text-sm text-[#6B7280]">
                           Email and mobile verified, with stronger trust when ID is approved.
                         </p>
@@ -927,12 +927,12 @@ export default function MemberDashboardPage() {
                   </div>
                 </div>
 
-                <div className="rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                <div className="rounded-3xl bg-[#FFF9F5] px-4 py-4">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <Zap className="size-5 text-[#7A1F2B]" />
+                      <Zap className="size-5 text-[#A10E4D]" />
                       <div>
-                        <p className="text-sm font-semibold text-[#1A1A1A]">Interest usage</p>
+                        <p className="text-sm font-semibold text-[#2F2F2F]">Interest usage</p>
                         <p className="text-sm text-[#6B7280]">
                           {interestLimit === -1
                             ? 'Unlimited monthly sending on your current tier.'
@@ -940,18 +940,18 @@ export default function MemberDashboardPage() {
                         </p>
                       </div>
                     </div>
-                    <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+                    <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
                       {subscriptionData?.plan?.limits?.advancedFilters ? 'Advanced search' : 'Standard search'}
                     </span>
                   </div>
                 </div>
 
-                <div className="rounded-3xl bg-[#FCFAF7] px-4 py-4">
+                <div className="rounded-3xl bg-[#FFF9F5] px-4 py-4">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <Crown className="size-5 text-[#D4AF37]" />
+                      <Crown className="size-5 text-[#D4A04C]" />
                       <div>
-                        <p className="text-sm font-semibold text-[#1A1A1A]">Membership tier</p>
+                        <p className="text-sm font-semibold text-[#2F2F2F]">Membership tier</p>
                         <p className="text-sm text-[#6B7280]">
                           {membershipEndsAt
                             ? `Coverage visible through around ${membershipEndsAt}.`
@@ -961,7 +961,7 @@ export default function MemberDashboardPage() {
                     </div>
                     <Link
                       href="/member/subscription"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]"
                     >
                       Manage
                       <ArrowRight className="size-4" />

@@ -76,7 +76,7 @@ export default function AdminReports() {
               onClick={() => switchStatus(item)}
               className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                 status === item
-                  ? 'bg-[#7A1F2B] text-white shadow-sm'
+                  ? 'bg-[#A10E4D] text-white shadow-sm'
                   : 'text-neutral-500 hover:bg-neutral-100'
               }`}
             >
@@ -88,7 +88,7 @@ export default function AdminReports() {
 
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-[#7A1F2B]" />
+          <AlertTriangle className="h-4 w-4 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -189,7 +189,7 @@ export default function AdminReports() {
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
               Are you sure you want to perform the following action:{' '}
-              <strong className="text-[#7A1F2B]">{confirmAction.action}</strong>?
+              <strong className="text-[#A10E4D]">{confirmAction.action}</strong>?
             </p>
 
             <div className="mt-4 flex gap-2.5 items-start bg-amber-50 border border-amber-200 p-3 rounded-xl">
@@ -209,7 +209,7 @@ export default function AdminReports() {
               </button>
               <button
                 onClick={() => void handleConfirmUpdate()}
-                className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4 py-2 text-xs font-bold text-white shadow-sm"
+                className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2 text-xs font-bold text-white shadow-sm"
                 type="button"
               >
                 Confirm Action

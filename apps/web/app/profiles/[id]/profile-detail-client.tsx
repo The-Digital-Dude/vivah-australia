@@ -687,9 +687,9 @@ function scrollToSection(sectionId: string) {
 
 function DetailField({ label, value }: Readonly<{ label: string; value?: ReactNode }>) {
   return (
-    <div className="rounded-2xl bg-[#FCFAF7] px-4 py-3">
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">{label}</p>
-      <p className="mt-1 font-medium text-[#1A1A1A]">{value || 'Not shared'}</p>
+    <div className="rounded-2xl bg-[#FFF9F5] px-4 py-3">
+      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">{label}</p>
+      <p className="mt-1 font-medium text-[#2F2F2F]">{value || 'Not shared'}</p>
     </div>
   );
 }
@@ -701,10 +701,10 @@ function ToneBadge({
   return (
     <span
       className={cx(
-        'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold',
-        tone === 'burgundy' && 'bg-[#F8E8E8] text-[#7A1F2B]',
-        tone === 'gold' && 'bg-[#FFF8EC] text-[#8B6714]',
-        tone === 'emerald' && 'bg-[#F0FBF6] text-[#1F6F4A]',
+        'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold font-poppins',
+        tone === 'burgundy' && 'bg-[#E74C7C]/15 text-[#A10E4D]',
+        tone === 'gold' && 'bg-[#D4A04C]/10 text-[#D4A04C]',
+        tone === 'emerald' && 'bg-[#F0FBF6] text-emerald-700',
       )}
     >
       {children}
@@ -720,7 +720,7 @@ function ProfileSurface({
     <motion.section {...fadeInUp}>
       <PremiumCard
         className={cx(
-          'rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6',
+          'rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(161,14,77,0.06)] sm:p-6',
           className,
         )}
       >
@@ -732,7 +732,7 @@ function ProfileSurface({
 
 function StaticProfileLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F] font-poppins">
       <PublicHeader />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
       <PublicFooter />
@@ -759,7 +759,7 @@ function PhotoLightbox({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="overflow-hidden bg-[#1A1A1A] p-0 text-white">
+        <DialogContent className="overflow-hidden bg-[#2F2F2F] p-0 text-white">
           <div className="relative aspect-[4/5] w-full bg-[#111111]">
             <Image src={imageUrl} alt={title} fill sizes="100vw" className="object-contain" />
           </div>
@@ -801,7 +801,7 @@ function GalleryExperienceSection({
               <button
                 type="button"
                 onClick={() => setLightboxUrl(gallery[0]?.assetUrl ?? null)}
-                className="group relative aspect-[4/4.8] overflow-hidden rounded-[28px] border border-[#7A1F2B]/10 bg-[#F8E8E8]"
+                className="group relative aspect-[4/4.8] overflow-hidden rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF0F3]"
               >
                 <Image
                   src={gallery[0]!.assetUrl}
@@ -810,7 +810,7 @@ function GalleryExperienceSection({
                   sizes="(min-width: 1280px) 40vw, 100vw"
                   className="object-cover transition duration-500 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-[#1A1A1A]/70 to-transparent px-5 py-4 text-left text-white">
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-[#2F2F2F]/70 to-transparent px-5 py-4 text-left text-white">
                   <div>
                     <p className="text-sm font-semibold">Primary photo</p>
                     <p className="text-xs text-white/70">Tap to view full size</p>
@@ -829,7 +829,7 @@ function GalleryExperienceSection({
                       key={photo.id}
                       type="button"
                       onClick={() => setLightboxUrl(photo.assetUrl)}
-                      className="group relative aspect-[4/4.6] overflow-hidden rounded-[22px] border border-[#7A1F2B]/10 bg-[#F8E8E8]"
+                      className="group relative aspect-[4/4.6] overflow-hidden rounded-[22px] border border-[#A10E4D]/10 bg-[#FFF0F3]"
                     >
                       <Image
                         src={photo.assetUrl}
@@ -844,10 +844,10 @@ function GalleryExperienceSection({
               ) : null}
             </>
           ) : (
-            <div className="grid min-h-[340px] place-items-center rounded-[28px] border border-dashed border-[#D4AF37]/40 bg-[linear-gradient(135deg,#FCFAF7_0%,#F8E8E8_100%)] p-8 text-center">
+            <div className="grid min-h-[340px] place-items-center rounded-[28px] border border-dashed border-[#D4A04C]/40 bg-[linear-gradient(135deg,#FFF9F5_0%,#FFF0F3_100%)] p-8 text-center">
               <div>
-                <ImageOff className="mx-auto size-10 text-[#D4AF37]" />
-                <p className="mt-4 text-lg font-semibold text-[#1A1A1A]">No public gallery yet</p>
+                <ImageOff className="mx-auto size-10 text-[#D4A04C]" />
+                <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">No public gallery yet</p>
                 <p className="mt-2 max-w-md text-sm leading-6 text-[#6B7280]">
                   This member has not added public gallery photos yet, but you can still review
                   their trust signals, compatibility, and request access to private photos.
@@ -858,11 +858,11 @@ function GalleryExperienceSection({
         </div>
 
         <div className="grid gap-4">
-          <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+          <div className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
               First impression
             </p>
-            <p className="mt-3 text-lg font-semibold text-[#1A1A1A]">
+            <p className="mt-3 text-lg font-semibold text-[#2F2F2F]">
               Gallery access works best once the basics already feel promising.
             </p>
             <p className="mt-3 text-sm leading-7 text-[#6B7280]">
@@ -1001,9 +1001,9 @@ function PrivateGalleryAccessCard({
 
   if (!token) {
     return (
-      <div className="rounded-[28px] border border-dashed border-[#D4AF37]/50 bg-white p-6 text-center">
-        <Lock className="mx-auto size-8 text-[#D4AF37]" />
-        <p className="mt-4 text-lg font-semibold text-[#1A1A1A]">Sign in for private photos</p>
+      <div className="rounded-[28px] border border-dashed border-[#D4A04C]/50 bg-white p-6 text-center">
+        <Lock className="mx-auto size-8 text-[#D4A04C]" />
+        <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">Sign in for private photos</p>
         <p className="mt-2 text-sm leading-6 text-[#6B7280]">
           Private gallery access is only available to signed-in members so photo sharing stays in
           the member community.
@@ -1014,7 +1014,7 @@ function PrivateGalleryAccessCard({
 
   if (loadingStatus) {
     return (
-      <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-white p-6 text-center">
+      <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-6 text-center">
         <p className="text-sm font-semibold text-[#6B7280]">Checking gallery access...</p>
       </div>
     );
@@ -1050,7 +1050,7 @@ function PrivateGalleryAccessCard({
                 key={photo.id}
                 type="button"
                 onClick={() => onPreviewPhoto(photo.assetUrl)}
-                className="relative overflow-hidden rounded-[20px] border border-[#7A1F2B]/10"
+                className="relative overflow-hidden rounded-[20px] border border-[#A10E4D]/10"
               >
                 <Image
                   src={photo.assetUrl}
@@ -1064,7 +1064,7 @@ function PrivateGalleryAccessCard({
             ))}
           </div>
         ) : (
-          <div className="mt-4 rounded-2xl border border-dashed border-[#D4AF37]/40 bg-[#FCFAF7] p-4 text-sm text-[#6B7280]">
+          <div className="mt-4 rounded-2xl border border-dashed border-[#D4A04C]/40 bg-[#FFF9F5] p-4 text-sm text-[#6B7280]">
             No private photos have been added yet.
           </div>
         )}
@@ -1074,14 +1074,14 @@ function PrivateGalleryAccessCard({
 
   if (status === 'PENDING') {
     return (
-      <div className="rounded-[28px] border border-[#D4AF37]/30 bg-[linear-gradient(135deg,#FFF8EC_0%,#FCFAF7_100%)] p-5 text-center">
-        <Clock3 className="mx-auto size-8 text-[#D4AF37]" />
-        <p className="mt-4 text-lg font-semibold text-[#1A1A1A]">Private photo request pending</p>
+      <div className="rounded-[28px] border border-[#D4A04C]/30 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
+        <Clock3 className="mx-auto size-8 text-[#D4A04C]" />
+        <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">Private photo request pending</p>
         <p className="mt-2 text-sm leading-6 text-[#6B7280]">
           Your request is waiting for a response. We will surface the private gallery here if
           access is granted.
         </p>
-        {feedback ? <p className="mt-3 text-sm font-semibold text-[#7A1F2B]">{feedback}</p> : null}
+        {feedback ? <p className="mt-3 text-sm font-semibold text-[#A10E4D]">{feedback}</p> : null}
         <div className="mt-4 flex justify-center">
           <PremiumButton variant="secondary" onClick={() => void handleWithdraw()} disabled={sending}>
             <X className="size-4" />
@@ -1093,17 +1093,17 @@ function PrivateGalleryAccessCard({
   }
 
   return (
-    <div className="rounded-[28px] border border-dashed border-[#D4AF37]/50 bg-white p-5">
+    <div className="rounded-[28px] border border-dashed border-[#D4A04C]/50 bg-white p-5">
       <div className="text-center">
-        <Lock className="mx-auto size-8 text-[#7A1F2B]/50" />
-        <p className="mt-4 text-lg font-semibold text-[#1A1A1A]">Private gallery</p>
+        <Lock className="mx-auto size-8 text-[#A10E4D]/50" />
+        <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">Private gallery</p>
         <p className="mt-2 text-sm leading-6 text-[#6B7280]">
           Ask for access if you want to see more photos after the profile already feels promising.
         </p>
       </div>
 
       {feedback ? (
-        <p className="mt-4 rounded-2xl bg-[#F8E8E8] px-4 py-3 text-center text-sm font-semibold text-[#7A1F2B]">
+        <p className="mt-4 rounded-2xl bg-[#FFF0F3] px-4 py-3 text-center text-sm font-semibold text-[#A10E4D]">
           {feedback}
         </p>
       ) : null}
@@ -1116,7 +1116,7 @@ function PrivateGalleryAccessCard({
             placeholder="Add a short note if you want to introduce yourself first..."
             maxLength={200}
             rows={3}
-            className="w-full rounded-2xl border border-[#7A1F2B]/20 bg-[#FCFAF7] px-4 py-3 text-sm text-[#1A1A1A] outline-none transition focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+            className="w-full rounded-2xl border border-[#A10E4D]/20 bg-[#FFF9F5] px-4 py-3 text-sm text-[#2F2F2F] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
           />
           <div className="grid gap-2 sm:grid-cols-2">
             <PremiumButton onClick={() => void handleSendRequest()} disabled={sending} className="w-full">
@@ -1381,9 +1381,9 @@ function ProfileDetailView({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <PremiumCard className="overflow-hidden rounded-[34px] border border-[#7A1F2B]/10 bg-white p-0 shadow-[0_24px_70px_rgba(122,31,43,0.10)]">
+            <PremiumCard className="overflow-hidden rounded-[34px] border border-[#A10E4D]/10 bg-white p-0 shadow-[0_24px_70px_rgba(122,31,43,0.10)]">
               <div className="grid gap-0 xl:grid-cols-[minmax(320px,0.95fr)_minmax(0,1.05fr)]">
-                <div className="relative min-h-[420px] overflow-hidden bg-[linear-gradient(145deg,#7A1F2B_0%,#651925_45%,#D4AF37_100%)]">
+                <div className="relative min-h-[420px] overflow-hidden bg-[linear-gradient(145deg,#A10E4D_0%,#890B40_45%,#D4A04C_100%)]">
                   {primaryPhotoUrl ? (
                     <Image
                       src={primaryPhotoUrl}
@@ -1400,7 +1400,7 @@ function ProfileDetailView({
                     </div>
                   )}
 
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/20 to-transparent p-5 text-white">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#2F2F2F]/80 via-[#2F2F2F]/20 to-transparent p-5 text-white">
                     <div className="flex flex-wrap items-center gap-2">
                       <ToneBadge tone="gold">
                         <Sparkles className="size-3.5" />
@@ -1415,12 +1415,12 @@ function ProfileDetailView({
                 </div>
 
                 <div className="relative p-5 sm:p-6 lg:p-8">
-                  <div className="absolute -right-12 top-0 h-40 w-40 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+                  <div className="absolute -right-12 top-0 h-40 w-40 rounded-full bg-[#D4A04C]/10 blur-3xl" />
                   <div className="relative">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4AF37]">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4A04C]">
                       Profile {profile.displayId}
                     </p>
-                    <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#1A1A1A] sm:text-4xl">
+                    <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#2F2F2F] sm:text-4xl">
                       {fullName}
                     </h1>
                     <p className="mt-3 text-sm leading-7 text-[#6B7280] sm:text-base">
@@ -1444,23 +1444,23 @@ function ProfileDetailView({
                       {trustIndicators.map((indicator) => (
                         <div
                           key={indicator.label}
-                          className="rounded-[24px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4"
+                          className="rounded-[24px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4"
                         >
                           <ToneBadge tone={indicator.tone}>
                             <CheckCircle2 className="size-3.5" />
                             Trust signal
                           </ToneBadge>
-                          <p className="mt-3 text-sm font-semibold text-[#1A1A1A]">{indicator.label}</p>
+                          <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">{indicator.label}</p>
                         </div>
                       ))}
                     </div>
 
                     <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                      <div className="rounded-[24px] border border-[#7A1F2B]/10 bg-white p-4">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                      <div className="rounded-[24px] border border-[#A10E4D]/10 bg-white p-4">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                           Match score
                         </p>
-                        <p className="mt-2 text-2xl font-semibold text-[#1A1A1A]">
+                        <p className="mt-2 text-2xl font-semibold text-[#2F2F2F]">
                           {typeof matchScore === 'number' ? `${matchScore}%` : 'Available to members'}
                         </p>
                         <p className="mt-2 text-sm leading-6 text-[#6B7280]">
@@ -1468,12 +1468,12 @@ function ProfileDetailView({
                         </p>
                       </div>
 
-                      <div className="rounded-[24px] border border-[#7A1F2B]/10 bg-white p-4">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                      <div className="rounded-[24px] border border-[#A10E4D]/10 bg-white p-4">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                           Profile completion
                         </p>
                         <div className="mt-3 flex items-center justify-between gap-3">
-                          <p className="text-2xl font-semibold text-[#1A1A1A]">
+                          <p className="text-2xl font-semibold text-[#2F2F2F]">
                             {profile.completionPercentage}%
                           </p>
                           <p className="text-xs font-semibold text-[#6B7280]">
@@ -1486,7 +1486,7 @@ function ProfileDetailView({
 
                     {matchReasons?.length ? (
                       <div className="mt-6 grid gap-2">
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                           Quick compatibility highlights
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1538,13 +1538,13 @@ function ProfileDetailView({
                 {compatibilityRows.map((row) => (
                   <motion.div
                     key={row.label}
-                    className="rounded-[26px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4"
+                    className="rounded-[26px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4"
                     whileHover={{ y: -2 }}
                     transition={{ duration: 0.2 }}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-sm font-semibold text-[#1A1A1A]">{row.label}</p>
+                        <p className="text-sm font-semibold text-[#2F2F2F]">{row.label}</p>
                         <p className="mt-2 text-sm leading-6 text-[#6B7280]">{row.summary}</p>
                       </div>
                       <ToneBadge tone={row.accent}>{row.score}%</ToneBadge>
@@ -1553,8 +1553,8 @@ function ProfileDetailView({
                       className="mt-4"
                       value={row.score}
                       indicatorClassName={cx(
-                        row.accent === 'burgundy' && 'bg-[#7A1F2B]',
-                        row.accent === 'gold' && 'bg-[#D4AF37]',
+                        row.accent === 'burgundy' && 'bg-[#A10E4D]',
+                        row.accent === 'gold' && 'bg-[#D4A04C]',
                         row.accent === 'emerald' && 'bg-[#1F6F4A]',
                       )}
                     />
@@ -1580,7 +1580,7 @@ function ProfileDetailView({
                 insights.map((insight) => (
                   <motion.div
                     key={insight.title}
-                    className="rounded-[26px] border border-[#D4AF37]/25 bg-[linear-gradient(180deg,#FFF8EC_0%,#FFFFFF_100%)] p-5"
+                    className="rounded-[26px] border border-[#D4A04C]/25 bg-[linear-gradient(180deg,#FFF8EC_0%,#FFFFFF_100%)] p-5"
                     whileHover={{ y: -3 }}
                     transition={{ duration: 0.2 }}
                   >
@@ -1588,12 +1588,12 @@ function ProfileDetailView({
                       <CheckCircle2 className="size-3.5" />
                       Potential fit
                     </ToneBadge>
-                    <h3 className="mt-4 text-lg font-semibold text-[#1A1A1A]">{insight.title}</h3>
+                    <h3 className="mt-4 text-lg font-semibold text-[#2F2F2F]">{insight.title}</h3>
                     <p className="mt-3 text-sm leading-7 text-[#6B7280]">{insight.body}</p>
                   </motion.div>
                 ))
               ) : (
-                <div className="md:col-span-2 xl:col-span-3 rounded-[26px] border border-dashed border-[#D4AF37]/50 bg-[#FCFAF7] p-6 text-sm leading-6 text-[#6B7280]">
+                <div className="md:col-span-2 xl:col-span-3 rounded-[26px] border border-dashed border-[#D4A04C]/50 bg-[#FFF9F5] p-6 text-sm leading-6 text-[#6B7280]">
                   We need a little more shared profile information before we can surface stronger
                   connection insights here.
                 </div>
@@ -1612,7 +1612,7 @@ function ProfileDetailView({
               {starters.map((starter, index) => (
                 <motion.div
                   key={starter}
-                  className="rounded-[26px] border border-[#7A1F2B]/10 bg-white p-5"
+                  className="rounded-[26px] border border-[#A10E4D]/10 bg-white p-5"
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -1620,7 +1620,7 @@ function ProfileDetailView({
                     <MessageSquareText className="size-3.5" />
                     Prompt {index + 1}
                   </ToneBadge>
-                  <p className="mt-4 text-sm leading-7 text-[#1A1A1A]">{starter}</p>
+                  <p className="mt-4 text-sm leading-7 text-[#2F2F2F]">{starter}</p>
                 </motion.div>
               ))}
             </div>
@@ -1635,15 +1635,15 @@ function ProfileDetailView({
               />
 
               <div className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-                <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-5">
-                  <p className="text-sm leading-8 text-[#1A1A1A]">
+                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5">
+                  <p className="text-sm leading-8 text-[#2F2F2F]">
                     {profile.about?.aboutMe ?? 'This member has not added a profile summary yet.'}
                   </p>
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                  <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                       Interests
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -1662,8 +1662,8 @@ function ProfileDetailView({
                     </div>
                   </div>
 
-                  <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                  <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                       At a glance
                     </p>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -1688,8 +1688,8 @@ function ProfileDetailView({
             <div className="mt-6 grid gap-4 lg:grid-cols-3">
               {partnerPreferenceGroups.length > 0 ? (
                 partnerPreferenceGroups.map((group) => (
-                  <div key={group.title} className="rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                  <div key={group.title} className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                       {group.title}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -1703,17 +1703,17 @@ function ProfileDetailView({
                   </div>
                 ))
               ) : (
-                <div className="lg:col-span-3 rounded-[28px] border border-dashed border-[#D4AF37]/50 bg-[#FCFAF7] p-5 text-sm leading-6 text-[#6B7280]">
+                <div className="lg:col-span-3 rounded-[28px] border border-dashed border-[#D4A04C]/50 bg-[#FFF9F5] p-5 text-sm leading-6 text-[#6B7280]">
                   Partner expectations have not been structured in detail yet.
                 </div>
               )}
             </div>
 
-            <div className="mt-5 rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+            <div className="mt-5 rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                 In their own words
               </p>
-              <p className="mt-3 text-sm leading-7 text-[#1A1A1A]">
+              <p className="mt-3 text-sm leading-7 text-[#2F2F2F]">
                 {profile.about?.partnerExpectations ?? 'Partner expectations have not been shared yet.'}
               </p>
             </div>
@@ -1728,12 +1728,12 @@ function ProfileDetailView({
 
             <div className="mt-6 grid gap-4">
               {timeline.map((item, index) => (
-                <div key={item.label} className="rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
+                <div key={item.label} className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
                   <div className="flex items-start gap-4">
                     <div
                       className={cx(
                         'mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full',
-                        item.tone === 'trust' && 'bg-[#F8E8E8] text-[#7A1F2B]',
+                        item.tone === 'trust' && 'bg-[#FFF0F3] text-[#A10E4D]',
                         item.tone === 'activity' && 'bg-[#F0FBF6] text-[#1F6F4A]',
                         item.tone === 'gallery' && 'bg-[#FFF8EC] text-[#8B6714]',
                       )}
@@ -1741,7 +1741,7 @@ function ProfileDetailView({
                       <span className="text-sm font-bold">{index + 1}</span>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-[#1A1A1A]">{item.label}</p>
+                      <p className="text-sm font-semibold text-[#2F2F2F]">{item.label}</p>
                       <p className="mt-2 text-sm leading-6 text-[#6B7280]">{item.body}</p>
                     </div>
                   </div>
@@ -1759,8 +1759,8 @@ function ProfileDetailView({
               />
 
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5">
-                  <p className="text-sm font-semibold text-[#1A1A1A]">Family details</p>
+                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                  <p className="text-sm font-semibold text-[#2F2F2F]">Family details</p>
                   <div className="mt-4 grid gap-3">
                     <DetailField label="Family values" value={profile.family?.familyValues} />
                     <DetailField label="Family type" value={profile.family?.familyType} />
@@ -1769,8 +1769,8 @@ function ProfileDetailView({
                   </div>
                 </div>
 
-                <div id="profile-lifestyle" className="scroll-mt-36 rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5">
-                  <p className="text-sm font-semibold text-[#1A1A1A]">Lifestyle</p>
+                <div id="profile-lifestyle" className="scroll-mt-36 rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                  <p className="text-sm font-semibold text-[#2F2F2F]">Lifestyle</p>
                   <div className="mt-4 grid gap-3">
                     <DetailField label="Diet" value={formatEnum(profile.lifestyle?.diet)} />
                     <DetailField label="Smoking" value={formatEnum(profile.lifestyle?.smoking)} />
@@ -1782,8 +1782,8 @@ function ProfileDetailView({
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5">
-                  <p className="text-sm font-semibold text-[#1A1A1A]">Education and career</p>
+                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                  <p className="text-sm font-semibold text-[#2F2F2F]">Education and career</p>
                   <div className="mt-4 grid gap-3">
                     <DetailField label="Education" value={profile.education?.highestQualification} />
                     <DetailField label="Occupation" value={profile.employment?.occupation} />
@@ -1792,8 +1792,8 @@ function ProfileDetailView({
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5">
-                  <p className="text-sm font-semibold text-[#1A1A1A]">Detailed information</p>
+                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                  <p className="text-sm font-semibold text-[#2F2F2F]">Detailed information</p>
                   <div className="mt-4 grid gap-3">
                     <DetailField label="Gender" value={formatEnum(profile.personal?.gender)} />
                     <DetailField label="Marital status" value={formatEnum(profile.personal?.maritalStatus)} />
@@ -1814,11 +1814,11 @@ function ProfileDetailView({
         <aside className="hidden lg:block">
           <div className="sticky top-28 grid gap-4">
             <ProfileSurface className="p-0">
-              <div className="rounded-[30px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FCFAF7_100%)] p-6">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+              <div className="rounded-[30px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                   Connect safely
                 </p>
-                <h2 className="mt-3 text-2xl font-semibold text-[#1A1A1A]">
+                <h2 className="mt-3 text-2xl font-semibold text-[#2F2F2F]">
                   Interested in knowing {profile.personal?.firstName ?? 'them'} better?
                 </h2>
                 <p className="mt-3 text-sm leading-7 text-[#6B7280]">
@@ -1826,8 +1826,8 @@ function ProfileDetailView({
                 </p>
 
                 <div className="mt-5 space-y-3">
-                  <div className="rounded-[24px] border border-[#7A1F2B]/10 bg-white p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                  <div className="rounded-[24px] border border-[#A10E4D]/10 bg-white p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                       Trust snapshot
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -1850,7 +1850,7 @@ function ProfileDetailView({
         </aside>
 
         <div
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-[#7A1F2B]/10 bg-white/95 p-3 shadow-[0_-14px_40px_rgba(122,31,43,0.12)] backdrop-blur lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-[#A10E4D]/10 bg-white/95 p-3 shadow-[0_-14px_40px_rgba(122,31,43,0.12)] backdrop-blur lg:hidden"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
         >
           <div className="mx-auto grid max-w-5xl gap-2">
@@ -1870,9 +1870,9 @@ function RestrictedProfilePage({ profileId }: Readonly<{ profileId: string }>) {
   return (
     <StaticProfileLayout>
       <motion.section {...fadeInUp} className="mx-auto max-w-4xl">
-        <PremiumCard className="overflow-hidden rounded-[32px] border border-[#7A1F2B]/10 p-0">
+        <PremiumCard className="overflow-hidden rounded-[32px] border border-[#A10E4D]/10 p-0">
           <div className="grid gap-0 md:grid-cols-[0.9fr_1.1fr]">
-            <div className="grid min-h-[280px] place-items-center bg-[linear-gradient(145deg,#7A1F2B_0%,#651925_50%,#D4AF37_100%)] p-8 text-white">
+            <div className="grid min-h-[280px] place-items-center bg-[linear-gradient(145deg,#A10E4D_0%,#890B40_50%,#D4A04C_100%)] p-8 text-white">
               <div className="max-w-xs text-center">
                 <Lock className="mx-auto size-12" />
                 <p className="mt-4 text-xl font-semibold">Members only</p>
@@ -1882,10 +1882,10 @@ function RestrictedProfilePage({ profileId }: Readonly<{ profileId: string }>) {
               </div>
             </div>
             <div className="p-6 sm:p-8">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
                 Private profile
               </p>
-              <h1 className="mt-3 text-3xl font-semibold text-[#1A1A1A]">
+              <h1 className="mt-3 text-3xl font-semibold text-[#2F2F2F]">
                 Sign in to view this member
               </h1>
               <p className="mt-4 text-sm leading-7 text-[#6B7280]">
@@ -1911,8 +1911,8 @@ function ProfileMessage({ message, title }: Readonly<{ message: string; title: s
     <StaticProfileLayout>
       <motion.section {...fadeInUp} className="mx-auto max-w-3xl">
         <PremiumCard className="rounded-[32px] p-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Profile</p>
-          <h1 className="mt-3 text-3xl font-semibold text-[#1A1A1A]">{title}</h1>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">Profile</p>
+          <h1 className="mt-3 text-3xl font-semibold text-[#2F2F2F]">{title}</h1>
           <p className="mt-4 text-sm leading-7 text-[#6B7280]">{message}</p>
         </PremiumCard>
       </motion.section>

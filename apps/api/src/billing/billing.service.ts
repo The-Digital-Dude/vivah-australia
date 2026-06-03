@@ -548,8 +548,8 @@ export async function handleStripeEvent(event: Stripe.Event) {
       { $set: { status: SubscriptionStatus.CANCELED, endsAt: new Date() } },
     );
   }
-
   if (event.type === 'customer.subscription.updated') {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const stripeSubscription = event.data.object as Stripe.Subscription;
     const periodEnd = (stripeSubscription as unknown as { current_period_end?: number }).current_period_end;
     const update: Record<string, unknown> = {

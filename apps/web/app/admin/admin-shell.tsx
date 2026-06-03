@@ -117,7 +117,7 @@ export default function AdminShell({
       <div className="space-y-6">
         <div className="flex h-16 items-center px-4">
           <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-white text-lg tracking-wider">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D4AF37] text-[#7A1F2B] font-extrabold shadow">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D4A04C] text-[#A10E4D] font-extrabold shadow">
               V
             </span>
             <span>VIVAH ADMIN</span>
@@ -140,15 +140,15 @@ export default function AdminShell({
                       onClick={() => setMobileOpen(false)}
                       className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold transition-all ${
                         active
-                          ? 'bg-[#7A1F2B] text-white shadow-sm shadow-[#7A1F2B]/10'
+                          ? 'bg-[#A10E4D] text-white shadow-sm shadow-[#A10E4D]/10'
                           : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
                       }`}
                     >
                       <span className="flex items-center gap-3">
-                        <Icon className={`h-4.5 w-4.5 ${active ? 'text-[#D4AF37]' : 'text-neutral-500 group-hover:text-white'}`} />
+                        <Icon className={`h-4.5 w-4.5 ${active ? 'text-[#D4A04C]' : 'text-neutral-500 group-hover:text-white'}`} />
                         {item.label}
                       </span>
-                      {active && <ChevronRight className="h-3.5 w-3.5 text-[#D4AF37]" />}
+                      {active && <ChevronRight className="h-3.5 w-3.5 text-[#D4A04C]" />}
                     </Link>
                   );
                 })}
@@ -219,7 +219,7 @@ export default function AdminShell({
 
               {/* Breadcrumb & Section Name */}
               <nav className="hidden md:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-400">
-                <Link href="/admin/dashboard" className="hover:text-[#7A1F2B] transition">Admin</Link>
+                <Link href="/admin/dashboard" className="hover:text-[#A10E4D] transition">Admin</Link>
                 <span>/</span>
                 <span className="text-neutral-750 font-semibold">
                   {pathname.split('/').filter(Boolean).slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1).replace('-', ' ')).join(' / ') || 'Dashboard'}
@@ -235,7 +235,7 @@ export default function AdminShell({
                 <input
                   type="text"
                   placeholder="Search operations..."
-                  className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-4 text-xs outline-none focus:border-[#7A1F2B] focus:bg-white transition"
+                  className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-4 text-xs outline-none focus:border-[#A10E4D] focus:bg-white transition"
                 />
               </div>
 
@@ -247,7 +247,7 @@ export default function AdminShell({
                   aria-label="Alerts"
                 >
                   <Bell className="h-4.5 w-4.5" />
-                  <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#7A1F2B] ring-2 ring-white" />
+                  <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#A10E4D] ring-2 ring-white" />
                 </button>
               </div>
 
@@ -259,7 +259,7 @@ export default function AdminShell({
                   type="button"
                   aria-label="User Account"
                 >
-                  <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-[#7A1F2B] text-[11px] font-bold text-white shadow-sm">
+                  <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-[#A10E4D] text-[11px] font-bold text-white shadow-sm">
                     OP
                   </div>
                   <span className="hidden text-xs font-bold text-neutral-700 md:inline-block">
@@ -292,7 +292,7 @@ export default function AdminShell({
           <main className="flex-1 overflow-y-auto px-6 py-8">
             <div className="mx-auto max-w-6xl space-y-6">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#7A1F2B]">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#A10E4D]">
                   Admin CRM
                 </p>
                 <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-neutral-900">{title}</h1>

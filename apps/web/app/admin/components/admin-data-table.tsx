@@ -81,7 +81,7 @@ export function AdminDataTable<T>({
                   setCurrentPage(1);
                 }}
                 placeholder={searchPlaceholder}
-                className="w-full rounded-xl border border-neutral-250 bg-white py-2 pl-9 pr-4 text-sm text-neutral-800 placeholder-neutral-400 outline-none ring-1 ring-transparent focus:border-[#7A1F2B] focus:ring-[#7A1F2B]/10"
+                className="w-full rounded-xl border border-neutral-250 bg-white py-2 pl-9 pr-4 text-sm text-neutral-800 placeholder-neutral-400 outline-none ring-1 ring-transparent focus:border-[#A10E4D] focus:ring-[#A10E4D]/10"
               />
             </div>
           )}
@@ -93,7 +93,7 @@ export function AdminDataTable<T>({
                 setStatusFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="rounded-xl border border-neutral-250 bg-white px-3 py-2 text-sm text-neutral-700 outline-none focus:border-[#7A1F2B]"
+              className="rounded-xl border border-neutral-250 bg-white px-3 py-2 text-sm text-neutral-700 outline-none focus:border-[#A10E4D]"
             >
               <option value="ALL">All Statuses</option>
               {statusOptions.map((opt) => (

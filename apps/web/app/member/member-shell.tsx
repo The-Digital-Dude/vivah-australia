@@ -257,10 +257,10 @@ export default function MemberShell({
 
   if (!initialized || !token) {
     return (
-      <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+      <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F]">
         <PublicHeader />
         <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-          <p className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-6 text-sm font-semibold text-[#7A1F2B] shadow-sm">
+          <p className="rounded-3xl border border-[#A10E4D]/10 bg-white p-6 text-sm font-semibold text-[#A10E4D] shadow-sm">
             Member login required.
           </p>
         </main>
@@ -270,21 +270,21 @@ export default function MemberShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#FCFAF7] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F]">
       <PublicHeader />
 
       <main
         className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8.5rem)' }}
       >
-        <section className="overflow-hidden rounded-[32px] border border-[#7A1F2B]/10 bg-white shadow-[0_18px_50px_rgba(122,31,43,0.08)]">
-          <div className="border-b border-[#7A1F2B]/10 bg-[linear-gradient(180deg,rgba(252,250,247,0.95)_0%,rgba(255,255,255,1)_100%)] px-4 py-4 sm:px-6 sm:py-5">
+        <section className="overflow-hidden rounded-[32px] border border-[#A10E4D]/10 bg-white shadow-[0_18px_50px_rgba(122,31,43,0.08)]">
+          <div className="border-b border-[#A10E4D]/10 bg-[linear-gradient(180deg,rgba(252,250,247,0.95)_0%,rgba(255,255,255,1)_100%)] px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex flex-col gap-5">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <button
                     aria-label="Open member menu"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#7A1F2B]/15 text-[#7A1F2B] md:hidden"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#A10E4D]/15 text-[#A10E4D] md:hidden"
                     type="button"
                     onClick={() => setMenuOpen(true)}
                   >
@@ -292,10 +292,10 @@ export default function MemberShell({
                   </button>
 
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
                       Member space
                     </p>
-                    <h2 className="mt-1 text-lg font-semibold text-[#1A1A1A]">
+                    <h2 className="mt-1 text-lg font-semibold text-[#2F2F2F]">
                       Welcome back, {firstName}
                     </h2>
                   </div>
@@ -304,12 +304,12 @@ export default function MemberShell({
                 <div className="flex items-center gap-3">
                   <Link
                     href="/member/notifications"
-                    className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#7A1F2B]/15 bg-white text-[#7A1F2B] transition hover:bg-[#F8E8E8] sm:h-11 sm:w-11"
+                    className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#A10E4D]/15 bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3] sm:h-11 sm:w-11"
                     aria-label="Notifications"
                   >
                     <Bell className="h-5 w-5" />
                     {unreadCount ? (
-                      <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[#7A1F2B] px-1.5 text-center text-xs font-semibold text-white">
+                      <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[#A10E4D] px-1.5 text-center text-xs font-semibold text-white">
                         {unreadCount}
                       </span>
                     ) : null}
@@ -318,14 +318,14 @@ export default function MemberShell({
                   <button
                     type="button"
                     onClick={() => setMenuOpen(true)}
-                    className="hidden items-center gap-3 rounded-full border border-[#7A1F2B]/15 bg-white px-3 py-2 text-left transition hover:bg-[#F8E8E8] md:inline-flex"
+                    className="hidden items-center gap-3 rounded-full border border-[#A10E4D]/15 bg-white px-3 py-2 text-left transition hover:bg-[#FFF0F3] md:inline-flex"
                     aria-label="Open profile and member menu"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7A1F2B] text-sm font-bold text-white">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#A10E4D] text-sm font-bold text-white">
                       {profileInitial}
                     </span>
                     <span className="pr-1">
-                      <span className="block text-sm font-semibold text-[#1A1A1A]">{firstName}</span>
+                      <span className="block text-sm font-semibold text-[#2F2F2F]">{firstName}</span>
                       <span className="block text-xs text-[#6B7280]">Profile and shortcuts</span>
                     </span>
                   </button>
@@ -343,8 +343,8 @@ export default function MemberShell({
                       className={cx(
                         'inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition whitespace-nowrap',
                         active
-                          ? 'border-[#7A1F2B] bg-[#7A1F2B] text-white shadow-sm'
-                          : 'border-[#7A1F2B]/10 bg-white text-[#6B7280] hover:bg-[#F8E8E8] hover:text-[#7A1F2B]',
+                          ? 'border-[#A10E4D] bg-[#A10E4D] text-white shadow-sm'
+                          : 'border-[#A10E4D]/10 bg-white text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]',
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -368,19 +368,19 @@ export default function MemberShell({
                 className="relative ml-auto flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white p-5 shadow-2xl"
                 style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}
               >
-                <div className="flex items-start justify-between gap-3 border-b border-[#7A1F2B]/10 pb-4">
+                <div className="flex items-start justify-between gap-3 border-b border-[#A10E4D]/10 pb-4">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                       Member menu
                     </p>
-                    <h3 className="mt-1 text-lg font-semibold text-[#1A1A1A]">{firstName}</h3>
+                    <h3 className="mt-1 text-lg font-semibold text-[#2F2F2F]">{firstName}</h3>
                     <p className="mt-1 text-sm text-[#6B7280]">
                       Jump between discovery, activity, membership, and profile tools.
                     </p>
                   </div>
                   <button
                     aria-label="Close member menu"
-                    className="rounded-full border border-[#7A1F2B]/15 p-2 text-[#7A1F2B]"
+                    className="rounded-full border border-[#A10E4D]/15 p-2 text-[#A10E4D]"
                     type="button"
                     onClick={() => setMenuOpen(false)}
                   >
@@ -391,7 +391,7 @@ export default function MemberShell({
                 <div className="mt-5 space-y-6">
                   {visibleGroups.map((group) => (
                     <div key={group.title}>
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
                         {group.title}
                       </p>
                       <nav className="mt-3 grid gap-2">
@@ -406,12 +406,12 @@ export default function MemberShell({
                               className={cx(
                                 'flex items-center justify-between rounded-2xl border px-4 py-3 text-sm font-semibold transition',
                                 active
-                                  ? 'border-[#7A1F2B] bg-[#F8E8E8] text-[#7A1F2B]'
-                                  : 'border-[#7A1F2B]/10 bg-white text-[#1A1A1A] hover:bg-[#FCFAF7]',
+                                  ? 'border-[#A10E4D] bg-[#FFF0F3] text-[#A10E4D]'
+                                  : 'border-[#A10E4D]/10 bg-white text-[#2F2F2F] hover:bg-[#FFF9F5]',
                               )}
                             >
                               <span className="flex items-center gap-3">
-                                <Icon className="h-4 w-4 text-[#7A1F2B]" />
+                                <Icon className="h-4 w-4 text-[#A10E4D]" />
                                 {item.label}
                               </span>
                               <ChevronRight className="h-4 w-4 text-[#6B7280]" />
@@ -433,7 +433,7 @@ export default function MemberShell({
         </section>
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#7A1F2B]/10 bg-white/95 shadow-[0_-12px_32px_rgba(122,31,43,0.08)] backdrop-blur-md md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#A10E4D]/10 bg-white/95 shadow-[0_-12px_32px_rgba(122,31,43,0.08)] backdrop-blur-md md:hidden">
         <div
           className="mx-auto grid max-w-7xl grid-cols-5 gap-1 px-2 pt-2 pb-2"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
@@ -448,11 +448,11 @@ export default function MemberShell({
                 className={cx(
                   'flex min-h-[52px] flex-col items-center justify-center rounded-2xl px-1 text-[10px] font-semibold transition-all duration-200 active:scale-95',
                   active
-                    ? 'bg-[#7A1F2B] text-white shadow-md'
-                    : 'text-[#6B7280] hover:bg-[#F8E8E8]/50 hover:text-[#7A1F2B]',
+                    ? 'bg-[#A10E4D] text-white shadow-md'
+                    : 'text-[#6B7280] hover:bg-[#FFF0F3]/50 hover:text-[#A10E4D]',
                 )}
               >
-                <Icon className={cx('mb-1 h-[18px] w-[18px]', active ? 'text-[#D4AF37]' : 'text-current')} />
+                <Icon className={cx('mb-1 h-[18px] w-[18px]', active ? 'text-[#D4A04C]' : 'text-current')} />
                 <span className={cx(active ? 'font-bold' : 'font-medium')}>{item.label}</span>
               </Link>
             );

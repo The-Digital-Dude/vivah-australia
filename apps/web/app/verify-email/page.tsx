@@ -51,8 +51,8 @@ function VerifyEmailClient() {
   if (status === 'loading') {
     return (
       <div className="flex flex-col items-center justify-center py-6 text-center">
-        <Loader2 className="size-10 animate-spin text-[#7A1F2B] mb-4" />
-        <p className="text-sm font-semibold text-[#1A1A1A]">{message}</p>
+        <Loader2 className="size-10 animate-spin text-[#A10E4D] mb-4" />
+        <p className="text-sm font-semibold text-[#2F2F2F]">{message}</p>
         <p className="text-xs text-[#6B7280] mt-2">Checking with Vivah Australia servers...</p>
       </div>
     );
@@ -61,14 +61,14 @@ function VerifyEmailClient() {
   if (status === 'success') {
     return (
       <div className="flex flex-col items-center text-center py-4">
-        <div className="size-16 rounded-full bg-[#FCFAF7] border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-6 shadow-sm">
+        <div className="size-16 rounded-full bg-[#FFF9F5] border border-[#D4A04C]/30 flex items-center justify-center text-[#D4A04C] mb-6 shadow-sm">
           <CheckCircle2 className="size-10" />
         </div>
-        <h2 className="font-serif font-bold text-xl text-[#7A1F2B] mb-3">Email Verified</h2>
+        <h2 className="font-serif font-bold text-xl text-[#A10E4D] mb-3">Email Verified</h2>
         <p className="text-sm text-[#6B7280] leading-relaxed mb-8 max-w-sm">{message}</p>
         <Link
           href="/login"
-          className="h-12 w-full rounded-2xl bg-[#7A1F2B] px-6 text-sm font-bold text-white transition hover:bg-[#651925] flex items-center justify-center shadow-sm"
+          className="h-12 w-full rounded-2xl bg-[#A10E4D] px-6 text-sm font-bold text-white transition hover:bg-[#890B40] flex items-center justify-center shadow-sm"
         >
           Sign In to Your Account
         </Link>
@@ -85,7 +85,7 @@ function VerifyEmailClient() {
       <p className="text-sm text-[#6B7280] leading-relaxed mb-8 max-w-sm">{message}</p>
       <Link
         href="/login"
-        className="font-bold text-sm text-[#7A1F2B] hover:text-[#651925] underline decoration-[#7A1F2B]/30 hover:decoration-[#651925]"
+        className="font-bold text-sm text-[#A10E4D] hover:text-[#890B40] underline decoration-[#A10E4D]/30 hover:decoration-[#890B40]"
       >
         Back to sign in
       </Link>
@@ -96,8 +96,8 @@ function VerifyEmailClient() {
 function LoadingCard() {
   return (
     <div className="flex flex-col items-center justify-center py-6 text-center">
-      <Loader2 className="size-10 animate-spin text-[#7A1F2B] mb-4" />
-      <p className="text-sm font-semibold text-[#1A1A1A]">Loading verification details...</p>
+      <Loader2 className="size-10 animate-spin text-[#A10E4D] mb-4" />
+      <p className="text-sm font-semibold text-[#2F2F2F]">Loading verification details...</p>
     </div>
   );
 }

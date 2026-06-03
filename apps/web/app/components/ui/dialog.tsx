@@ -21,7 +21,7 @@ export const DialogOverlay = forwardRef<
   return (
     <DialogPrimitive.Overlay
       ref={ref}
-      className={cx('fixed inset-0 z-50 bg-[#1A1A1A]/60 backdrop-blur-sm', className)}
+      className={cx('fixed inset-0 z-50 bg-[#2F2F2F]/60 backdrop-blur-sm', className)}
       {...props}
     />
   );
@@ -43,7 +43,7 @@ export const DialogContent = forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#7A1F2B]/10 bg-white text-[#7A1F2B] transition hover:bg-[#F8E8E8]">
+        <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#A10E4D]/10 bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3]">
           <X className="size-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
@@ -59,7 +59,7 @@ export const DialogTitle = forwardRef<
   return (
     <DialogPrimitive.Title
       ref={ref}
-      className={cx('text-lg font-semibold text-[#1A1A1A]', className)}
+      className={cx('text-lg font-semibold text-[#2F2F2F]', className)}
       {...props}
     />
   );

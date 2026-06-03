@@ -472,7 +472,7 @@ function Field({
   hint?: string | undefined;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+    <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
       <span className="flex items-baseline gap-1.5">
         {label}
         {optional ? <span className="text-xs font-normal text-[#6B7280]">optional</span> : null}
@@ -483,11 +483,11 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cx(
-          'h-12 rounded-2xl border bg-[#FCFAF7]/50 px-4 text-sm outline-none transition duration-200 focus:bg-white',
-          'focus:ring-4 focus:ring-[#F8E8E8]',
+          'h-12 rounded-2xl border bg-[#FFF9F5]/50 px-4 text-sm outline-none transition duration-200 focus:bg-white',
+          'focus:ring-4 focus:ring-[#FFF0F3]',
           error
             ? 'border-red-400 focus:border-red-500'
-            : 'border-[#7A1F2B]/15 focus:border-[#7A1F2B]',
+            : 'border-[#A10E4D]/15 focus:border-[#A10E4D]',
         )}
       />
       {hint ? <span className="text-xs font-normal text-[#6B7280]">{hint}</span> : null}
@@ -514,7 +514,7 @@ function SelectField({
   hint?: string | undefined;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+    <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
       <span className="flex items-baseline gap-1.5">
         {label}
         {optional ? <span className="text-xs font-normal text-[#6B7280]">optional</span> : null}
@@ -523,11 +523,11 @@ function SelectField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cx(
-          'h-12 rounded-2xl border bg-[#FCFAF7]/50 px-4 text-sm outline-none transition duration-200 focus:bg-white',
-          'focus:ring-4 focus:ring-[#F8E8E8]',
+          'h-12 rounded-2xl border bg-[#FFF9F5]/50 px-4 text-sm outline-none transition duration-200 focus:bg-white',
+          'focus:ring-4 focus:ring-[#FFF0F3]',
           error
             ? 'border-red-400 focus:border-red-500'
-            : 'border-[#7A1F2B]/15 focus:border-[#7A1F2B]',
+            : 'border-[#A10E4D]/15 focus:border-[#A10E4D]',
         )}
       >
         <option value="">Select</option>
@@ -563,7 +563,7 @@ function TextAreaField({
   hint?: string | undefined;
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+    <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
       <span className="flex items-baseline gap-1.5">
         {label}
         {optional ? <span className="text-xs font-normal text-[#6B7280]">optional</span> : null}
@@ -574,11 +574,11 @@ function TextAreaField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cx(
-          'rounded-2xl border bg-[#FCFAF7]/50 px-4 py-3 text-sm outline-none transition duration-200 focus:bg-white',
-          'focus:ring-4 focus:ring-[#F8E8E8]',
+          'rounded-2xl border bg-[#FFF9F5]/50 px-4 py-3 text-sm outline-none transition duration-200 focus:bg-white',
+          'focus:ring-4 focus:ring-[#FFF0F3]',
           error
             ? 'border-red-400 focus:border-red-500'
-            : 'border-[#7A1F2B]/15 focus:border-[#7A1F2B]',
+            : 'border-[#A10E4D]/15 focus:border-[#A10E4D]',
         )}
       />
       {hint ? <span className="text-xs font-normal text-[#6B7280]">{hint}</span> : null}
@@ -657,8 +657,8 @@ function StepBasicDetails({
           { value: 'ANNULLED', label: 'Annulled' },
         ]}
       />
-      <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+      <details className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
           Add optional personal details now
         </summary>
         <div className="mt-4 grid gap-5">
@@ -742,8 +742,8 @@ function StepLocation({
         onChange={(v) => onChange({ city: v })}
         error={errors.city}
       />
-      <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+      <details className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
           Add suburb and residency details
         </summary>
         <div className="mt-4 grid gap-5 sm:grid-cols-2">
@@ -811,8 +811,8 @@ function StepReligion({
           error={errors.community}
         />
       </div>
-      <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+      <details className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
           Add language, caste, or sub-community details
         </summary>
         <div className="mt-4 grid gap-5">
@@ -880,8 +880,8 @@ function StepEducation({
         to add it now.
       </p>
 
-      <div className="grid gap-4 bg-[#FCFAF7] p-4 rounded-2xl border border-[#7A1F2B]/5">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">
+      <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Education Details
         </p>
         <div className="grid gap-5">
@@ -893,8 +893,8 @@ function StepEducation({
             onChange={(v) => onEdChange({ highestQualification: v })}
             error={errors.highestQualification}
           />
-          <details className="rounded-2xl border border-[#7A1F2B]/10 bg-white/70 p-4">
-            <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+          <details className="rounded-2xl border border-[#A10E4D]/10 bg-white/70 p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
               Add institution and certification details
             </summary>
             <div className="mt-4 grid gap-5 sm:grid-cols-2">
@@ -929,8 +929,8 @@ function StepEducation({
         </div>
       </div>
 
-      <div className="grid gap-4 bg-[#FCFAF7] p-4 rounded-2xl border border-[#7A1F2B]/5">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">
+      <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Employment details
         </p>
         <div className="grid gap-5">
@@ -952,8 +952,8 @@ function StepEducation({
               error={errors.highestQualification}
             />
           </div>
-          <details className="rounded-2xl border border-[#7A1F2B]/10 bg-white/70 p-4">
-            <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+          <details className="rounded-2xl border border-[#A10E4D]/10 bg-white/70 p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
               Add employer and income details
             </summary>
             <div className="mt-4 grid gap-5">
@@ -1336,12 +1336,12 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
       <SectionTitle icon="📸" title="Profile Gallery" />
 
       {/* Upload zone */}
-      <div className="border-2 border-dashed border-[#7A1F2B]/20 hover:border-[#7A1F2B]/40 rounded-3xl bg-[#FCFAF7] p-6 text-center transition flex flex-col items-center justify-center gap-4">
-        <div className="size-12 rounded-2xl bg-[#F8E8E8] flex items-center justify-center text-[#7A1F2B] shadow-sm">
+      <div className="border-2 border-dashed border-[#A10E4D]/20 hover:border-[#A10E4D]/40 rounded-3xl bg-[#FFF9F5] p-6 text-center transition flex flex-col items-center justify-center gap-4">
+        <div className="size-12 rounded-2xl bg-[#FFF0F3] flex items-center justify-center text-[#A10E4D] shadow-sm">
           <ImagePlus className="size-6" />
         </div>
         <div className="max-w-md">
-          <p className="font-semibold text-sm text-[#1A1A1A]">
+          <p className="font-semibold text-sm text-[#2F2F2F]">
             Upload your profile and gallery photos
           </p>
           <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
@@ -1351,37 +1351,37 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
         </div>
 
         <div className="grid gap-4 w-full max-w-lg sm:grid-cols-3 mt-2 text-left">
-          <label className="grid gap-1.5 text-xs font-bold text-[#1A1A1A]">
+          <label className="grid gap-1.5 text-xs font-bold text-[#2F2F2F]">
             Category
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="h-10 rounded-xl border border-[#7A1F2B]/15 bg-white px-3 text-xs outline-none focus:border-[#7A1F2B]"
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-white px-3 text-xs outline-none focus:border-[#A10E4D]"
             >
               <option value="PROFILE_PHOTO">Profile photo</option>
               <option value="PUBLIC_GALLERY">Public gallery</option>
               <option value="PRIVATE_GALLERY">Private gallery</option>
             </select>
           </label>
-          <label className="grid gap-1.5 text-xs font-bold text-[#1A1A1A]">
+          <label className="grid gap-1.5 text-xs font-bold text-[#2F2F2F]">
             Visibility
             <select
               value={visibility}
               onChange={(e) => setVisibility(e.target.value)}
-              className="h-10 rounded-xl border border-[#7A1F2B]/15 bg-white px-3 text-xs outline-none focus:border-[#7A1F2B]"
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-white px-3 text-xs outline-none focus:border-[#A10E4D]"
             >
               <option value="PUBLIC">Public</option>
               <option value="MATCHES_ONLY">Matches only</option>
               <option value="PRIVATE">Private</option>
             </select>
           </label>
-          <label className="grid gap-1.5 text-xs font-bold text-[#1A1A1A]">
+          <label className="grid gap-1.5 text-xs font-bold text-[#2F2F2F]">
             Select File
             <input
               ref={fileRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"
-              className="h-10 rounded-xl border border-[#7A1F2B]/15 bg-white px-2 py-1.5 text-[10px] outline-none"
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-white px-2 py-1.5 text-[10px] outline-none"
             />
           </label>
         </div>
@@ -1390,7 +1390,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
           type="button"
           onClick={() => void handleUpload()}
           disabled={uploading}
-          className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-[#7A1F2B] px-6 py-2.5 text-xs font-bold text-white shadow-lg shadow-[#7A1F2B]/15 hover:bg-[#651925] disabled:opacity-50 transition"
+          className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-[#A10E4D] px-6 py-2.5 text-xs font-bold text-white shadow-lg shadow-[#A10E4D]/15 hover:bg-[#890B40] disabled:opacity-50 transition"
         >
           {uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
           {uploading ? 'Uploading...' : 'Upload Media File'}
@@ -1403,7 +1403,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
             'flex items-start gap-2 rounded-2xl p-4 text-xs font-semibold animate-fade-in',
             msg.ok
               ? 'bg-green-50 text-green-700 border border-green-200'
-              : 'bg-[#FDECEF] text-[#7A1F2B] border border-red-200',
+              : 'bg-[#FDECEF] text-[#A10E4D] border border-red-200',
           )}
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
@@ -1417,7 +1417,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
           {mediaList.map((item) => (
             <div
               key={item.id}
-              className="relative group overflow-hidden rounded-2xl border border-[#7A1F2B]/10 bg-white shadow-sm hover:shadow-md transition"
+              className="relative group overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white shadow-sm hover:shadow-md transition"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -1425,9 +1425,9 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
                 alt="Matrimonial Photo"
                 className="aspect-square w-full object-cover"
               />
-              <div className="p-2 border-t border-[#7A1F2B]/5 bg-[#FCFAF7]/50">
+              <div className="p-2 border-t border-[#A10E4D]/5 bg-[#FFF9F5]/50">
                 <div className="flex flex-wrap gap-1">
-                  <span className="rounded bg-white border border-[#7A1F2B]/10 px-1.5 py-0.5 text-[9px] font-bold text-[#7A1F2B]">
+                  <span className="rounded bg-white border border-[#A10E4D]/10 px-1.5 py-0.5 text-[9px] font-bold text-[#A10E4D]">
                     {item.category.replace(/_/g, ' ')}
                   </span>
                   <span
@@ -1441,7 +1441,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
                     {item.approvalStatus}
                   </span>
                   {item.isPrimary && (
-                    <span className="rounded bg-[#D4AF37]/20 border border-[#D4AF37] px-1.5 py-0.5 text-[9px] font-bold text-[#7A1F2B]">
+                    <span className="rounded bg-[#D4A04C]/20 border border-[#D4A04C] px-1.5 py-0.5 text-[9px] font-bold text-[#A10E4D]">
                       Primary
                     </span>
                   )}
@@ -1451,8 +1451,8 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#7A1F2B]/20 py-12 text-center bg-[#FCFAF7]/30">
-          <ImagePlus className="mb-3 size-8 text-[#7A1F2B]/20" />
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#A10E4D]/20 py-12 text-center bg-[#FFF9F5]/30">
+          <ImagePlus className="mb-3 size-8 text-[#A10E4D]/20" />
           <p className="text-sm font-semibold text-[#6B7280]">No photo media uploaded yet</p>
           <p className="mt-1 text-xs text-[#9CA3AF]">
             A complete profile with a primary photo attracts 3x more interests.
@@ -1478,8 +1478,8 @@ function StepPartnerPrefs({
     <div className="grid gap-6">
       <SectionTitle icon="💑" title="Partner Preferences" />
 
-      <div className="grid gap-4 bg-[#FCFAF7] p-4 rounded-2xl border border-[#7A1F2B]/5">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">
+      <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Age & Height expectations
         </p>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -1524,8 +1524,8 @@ function StepPartnerPrefs({
         </div>
       </div>
 
-      <div className="grid gap-4 bg-[#FCFAF7] p-4 rounded-2xl border border-[#7A1F2B]/5">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">
+      <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Background & Language expectations
         </p>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -1570,8 +1570,8 @@ function StepPartnerPrefs({
         </div>
       </div>
 
-      <div className="grid gap-4 bg-[#FCFAF7] p-4 rounded-2xl border border-[#7A1F2B]/5">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">
+      <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Location expectations
         </p>
         <div className="grid gap-5 sm:grid-cols-3">
@@ -1605,8 +1605,8 @@ function StepPartnerPrefs({
         </div>
       </div>
 
-      <div className="grid gap-4 bg-[#FCFAF7] p-4 rounded-2xl border border-[#7A1F2B]/5">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#7A1F2B]">
+      <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Education & Career expectations
         </p>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -1678,13 +1678,13 @@ function StepVerification({
     <div className="grid gap-6">
       <SectionTitle icon="✅" title="Review & Submit Profile" />
 
-      <div className="rounded-3xl border border-[#D4AF37]/30 bg-[#FFFDF0] p-6 shadow-sm">
+      <div className="rounded-3xl border border-[#D4A04C]/30 bg-[#FFFDF0] p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-3">
-          <div className="size-12 rounded-2xl bg-[#FCFAF7] flex items-center justify-center text-[#D4AF37] border border-[#D4AF37]/20 shadow-sm shrink-0">
+          <div className="size-12 rounded-2xl bg-[#FFF9F5] flex items-center justify-center text-[#D4A04C] border border-[#D4A04C]/20 shadow-sm shrink-0">
             <ShieldCheck className="size-6" />
           </div>
           <div>
-            <p className="font-bold text-[#1A1A1A] text-sm">Ready to submit for approval?</p>
+            <p className="font-bold text-[#2F2F2F] text-sm">Ready to submit for approval?</p>
             <p className="text-xs text-[#6B7280] mt-0.5">
               Your profile details will be moderated by the Vivah Australia team within 24–48 hours.
             </p>
@@ -1698,7 +1698,7 @@ function StepVerification({
             'Confirming you are at least 18 years of age',
           ].map((item) => (
             <li key={item} className="flex items-center gap-2">
-              <Check className="size-4 text-[#D4AF37] shrink-0" />
+              <Check className="size-4 text-[#D4A04C] shrink-0" />
               <span>{item}</span>
             </li>
           ))}
@@ -1708,7 +1708,7 @@ function StepVerification({
           type="button"
           onClick={onSubmit}
           disabled={pending}
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-[#D4AF37] px-6 py-2.5 text-xs font-bold text-[#1A1A1A] shadow-lg shadow-[#D4AF37]/20 hover:bg-[#c9a126] transition disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-[#D4A04C] px-6 py-2.5 text-xs font-bold text-[#2F2F2F] shadow-lg shadow-[#D4A04C]/20 hover:bg-[#c9a126] transition disabled:opacity-50"
         >
           {pending ? (
             <Loader2 className="size-4 animate-spin" />
@@ -1719,15 +1719,15 @@ function StepVerification({
         </button>
       </div>
 
-      <div className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7]/20 p-5 shadow-sm">
-        <p className="mb-1.5 text-sm font-bold text-[#1A1A1A]">Verify your identity documents</p>
+      <div className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5]/20 p-5 shadow-sm">
+        <p className="mb-1.5 text-sm font-bold text-[#2F2F2F]">Verify your identity documents</p>
         <p className="mb-4 text-xs leading-relaxed text-[#6B7280]">
           Verified members receive up to 5x higher compatible match search priority. Submit
           government-issued ID or residency details to secure high-trust gold badges.
         </p>
         <Link
           href="/member/verification"
-          className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-[#7A1F2B]/20 bg-white px-5 py-2 text-xs font-semibold text-[#7A1F2B] shadow-sm hover:bg-[#F8E8E8] transition"
+          className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-5 py-2 text-xs font-semibold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition"
         >
           <ShieldCheck className="size-4" />
           Go to Verification Centre
@@ -1735,7 +1735,7 @@ function StepVerification({
       </div>
 
       {submitMsg ? (
-        <div className="flex items-start gap-2 rounded-2xl bg-[#FDECEF] p-4 text-xs font-semibold text-[#7A1F2B] border border-red-200 animate-fade-in">
+        <div className="flex items-start gap-2 rounded-2xl bg-[#FDECEF] p-4 text-xs font-semibold text-[#A10E4D] border border-red-200 animate-fade-in">
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           {submitMsg}
         </div>
@@ -1748,9 +1748,9 @@ function StepVerification({
 
 function SectionTitle({ icon, title }: { icon: string; title: string }) {
   return (
-    <div className="mb-2 flex items-center gap-3 border-b border-[#7A1F2B]/5 pb-3">
+    <div className="mb-2 flex items-center gap-3 border-b border-[#A10E4D]/5 pb-3">
       <span className="text-2xl shrink-0">{icon}</span>
-      <h2 className="text-base font-bold text-[#1A1A1A]">{title}</h2>
+      <h2 className="text-base font-bold text-[#2F2F2F]">{title}</h2>
     </div>
   );
 }
@@ -1951,8 +1951,8 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
 
   if (loading) {
     return (
-      <div className="flex min-h-40 items-center justify-center rounded-3xl border border-[#7A1F2B]/10 bg-white">
-        <Loader2 className="size-6 animate-spin text-[#7A1F2B]" />
+      <div className="flex min-h-40 items-center justify-center rounded-3xl border border-[#A10E4D]/10 bg-white">
+        <Loader2 className="size-6 animate-spin text-[#A10E4D]" />
         <span className="ml-3 text-sm font-semibold text-[#6B7280]">
           Loading your matrimonial profile...
         </span>
@@ -1967,7 +1967,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
         <div
           className={cx(
             'fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl px-5 py-3.5 text-sm font-semibold shadow-2xl transition-all animate-fade-in',
-            toast.ok ? 'bg-green-600 text-white' : 'bg-[#7A1F2B] text-white',
+            toast.ok ? 'bg-green-600 text-white' : 'bg-[#A10E4D] text-white',
           )}
         >
           {toast.ok ? <Check className="size-4" /> : <AlertCircle className="size-4" />}
@@ -1976,7 +1976,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
       ) : null}
 
       {/* Stepper horizontal checklist chips */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#7A1F2B]/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#A10E4D]/10 pb-4">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full">
           {STEPS.map((s, i) => {
             const done = i < step;
@@ -1993,10 +1993,10 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                 className={cx(
                   'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold shrink-0 transition-all duration-200 border',
                   active
-                    ? 'bg-[#7A1F2B] text-white border-[#7A1F2B] shadow-sm'
+                    ? 'bg-[#A10E4D] text-white border-[#A10E4D] shadow-sm'
                     : done
                       ? 'bg-white text-green-700 border-green-200 hover:bg-green-50'
-                      : 'bg-white text-[#6B7280] border-[#7A1F2B]/10 hover:bg-[#FCFAF7]',
+                      : 'bg-white text-[#6B7280] border-[#A10E4D]/10 hover:bg-[#FFF9F5]',
                   mode === 'edit' || i <= step || done
                     ? 'cursor-pointer'
                     : 'cursor-not-allowed opacity-60',
@@ -2008,7 +2008,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                   <span
                     className={cx(
                       'size-4 rounded-full flex items-center justify-center text-[9px] shrink-0 font-extrabold',
-                      active ? 'bg-[#D4AF37] text-[#1A1A1A]' : 'bg-[#FCFAF7] text-[#6B7280]',
+                      active ? 'bg-[#D4A04C] text-[#2F2F2F]' : 'bg-[#FFF9F5] text-[#6B7280]',
                     )}
                   >
                     {s.id}
@@ -2024,7 +2024,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
             href={`/profiles/${profileId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-2xl border border-[#7A1F2B]/20 bg-white px-4 py-2.5 text-xs font-bold text-[#7A1F2B] hover:bg-[#F8E8E8] transition shrink-0 shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-2xl border border-[#A10E4D]/20 bg-white px-4 py-2.5 text-xs font-bold text-[#A10E4D] hover:bg-[#FFF0F3] transition shrink-0 shadow-sm"
           >
             <Eye className="size-3.5" />
             Preview Profile
@@ -2033,7 +2033,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
       </div>
 
       {/* Step content card */}
-      <div className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] md:p-8">
+      <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] md:p-8">
         {step === 0 && <StepBasicDetails draft={draft} onChange={patchPersonal} errors={errors} />}
         {step === 1 && <StepLocation draft={draft} onChange={patchLocation} errors={errors} />}
         {step === 2 && <StepReligion draft={draft} onChange={patchReligion} errors={errors} />}
@@ -2062,7 +2062,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
       </div>
 
       {/* Sticky Navigation Footer Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#7A1F2B]/10 pt-5 mt-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#A10E4D]/10 pt-5 mt-4">
         <div className="flex items-center gap-3">
           <div className="relative size-12 flex items-center justify-center shrink-0">
             <svg className="size-12 transform -rotate-90">
@@ -2070,7 +2070,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                 cx="24"
                 cy="24"
                 r="20"
-                className="stroke-[#F8E8E8]"
+                className="stroke-[#FFF0F3]"
                 strokeWidth="4"
                 fill="transparent"
               />
@@ -2078,14 +2078,14 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                 cx="24"
                 cy="24"
                 r="20"
-                className="stroke-[#7A1F2B] transition-all duration-300"
+                className="stroke-[#A10E4D] transition-all duration-300"
                 strokeWidth="4"
                 fill="transparent"
                 strokeDasharray={2 * Math.PI * 20}
                 strokeDashoffset={2 * Math.PI * 20 - (progress / 100) * 2 * Math.PI * 20}
               />
             </svg>
-            <span className="absolute text-[10px] font-bold text-[#7A1F2B]">
+            <span className="absolute text-[10px] font-bold text-[#A10E4D]">
               {Math.round(progress)}%
             </span>
           </div>
@@ -2093,7 +2093,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
               Progress
             </p>
-            <p className="text-xs font-bold text-[#7A1F2B]">
+            <p className="text-xs font-bold text-[#A10E4D]">
               Step {step + 1} of {STEPS.length}
             </p>
           </div>
@@ -2107,7 +2107,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                 setErrors({});
                 setStep((s) => s - 1);
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#7A1F2B]/20 bg-white px-5 py-2 text-sm font-semibold text-[#7A1F2B] shadow-sm hover:bg-[#F8E8E8] transition"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-5 py-2 text-sm font-semibold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition"
             >
               <ChevronLeft className="size-4" />
               Back
@@ -2119,7 +2119,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
               type="button"
               onClick={() => void saveDraft()}
               disabled={saving}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#7A1F2B]/20 bg-white px-5 py-2 text-sm font-semibold text-[#7A1F2B] shadow-sm hover:bg-[#F8E8E8] transition disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-5 py-2 text-sm font-semibold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition disabled:opacity-50"
             >
               {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
               Save draft
@@ -2131,7 +2131,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
               type="button"
               onClick={() => void handleSaveAndContinue()}
               disabled={saving}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#7A1F2B] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#7A1F2B]/15 hover:bg-[#651925] transition disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#A10E4D] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#A10E4D]/15 hover:bg-[#890B40] transition disabled:opacity-50"
             >
               {saving ? <Loader2 className="size-4 animate-spin" /> : null}
               {saving ? 'Saving...' : 'Save & continue'}
@@ -2142,7 +2142,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
               type="button"
               onClick={() => void saveDraft()}
               disabled={saving}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#D4AF37] px-6 py-2.5 text-sm font-bold text-[#1A1A1A] shadow-lg shadow-[#D4AF37]/20 hover:bg-[#c9a126] transition disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#D4A04C] px-6 py-2.5 text-sm font-bold text-[#2F2F2F] shadow-lg shadow-[#D4A04C]/20 hover:bg-[#c9a126] transition disabled:opacity-50"
             >
               {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
               {saving ? 'Saving...' : 'Save Complete Profile'}
@@ -2152,7 +2152,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
       </div>
 
       {/* Bottom tip */}
-      <p className="text-center text-[10px] text-[#6B7280] font-semibold leading-relaxed mt-2 bg-[#FCFAF7] py-2 rounded-xl border border-[#7A1F2B]/5 max-w-sm mx-auto w-full">
+      <p className="text-center text-[10px] text-[#6B7280] font-semibold leading-relaxed mt-2 bg-[#FFF9F5] py-2 rounded-xl border border-[#A10E4D]/5 max-w-sm mx-auto w-full">
         Your partial progress is saved securely. You can return and modify any step later.
       </p>
     </div>

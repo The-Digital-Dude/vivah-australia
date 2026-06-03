@@ -118,7 +118,7 @@ export default function MemberNotificationsPage() {
     >
       <div className="grid gap-6">
         {/* ─── Header controls & Tabs ────────────────────────────────────────── */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#7A1F2B]/10 pb-px">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#A10E4D]/10 pb-px">
           {/* Notification Inbox Tabs */}
           <div className="flex overflow-x-auto gap-2 scrollbar-none">
             <button
@@ -126,13 +126,13 @@ export default function MemberNotificationsPage() {
               className={cx(
                 'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
                 filterTab === 'ALL'
-                  ? 'border-[#7A1F2B] text-[#7A1F2B]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+                  ? 'border-[#A10E4D] text-[#A10E4D]'
+                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
               )}
             >
               📥 All Updates
               {unreadCounts.ALL > 0 && (
-                <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
+                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
                   {unreadCounts.ALL}
                 </span>
               )}
@@ -143,13 +143,13 @@ export default function MemberNotificationsPage() {
               className={cx(
                 'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
                 filterTab === 'MATCH'
-                  ? 'border-[#7A1F2B] text-[#7A1F2B]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+                  ? 'border-[#A10E4D] text-[#A10E4D]'
+                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
               )}
             >
               💖 Matches & Interests
               {unreadCounts.MATCH > 0 && (
-                <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
+                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
                   {unreadCounts.MATCH}
                 </span>
               )}
@@ -160,13 +160,13 @@ export default function MemberNotificationsPage() {
               className={cx(
                 'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
                 filterTab === 'VERIFICATION'
-                  ? 'border-[#7A1F2B] text-[#7A1F2B]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+                  ? 'border-[#A10E4D] text-[#A10E4D]'
+                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
               )}
             >
               🛡️ Verification & Security
               {unreadCounts.VERIFICATION > 0 && (
-                <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
+                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
                   {unreadCounts.VERIFICATION}
                 </span>
               )}
@@ -177,13 +177,13 @@ export default function MemberNotificationsPage() {
               className={cx(
                 'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
                 filterTab === 'BILLING'
-                  ? 'border-[#7A1F2B] text-[#7A1F2B]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#1A1A1A]',
+                  ? 'border-[#A10E4D] text-[#A10E4D]'
+                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
               )}
             >
               💳 Billing & Boosts
               {unreadCounts.BILLING > 0 && (
-                <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
+                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
                   {unreadCounts.BILLING}
                 </span>
               )}
@@ -209,7 +209,7 @@ export default function MemberNotificationsPage() {
               'rounded-2xl border p-4 text-sm font-semibold transition duration-200',
               isSuccess
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                : 'border-red-200 bg-red-50 text-[#7A1F2B]',
+                : 'border-red-200 bg-red-50 text-[#A10E4D]',
             )}
           >
             {message}
@@ -221,7 +221,7 @@ export default function MemberNotificationsPage() {
           {filteredNotifications.length === 0 ? (
             <PremiumCard className="p-8 text-center border-dashed text-[#6B7280]">
               <Bell className="mx-auto size-8 text-[#6B7280]/40 mb-2" />
-              <h3 className="font-semibold text-[#1A1A1A]">No notifications found</h3>
+              <h3 className="font-semibold text-[#2F2F2F]">No notifications found</h3>
               <p className="text-xs mt-1 text-[#6B7280]">
                 You are all caught up. New updates will appear here.
               </p>
@@ -267,8 +267,8 @@ export default function MemberNotificationsPage() {
                     className={cx(
                       'rounded-3xl border p-5 flex gap-4 transition hover:-translate-y-0.5 shadow-sm',
                       isUnread
-                        ? 'border-[#7A1F2B]/15 bg-[#F8E8E8]/25 border-l-4 border-l-[#7A1F2B]'
-                        : 'border-[#7A1F2B]/5 bg-white',
+                        ? 'border-[#A10E4D]/15 bg-[#FFF0F3]/25 border-l-4 border-l-[#A10E4D]'
+                        : 'border-[#A10E4D]/5 bg-white',
                     )}
                   >
                     <div
@@ -286,11 +286,11 @@ export default function MemberNotificationsPage() {
                           {category.label}
                         </span>
                         {isUnread && (
-                          <span className="inline-flex size-2 rounded-full bg-[#7A1F2B]" />
+                          <span className="inline-flex size-2 rounded-full bg-[#A10E4D]" />
                         )}
                       </div>
 
-                      <h3 className="font-semibold text-sm text-[#1A1A1A] leading-snug">
+                      <h3 className="font-semibold text-sm text-[#2F2F2F] leading-snug">
                         {n.title}
                       </h3>
                       {n.body && (
@@ -319,7 +319,7 @@ export default function MemberNotificationsPage() {
                       )}
                       <PremiumButton
                         onClick={() => void remove(n._id)}
-                        className="size-8 rounded-full p-0 flex items-center justify-center shrink-0 min-h-0 bg-[#F8E8E8] text-[#7A1F2B] border-none hover:bg-red-100"
+                        className="size-8 rounded-full p-0 flex items-center justify-center shrink-0 min-h-0 bg-[#FFF0F3] text-[#A10E4D] border-none hover:bg-red-100"
                         variant="danger"
                         aria-label="Delete"
                       >

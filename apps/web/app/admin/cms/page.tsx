@@ -215,7 +215,7 @@ export default function AdminCmsPage() {
               }}
               className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                 activeSection === section.key
-                  ? 'bg-[#7A1F2B] text-white shadow-sm'
+                  ? 'bg-[#A10E4D] text-white shadow-sm'
                   : 'text-neutral-500 hover:bg-neutral-100'
               }`}
             >
@@ -226,7 +226,7 @@ export default function AdminCmsPage() {
 
         {message && (
           <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-            <AlertCircle className="h-4.5 w-4.5 text-[#7A1F2B]" />
+            <AlertCircle className="h-4.5 w-4.5 text-[#A10E4D]" />
             <span>{message}</span>
           </div>
         )}
@@ -480,7 +480,7 @@ function HomeEditor({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-5 py-2.5 text-sm font-bold text-white disabled:bg-neutral-400 shadow-sm"
+          className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-5 py-2.5 text-sm font-bold text-white disabled:bg-neutral-400 shadow-sm"
         >
           {pending ? 'Saving Changes...' : 'Save Homepage Copy'}
         </button>
@@ -916,7 +916,7 @@ function RichTextEditor({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           rows={10}
-          className="w-full rounded-xl border border-neutral-250 p-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-450 outline-none focus:border-[#7A1F2B] leading-relaxed"
+          className="w-full rounded-xl border border-neutral-250 p-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-450 outline-none focus:border-[#A10E4D] leading-relaxed"
           placeholder="Use Markdown shortcuts or toolbar actions above to format core page details..."
         />
       )}
@@ -948,7 +948,7 @@ function ContentList<T extends { _id: string }>({
         <button
           type="button"
           onClick={onNew}
-          className="inline-flex h-8 items-center gap-1 rounded-xl bg-white border border-[#7A1F2B]/10 hover:bg-[#F8E8E8] px-3 text-xs font-bold text-[#7A1F2B]"
+          className="inline-flex h-8 items-center gap-1 rounded-xl bg-white border border-[#A10E4D]/10 hover:bg-[#FFF0F3] px-3 text-xs font-bold text-[#A10E4D]"
         >
           <FileEdit className="h-3.5 w-3.5" />
           <span>New</span>
@@ -962,7 +962,7 @@ function ContentList<T extends { _id: string }>({
             onClick={() => onSelect(item)}
             className={`flex w-full flex-col rounded-xl border p-3.5 text-left transition ${
               selectedId === item._id
-                ? 'border-[#7A1F2B] bg-white ring-1 ring-[#7A1F2B]/10 shadow-sm'
+                ? 'border-[#A10E4D] bg-white ring-1 ring-[#A10E4D]/10 shadow-sm'
                 : 'border-neutral-200/60 bg-white/70 hover:bg-white'
             }`}
           >
@@ -1006,7 +1006,7 @@ function ActionBar({
           type="checkbox"
           checked={published}
           onChange={(event) => onPublishedChange(event.target.checked)}
-          className="rounded-lg border-neutral-300 text-[#7A1F2B] focus:ring-[#7A1F2B]/30 h-4.5 w-4.5"
+          className="rounded-lg border-neutral-300 text-[#A10E4D] focus:ring-[#A10E4D]/30 h-4.5 w-4.5"
         />
         <span>{publishLabel}</span>
       </label>
@@ -1015,7 +1015,7 @@ function ActionBar({
           <Link
             href={preview}
             target="_blank"
-            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#7A1F2B]/20 bg-white px-3.5 text-xs font-bold text-[#7A1F2B] hover:bg-[#F8E8E8] shadow-sm transition"
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#A10E4D]/20 bg-white px-3.5 text-xs font-bold text-[#A10E4D] hover:bg-[#FFF0F3] shadow-sm transition"
           >
             <Eye className="h-3.5 w-3.5" />
             <span>Live Link</span>
@@ -1035,7 +1035,7 @@ function ActionBar({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4.5 py-2 text-xs font-bold text-white disabled:bg-neutral-400 shadow-sm transition"
+          className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4.5 py-2 text-xs font-bold text-white disabled:bg-neutral-400 shadow-sm transition"
         >
           {pending ? 'Saving Changes...' : submitLabel}
         </button>
@@ -1065,7 +1065,7 @@ function Field({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#7A1F2B] transition"
+        className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#A10E4D] transition"
       />
     </div>
   );
@@ -1092,7 +1092,7 @@ function TextBlock({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={6}
-        className="w-full rounded-xl border border-neutral-250 p-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#7A1F2B] transition leading-relaxed"
+        className="w-full rounded-xl border border-neutral-250 p-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition leading-relaxed"
       />
       {help && <span className="text-[10px] text-neutral-450 font-medium">{help}</span>}
     </div>

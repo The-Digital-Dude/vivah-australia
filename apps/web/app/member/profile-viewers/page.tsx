@@ -52,14 +52,14 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
   if (blurred || !viewer?.id) {
     // Free-tier: blurred card
     return (
-      <div className="relative overflow-hidden rounded-2xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm">
+      <div className="relative overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white p-4 shadow-sm">
         {/* blur overlay */}
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/80 backdrop-blur-sm">
-          <Lock className="size-5 text-[#7A1F2B]" />
-          <p className="text-xs font-semibold text-[#7A1F2B]">Upgrade to see who this is</p>
+          <Lock className="size-5 text-[#A10E4D]" />
+          <p className="text-xs font-semibold text-[#A10E4D]">Upgrade to see who this is</p>
           <Link
             href="/member/subscription"
-            className="rounded-full bg-[#7A1F2B] px-3 py-1 text-xs font-bold text-white hover:bg-[#651925] transition"
+            className="rounded-full bg-[#A10E4D] px-3 py-1 text-xs font-bold text-white hover:bg-[#890B40] transition"
           >
             Upgrade Now
           </Link>
@@ -67,12 +67,12 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
 
         {/* Blurred content behind */}
         <div className="flex items-center gap-3 select-none pointer-events-none">
-          <div className="size-12 rounded-full bg-[#F3E8E9] flex items-center justify-center text-[#7A1F2B] font-bold text-lg">
+          <div className="size-12 rounded-full bg-[#F3E8E9] flex items-center justify-center text-[#A10E4D] font-bold text-lg">
             ?
           </div>
           <div className="flex-1 min-w-0">
-            <p className="h-4 w-24 rounded bg-[#7A1F2B]/10 mb-1" />
-            <p className="h-3 w-32 rounded bg-[#7A1F2B]/5" />
+            <p className="h-4 w-24 rounded bg-[#A10E4D]/10 mb-1" />
+            <p className="h-3 w-32 rounded bg-[#A10E4D]/5" />
           </div>
           <span className="text-[10px] text-neutral-400">{timeAgo(viewedAt)}</span>
         </div>
@@ -89,7 +89,7 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
   return (
     <Link
       href={profileHref}
-      className="group flex items-center gap-3 rounded-2xl border border-[#7A1F2B]/10 bg-white p-4 shadow-sm hover:border-[#7A1F2B]/30 hover:shadow-md transition-all"
+      className="group flex items-center gap-3 rounded-2xl border border-[#A10E4D]/10 bg-white p-4 shadow-sm hover:border-[#A10E4D]/30 hover:shadow-md transition-all"
     >
       {/* Avatar */}
       <div className="relative shrink-0">
@@ -99,11 +99,11 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
             alt={displayName}
             width={56}
             height={56}
-            className="size-14 rounded-full object-cover border-2 border-[#7A1F2B]/10 group-hover:border-[#7A1F2B]/30 transition"
+            className="size-14 rounded-full object-cover border-2 border-[#A10E4D]/10 group-hover:border-[#A10E4D]/30 transition"
           />
         ) : (
-          <div className="size-14 rounded-full bg-gradient-to-br from-[#F3E8E9] to-[#FDF6F0] border-2 border-[#7A1F2B]/10 flex items-center justify-center">
-            <span className="text-xl font-bold text-[#7A1F2B]">
+          <div className="size-14 rounded-full bg-gradient-to-br from-[#F3E8E9] to-[#FDF6F0] border-2 border-[#A10E4D]/10 flex items-center justify-center">
+            <span className="text-xl font-bold text-[#A10E4D]">
               {displayName.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -119,7 +119,7 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-semibold text-[#1A1A1A] group-hover:text-[#7A1F2B] transition truncate">
+          <p className="font-semibold text-[#2F2F2F] group-hover:text-[#A10E4D] transition truncate">
             {displayName}
             {viewer.age ? `, ${viewer.age}` : ''}
           </p>
@@ -129,7 +129,7 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
           <p className="text-xs text-[#6B7280] mt-0.5 truncate">{subtitle}</p>
         )}
         {viewer.religion && (
-          <p className="text-xs text-[#7A1F2B]/60 mt-0.5 truncate">{viewer.religion}</p>
+          <p className="text-xs text-[#A10E4D]/60 mt-0.5 truncate">{viewer.religion}</p>
         )}
       </div>
 
@@ -139,7 +139,7 @@ function ViewerCard({ entry }: { entry: ViewerEntry }) {
           <Clock className="size-3" />
           {timeAgo(viewedAt)}
         </span>
-        <ChevronRight className="size-4 text-[#7A1F2B]/30 group-hover:text-[#7A1F2B] transition" />
+        <ChevronRight className="size-4 text-[#A10E4D]/30 group-hover:text-[#A10E4D] transition" />
       </div>
     </Link>
   );
@@ -152,9 +152,9 @@ function FreeUpgradeBanner({ total, shown }: { total: number; shown: number }) {
   if (hidden <= 0) return null;
 
   return (
-    <div className="rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-br from-[#FFFBEB] to-[#FDF6E3] p-5 text-center shadow-sm">
-      <Crown className="mx-auto size-8 text-[#D4AF37] mb-2" />
-      <p className="font-bold text-[#1A1A1A] text-lg">
+    <div className="rounded-2xl border border-[#D4A04C]/30 bg-gradient-to-br from-[#FFFBEB] to-[#FDF6E3] p-5 text-center shadow-sm">
+      <Crown className="mx-auto size-8 text-[#D4A04C] mb-2" />
+      <p className="font-bold text-[#2F2F2F] text-lg">
         {hidden} more {hidden === 1 ? 'person' : 'people'} viewed your profile
       </p>
       <p className="text-sm text-[#6B7280] mt-1 mb-4">
@@ -193,7 +193,7 @@ export default function ProfileViewersPage() {
     return (
       <MemberShell title="Who Viewed My Profile" subtitle="">
         <div className="flex min-h-[300px] items-center justify-center">
-          <Loader2 className="size-8 animate-spin text-[#7A1F2B]" />
+          <Loader2 className="size-8 animate-spin text-[#A10E4D]" />
         </div>
       </MemberShell>
     );
@@ -210,9 +210,9 @@ export default function ProfileViewersPage() {
 
       {/* Summary stat banner */}
       {data && (
-        <PremiumCard className="mb-6 flex items-center gap-4 p-5 bg-gradient-to-br from-[#7A1F2B] to-[#651925] text-white">
+        <PremiumCard className="mb-6 flex items-center gap-4 p-5 bg-gradient-to-br from-[#A10E4D] to-[#890B40] text-white">
           <div className="rounded-2xl bg-white/15 p-3">
-            <Eye className="size-7 text-[#D4AF37]" />
+            <Eye className="size-7 text-[#D4A04C]" />
           </div>
           <div>
             <p className="text-3xl font-bold">{data.total}</p>
@@ -222,7 +222,7 @@ export default function ProfileViewersPage() {
           </div>
           {!data.isPaid && (
             <Link href="/member/subscription" className="ml-auto shrink-0">
-              <span className="flex items-center gap-1.5 rounded-full bg-[#D4AF37] px-4 py-2 text-xs font-bold text-[#1A1A1A] hover:bg-[#C4A030] transition">
+              <span className="flex items-center gap-1.5 rounded-full bg-[#D4A04C] px-4 py-2 text-xs font-bold text-[#2F2F2F] hover:bg-[#C4A030] transition">
                 <Crown className="size-3.5" />
                 Upgrade
               </span>

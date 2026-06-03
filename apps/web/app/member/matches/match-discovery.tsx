@@ -444,17 +444,17 @@ export default function MatchDiscovery() {
       <form onSubmit={(event) => void handleFilterSubmit(event)} className="grid gap-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
               Advanced filters
             </p>
-            <h2 className="mt-1 text-xl font-semibold text-[#1A1A1A]">Refine your discovery</h2>
+            <h2 className="mt-1 text-xl font-semibold text-[#2F2F2F]">Refine your discovery</h2>
             <p className="mt-2 text-sm leading-6 text-[#6B7280]">
               Focus your search by age, location, community, education, profession, and trust
               signals.
             </p>
           </div>
           {activeFilterCount > 0 ? (
-            <span className="rounded-full bg-[#7A1F2B] px-2.5 py-1 text-xs font-bold text-white">
+            <span className="rounded-full bg-[#A10E4D] px-2.5 py-1 text-xs font-bold text-white">
               {activeFilterCount} active
             </span>
           ) : null}
@@ -525,8 +525,8 @@ export default function MatchDiscovery() {
           />
         </div>
 
-        <details className="rounded-3xl border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-[#7A1F2B] outline-none">
+        <details className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
             More filters
           </summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -575,12 +575,12 @@ export default function MatchDiscovery() {
               options={['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED']}
               defaultValue={queryValue('verificationLevel')}
             />
-            <label className="flex items-center gap-2.5 text-sm font-semibold text-[#1A1A1A]">
+            <label className="flex items-center gap-2.5 text-sm font-semibold text-[#2F2F2F]">
               <input
                 name="recentlyActive"
                 type="checkbox"
                 defaultChecked={queryBoolean('recentlyActive')}
-                className="size-4 rounded accent-[#7A1F2B]"
+                className="size-4 rounded accent-[#A10E4D]"
               />
               Recently active only
             </label>
@@ -593,7 +593,7 @@ export default function MatchDiscovery() {
                 onClick={() =>
                   void applyQuickFilter({ ...currentQuery, page: 1, visaStatus: [value] })
                 }
-                className="rounded-full border border-[#D4AF37]/30 bg-white px-3 py-1 text-xs font-semibold text-[#7A1F2B] transition hover:bg-[#FFF8EC]"
+                className="rounded-full border border-[#D4A04C]/30 bg-white px-3 py-1 text-xs font-semibold text-[#A10E4D] transition hover:bg-[#FFF8EC]"
               >
                 {value}
               </button>
@@ -630,9 +630,9 @@ export default function MatchDiscovery() {
 
     if (!search || search.results.length === 0) {
       return (
-        <PremiumCard className="rounded-[30px] border border-dashed border-[#D4AF37]/60 bg-white p-8 text-center">
-          <Search className="mx-auto size-8 text-[#D4AF37]" />
-          <h3 className="mt-4 text-xl font-semibold text-[#1A1A1A]">
+        <PremiumCard className="rounded-[30px] border border-dashed border-[#D4A04C]/60 bg-white p-8 text-center">
+          <Search className="mx-auto size-8 text-[#D4A04C]" />
+          <h3 className="mt-4 text-xl font-semibold text-[#2F2F2F]">
             No matches for this combination yet
           </h3>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[#6B7280]">
@@ -650,7 +650,7 @@ export default function MatchDiscovery() {
             </PremiumButton>
           </div>
           {activeFilterCount > 0 ? (
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#7A1F2B]/70">
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#A10E4D]/70">
               {activeFilterCount} active filter{activeFilterCount === 1 ? '' : 's'} may be
               narrowing your results
             </p>
@@ -690,14 +690,14 @@ export default function MatchDiscovery() {
 
   return (
     <div className="grid gap-6 sm:gap-8">
-      <section className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+      <section className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
         <div className="grid gap-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
                 Discover matches
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#1A1A1A] sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-semibold text-[#2F2F2F] sm:text-3xl">
                 Search with clarity, then go deeper only when needed
               </h2>
               <p className="mt-3 text-sm leading-7 text-[#6B7280]">
@@ -715,7 +715,7 @@ export default function MatchDiscovery() {
                 <SlidersHorizontal className="size-4" />
                 Advanced filters
                 {activeFilterCount > 0 ? (
-                  <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white">
                     {activeFilterCount}
                   </span>
                 ) : null}
@@ -732,22 +732,22 @@ export default function MatchDiscovery() {
             </div>
           </div>
 
-          <div className="grid gap-4 rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4 lg:grid-cols-[1.1fr_0.9fr_auto] lg:items-end">
-            <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+          <div className="grid gap-4 rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4 lg:grid-cols-[1.1fr_0.9fr_auto] lg:items-end">
+            <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
               City or suburb
               <input
                 value={quickCity}
                 onChange={(event) => setQuickCity(event.target.value)}
                 placeholder="Melbourne, Parramatta"
-                className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
               />
             </label>
-            <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+            <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
               Sort
               <select
                 value={quickSort}
                 onChange={(event) => setQuickSort(event.target.value)}
-                className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
               >
                 {['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED'].map((option) => (
                   <option key={option} value={option}>
@@ -777,7 +777,7 @@ export default function MatchDiscovery() {
                 key={filter.label}
                 type="button"
                 onClick={() => void applyQuickFilter({ ...defaultFilters, ...filter.apply() })}
-                className="snap-start rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
+                className="snap-start rounded-full border border-[#A10E4D]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#A10E4D] transition hover:bg-[#FFF0F3]"
               >
                 {filter.label}
               </button>
@@ -785,7 +785,7 @@ export default function MatchDiscovery() {
             <button
               type="button"
               onClick={() => void applyPreset('nearby')}
-              className="snap-start rounded-full border border-[#7A1F2B]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#7A1F2B] transition hover:bg-[#F8E8E8]"
+              className="snap-start rounded-full border border-[#A10E4D]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#A10E4D] transition hover:bg-[#FFF0F3]"
             >
               Near you
             </button>
@@ -796,7 +796,7 @@ export default function MatchDiscovery() {
               {visibleQueryChips.map((chip) => (
                 <span
                   key={`${chip.key}-${chip.label}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#7A1F2B]"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#D4A04C]/30 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#A10E4D]"
                 >
                   {chip.label}
                 </span>
@@ -806,7 +806,7 @@ export default function MatchDiscovery() {
         </div>
       </section>
 
-      <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto border-b border-[#7A1F2B]/10 px-1 pb-1 scrollbar-none">
+      <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto border-b border-[#A10E4D]/10 px-1 pb-1 scrollbar-none">
         {[
           { key: 'recommended', label: 'Recommended', icon: Sparkles },
           { key: 'active', label: 'Recently Active', icon: Clock3 },
@@ -825,8 +825,8 @@ export default function MatchDiscovery() {
               className={cx(
                 'inline-flex snap-start items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
                 isActive
-                  ? 'bg-[#7A1F2B] text-white'
-                  : 'text-[#6B7280] hover:bg-[#F8E8E8] hover:text-[#7A1F2B]',
+                  ? 'bg-[#A10E4D] text-white'
+                  : 'text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]',
               )}
             >
               <Icon className="size-4" />
@@ -837,7 +837,7 @@ export default function MatchDiscovery() {
       </div>
 
       {message ? (
-        <p className="rounded-2xl border border-[#7A1F2B]/10 bg-[#F8E8E8] p-4 text-sm text-[#7A1F2B]">
+        <p className="rounded-2xl border border-[#A10E4D]/10 bg-[#FFF0F3] p-4 text-sm text-[#A10E4D]">
           {message}
         </p>
       ) : null}
@@ -908,20 +908,20 @@ export default function MatchDiscovery() {
           <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
             <aside className="h-fit">
               <PremiumCard className="space-y-4 p-5">
-                <h3 className="text-sm font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+                <h3 className="text-sm font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
                   Save current query
                 </h3>
                 <form className="grid gap-3" onSubmit={(event) => void saveSearch(event)}>
                   <input
                     name="name"
                     placeholder="Name this search"
-                    className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+                    className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                   />
-                  <label className="flex items-center gap-2 text-sm font-semibold text-[#1A1A1A]">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-[#2F2F2F]">
                     <input
                       name="notifyOnNewMatches"
                       type="checkbox"
-                      className="size-4 rounded accent-[#7A1F2B]"
+                      className="size-4 rounded accent-[#A10E4D]"
                     />
                     Email notifications
                   </label>
@@ -944,7 +944,7 @@ export default function MatchDiscovery() {
                     return (
                       <PremiumCard key={id} className="flex flex-col justify-between gap-4 p-5">
                         <div>
-                          <h4 className="font-semibold text-[#1A1A1A]">{savedSearch.name}</h4>
+                          <h4 className="font-semibold text-[#2F2F2F]">{savedSearch.name}</h4>
                           <p className="mt-1 text-xs text-[#6B7280]">
                             {savedSearch.notifyOnNewMatches
                               ? 'Daily email alerts enabled'
@@ -991,12 +991,12 @@ export default function MatchDiscovery() {
         <PremiumButton
           onClick={() => setDrawerOpen(true)}
           variant="secondary"
-          className="mx-auto flex w-full max-w-sm items-center justify-center rounded-full border-[#7A1F2B]/20 bg-white/95 shadow-[0_16px_36px_rgba(122,31,43,0.14)] backdrop-blur"
+          className="mx-auto flex w-full max-w-sm items-center justify-center rounded-full border-[#A10E4D]/20 bg-white/95 shadow-[0_16px_36px_rgba(122,31,43,0.14)] backdrop-blur"
         >
           <SlidersHorizontal className="size-4" />
           Filters
           {activeFilterCount > 0 ? (
-            <span className="rounded-full bg-[#7A1F2B] px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white">
               {activeFilterCount}
             </span>
           ) : null}
@@ -1055,14 +1055,14 @@ function Field({
   defaultValue?: string | undefined;
 }>) {
   return (
-    <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+    <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
       {label}
       <input
         name={name}
         type={type}
         placeholder={placeholder}
         defaultValue={defaultValue}
-        className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition duration-200 focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+        className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition duration-200 focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
       />
     </label>
   );
@@ -1080,12 +1080,12 @@ function Select({
   defaultValue?: string | undefined;
 }>) {
   return (
-    <label className="grid gap-1.5 text-sm font-semibold text-[#1A1A1A]">
+    <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
       {label}
       <select
         name={name}
         defaultValue={defaultValue ?? ''}
-        className="h-12 rounded-2xl border border-[#7A1F2B]/15 bg-[#FCFAF7]/40 px-4 text-sm outline-none transition duration-200 focus:bg-white focus:border-[#7A1F2B] focus:ring-4 focus:ring-[#F8E8E8]"
+        className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition duration-200 focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
       >
         <option value="">Any</option>
         {options.map((option) => (

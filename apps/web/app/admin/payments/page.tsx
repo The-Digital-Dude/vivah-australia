@@ -139,7 +139,7 @@ export default function AdminPaymentsPage() {
     >
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <AlertCircle className="h-4.5 w-4.5 text-[#7A1F2B]" />
+          <AlertCircle className="h-4.5 w-4.5 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -325,7 +325,7 @@ export default function AdminPaymentsPage() {
             className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm space-y-4"
           >
             <div className="flex items-center gap-2 font-bold text-neutral-850">
-              <Ticket className="h-5 w-5 text-[#7A1F2B]" />
+              <Ticket className="h-5 w-5 text-[#A10E4D]" />
               <span>Generate Coupon</span>
             </div>
             
@@ -365,12 +365,12 @@ export default function AdminPaymentsPage() {
               </div>
 
               <label className="inline-flex items-center gap-2 text-xs font-bold text-neutral-600">
-                <input name="active" type="checkbox" defaultChecked className="rounded-lg border-neutral-300 text-[#7A1F2B] focus:ring-[#7A1F2B]/30 h-4.5 w-4.5" />
+                <input name="active" type="checkbox" defaultChecked className="rounded-lg border-neutral-300 text-[#A10E4D] focus:ring-[#A10E4D]/30 h-4.5 w-4.5" />
                 <span>Mark Active Instantly</span>
               </label>
 
-              <button className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#7A1F2B] hover:bg-[#651925] text-sm font-bold text-white shadow-sm transition">
-                <Sparkles className="h-4 w-4 text-[#D4AF37]" />
+              <button className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] text-sm font-bold text-white shadow-sm transition">
+                <Sparkles className="h-4 w-4 text-[#D4A04C]" />
                 <span>Generate Coupon</span>
               </button>
             </div>
@@ -429,7 +429,7 @@ export default function AdminPaymentsPage() {
               Confirm Transaction Refund
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
-              Are you sure you want to refund payment: <strong className="text-[#7A1F2B] font-mono">{confirmRefundId.slice(-12).toUpperCase()}</strong>?
+              Are you sure you want to refund payment: <strong className="text-[#A10E4D] font-mono">{confirmRefundId.slice(-12).toUpperCase()}</strong>?
             </p>
 
             <div className="mt-4 flex gap-2.5 items-start bg-amber-50 border border-amber-200 p-3 rounded-xl">
@@ -463,4 +463,4 @@ export default function AdminPaymentsPage() {
 }
 
 const inputClass =
-  'mt-1.5 h-11 w-full rounded-xl border border-neutral-250 bg-white px-4 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#7A1F2B] transition';
+  'mt-1.5 h-11 w-full rounded-xl border border-neutral-250 bg-white px-4 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#A10E4D] transition';

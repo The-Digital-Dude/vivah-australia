@@ -150,7 +150,7 @@ export default function AdminUsersPage() {
         <select
           value={user.role}
           onChange={(event) => void updateRole(user.id, event.target.value)}
-          className="rounded-xl border border-neutral-250 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#7A1F2B]"
+          className="rounded-xl border border-neutral-250 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
         >
           {roles.map((item) => (
             <option key={item} value={item}>
@@ -166,7 +166,7 @@ export default function AdminUsersPage() {
         <select
           value={user.status}
           onChange={(event) => void updateStatus(user.id, event.target.value)}
-          className="rounded-xl border border-neutral-250 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#7A1F2B]"
+          className="rounded-xl border border-neutral-250 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
         >
           {statuses.map((item) => (
             <option key={item} value={item}>
@@ -212,7 +212,7 @@ export default function AdminUsersPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search name, email, or display ID"
-          className="h-11 rounded-xl border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-400 outline-none focus:border-[#7A1F2B]"
+          className="h-11 rounded-xl border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-400 outline-none focus:border-[#A10E4D]"
         />
         <select
           value={role}
@@ -250,14 +250,14 @@ export default function AdminUsersPage() {
             </option>
           ))}
         </select>
-        <button className="h-11 rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-6 text-sm font-bold text-white shadow-sm transition">
+        <button className="h-11 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-6 text-sm font-bold text-white shadow-sm transition">
           Search
         </button>
       </form>
 
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-[#7A1F2B]" />
+          <AlertCircle className="h-4 w-4 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -326,7 +326,7 @@ export default function AdminUsersPage() {
               Add User Audit Note
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
-              Add note to user <strong className="text-[#7A1F2B]">{noteUser.email}</strong>.
+              Add note to user <strong className="text-[#A10E4D]">{noteUser.email}</strong>.
             </p>
 
             <div className="mt-4">
@@ -338,7 +338,7 @@ export default function AdminUsersPage() {
                 value={noteContent}
                 onChange={(e) => setNoteContent(e.target.value)}
                 placeholder="Type note details..."
-                className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#7A1F2B] min-h-[100px]"
+                className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[100px]"
               />
             </div>
 
@@ -360,7 +360,7 @@ export default function AdminUsersPage() {
               </button>
               <button
                 onClick={() => void submitNote()}
-                className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4 py-2 text-xs font-bold text-white shadow-sm"
+                className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2 text-xs font-bold text-white shadow-sm"
                 type="button"
               >
                 Save Note

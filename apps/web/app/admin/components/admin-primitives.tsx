@@ -25,7 +25,7 @@ export function AdminPageHeader({
             {breadcrumbs.map((crumb, idx) => (
               <span key={idx} className="flex items-center gap-1.5">
                 {crumb.href ? (
-                  <Link href={crumb.href} className="hover:text-[#7A1F2B] transition">
+                  <Link href={crumb.href} className="hover:text-[#A10E4D] transition">
                     {crumb.label}
                   </Link>
                 ) : (
@@ -265,7 +265,7 @@ export function AdminErrorState({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-6 rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4.5 py-2 text-xs font-bold text-white shadow-sm transition"
+          className="mt-6 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4.5 py-2 text-xs font-bold text-white shadow-sm transition"
           type="button"
         >
           Retry Request

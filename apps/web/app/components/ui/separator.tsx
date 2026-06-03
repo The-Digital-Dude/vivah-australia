@@ -18,7 +18,7 @@ export const Separator = forwardRef<
       decorative={decorative}
       orientation={orientation}
       className={cx(
-        'shrink-0 bg-[#7A1F2B]/10',
+        'shrink-0 bg-[#A10E4D]/10',
         orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
         className,
       )}

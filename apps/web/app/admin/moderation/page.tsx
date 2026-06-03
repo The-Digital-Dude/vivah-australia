@@ -70,7 +70,7 @@ export default function AdminModerationPage() {
     >
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2 mb-4">
-          <AlertTriangle className="h-4 w-4 text-[#7A1F2B]" />
+          <AlertTriangle className="h-4 w-4 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -234,7 +234,7 @@ function Queue({ children, title, href }: Readonly<{ children: ReactNode; title:
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm space-y-4">
       <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
         <h2 className="text-base font-bold text-neutral-900">{title}</h2>
-        <Link href={href} className="text-xs font-bold text-[#7A1F2B] hover:underline flex items-center gap-0.5">
+        <Link href={href} className="text-xs font-bold text-[#A10E4D] hover:underline flex items-center gap-0.5">
           <span>View all</span>
           <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>

@@ -125,11 +125,11 @@ function InterestPreview({
   return (
     <Link
       href={href}
-      className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-[#1A1A1A]">
+          <p className="text-sm font-semibold text-[#2F2F2F]">
             {profile?.firstName ?? 'Vivah member'}
             {profile?.age ? `, ${profile.age}` : ''}
           </p>
@@ -137,7 +137,7 @@ function InterestPreview({
             {[profile?.city, profile?.occupation].filter(Boolean).join(' • ') || 'Australia'}
           </p>
         </div>
-        <span className="rounded-full bg-[#F8E8E8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#7A1F2B]">
+        <span className="rounded-full bg-[#FFF0F3] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
           {item.status}
         </span>
       </div>
@@ -153,11 +153,11 @@ function FavouritePreview({ item }: Readonly<{ item: FavouriteItem }>) {
   return (
     <Link
       href={`/profiles/${item.profile.id}`}
-      className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-[#1A1A1A]">
+          <p className="text-sm font-semibold text-[#2F2F2F]">
             {item.profile.firstName ?? 'Vivah member'}
             {item.profile.age ? `, ${item.profile.age}` : ''}
           </p>
@@ -166,7 +166,7 @@ function FavouritePreview({ item }: Readonly<{ item: FavouriteItem }>) {
               'Australia'}
           </p>
         </div>
-        <Heart className="size-4 text-[#7A1F2B]" />
+        <Heart className="size-4 text-[#A10E4D]" />
       </div>
       <div className="mt-3">
         <VerificationBadge level={item.profile.verificationLevel} />
@@ -180,11 +180,11 @@ function RecentlyViewedPreview({ item }: Readonly<{ item: RecentlyViewedItem }>)
   return (
     <Link
       href={`/profiles/${profile._id}`}
-      className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-[#1A1A1A]">
+          <p className="text-sm font-semibold text-[#2F2F2F]">
             {profile.personal?.firstName ?? profile.displayId}
             {profile.personal?.age ? `, ${profile.personal.age}` : ''}
           </p>
@@ -193,7 +193,7 @@ function RecentlyViewedPreview({ item }: Readonly<{ item: RecentlyViewedItem }>)
               'Australia'}
           </p>
         </div>
-        <Clock3 className="size-4 text-[#7A1F2B]" />
+        <Clock3 className="size-4 text-[#A10E4D]" />
       </div>
       <div className="mt-3 flex items-center justify-between">
         <VerificationBadge level={profile.verification?.level ?? 'Verified'} />
@@ -211,18 +211,18 @@ function ViewerPreview({
     return (
       <Link
         href="/member/subscription"
-        className="rounded-3xl border border-[#D4AF37]/30 bg-[#FFF8EC] p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+        className="rounded-3xl border border-[#D4A04C]/30 bg-[#FFF8EC] p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
       >
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-[#1A1A1A]">Premium viewer insight</p>
+            <p className="text-sm font-semibold text-[#2F2F2F]">Premium viewer insight</p>
             <p className="mt-1 text-sm text-[#6B7280]">
               Upgrade to reveal who viewed your profile.
             </p>
           </div>
-          <Eye className="size-4 text-[#D4AF37]" />
+          <Eye className="size-4 text-[#D4A04C]" />
         </div>
-        <p className="mt-3 text-xs font-medium text-[#7A1F2B]">
+        <p className="mt-3 text-xs font-medium text-[#A10E4D]">
           Viewed {formatRelative(entry.viewedAt)}
         </p>
       </Link>
@@ -233,11 +233,11 @@ function ViewerPreview({
   return (
     <Link
       href={`/profiles/${viewer.id}`}
-      className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-[#1A1A1A]">
+          <p className="text-sm font-semibold text-[#2F2F2F]">
             {viewer.firstName ?? viewer.displayId}
             {viewer.age ? `, ${viewer.age}` : ''}
           </p>
@@ -246,7 +246,7 @@ function ViewerPreview({
               'Australia'}
           </p>
         </div>
-        <Eye className={cx('size-4', isPaid ? 'text-[#7A1F2B]' : 'text-[#D4AF37]')} />
+        <Eye className={cx('size-4', isPaid ? 'text-[#A10E4D]' : 'text-[#D4A04C]')} />
       </div>
       <div className="mt-3 flex items-center justify-between">
         <VerificationBadge level={viewer.verificationLevel} />
@@ -260,14 +260,14 @@ function NotificationPreview({ item }: Readonly<{ item: NotificationItem }>) {
   return (
     <Link
       href="/member/notifications"
-      className="rounded-3xl border border-[#7A1F2B]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-[#1A1A1A]">{item.title}</p>
+          <p className="text-sm font-semibold text-[#2F2F2F]">{item.title}</p>
           {item.body ? <p className="mt-1 text-sm text-[#6B7280]">{item.body}</p> : null}
         </div>
-        {!item.readAt ? <Bell className="size-4 text-[#7A1F2B]" /> : <Star className="size-4 text-[#D4AF37]" />}
+        {!item.readAt ? <Bell className="size-4 text-[#A10E4D]" /> : <Star className="size-4 text-[#D4A04C]" />}
       </div>
       <p className="mt-3 text-xs font-medium text-[#6B7280]">{formatRelative(item.createdAt)}</p>
     </Link>
@@ -430,7 +430,7 @@ export default function ActivityHubPage() {
         subtitle="Your interests, favourites, profile attention, and notifications in one place."
       >
         <div className="flex min-h-[360px] items-center justify-center gap-3">
-          <Loader2 className="size-8 animate-spin text-[#7A1F2B]" />
+          <Loader2 className="size-8 animate-spin text-[#A10E4D]" />
           <p className="text-sm font-semibold text-[#6B7280]">Loading your activity hub...</p>
         </div>
       </MemberShell>
@@ -444,7 +444,7 @@ export default function ActivityHubPage() {
     >
       <div className="grid gap-6 sm:gap-8">
         {message ? (
-          <p className="rounded-2xl border border-[#7A1F2B]/10 bg-[#FFF8F1] p-4 text-sm font-semibold text-[#7A1F2B]">
+          <p className="rounded-2xl border border-[#A10E4D]/10 bg-[#FFF8F1] p-4 text-sm font-semibold text-[#A10E4D]">
             {message}
           </p>
         ) : null}
@@ -454,15 +454,15 @@ export default function ActivityHubPage() {
             const Icon = card.icon;
             return (
               <Link key={card.label} href={card.href} className="group">
-                <PremiumCard className="h-full rounded-[28px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(122,31,43,0.12)]">
+                <PremiumCard className="h-full rounded-[28px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(122,31,43,0.12)]">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                         {card.label}
                       </p>
-                      <p className="mt-3 text-3xl font-bold text-[#1A1A1A]">{card.value}</p>
+                      <p className="mt-3 text-3xl font-bold text-[#2F2F2F]">{card.value}</p>
                     </div>
-                    <div className="rounded-2xl bg-[#F8E8E8] p-3 text-[#7A1F2B]">
+                    <div className="rounded-2xl bg-[#FFF0F3] p-3 text-[#A10E4D]">
                       <Icon className="size-5" />
                     </div>
                   </div>
@@ -473,7 +473,7 @@ export default function ActivityHubPage() {
           })}
         </section>
 
-        <section className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+        <section className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
           <SectionHeader
             eyebrow="Activity hub"
             title="Switch between the moments that matter most"
@@ -489,15 +489,15 @@ export default function ActivityHubPage() {
                 className={cx(
                   'inline-flex snap-start items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
                   activeTab === tab.key
-                    ? 'bg-[#7A1F2B] text-white'
-                    : 'text-[#6B7280] hover:bg-[#F8E8E8] hover:text-[#7A1F2B]',
+                    ? 'bg-[#A10E4D] text-white'
+                    : 'text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]',
                 )}
               >
                 {tab.label}
                 <span
                   className={cx(
                     'rounded-full px-2 py-0.5 text-[10px] font-bold',
-                    activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-[#F8E8E8] text-[#7A1F2B]',
+                    activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-[#FFF0F3] text-[#A10E4D]',
                   )}
                 >
                   {tab.count}
@@ -506,13 +506,13 @@ export default function ActivityHubPage() {
             ))}
           </div>
 
-          <div className="mt-6 rounded-[28px] border border-[#7A1F2B]/10 bg-[#FCFAF7] p-4 sm:p-5">
+          <div className="mt-6 rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4AF37]">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
                   Current view
                 </p>
-                <h3 className="mt-2 text-xl font-semibold text-[#1A1A1A]">
+                <h3 className="mt-2 text-xl font-semibold text-[#2F2F2F]">
                   {activeTabMeta?.label ?? 'Activity'}
                 </h3>
               </div>
@@ -538,13 +538,13 @@ export default function ActivityHubPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+          <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-[#F8E8E8] p-3 text-[#7A1F2B]">
+              <div className="rounded-2xl bg-[#FFF0F3] p-3 text-[#A10E4D]">
                 <ShieldCheck className="size-5" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#1A1A1A]">Keep the right pace</h3>
+                <h3 className="text-lg font-semibold text-[#2F2F2F]">Keep the right pace</h3>
                 <p className="mt-2 text-sm leading-7 text-[#6B7280]">
                   Activity works best when you revisit warm signals quickly. Replying to interests,
                   reviewing profile viewers, and revisiting favourites early usually leads to better
@@ -554,13 +554,13 @@ export default function ActivityHubPage() {
             </div>
           </PremiumCard>
 
-          <PremiumCard className="rounded-[30px] border border-[#7A1F2B]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
+          <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-[#F8E8E8] p-3 text-[#7A1F2B]">
+              <div className="rounded-2xl bg-[#FFF0F3] p-3 text-[#A10E4D]">
                 <Clock3 className="size-5" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#1A1A1A]">Stay relationship-focused</h3>
+                <h3 className="text-lg font-semibold text-[#2F2F2F]">Stay relationship-focused</h3>
                 <p className="mt-2 text-sm leading-7 text-[#6B7280]">
                   This hub is here to reduce route-hopping. Use it as your daily check-in point,
                   then move into the full page only when you need to go deeper.

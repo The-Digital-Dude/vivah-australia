@@ -95,7 +95,7 @@ export default function AdminMediaReview() {
               }}
               className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                 status === option
-                  ? 'bg-[#7A1F2B] text-white shadow-sm'
+                  ? 'bg-[#A10E4D] text-white shadow-sm'
                   : 'text-neutral-500 hover:bg-neutral-100'
               }`}
             >
@@ -107,7 +107,7 @@ export default function AdminMediaReview() {
 
       {message && (
         <div className="rounded-xl bg-neutral-100 border border-neutral-200 p-3.5 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-[#7A1F2B]" />
+          <AlertCircle className="h-4 w-4 text-[#A10E4D]" />
           <span>{message}</span>
         </div>
       )}
@@ -210,7 +210,7 @@ export default function AdminMediaReview() {
             </h3>
             <p className="text-xs text-neutral-500 mt-1">
               Select details for updating asset moderation to{' '}
-              <strong className="text-[#7A1F2B]">{reviewItem.targetStatus}</strong>.
+              <strong className="text-[#A10E4D]">{reviewItem.targetStatus}</strong>.
             </p>
 
             <div className="mt-4 space-y-4">
@@ -233,7 +233,7 @@ export default function AdminMediaReview() {
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Describe why this image was rejected or needs changes..."
-                    className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#7A1F2B] min-h-[80px]"
+                    className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[80px]"
                   />
                 </div>
               )}
@@ -257,7 +257,7 @@ export default function AdminMediaReview() {
               </button>
               <button
                 onClick={() => void submitReview()}
-                className="rounded-xl bg-[#7A1F2B] hover:bg-[#651925] px-4 py-2 text-xs font-bold text-white shadow-sm"
+                className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2 text-xs font-bold text-white shadow-sm"
                 type="button"
               >
                 Submit Decision

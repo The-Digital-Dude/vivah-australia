@@ -84,7 +84,7 @@ export default async function StaticPage({ params }: PageProps) {
     >
       <StaticPageContainer>
         <PolicyContentCard className="mx-auto max-w-3xl">
-          <div className="whitespace-pre-line text-[#1A1A1A]">{page?.body ?? fallback.body}</div>
+          <div className="whitespace-pre-line text-[#2F2F2F]">{page?.body ?? fallback.body}</div>
         </PolicyContentCard>
       </StaticPageContainer>
     </StaticPageLayout>
