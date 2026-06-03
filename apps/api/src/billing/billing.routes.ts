@@ -13,6 +13,7 @@ import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   cancelSubscription,
+  createBillingPortalSession,
   constructStripeEvent,
   createCheckoutSession,
   createCoupon,
@@ -89,6 +90,15 @@ export function createBillingRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       response.status(200).json(await cancelSubscription(auth.userId));
+    }),
+  );
+
+  router.post(
+    '/me/subscription/portal',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      response.status(200).json(await createBillingPortalSession(auth.userId));
     }),
   );
 

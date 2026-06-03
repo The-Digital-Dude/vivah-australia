@@ -1,6 +1,6 @@
 # Vivah Australia — Master Tasklist
 
-This document is a living audit tracker mapping all **118 remaining individual tasks** from `vivah_ai_ready_development_tasklist.md` into launch-critical phases.
+This document is a living audit tracker mapping the remaining launch-critical tasks from `vivah_ai_ready_development_tasklist.md` into practical delivery phases.
 
 ## 📅 Sprint Schedule & Plan
 
@@ -72,7 +72,7 @@ This document is a living audit tracker mapping all **118 remaining individual t
 - [ ] Add auto-risk counter per reported user. _(outstanding gap)_ *(from "Backend Tasks" L1278)*
 - [ ] Use secure upload flow. *(from "Backend Tasks" L1395)*
 - [ ] Show document links with signed access. *(from "Frontend Tasks" L1403)*
-- [ ] Create billing portal endpoint. _(outstanding gap)_ *(from "Backend Tasks" L1573)*
+- [x] Create billing portal endpoint. _(implemented via authenticated member billing portal session API and subscription-page action)_ *(from "Backend Tasks" L1573)*
 - [ ] Respect notification preferences. *(from "Backend Tasks" L1748)*
 - [ ] Add secure cookie config if cookies used. _(deferred — auth uses localStorage JWT)_ *(from "Backend Tasks" L1996)*
 - [ ] Profile card *(from "Components" L2106)*
@@ -86,7 +86,7 @@ This document is a living audit tracker mapping all **118 remaining individual t
 - [ ] Create staging environment. *(from "Tasks" L2194)*
 - [ ] Create production environment. *(from "Tasks" L2195)*
 - [ ] Use separate databases and storage buckets. *(from "Tasks" L2196)*
-- [ ] Add environment variable validation. *(from "Tasks" L2197)*
+- [x] Add environment variable validation. _(implemented via shared Zod env schemas and runtime parsing in `packages/shared/src/env.ts`, `apps/api/src/env.ts`, and `apps/web/env.ts`)_ *(from "Tasks" L2197)*
 - [ ] Run database migration/seed scripts safely. *(from "Tasks" L2239)*
 - [ ] Add structured API logs. *(from "Tasks" L2247)*
 - [ ] Add error tracking with Sentry or equivalent. *(from "Tasks" L2248)*
@@ -119,7 +119,7 @@ This document is a living audit tracker mapping all **118 remaining individual t
 
 ### 🟡 Extra Admin Analytics
 - [ ] Admin approves profile. *(from "E2E Scenarios" L2177)*
-- [ ] Add admin audit log view. *(from "Tasks" L2252)*
+- [x] Add admin audit log view. _(implemented at `/admin/audit-logs` with backing `/api/admin/audit-logs` list/filter support)_ *(from "Tasks" L2252)*
 
 ### 🟡 Cosmetic & UI Enhancements
 - [ ] Add Google OAuth. *(from "Backend Tasks" L538)*
@@ -137,6 +137,11 @@ This document is a living audit tracker mapping all **118 remaining individual t
 - [ ] User upgrades to premium. *(from "E2E Scenarios" L2181)*
 - [ ] Deploy frontend to Vercel or selected host. *(from "Tasks" L2237)*
 - [ ] Deploy backend to selected host. *(from "Tasks" L2238)*
+
+## Recently Completed
+
+- [x] AUTH-002 Mobile registration and OTP flow is now complete across API, frontend auth screens, shared validators, and targeted tests.
+- [x] CI quality gates exist in `.github/workflows/ci.yml` and currently cover typecheck, tests, build, and route QA. Full deployment automation is still pending under DEVOPS-002.
 
 ---
 
@@ -166,4 +171,3 @@ This document is a living audit tracker mapping all **118 remaining individual t
 - [ ] Expired boosts should not affect rankings. *(from "Search Integration" L1688)*
 - [ ] Boosted profiles rank higher in eligible search. *(from "Tests" L1693)*
 - [ ] Hidden/suspended profiles are never boosted publicly. *(from "Tests" L1694)*
-

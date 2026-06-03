@@ -136,6 +136,7 @@ export default function SubscriptionPage() {
   const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
   const [loading, setLoading] = useState(true);
   const [boostLoading, setBoostLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [cancelDialog, setCancelDialog] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
@@ -191,6 +192,26 @@ export default function SubscriptionPage() {
     }
     setCancelLoading(false);
     setCancelDialog(false);
+  }
+
+  async function openBillingPortal() {
+    setPortalLoading(true);
+    const result = await memberRequest('/api/me/subscription/portal', { method: 'POST' });
+
+    if (result.ok) {
+      const data = result.data as { portalUrl?: string; message?: string };
+      if (data.portalUrl) {
+        window.location.href = data.portalUrl;
+        return;
+      }
+      setMessage(data.message ?? 'Billing portal is ready.');
+      setMessageType('info');
+    } else {
+      setMessage(result.message ?? 'Could not open billing portal.');
+      setMessageType('error');
+    }
+
+    setPortalLoading(false);
   }
 
   const status = overview?.subscription?.status ?? 'FREE';
@@ -351,6 +372,16 @@ export default function SubscriptionPage() {
                     <Sparkles className="h-4 w-4 text-[#D4A04C]" />
                     View plans
                     <ArrowRight className="h-4 w-4" />
+                  </button>
+                )}
+                {isPaid && !cancelAtPeriodEnd && (
+                  <button
+                    type="button"
+                    onClick={() => void openBillingPortal()}
+                    disabled={portalLoading}
+                    className="rounded-xl border border-[#d9cfbf] px-5 py-2.5 text-sm font-semibold text-[#241c15] hover:bg-[#f8f5ef] transition disabled:opacity-60"
+                  >
+                    {portalLoading ? 'Opening billing…' : 'Manage billing'}
                   </button>
                 )}
                 {isPaid && !cancelAtPeriodEnd && (

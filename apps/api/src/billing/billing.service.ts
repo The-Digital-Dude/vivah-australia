@@ -183,6 +183,38 @@ export async function createCheckoutSession(userId: Types.ObjectId, input: Check
   return { checkoutUrl: session.url, sessionId: session.id };
 }
 
+export async function createBillingPortalSession(userId: Types.ObjectId) {
+  const subscription = await activeSubscription(userId);
+  if (!subscription) {
+    throw new HttpError(404, 'No active subscription found');
+  }
+
+  if (!stripe) {
+    if (env.NODE_ENV === 'production') {
+      throw new HttpError(400, 'Stripe billing is not configured in production.');
+    }
+
+    return {
+      portalUrl: `${env.WEB_BASE_URL}/member/subscription?billing=mock`,
+      message: 'Mock billing portal ready.',
+    };
+  }
+
+  if (!subscription.providerCustomerId) {
+    throw new HttpError(404, 'No Stripe billing customer found for this subscription.');
+  }
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: subscription.providerCustomerId,
+    return_url: `${env.WEB_BASE_URL}/member/subscription`,
+  });
+
+  return {
+    portalUrl: session.url,
+    message: 'Billing portal ready.',
+  };
+}
+
 export async function getSubscriptionOverview(userId: Types.ObjectId) {
   const subscription = await activeSubscription(userId);
   const plan = subscription

@@ -179,6 +179,36 @@ describe('billing routes and webhooks', () => {
     expect(await PaymentModel.countDocuments({ userId: user.user._id })).toBe(1);
   });
 
+  it('creates a mock billing portal session when Stripe credentials are not configured', async () => {
+    const user = await createUser('portal@example.com');
+    const plan = await PlanModel.create({
+      code: 'PORTAL',
+      name: 'Portal',
+      priceCents: 7900,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: [],
+      limits: {},
+      active: true,
+    });
+    await SubscriptionModel.create({
+      userId: user.user._id,
+      planId: plan._id,
+      status: SubscriptionStatus.ACTIVE,
+      startsAt: new Date(),
+      provider: 'stripe',
+      providerCustomerId: 'cus_mock',
+      providerSubscriptionId: 'sub_mock',
+    });
+
+    const response = await request(app)
+      .post('/api/me/subscription/portal')
+      .set('Authorization', `Bearer ${user.accessToken}`)
+      .expect(200);
+
+    expect(bodyAs<{ portalUrl: string }>(response).portalUrl).toContain('billing=mock');
+  });
+
   it('processes checkout and invoice webhooks into subscriptions, payments, and invoices', async () => {
     const user = await createUser('webhook@example.com');
     const plan = await PlanModel.create({
@@ -349,6 +379,21 @@ describe('billing routes and webhooks', () => {
         .post('/api/me/subscription/checkout')
         .set('Authorization', `Bearer ${user.accessToken}`)
         .send({ planCode: 'gold_prod' })
+        .expect(400);
+
+      await SubscriptionModel.create({
+        userId: user.user._id,
+        planId: (await PlanModel.findOne({ code: 'GOLD_PROD' }).orFail())._id,
+        status: SubscriptionStatus.ACTIVE,
+        startsAt: new Date(),
+        provider: 'stripe',
+        providerCustomerId: 'cus_prod',
+        providerSubscriptionId: 'sub_prod',
+      });
+
+      await request(app)
+        .post('/api/me/subscription/portal')
+        .set('Authorization', `Bearer ${user.accessToken}`)
         .expect(400);
 
       // 2. Webhook construction without signature should fail

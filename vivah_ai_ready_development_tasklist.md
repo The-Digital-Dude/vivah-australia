@@ -1570,7 +1570,7 @@ Create central logic for feature access.
 
 - [x] Create Stripe customer on first paid subscription.
 - [x] Create checkout session endpoint.
-- [ ] Create billing portal endpoint. _(outstanding gap)_
+- [x] Create billing portal endpoint.
 - [x] Create Stripe webhook endpoint.
 - [x] Handle subscription created/updated/deleted events.
 - [x] Handle payment succeeded/failed events.
