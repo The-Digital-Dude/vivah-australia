@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
+  ArrowLeft,
   Camera,
   CheckCircle2,
   Clock3,
@@ -241,6 +242,15 @@ const MOBILE_SECTION_TABS: Array<{ key: MobileTabKey; label: string; sectionId: 
   { key: 'about', label: 'About', sectionId: 'profile-about' },
   { key: 'family', label: 'Family', sectionId: 'profile-family' },
   { key: 'lifestyle', label: 'Life', sectionId: 'profile-lifestyle' },
+];
+
+const PROFILE_SECTION_TABS: Array<{ key: MobileTabKey; label: string; sectionId: string }> = [
+  { key: 'overview', label: 'Overview', sectionId: 'profile-overview' },
+  { key: 'compatibility', label: 'Compatibility', sectionId: 'profile-compatibility' },
+  { key: 'photos', label: 'Photos & gallery', sectionId: 'profile-photos' },
+  { key: 'about', label: 'About', sectionId: 'profile-about' },
+  { key: 'family', label: 'Family', sectionId: 'profile-family' },
+  { key: 'lifestyle', label: 'Lifestyle', sectionId: 'profile-lifestyle' },
 ];
 
 const fadeInUp = {
@@ -1789,6 +1799,40 @@ function ProfileDetailView({
       <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
         <div className="grid gap-6">
 
+          <motion.div
+            {...fadeInUp}
+            className="rounded-[26px] border border-[#A10E4D]/10 bg-white/90 px-5 py-4 shadow-[0_14px_32px_rgba(122,31,43,0.06)] backdrop-blur"
+          >
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B7280]">
+                <a
+                  href="/member/matches"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#A10E4D]/10 bg-[#FFF9F5] px-3 py-1.5 font-medium text-[#7A1E3A] transition hover:border-[#A10E4D]/20 hover:bg-white"
+                >
+                  <ArrowLeft className="size-4" />
+                  Back to matches
+                </a>
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#FFF9F5] px-3 py-1.5 font-medium text-[#2F2F2F]">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#D4A04C]">
+                    Profile ID
+                  </span>
+                  {profile.displayId}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <ToneBadge tone="emerald">
+                  <ShieldCheck className="size-3.5" />
+                  Trust score {overallScore}/100
+                </ToneBadge>
+                <ToneBadge tone="gold">
+                  <Clock3 className="size-3.5" />
+                  {lastActiveLabel}
+                </ToneBadge>
+              </div>
+            </div>
+          </motion.div>
+
           {/* ── Section 1: Cinematic Hero ────────────────────────────────── */}
           <motion.section
             id="profile-overview"
@@ -1938,6 +1982,27 @@ function ProfileDetailView({
               </div>
             </PremiumCard>
           </motion.section>
+
+          <div className="sticky top-20 z-20 hidden md:block">
+            <Tabs
+              value={activeMobileTab}
+              onValueChange={(value) => {
+                const next = PROFILE_SECTION_TABS.find((tab) => tab.key === value);
+                if (next) {
+                  setActiveMobileTab(next.key);
+                  scrollToSection(next.sectionId);
+                }
+              }}
+            >
+              <TabsList className="w-full justify-start gap-2 overflow-x-auto rounded-[24px] border border-[#A10E4D]/10 bg-white/95 px-2 py-2 shadow-[0_14px_30px_rgba(122,31,43,0.10)] backdrop-blur">
+                {PROFILE_SECTION_TABS.map((tab) => (
+                  <TabsTrigger key={tab.key} value={tab.key}>
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
 
           {/* ── Mobile Sticky Tabs ───────────────────────────────────────── */}
           <div className="sticky top-20 z-20 -mx-4 px-4 md:hidden">
