@@ -1,5 +1,6 @@
 import type { Types } from 'mongoose';
-import { FraudEventModel } from '../models/index.js';
+import { ReportStatus } from '@vivah/shared';
+import { ReportModel, FraudEventModel } from '../models/index.js';
 
 export async function recordFraudEvent(input: {
   userId?: Types.ObjectId;
@@ -120,5 +121,95 @@ export async function recordRepeatedOtpFailures(input: {
     severity: input.attempts >= 5 ? 'HIGH' : 'MEDIUM',
     score: Math.min(100, input.attempts * 18),
     metadata: { mobile: input.mobile, attempts: input.attempts },
+  });
+}
+
+const reportedUserRiskStatuses = [ReportStatus.OPEN, ReportStatus.ASSIGNED] as const;
+
+function reportSeverityRank(value: string) {
+  const rank: Record<string, number> = {
+    LOW: 1,
+    MEDIUM: 2,
+    HIGH: 3,
+    CRITICAL: 4,
+  };
+  return rank[value] ?? 1;
+}
+
+function reportRiskSeverity(openReportCount: number, highestSeverity: string) {
+  if (highestSeverity === 'CRITICAL' || openReportCount >= 5) return 'CRITICAL' as const;
+  if (highestSeverity === 'HIGH' || openReportCount >= 3) return 'HIGH' as const;
+  if (highestSeverity === 'MEDIUM' || openReportCount >= 2) return 'MEDIUM' as const;
+  return 'LOW' as const;
+}
+
+function reportRiskScore(openReportCount: number, highestSeverity: string) {
+  const severityWeight: Record<string, number> = {
+    LOW: 8,
+    MEDIUM: 18,
+    HIGH: 32,
+    CRITICAL: 50,
+  };
+  return Math.min(100, openReportCount * 15 + (severityWeight[highestSeverity] ?? 8));
+}
+
+export async function syncReportedUserRiskCounter(reportedUserId: Types.ObjectId) {
+  const activeReports = await ReportModel.find({
+    reportedUserId,
+    status: { $in: reportedUserRiskStatuses },
+    isDeleted: false,
+  })
+    .select('severity status createdAt')
+    .lean();
+
+  const latestEvent = await FraudEventModel.findOne({
+    userId: reportedUserId,
+    rule: 'REPORTED_USER_RISK_SCORE',
+    isDeleted: false,
+  }).sort({ createdAt: -1 });
+
+  if (activeReports.length === 0) {
+    if (latestEvent) {
+      latestEvent.status = 'REVIEWED';
+      latestEvent.score = 0;
+      latestEvent.metadata = {
+        ...(typeof latestEvent.metadata === 'object' && latestEvent.metadata ? latestEvent.metadata : {}),
+        activeReportCount: 0,
+        highestSeverity: 'LOW',
+        statuses: [],
+      };
+      await latestEvent.save();
+    }
+    return latestEvent;
+  }
+
+  const highestSeverity = activeReports
+    .map((report) => report.severity)
+    .sort((left, right) => reportSeverityRank(right) - reportSeverityRank(left))[0] ?? 'LOW';
+  const activeReportCount = activeReports.length;
+  const nextSeverity = reportRiskSeverity(activeReportCount, highestSeverity);
+  const nextScore = reportRiskScore(activeReportCount, highestSeverity);
+  const metadata = {
+    activeReportCount,
+    highestSeverity,
+    statuses: [...new Set(activeReports.map((report) => report.status))],
+  };
+
+  if (latestEvent) {
+    latestEvent.status = 'OPEN';
+    latestEvent.severity = nextSeverity;
+    latestEvent.score = nextScore;
+    latestEvent.metadata = metadata;
+    await latestEvent.save();
+    return latestEvent;
+  }
+
+  return FraudEventModel.create({
+    userId: reportedUserId,
+    rule: 'REPORTED_USER_RISK_SCORE',
+    severity: nextSeverity,
+    status: 'OPEN',
+    score: nextScore,
+    metadata,
   });
 }

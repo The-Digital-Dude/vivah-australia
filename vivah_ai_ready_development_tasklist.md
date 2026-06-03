@@ -1275,7 +1275,7 @@ GET /api/me/blocks
 - [x] Support reporting users, profiles, messages, posts, comments, and media.
 - [x] Add reason, description, screenshots/attachments optional.
 - [x] Add admin review workflow.
-- [ ] Add auto-risk counter per reported user. _(outstanding gap)_
+- [x] Add auto-risk counter per reported user.
 
 #### API Endpoints
 

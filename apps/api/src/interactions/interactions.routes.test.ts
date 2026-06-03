@@ -12,6 +12,7 @@ import {
   BlockModel,
   ConversationModel,
   FavouriteModel,
+  FraudEventModel,
   HiddenProfileModel,
   InterestModel,
   NotificationModel,
@@ -397,6 +398,13 @@ describe('interaction routes', () => {
     expect(
       await NotificationModel.findOne({ userId: reporter.user._id, type: 'REPORT_SUBMITTED' }),
     ).toBeTruthy();
+    const riskEvent = await FraudEventModel.findOne({
+      userId: target.user._id,
+      rule: 'REPORTED_USER_RISK_SCORE',
+      isDeleted: false,
+    }).lean();
+    expect(riskEvent?.status).toBe('OPEN');
+    expect(riskEvent?.metadata).toMatchObject({ activeReportCount: 1, highestSeverity: 'HIGH' });
   });
 
   it('allows admins to list, assign, resolve, and dismiss reports', async () => {
@@ -405,14 +413,17 @@ describe('interaction routes', () => {
     const admin = await createUser('report-admin@example.com', UserRole.ADMIN);
     await createProfile(reporter.user._id, 'VA360001', 'Amit', Gender.MALE);
     const targetProfile = await createProfile(target.user._id, 'VA360002', 'Priya', Gender.FEMALE);
-    const report = await ReportModel.create({
-      reporterId: reporter.user._id,
-      reportedUserId: target.user._id,
-      targetType: 'PROFILE',
-      targetId: targetProfile._id,
-      reason: 'Needs admin review for suspicious behaviour.',
-      severity: 'MEDIUM',
-    });
+    const createdReport = await request(app)
+      .post('/api/reports')
+      .set('Authorization', `Bearer ${reporter.accessToken}`)
+      .send({
+        targetType: 'PROFILE',
+        targetId: targetProfile.id,
+        reason: 'Needs admin review for suspicious behaviour.',
+        severity: 'MEDIUM',
+      })
+      .expect(201);
+    const reportId = bodyAs<{ report: { id: string } }>(createdReport).report.id;
 
     const list = await request(app)
       .get('/api/admin/reports?status=OPEN')
@@ -421,17 +432,66 @@ describe('interaction routes', () => {
     expect(bodyAs<{ reports: unknown[] }>(list).reports).toHaveLength(1);
 
     const assigned = await request(app)
-      .patch(`/api/admin/reports/${report.id}`)
+      .patch(`/api/admin/reports/${reportId}`)
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .send({ action: 'ASSIGN' })
       .expect(200);
     expect(bodyAs<{ report: { status: string } }>(assigned).report.status).toBe('ASSIGNED');
 
     const resolved = await request(app)
-      .patch(`/api/admin/reports/${report.id}`)
+      .patch(`/api/admin/reports/${reportId}`)
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .send({ action: 'RESOLVE' })
       .expect(200);
     expect(bodyAs<{ report: { status: string } }>(resolved).report.status).toBe('RESOLVED');
+
+    const riskEvent = await FraudEventModel.findOne({
+      userId: target.user._id,
+      rule: 'REPORTED_USER_RISK_SCORE',
+      isDeleted: false,
+    }).lean();
+    expect(riskEvent?.status).toBe('REVIEWED');
+    expect(riskEvent?.score).toBe(0);
+    expect(riskEvent?.metadata).toMatchObject({ activeReportCount: 0 });
+  });
+
+  it('increments reported-user risk counters across multiple active reports', async () => {
+    const target = await createUser('risk-target@example.com');
+    await createProfile(target.user._id, 'VA370099', 'Priya', Gender.FEMALE);
+
+    const reporterOne = await createUser('risk-reporter-one@example.com');
+    const reporterTwo = await createUser('risk-reporter-two@example.com');
+    const reporterThree = await createUser('risk-reporter-three@example.com');
+    const targetProfile = await ProfileModel.findOne({ userId: target.user._id }).orFail();
+
+    for (const [accessToken, severity] of [
+      [reporterOne.accessToken, 'LOW'],
+      [reporterTwo.accessToken, 'MEDIUM'],
+      [reporterThree.accessToken, 'CRITICAL'],
+    ] as const) {
+      await request(app)
+        .post('/api/reports')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          targetType: 'PROFILE',
+          targetId: targetProfile.id,
+          reason: 'This profile requires safety review for suspicious information.',
+          severity,
+        })
+        .expect(201);
+    }
+
+    const riskEvent = await FraudEventModel.findOne({
+      userId: target.user._id,
+      rule: 'REPORTED_USER_RISK_SCORE',
+      isDeleted: false,
+    }).lean();
+    expect(riskEvent?.severity).toBe('CRITICAL');
+    expect(riskEvent?.status).toBe('OPEN');
+    expect(riskEvent?.score).toBeGreaterThanOrEqual(90);
+    expect(riskEvent?.metadata).toMatchObject({
+      activeReportCount: 3,
+      highestSeverity: 'CRITICAL',
+    });
   });
 });

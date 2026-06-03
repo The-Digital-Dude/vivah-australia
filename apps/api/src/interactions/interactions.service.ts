@@ -7,7 +7,7 @@ import {
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
-import { recordRepeatedReports } from '../common/fraud.service.js';
+import { recordRepeatedReports, syncReportedUserRiskCounter } from '../common/fraud.service.js';
 import {
   BlockModel,
   ConversationModel,
@@ -518,6 +518,9 @@ export async function createReport(
   };
   const report = new ReportModel(reportPayload);
   await report.save();
+  if (reportedUserId) {
+    await syncReportedUserRiskCounter(reportedUserId);
+  }
 
   await notify(userId, 'REPORT_SUBMITTED', 'Report submitted', 'Our safety team will review it.');
 
@@ -568,5 +571,8 @@ export async function reviewReport(
   }
 
   await report.save();
+  if (report.reportedUserId) {
+    await syncReportedUserRiskCounter(report.reportedUserId);
+  }
   return report;
 }

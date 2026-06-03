@@ -69,7 +69,7 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [x] Create `VisaVerificationProvider` interface. _(implemented in `apps/api/src/admin/verification-providers.ts`)_ *(from "Tasks" L1047)*
 - [x] Implement manual-review provider as default. _(verification requests now route through the manual-review provider assignment layer before persistence)_ *(from "Tasks" L1048)*
 - [x] Store provider reference IDs for future integrations. _(verification requests now persist `provider` and `providerReferenceId`)_ *(from "Tasks" L1049)*
-- [ ] Add auto-risk counter per reported user. _(outstanding gap)_ *(from "Backend Tasks" L1278)*
+- [x] Add auto-risk counter per reported user. _(report creation/review now keeps a `REPORTED_USER_RISK_SCORE` fraud event in sync with active report volume and severity)_ *(from "Backend Tasks" L1278)*
 - [ ] Use secure upload flow. *(from "Backend Tasks" L1395)*
 - [ ] Show document links with signed access. *(from "Frontend Tasks" L1403)*
 - [x] Create billing portal endpoint. _(implemented via authenticated member billing portal session API and subscription-page action)_ *(from "Backend Tasks" L1573)*
