@@ -39,6 +39,85 @@ const STEPS = [
   { id: 10, label: 'Verification', shortLabel: '10' },
 ] as const;
 
+const STEP_META = [
+  {
+    eyebrow: 'Step 1',
+    title: 'Start with the basics',
+    description:
+      'Your name, marital status, and date of birth create the foundation for every future introduction.',
+    highlight: 'A complete first step helps your profile feel real and trustworthy immediately.',
+  },
+  {
+    eyebrow: 'Step 2',
+    title: 'Set your Australian location',
+    description:
+      'Location matters for practical family conversations, visa context, and discovery relevance.',
+    highlight: 'Members often respond faster when city and residency details feel clear and current.',
+  },
+  {
+    eyebrow: 'Step 3',
+    title: 'Share religion and community background',
+    description:
+      'These details help families and serious members understand cultural alignment early.',
+    highlight: 'Thoughtful background detail improves compatibility quality without making the profile feel rigid.',
+  },
+  {
+    eyebrow: 'Step 4',
+    title: 'Add education and career context',
+    description:
+      'Give your profile substance with clear academic and professional details.',
+    highlight: 'Well-structured career information often increases trust and conversation quality.',
+  },
+  {
+    eyebrow: 'Step 5',
+    title: 'Introduce your family values',
+    description:
+      'Family context helps people understand your support system and the kind of life you come from.',
+    highlight: 'This section is especially valuable for respectful, family-involved matchmaking journeys.',
+  },
+  {
+    eyebrow: 'Step 6',
+    title: 'Describe your lifestyle honestly',
+    description:
+      'Daily habits and preferences shape long-term compatibility more than polished headlines do.',
+    highlight: 'Small details here prevent mismatched expectations later.',
+  },
+  {
+    eyebrow: 'Step 7',
+    title: 'Tell your story well',
+    description:
+      'Your words are often the difference between a profile that is skimmed and one that earns a reply.',
+    highlight: 'Warm, specific writing usually performs better than generic self-descriptions.',
+  },
+  {
+    eyebrow: 'Step 8',
+    title: 'Build a strong photo gallery',
+    description:
+      'Clear, recent, confident photos increase profile trust and help members feel comfortable replying.',
+    highlight: 'Profiles with a good primary photo are discovered and opened far more often.',
+  },
+  {
+    eyebrow: 'Step 9',
+    title: 'Define partner preferences',
+    description:
+      'Set expectations with enough clarity to guide discovery, without making the search feel too narrow.',
+    highlight: 'Balanced preferences usually create better match quality and healthier response rates.',
+  },
+  {
+    eyebrow: 'Step 10',
+    title: 'Review and move into trust',
+    description:
+      'Finish strong, submit your profile for approval, and continue into the verification path that builds confidence.',
+    highlight: 'Submission plus verification is what turns a draft into a serious matchmaking profile.',
+  },
+] as const;
+
+const ONBOARDING_PROMISES = [
+  'Every step saves back to your draft profile.',
+  'You can return later and edit any completed section.',
+  'Verification is optional now but strongly improves trust.',
+] as const;
+
 // ─── Draft state shape ────────────────────────────────────────────────────────
 
 interface ProfileDraft {
@@ -1755,6 +1834,14 @@ function SectionTitle({ icon, title }: { icon: string; title: string }) {
   );
 }
 
+function journeyCompletionCount(step: number, mode: 'onboarding' | 'edit') {
+  if (mode === 'edit') {
+    return STEPS.length;
+  }
+
+  return Math.max(0, step);
+}
+
 // ─── Main wizard component ────────────────────────────────────────────────────
 
 export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'edit' }>) {
@@ -1948,6 +2035,9 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
 
   const progress = ((step + 1) / STEPS.length) * 100;
   const isLastStep = step === STEPS.length - 1;
+  const currentStepMeta = STEP_META[step] ?? STEP_META[0];
+  const completedSteps = journeyCompletionCount(step, mode);
+  const remainingSteps = Math.max(0, STEPS.length - (step + 1));
 
   if (loading) {
     return (
@@ -1975,9 +2065,56 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
         </div>
       ) : null}
 
-      {/* Stepper horizontal checklist chips */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#A10E4D]/10 pb-4">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full">
+      <div className="rounded-[36px] border border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFFCFA_0%,#FFF6F1_100%)] p-5 shadow-[0_24px_70px_rgba(122,31,43,0.08)] sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
+              {mode === 'onboarding' ? 'Create your profile' : 'Edit your profile'}
+            </p>
+            <h1 className="mt-3 font-playfair text-3xl font-bold leading-tight text-[#2F2F2F] sm:text-4xl">
+              {currentStepMeta.title}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5F5F5F] sm:text-base">
+              {currentStepMeta.description}
+            </p>
+            <p className="mt-3 rounded-2xl border border-[#D4A04C]/20 bg-white/80 px-4 py-3 text-sm font-medium text-[#7D6551]">
+              {currentStepMeta.highlight}
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[360px]">
+            <div className="rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                Progress
+              </p>
+              <p className="mt-2 text-2xl font-bold text-[#A10E4D]">{Math.round(progress)}%</p>
+              <p className="mt-1 text-xs text-[#6B7280]">Currently on step {step + 1} of {STEPS.length}</p>
+            </div>
+            <div className="rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                Completed
+              </p>
+              <p className="mt-2 text-2xl font-bold text-[#2F2F2F]">{completedSteps}</p>
+              <p className="mt-1 text-xs text-[#6B7280]">sections ready</p>
+            </div>
+            <div className="rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                Remaining
+              </p>
+              <p className="mt-2 text-2xl font-bold text-[#2F2F2F]">{remainingSteps}</p>
+              <p className="mt-1 text-xs text-[#6B7280]">before review</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 h-2 overflow-hidden rounded-full bg-[#F3DFE8]">
+          <div
+            className="h-full rounded-full bg-[linear-gradient(90deg,#A10E4D_0%,#D4A04C_100%)] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        <div className="mt-6 flex gap-3 overflow-x-auto pb-2 scrollbar-none">
           {STEPS.map((s, i) => {
             const done = i < step;
             const active = i === step;
@@ -1991,74 +2128,134 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                   }
                 }}
                 className={cx(
-                  'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold shrink-0 transition-all duration-200 border',
+                  'flex min-w-[170px] shrink-0 items-center gap-3 rounded-[22px] border px-4 py-3 text-left transition-all duration-200',
                   active
-                    ? 'bg-[#A10E4D] text-white border-[#A10E4D] shadow-sm'
+                    ? 'border-[#A10E4D] bg-white text-[#A10E4D] shadow-[0_18px_36px_rgba(161,14,77,0.10)]'
                     : done
-                      ? 'bg-white text-green-700 border-green-200 hover:bg-green-50'
-                      : 'bg-white text-[#6B7280] border-[#A10E4D]/10 hover:bg-[#FFF9F5]',
-                  mode === 'edit' || i <= step || done
-                    ? 'cursor-pointer'
-                    : 'cursor-not-allowed opacity-60',
+                      ? 'border-green-200 bg-white text-green-700 hover:bg-green-50'
+                      : 'border-[#A10E4D]/10 bg-white/90 text-[#6B7280] hover:bg-white',
+                  mode === 'edit' || i <= step || done ? 'cursor-pointer' : 'cursor-not-allowed opacity-60',
                 )}
               >
-                {done ? (
-                  <Check className="size-3 shrink-0" />
-                ) : (
-                  <span
-                    className={cx(
-                      'size-4 rounded-full flex items-center justify-center text-[9px] shrink-0 font-extrabold',
-                      active ? 'bg-[#D4A04C] text-[#2F2F2F]' : 'bg-[#FFF9F5] text-[#6B7280]',
-                    )}
-                  >
-                    {s.id}
+                <span
+                  className={cx(
+                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold',
+                    active && 'bg-[#FFF0F3] text-[#A10E4D]',
+                    done && 'bg-[#E8F7EF] text-green-700',
+                    !active && !done && 'bg-[#FFF9F5] text-[#6B7280]',
+                  )}
+                >
+                  {done ? <Check className="size-4" /> : s.shortLabel}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                    Step {s.id}
                   </span>
-                )}
-                <span>{s.label}</span>
+                  <span className="mt-1 block text-sm font-semibold text-current">{s.label}</span>
+                </span>
               </button>
             );
           })}
         </div>
-        {profileId && (
-          <Link
-            href={`/profiles/${profileId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-2xl border border-[#A10E4D]/20 bg-white px-4 py-2.5 text-xs font-bold text-[#A10E4D] hover:bg-[#FFF0F3] transition shrink-0 shadow-sm"
-          >
-            <Eye className="size-3.5" />
-            Preview Profile
-          </Link>
-        )}
       </div>
 
-      {/* Step content card */}
-      <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] md:p-8">
-        {step === 0 && <StepBasicDetails draft={draft} onChange={patchPersonal} errors={errors} />}
-        {step === 1 && <StepLocation draft={draft} onChange={patchLocation} errors={errors} />}
-        {step === 2 && <StepReligion draft={draft} onChange={patchReligion} errors={errors} />}
-        {step === 3 && (
-          <StepEducation
-            draft={draft}
-            onEdChange={patchEducation}
-            onEmChange={patchEmployment}
-            errors={errors}
-          />
-        )}
-        {step === 4 && <StepFamily draft={draft} onChange={patchFamily} errors={errors} />}
-        {step === 5 && <StepLifestyle draft={draft} onChange={patchLifestyle} errors={errors} />}
-        {step === 6 && <StepAbout draft={draft} onChange={patchAbout} errors={errors} />}
-        {step === 7 && <StepPhotos memberRequest={memberRequest} />}
-        {step === 8 && (
-          <StepPartnerPrefs draft={draft} onChange={patchPartnerPreference} errors={errors} />
-        )}
-        {step === 9 && (
-          <StepVerification
-            onSubmit={() => void handleSubmit()}
-            pending={submitting}
-            submitMsg={submitMsg}
-          />
-        )}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] md:p-8">
+          {step === 0 && <StepBasicDetails draft={draft} onChange={patchPersonal} errors={errors} />}
+          {step === 1 && <StepLocation draft={draft} onChange={patchLocation} errors={errors} />}
+          {step === 2 && <StepReligion draft={draft} onChange={patchReligion} errors={errors} />}
+          {step === 3 && (
+            <StepEducation
+              draft={draft}
+              onEdChange={patchEducation}
+              onEmChange={patchEmployment}
+              errors={errors}
+            />
+          )}
+          {step === 4 && <StepFamily draft={draft} onChange={patchFamily} errors={errors} />}
+          {step === 5 && <StepLifestyle draft={draft} onChange={patchLifestyle} errors={errors} />}
+          {step === 6 && <StepAbout draft={draft} onChange={patchAbout} errors={errors} />}
+          {step === 7 && <StepPhotos memberRequest={memberRequest} />}
+          {step === 8 && (
+            <StepPartnerPrefs draft={draft} onChange={patchPartnerPreference} errors={errors} />
+          )}
+          {step === 9 && (
+            <StepVerification
+              onSubmit={() => void handleSubmit()}
+              pending={submitting}
+              submitMsg={submitMsg}
+            />
+          )}
+        </div>
+
+        <div className="grid gap-6">
+          <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+              Your onboarding promise
+            </p>
+            <div className="mt-5 grid gap-3">
+              {ONBOARDING_PROMISES.map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-2xl bg-[#FFF9F5] px-4 py-4">
+                  <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#A10E4D]">
+                    <Check className="size-3.5" />
+                  </span>
+                  <p className="text-sm leading-6 text-[#5F5F5F]">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-[#D4A04C]/20 bg-[linear-gradient(180deg,#FFF9EE_0%,#FFFFFF_100%)] p-5 shadow-[0_18px_50px_rgba(122,31,43,0.05)]">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+              Trust and visibility
+            </p>
+            <h3 className="mt-3 text-lg font-semibold text-[#2F2F2F]">
+              Verified profiles stand out faster
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+              Clear photos, completed basics, and trust checks usually make the strongest first impression.
+            </p>
+            <div className="mt-5 grid gap-3">
+              {[
+                'Better response confidence',
+                'Higher search trust signals',
+                'Smoother family introductions',
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-3 text-sm text-[#5F5F5F]">
+                  <ShieldCheck className="size-4 text-[#A10E4D]" />
+                  {item}
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/member/verification"
+              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]"
+            >
+              Visit verification centre
+              <ChevronRight className="size-4" />
+            </Link>
+          </div>
+
+          {profileId ? (
+            <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.05)]">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                Review in public view
+              </p>
+              <p className="mt-3 text-sm leading-6 text-[#6B7280]">
+                Preview how your profile presents to other members while you continue refining it.
+              </p>
+              <Link
+                href={`/profiles/${profileId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#A10E4D] hover:bg-[#FFF0F3] transition shadow-sm"
+              >
+                <Eye className="size-4" />
+                Preview Profile
+              </Link>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {/* Sticky Navigation Footer Bar */}
