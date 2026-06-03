@@ -17,6 +17,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Optional webhook-based error tracking is wired for API startup failures, unexpected Express 500s, and uncaught/unhandled process errors, with env-controlled activation and service-level tests.
 - Stripe webhook verification/processing failures now trigger explicit error-tracking alerts, so payment webhook breakages surface even when they resolve into handled HTTP responses.
 - Scheduled uptime monitoring failures now trigger background-job webhook alerts through the GitHub Actions workflow path, covering the repo's current background-job surface.
+- Deployment and disaster-recovery guidance now exists in `docs/deployment/operations-runbook.md`, including backup expectations, storage lifecycle guidance, CDN caching rules, and current signed-access evidence for private media and verification previews.
 - `.env.example` files exist for API and web.
 - Real environment files, build outputs, logs, and dependencies are ignored by git.
 - `vivah_australia_ui_ux_planning.md` is now the standing UI/UX source of truth for all frontend and product work.
@@ -125,7 +126,7 @@ The following modules do not yet have full business-feature implementations in t
 - Payment provider abstraction is limited to persisted provider fields; a PayPal adapter and custom Payment Element wallet UI remain future work.
 - Profile boosts activate and expire by time window, but boosted ranking and public boosted badges still need search/homepage integration.
 - Admin auth is guarded client-side because the current web auth token is stored in localStorage; moving auth to httpOnly cookies would allow server-side Next route protection.
-- Verification documents are represented by encrypted storage metadata and manual document URLs, but secure member upload and signed admin preview still need to be connected to the media storage flow.
+- Verification documents are represented by encrypted storage metadata; signed admin preview URLs are in place, while secure member-side upload to the media storage flow still remains.
 - Notification/email delivery now has member read/read-all/delete UI and configurable provider selection; production templates, preferences, and queueing remain future work.
 - Audit/activity services record core admin and verification events and can be browsed in admin; sensitive document access logging remains future work.
 - Playwright smoke coverage and route QA exist, but broader frontend component/integration coverage and a deeper E2E scenario matrix are still needed.

@@ -94,8 +94,8 @@ This document is a living audit tracker mapping the remaining launch-critical ta
 - [ ] Configure MongoDB backups. *(from "Tasks" L2260)*
 - [ ] Configure file storage lifecycle policy. *(from "Tasks" L2261)*
 - [ ] Configure CDN caching for public assets. *(from "Tasks" L2262)*
-- [ ] Ensure private documents use signed URLs. *(from "Tasks" L2263)*
-- [ ] Document disaster recovery steps. *(from "Tasks" L2264)*
+- [x] Ensure private documents use signed URLs. _(private media access and verification document previews already use time-limited tokenized URLs)_ *(from "Tasks" L2263)*
+- [x] Document disaster recovery steps. _(documented in `docs/deployment/operations-runbook.md`)_ *(from "Tasks" L2264)*
 - [ ] SSL enforced in production _(DEVOPS)_ *(from "Security" L2527)*
 
 ### 🔴 Stripe Validation

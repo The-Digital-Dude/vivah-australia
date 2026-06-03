@@ -2260,8 +2260,8 @@ ADMIN_SEED_PASSWORD=
 - [ ] Configure MongoDB backups.
 - [ ] Configure file storage lifecycle policy.
 - [ ] Configure CDN caching for public assets.
-- [ ] Ensure private documents use signed URLs.
-- [ ] Document disaster recovery steps.
+- [x] Ensure private documents use signed URLs.
+- [x] Document disaster recovery steps.
 
 ---
 
