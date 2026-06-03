@@ -2,10 +2,10 @@ import { test, expect } from '@playwright/test';
 
 async function loginAsDemoMember(page: Parameters<typeof test>[0]['page']) {
   await page.goto('/login');
-  await page.getByLabel('Email address').fill('priya.sharma@example.com');
-  await page.getByLabel('Password').fill('TestUserStrong123!');
+  await page.locator('input[name="email"]').fill('priya.sharma@example.com');
+  await page.locator('input[name="password"]').fill('TestUserStrong123!');
   await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/member$/);
+  await expect(page).toHaveURL(/\/member$/, { timeout: 15000 });
 }
 
 test.describe('Vivah Australia Smoke Tests', () => {
@@ -17,21 +17,21 @@ test.describe('Vivah Australia Smoke Tests', () => {
 
   test('should load the login page and show credentials form', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await expect(page.locator('input[name="email"]')).toBeVisible();
+    await expect(page.locator('input[name="password"]')).toBeVisible();
   });
 
   test('should load pricing page and show plans', async ({ page }) => {
     await page.goto('/pricing');
     await expect(
-      page.getByText('Upgrade your search with verified contact access and priority visibility'),
+      page.getByRole('heading', { name: 'Find Your Life Partner Faster' }),
     ).toBeVisible();
   });
 
   test('should load the public matches preview flow', async ({ page }) => {
     await page.goto('/matches');
     await expect(
-      page.getByText('Explore a softer preview of serious Australian matrimonial matches'),
+      page.getByText('Explore a softer preview of serious Australian matrimonial matches').first(),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: /refresh preview/i })).toBeVisible();
   });

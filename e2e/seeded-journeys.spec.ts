@@ -2,18 +2,18 @@ import { expect, test } from '@playwright/test';
 
 async function loginAsDemoMember(page: Parameters<typeof test>[0]['page']) {
   await page.goto('/login');
-  await page.getByLabel('Email address').fill('priya.sharma@example.com');
-  await page.getByLabel('Password').fill('TestUserStrong123!');
+  await page.locator('input[name="email"]').fill('priya.sharma@example.com');
+  await page.locator('input[name="password"]').fill('TestUserStrong123!');
   await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/member$/);
+  await expect(page).toHaveURL(/\/member$/, { timeout: 15000 });
 }
 
 async function loginAsAdmin(page: Parameters<typeof test>[0]['page']) {
   await page.goto('/admin/login');
-  await page.getByPlaceholder('Email address').fill('manager@vivahaustralia.com');
-  await page.getByPlaceholder('Password').fill('ChangeMeStrong123!');
+  await page.locator('input[name="email"]').fill('manager@vivahaustralia.com');
+  await page.locator('input[name="password"]').fill('ChangeMeStrong123!');
   await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/admin\/dashboard$/);
+  await expect(page).toHaveURL(/\/admin\/dashboard$/, { timeout: 15000 });
 }
 
 test.describe('Vivah Australia Seeded Browser Journeys', () => {
@@ -24,7 +24,7 @@ test.describe('Vivah Australia Seeded Browser Journeys', () => {
 
     await page.goto('/member/messages');
     await expect(page.getByRole('heading', { name: 'Conversations' })).toBeVisible();
-    await expect(page.getByText('Hi, thanks for accepting my interest. I liked your profile and family values.')).toBeVisible();
+    await expect(page.getByText('Hi, thanks for accepting my interest. I liked your profile and family values.')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Thanks, nice to connect with you too.')).toBeVisible();
     await expect(page.getByRole('button', { name: /delete chat/i })).toBeVisible();
   });

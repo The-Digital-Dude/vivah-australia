@@ -785,7 +785,7 @@ const paymentSchema = new Schema<Payment>(
       index: true,
     },
     provider: { type: String, required: true, trim: true },
-    providerPaymentId: { type: String, trim: true, index: true },
+    providerPaymentId: { type: String, trim: true },
     providerCustomerId: { type: String, trim: true, index: true },
     providerSubscriptionId: { type: String, trim: true, index: true },
     planId: { type: Schema.Types.ObjectId, ref: 'Plan' },

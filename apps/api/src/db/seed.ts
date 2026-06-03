@@ -907,7 +907,7 @@ async function seedMessages(
 
   for (let index = 0; index < 10; index += 1) {
     const first = pick(males, index);
-    const second = pick(females, index + 1);
+    const second = pick(females, index);
     const participantIds = [first.userId, second.userId].sort((a, b) =>
       String(a).localeCompare(String(b)),
     );
