@@ -2161,7 +2161,7 @@ GET /api/admin/activity-logs
 - [x] Profile wizard saves each step.
 - [x] Search filters update query.
 - [x] Interest buttons update state.
-- [ ] Chat UI renders messages.
+- [x] Chat UI renders messages.
 - [x] Pricing page triggers checkout.
 - [ ] Admin tables load and filter data.
 
