@@ -13,6 +13,19 @@ import {
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { useMemberRequest } from '@/lib/member-api';
+import UpgradeModal from '../upgrade-modal';
+
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+
+interface Plan {
+  id: string;
+  code: string;
+  name: string;
+  priceCents: number;
+  currency: string;
+  interval: 'MONTH' | 'YEAR';
+  limits: Record<string, number>;
+}
 
 interface SubscriptionOverview {
   plan?: {
@@ -40,6 +53,21 @@ interface Payment {
   description?: string;
   createdAt: string;
 }
+
+const PLAN_HIGHLIGHTS: Record<string, string[]> = {
+  PREMIUM: [
+    'Unlock direct messaging with accepted matches.',
+    'Use deeper filters for community, lifestyle, and location.',
+  ],
+  GOLD: [
+    'Appear more often when members are actively browsing.',
+    'Get stronger response momentum with more monthly reach.',
+  ],
+  PLATINUM: [
+    'Prioritise visibility with the strongest discovery support.',
+    'Receive the fastest help for profile review and trust signals.',
+  ],
+};
 
 const USAGE_KEY_LABELS: Record<string, string> = {
   monthlyInterests: 'Interests sent',
@@ -103,18 +131,21 @@ export default function SubscriptionPage() {
   const memberRequest = useMemberRequest();
   const [overview, setOverview] = useState<SubscriptionOverview | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
   const [loading, setLoading] = useState(true);
   const [boostLoading, setBoostLoading] = useState(false);
   const [cancelDialog, setCancelDialog] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   async function load() {
     setLoading(true);
-    const [subscriptionResult, paymentResult] = await Promise.all([
+    const [subscriptionResult, paymentResult, plansResponse] = await Promise.all([
       memberRequest('/api/me/subscription'),
       memberRequest('/api/me/payments'),
+      fetch(`${apiBaseUrl}/api/plans`, { cache: 'no-store' }),
     ]);
     if (subscriptionResult.ok) {
       setOverview(subscriptionResult.data as SubscriptionOverview);
@@ -122,6 +153,10 @@ export default function SubscriptionPage() {
     if (paymentResult.ok) {
       const data = paymentResult.data as { payments?: Payment[] };
       setPayments(data.payments ?? []);
+    }
+    if (plansResponse.ok) {
+      const data = (await plansResponse.json()) as { plans?: Plan[] };
+      setPlans((data.plans ?? []).filter(Boolean));
     }
     setLoading(false);
   }
@@ -166,6 +201,13 @@ export default function SubscriptionPage() {
   const cancelAtPeriodEnd = overview?.subscription?.cancelAtPeriodEnd === true;
   const periodEnd = overview?.subscription?.currentPeriodEnd;
   const limits = overview?.plan?.limits ?? {};
+  const availablePlans = plans
+    .filter((plan) => plan.code !== 'FREE')
+    .sort((left, right) => left.priceCents - right.priceCents);
+
+  function scrollToPlans() {
+    document.getElementById('available-plans')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   return (
     <MemberShell
@@ -207,6 +249,18 @@ export default function SubscriptionPage() {
           </div>
         </div>
       )}
+
+      <UpgradeModal
+        plan={selectedPlan}
+        onClose={() => setSelectedPlan(null)}
+        displayIntervalLabel={
+          selectedPlan?.interval === 'YEAR'
+            ? 'year'
+            : selectedPlan?.code.includes('QUARTER')
+              ? 'quarter'
+              : 'month'
+        }
+      />
 
       {/* Status message */}
       {message && (
@@ -289,14 +343,15 @@ export default function SubscriptionPage() {
 
               <div className="mt-6 flex flex-wrap gap-3">
                 {isFree && (
-                  <a
-                    href="/pricing"
+                  <button
+                    type="button"
+                    onClick={scrollToPlans}
                     className="inline-flex items-center gap-2 rounded-xl bg-[#241c15] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#3a2c20] transition"
                   >
                     <Sparkles className="h-4 w-4 text-[#d4af37]" />
-                    Upgrade plan
+                    View plans
                     <ArrowRight className="h-4 w-4" />
-                  </a>
+                  </button>
                 )}
                 {isPaid && !cancelAtPeriodEnd && (
                   <button
@@ -308,12 +363,124 @@ export default function SubscriptionPage() {
                   </button>
                 )}
                 {isPaid && (
-                  <a
-                    href="/pricing"
+                  <button
+                    type="button"
+                    onClick={scrollToPlans}
                     className="inline-flex items-center gap-2 rounded-xl border border-[#e1d8c8] px-5 py-2.5 text-sm font-semibold text-[#241c15] hover:bg-[#f8f5ef] transition"
                   >
                     Change plan
-                  </a>
+                  </button>
+                )}
+              </div>
+            </section>
+
+            <section
+              id="available-plans"
+              className="rounded-2xl border border-[#e1d8c8] bg-white p-6 shadow-sm scroll-mt-24"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-[#8b5e1b]">
+                    Available plans
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold text-[#241c15]">
+                    Choose the membership pace that fits your search
+                  </h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6f665b]">
+                    Member upgrade prompts now bring you here directly so you can review plans,
+                    compare intent, and move into secure checkout without leaving your dashboard.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-3">
+                {availablePlans.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-[#e1d8c8] bg-[#faf7f2] p-5 text-sm text-[#6f665b]">
+                    Membership plans are loading or unavailable right now. Please refresh and try
+                    again in a moment.
+                  </div>
+                ) : (
+                  availablePlans.map((plan) => {
+                    const isCurrentPlan = overview?.plan?.code === plan.code;
+                    const billingLabel =
+                      plan.interval === 'YEAR'
+                        ? 'Annual billing'
+                        : plan.code.includes('QUARTER')
+                          ? 'Quarterly billing'
+                          : 'Monthly billing';
+                    const planKey =
+                      plan.code.startsWith('PLATINUM')
+                        ? 'PLATINUM'
+                        : plan.code.startsWith('GOLD')
+                          ? 'GOLD'
+                          : 'PREMIUM';
+
+                    return (
+                      <article
+                        key={plan.id}
+                        className={`rounded-2xl border p-5 shadow-sm transition ${
+                          isCurrentPlan
+                            ? 'border-[#7A1F2B]/30 bg-[#FCFAF7]'
+                            : 'border-[#e1d8c8] bg-[#fffdfa] hover:-translate-y-0.5 hover:shadow-md'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-widest text-[#8b5e1b]">
+                              {billingLabel}
+                            </p>
+                            <h4 className="mt-2 text-xl font-bold text-[#241c15]">{plan.name}</h4>
+                          </div>
+                          {isCurrentPlan ? (
+                            <span className="rounded-full bg-[#F8E8E8] px-3 py-1 text-[11px] font-semibold text-[#7A1F2B]">
+                              Current
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <p className="mt-4 text-2xl font-bold text-[#241c15]">
+                          {formatMoney(plan.priceCents, plan.currency)}
+                        </p>
+                        <p className="mt-1 text-sm text-[#6f665b]">
+                          Billed per{' '}
+                          {plan.interval === 'YEAR'
+                            ? 'year'
+                            : plan.code.includes('QUARTER')
+                              ? 'quarter'
+                              : 'month'}
+                        </p>
+
+                        <ul className="mt-4 space-y-2 text-sm text-[#6f665b]">
+                          {(PLAN_HIGHLIGHTS[planKey] ?? []).map((highlight) => (
+                            <li key={highlight} className="flex gap-2">
+                              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#D4AF37]" />
+                              <span>{highlight}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="mt-5">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPlan(plan)}
+                            disabled={isCurrentPlan}
+                            className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                              isCurrentPlan
+                                ? 'cursor-default border border-[#e1d8c8] bg-[#f8f5ef] text-[#6f665b]'
+                                : 'bg-[#241c15] text-white hover:bg-[#3a2c20]'
+                            }`}
+                          >
+                            {isCurrentPlan ? 'Current plan' : 'Continue to secure checkout'}
+                          </button>
+                          <p className="mt-2 text-xs text-[#8a8176]">
+                            {isCurrentPlan
+                              ? 'You are already on this membership tier.'
+                              : 'Stripe-secure checkout with billing management from this page.'}
+                          </p>
+                        </div>
+                      </article>
+                    );
+                  })
                 )}
               </div>
             </section>
@@ -401,9 +568,17 @@ export default function SubscriptionPage() {
                 Boosts reset each billing period.
               </p>
               {isFree ? (
-                <p className="mt-4 rounded-xl bg-[#f8f5ef] px-4 py-3 text-sm text-[#6f665b]">
-                  Upgrade to a paid plan to unlock profile boosts.
-                </p>
+                <div className="mt-4 rounded-xl bg-[#f8f5ef] px-4 py-3 text-sm text-[#6f665b]">
+                  <p>Upgrade to a paid plan to unlock profile boosts.</p>
+                  <button
+                    type="button"
+                    onClick={scrollToPlans}
+                    className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#7A1F2B]"
+                  >
+                    Review member plans
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               ) : (
                 <button
                   type="button"
