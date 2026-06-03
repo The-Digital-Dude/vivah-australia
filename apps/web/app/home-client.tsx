@@ -1,84 +1,119 @@
 'use client';
 
-/* eslint-disable @next/next/no-img-element */
-
-import { useState, useMemo, type ReactNode, type FormEvent } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useMemo, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronRight,
-  ShieldCheck,
-  UserPlus,
-  Search,
-  Heart,
-  Sparkles,
-  CheckCircle,
+  ArrowRight,
+  CheckCircle2,
   ChevronDown,
-  Shield,
+  Heart,
   Lock,
-  Award,
-  PlayCircle,
+  MapPin,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  UserPlus,
+  Users,
 } from 'lucide-react';
-import { PremiumButton, ProfileMatchCard, PublicFooter, PublicHeader } from '@/app/components';
-import type { FeaturedProfile, HomeContent, PublicContentItem, PublicPlan } from '@/lib/public-api';
+import { FAQAccordion, PremiumButton, PublicFooter, PublicHeader } from '@/app/components';
+import type {
+  FeaturedProfile,
+  HomeContent,
+  PublicContentItem,
+  PublicPlan,
+} from '@/lib/public-api';
 
-const communities = [
-  'Indian Matrimony in Melbourne',
-  'Indian Matrimony in Sydney',
-  'Punjabi Matrimony in Australia',
-  'Hindu Matrimony in Australia',
-  'Sikh Matrimony in Australia',
-  'Muslim Matrimony in Australia',
-  'Telugu Matrimony in Australia',
-  'Gujarati Matrimony in Australia',
-  'Tamil Matrimony in Australia',
-  'Divorcee / Second Marriage Matrimony',
-];
+const homepageFallbackOrder = [
+  { key: 'hero' },
+  { key: 'stats' },
+  { key: 'success-stories' },
+  { key: 'how-it-works' },
+  { key: 'verification' },
+  { key: 'membership-cta' },
+  { key: 'blog' },
+  { key: 'faq' },
+] as const;
 
-const defaultFaqs = [
-  {
-    q: 'Is Vivah Australia free to join?',
-    a: 'Yes, creating a profile and receiving interests is entirely free. Premium features unlock direct messaging and advanced visibility.',
-  },
-  {
-    q: 'How does profile verification work?',
-    a: 'We use a multi-tier verification ladder, reviewing email, mobile, ID, address, and employment documents to grant badges.',
-  },
-  {
-    q: 'Can I control who sees my photos?',
-    a: 'Absolutely. You can choose to show your photos publicly, only to logged-in members, or strictly to matches you accept.',
-  },
-  {
-    q: 'When can members message each other?',
-    a: 'Messaging is unlocked when a mutual interest is accepted and at least one member holds an active premium plan.',
-  },
-  {
-    q: 'What is the difference between Free, Premium, Gold, and Platinum?',
-    a: 'Free members can explore. Premium unlocks communication. Gold and Platinum provide advanced filters, priority placement, and higher visibility.',
-  },
-  {
-    q: 'Can I block or report someone?',
-    a: 'Yes, safety is a priority. We offer robust reporting tools and strict admin moderation to ensure community safety.',
-  },
-];
+const heroHighlights = [
+  { label: '100% Verified Profiles', icon: ShieldCheck },
+  { label: 'Safe & Secure', icon: Lock },
+  { label: 'Genuine Matches', icon: Users },
+  { label: 'Australian Support', icon: MapPin },
+] as const;
 
-function FadeIn({
-  children,
-  delay = 0,
-  className = '',
-}: Readonly<{ children: ReactNode; delay?: number; className?: string }>) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.6, delay }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
+const fallbackHowItWorks = [
+  {
+    step: '1',
+    title: 'Create Profile',
+    body: 'Build a polished profile that reflects your values, family background, and life goals.',
+    icon: UserPlus,
+  },
+  {
+    step: '2',
+    title: 'Search & Match',
+    body: 'Use thoughtful filters to discover serious introductions across Australia.',
+    icon: Search,
+  },
+  {
+    step: '3',
+    title: 'Connect',
+    body: 'Express interest and start respectful, trust-first conversations at your own pace.',
+    icon: Heart,
+  },
+  {
+    step: '4',
+    title: 'Build Relationship',
+    body: 'Move forward with confidence through verification, privacy controls, and family-friendly matchmaking.',
+    icon: ShieldCheck,
+  },
+] as const;
+
+const verificationBenefits = [
+  'Manual & AI verified profiles',
+  'ID, visa & employment verification',
+  'Facial verification available',
+  'Australian-based customer support',
+  'Privacy-first matchmaking',
+] as const;
+
+const fallbackFaqs = [
+  {
+    question: 'Is Vivah Australia free to join?',
+    answer:
+      'Yes. You can create your profile, browse introductions, and begin your journey before upgrading for direct communication and visibility benefits.',
+  },
+  {
+    question: 'How does verification work?',
+    answer:
+      'Members can complete multiple trust checks including mobile, identity, address, employment, visa, and selfie verification for stronger credibility.',
+  },
+  {
+    question: 'Can I control who sees my photos?',
+    answer:
+      'Yes. Photo privacy and visibility settings let you choose how widely your profile and images are shared.',
+  },
+  {
+    question: 'When can members message each other?',
+    answer:
+      'Messaging is unlocked when a mutual connection is established and the conversation meets the current membership rules.',
+  },
+  {
+    question: 'Can I report or block someone?',
+    answer:
+      'Yes. Trust and safety tools are built into the experience so you can report, block, or hide profiles whenever needed.',
+  },
+] as const;
+
+const storyImages = [
+  '/success-stories/couple-melbourne.jpg',
+  '/success-stories/couple-sydney.jpg',
+  '/success-stories/couple-brisbane.jpg',
+] as const;
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
 }
 
 function formatMoney(cents: number, currency: string) {
@@ -120,825 +155,633 @@ export default function HomeClient({
   dynamicSections?: CmsSection[];
 }) {
   const router = useRouter();
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [genderFilter, setGenderFilter] = useState<'ALL' | 'FEMALE' | 'MALE'>('ALL');
-
-  // Hero Search Widget State
   const [lookingFor, setLookingFor] = useState<'MALE' | 'FEMALE'>('FEMALE');
-  const [ageRange, setAgeRange] = useState('25-30');
-  const [city, setCity] = useState('Sydney');
-  const [religion, setReligion] = useState('Any');
+  const [ageRange, setAgeRange] = useState('25-32');
+  const [community, setCommunity] = useState('Any');
+  const [location, setLocation] = useState('Australia');
 
-  const filteredProfiles = useMemo(() => {
-    return profiles.filter((p) => {
-      if (genderFilter === 'ALL') return true;
-      const pGender = p.personal?.gender?.toUpperCase();
-      return pGender === genderFilter;
-    });
-  }, [profiles, genderFilter]);
+  const sectionsToRender = useMemo(() => {
+    const active = dynamicSections
+      .filter((section) => section.visible && (section.status === 'PUBLISHED' || process.env.NODE_ENV !== 'production'))
+      .sort((a, b) => a.sortOrder - b.sortOrder);
 
-  function handleSearchSubmit(e: FormEvent) {
-    e.preventDefault();
+    return active.length ? active : [...homepageFallbackOrder];
+  }, [dynamicSections]);
+
+  const howItWorks = home.howItWorks?.length
+    ? home.howItWorks.map((item, index) => ({
+        step: String(index + 1),
+        title: item.split(':')[0] ?? fallbackHowItWorks[index]?.title ?? `Step ${index + 1}`,
+        body:
+          item.split(':').slice(1).join(':').trim() ||
+          fallbackHowItWorks[index]?.body ||
+          'Thoughtful matchmaking for meaningful relationships.',
+        icon: fallbackHowItWorks[index]?.icon ?? Sparkles,
+      }))
+    : fallbackHowItWorks;
+
+  const storyCards = (stories.length ? stories : testimonials).slice(0, 3).map((item, index) => ({
+    title:
+      item.title ||
+      item.name ||
+      ['Neha & Chirag', 'Priya & Kunal', 'Anjali & Manish'][index] ||
+      'Vivah Couple',
+    body:
+      item.body ||
+      item.quote ||
+      'Vivah Australia helped us focus on serious conversations and move forward with confidence.',
+    location: ['Melbourne, VIC', 'Sydney, NSW', 'Brisbane, QLD'][index] || 'Australia',
+    imageUrl: storyImages[index % storyImages.length] || storyImages[0],
+  }));
+
+  const curatedPlans = plans.slice(0, 3);
+  const faqs = (home.faq ?? fallbackFaqs).map((item) => ({
+    question: item.question ?? 'How does Vivah Australia work?',
+    answer: item.answer ?? 'Create your profile, complete trust checks, browse compatible introductions, and connect safely.',
+  }));
+
+  const trustStats = [
+    { value: '15,000+', label: 'Verified profiles' },
+    { value: '5,000+', label: 'Successful matches' },
+    { value: '50,000+', label: 'Members' },
+    { value: '100%', label: 'Privacy protected' },
+    { value: 'Australia-wide', label: 'Indian community focus' },
+  ];
+
+  const featuredProfiles = profiles.slice(0, 3);
+  const resourceCards = blogs.slice(0, 3);
+
+  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
     const query = new URLSearchParams({
       gender: lookingFor,
       ageRange,
-      city,
-      religion,
+      city: location === 'Australia' ? '' : location,
+      religion: community === 'Any' ? '' : community,
     });
+
     router.push(`/matches?${query.toString()}`);
   }
 
-  // Determine section order based on dynamic setup
-  const sectionsToRender = useMemo(() => {
-    const activeConfigs = dynamicSections
-      .filter((s) => s.visible && (s.status === 'PUBLISHED' || process.env.NODE_ENV !== 'production'))
-      .sort((a, b) => a.sortOrder - b.sortOrder);
-    
-    if (activeConfigs.length > 0) {
-      return activeConfigs;
+  function renderHero(section?: CmsSection) {
+    return (
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(212,160,76,0.18),_transparent_26%),radial-gradient(circle_at_top_right,_rgba(231,76,124,0.12),_transparent_22%),linear-gradient(180deg,#fffaf7_0%,#fff6f0_100%)] pt-28 pb-24">
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(161,14,77,0.02)_100%)]" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid items-center gap-10 lg:grid-cols-[0.96fr_1.04fr]">
+            <div className="max-w-2xl">
+              <div className="mb-4 inline-flex rounded-full border border-[#D4A04C]/30 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#A10E4D]">
+                Premium Australian Matrimony
+              </div>
+              <h1 className="max-w-xl font-playfair text-5xl font-bold leading-[0.98] text-[#2F2F2F] sm:text-6xl lg:text-7xl">
+                {section?.title || home.hero?.title || 'Meaningful Connections.'}
+                <span className="mt-2 block text-[#A10E4D]">
+                  {home.hero?.subtitle?.includes('Lifetime')
+                    ? home.hero.subtitle.split('.').slice(-2).join('.').trim()
+                    : 'Lifetime Together.'}
+                </span>
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-8 text-[#5F5F5F]">
+                {section?.subtitle ||
+                  home.hero?.subtitle ||
+                  'Vivah Australia is a trusted matrimonial platform for the Indian and South Asian community across Australia.'}
+              </p>
+
+              <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {heroHighlights.map(({ label, icon: Icon }) => (
+                  <div
+                    key={label}
+                    className="rounded-2xl border border-white/70 bg-white/70 px-4 py-4 text-center shadow-[0_18px_45px_rgba(161,14,77,0.06)] backdrop-blur"
+                  >
+                    <Icon className="mx-auto size-5 text-[#A10E4D]" />
+                    <p className="mt-3 text-sm font-medium leading-5 text-[#2F2F2F]">{label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-4">
+                <PremiumButton href={section?.ctaHref || '/register'} className="min-w-[214px] rounded-full px-7 py-3.5 text-base">
+                  {section?.ctaLabel || home.hero?.primaryAction || 'Create Your Profile'}
+                </PremiumButton>
+                <PremiumButton href="/membership" variant="secondary" className="min-w-[214px] rounded-full px-7 py-3.5 text-base">
+                  {home.hero?.secondaryAction || 'View Membership Plans'}
+                </PremiumButton>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-x-6 inset-y-10 rounded-[44px] bg-[radial-gradient(circle_at_center,_rgba(212,160,76,0.26),_transparent_60%)] blur-3xl" />
+              <div className="relative overflow-hidden rounded-[40px] border border-white/80 bg-white/40 p-3 shadow-[0_30px_80px_rgba(161,14,77,0.12)] backdrop-blur">
+                <div className="relative aspect-[0.96] overflow-hidden rounded-[34px]">
+                  <Image
+                    src={section?.imageUrl || '/success-stories/couple-sydney.jpg'}
+                    alt="Vivah Australia couple"
+                    fill
+                    priority
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(161,14,77,0.1)_100%)]" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative mt-[-1.25rem] lg:mt-[-3.5rem]">
+            <div className="mx-auto max-w-6xl rounded-[34px] border border-[#A10E4D]/10 bg-white px-5 py-8 shadow-[0_30px_80px_rgba(47,47,47,0.10)] sm:px-8">
+              <div className="text-center">
+                <h2 className="font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">
+                  Find Your <span className="text-[#A10E4D]">Perfect Match</span>
+                </h2>
+                <p className="mt-3 text-base text-[#5F5F5F]">
+                  Advanced search with compatibility matching and trust-first introductions
+                </p>
+              </div>
+
+              <form
+                onSubmit={handleSearchSubmit}
+                className="mt-8 grid gap-4 lg:grid-cols-[1.4fr_1.5fr_1.6fr_1.5fr_auto] lg:items-end"
+              >
+                <SearchField label="I am looking for">
+                  <select
+                    value={lookingFor}
+                    onChange={(event) => setLookingFor(event.target.value as 'MALE' | 'FEMALE')}
+                    className={fieldClassName}
+                  >
+                    <option value="FEMALE">Bride</option>
+                    <option value="MALE">Groom</option>
+                  </select>
+                </SearchField>
+
+                <SearchField label="Age">
+                  <select
+                    value={ageRange}
+                    onChange={(event) => setAgeRange(event.target.value)}
+                    className={fieldClassName}
+                  >
+                    <option value="22-28">22 to 28</option>
+                    <option value="25-32">25 to 32</option>
+                    <option value="28-36">28 to 36</option>
+                    <option value="32-40">32 to 40</option>
+                  </select>
+                </SearchField>
+
+                <SearchField label="Community">
+                  <select
+                    value={community}
+                    onChange={(event) => setCommunity(event.target.value)}
+                    className={fieldClassName}
+                  >
+                    <option value="Any">Any</option>
+                    <option value="Hindu">Hindu</option>
+                    <option value="Sikh">Sikh</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Gujarati">Gujarati</option>
+                  </select>
+                </SearchField>
+
+                <SearchField label="Location">
+                  <select
+                    value={location}
+                    onChange={(event) => setLocation(event.target.value)}
+                    className={fieldClassName}
+                  >
+                    <option value="Australia">Australia</option>
+                    <option value="Melbourne">Melbourne</option>
+                    <option value="Sydney">Sydney</option>
+                    <option value="Brisbane">Brisbane</option>
+                    <option value="Perth">Perth</option>
+                  </select>
+                </SearchField>
+
+                <PremiumButton
+                  type="submit"
+                  className="h-[58px] rounded-2xl px-8 text-base shadow-[0_20px_45px_rgba(161,14,77,0.22)]"
+                >
+                  <Search className="size-4" />
+                  Search Now
+                </PremiumButton>
+              </form>
+
+              <div className="mt-5 flex items-center justify-center gap-2 text-sm font-medium text-[#2F2F2F]">
+                <span>Advanced Search</span>
+                <ChevronDown className="size-4 text-[#A10E4D]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderStats() {
+    return (
+      <section className="pb-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-[30px] bg-[linear-gradient(135deg,#8E0D43_0%,#A10E4D_46%,#7B123F_100%)] px-6 py-6 text-white shadow-[0_24px_60px_rgba(161,14,77,0.22)] sm:px-8">
+            <div className="grid gap-5 md:grid-cols-3 xl:grid-cols-5">
+              {trustStats.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/6 px-4 py-4"
+                >
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-white/12 text-[#F7D88A]">
+                    <ShieldCheck className="size-6" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">{item.value}</p>
+                    <p className="text-sm text-white/80">{item.label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderSuccessStories() {
+    return (
+      <section className="pb-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl text-center sm:text-left">
+              <div className="text-sm font-semibold uppercase tracking-[0.22em] text-[#D4A04C]">
+                Real stories of love and companionship
+              </div>
+              <h2 className="mt-4 font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">
+                Success Stories
+              </h2>
+            </div>
+            <PremiumButton href="/blog" variant="secondary" className="rounded-full px-6">
+              View all stories
+            </PremiumButton>
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {storyCards.map((story) => (
+              <article
+                key={`${story.title}-${story.location}`}
+                className="overflow-hidden rounded-[30px] border border-[#A10E4D]/8 bg-white shadow-[0_20px_50px_rgba(161,14,77,0.06)]"
+              >
+                <div className="relative h-56">
+                  <Image src={story.imageUrl} alt={story.title} fill className="object-cover" />
+                </div>
+                <div className="p-7">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-[#D4A04C]">
+                    <Sparkles className="size-4" />
+                    Vivah Australia Story
+                  </div>
+                  <h3 className="mt-4 font-cormorant text-3xl font-semibold text-[#2F2F2F]">
+                    {story.title}
+                  </h3>
+                  <p className="mt-4 text-base leading-7 text-[#5F5F5F]">{story.body}</p>
+                  <div className="mt-6 flex items-center justify-between border-t border-[#A10E4D]/8 pt-5">
+                    <span className="text-sm font-medium text-[#5F5F5F]">{story.location}</span>
+                    <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]">
+                      Read their story
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderHowItWorks() {
+    return (
+      <section className="pb-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="text-sm font-semibold uppercase tracking-[0.22em] text-[#D4A04C]">
+              Thoughtful matchmaking
+            </div>
+            <h2 className="mt-4 font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">
+              How Vivah Australia Works
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-4">
+            {howItWorks.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article
+                  key={`${item.step}-${item.title}`}
+                  className="relative rounded-[28px] border border-[#A10E4D]/8 bg-white p-8 shadow-[0_20px_50px_rgba(47,47,47,0.05)]"
+                >
+                  <div className="absolute left-6 top-6 flex size-10 items-center justify-center rounded-full bg-[#A10E4D] text-sm font-bold text-white">
+                    {item.step}
+                  </div>
+                  <div className="mt-10 flex size-20 items-center justify-center rounded-full bg-[radial-gradient(circle,_rgba(231,76,124,0.20),_rgba(255,249,245,0.7))] text-[#A10E4D]">
+                    <Icon className="size-8" />
+                  </div>
+                  <h3 className="mt-6 font-cormorant text-3xl font-semibold text-[#2F2F2F]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-4 text-base leading-7 text-[#5F5F5F]">{item.body}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderVerification() {
+    return (
+      <section className="pb-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-[34px] border border-[#D4A04C]/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.98)_0%,rgba(255,248,241,1)_100%)] p-8 shadow-[0_24px_60px_rgba(161,14,77,0.07)] lg:p-10">
+            <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+              <div>
+                <div className="inline-flex rounded-full border border-[#D4A04C]/25 bg-[#FFF7E8] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#A10E4D]">
+                  Trust-first introductions
+                </div>
+                <h2 className="mt-5 font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">
+                  Build trust before the first conversation
+                </h2>
+                <p className="mt-5 max-w-2xl text-lg leading-8 text-[#5F5F5F]">
+                  {home.safety?.[0] ||
+                    'Verification helps members feel safer, respond faster, and focus on introductions with real intent.'}
+                </p>
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {verificationBenefits.map((benefit) => (
+                    <div
+                      key={benefit}
+                      className="flex items-start gap-3 rounded-2xl border border-[#A10E4D]/8 bg-white/90 px-4 py-4"
+                    >
+                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[#1F9D68]" />
+                      <span className="text-sm leading-6 text-[#2F2F2F]">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <PremiumButton href="/register" className="rounded-full px-7">
+                    Create Your Profile
+                  </PremiumButton>
+                  <PremiumButton href="/faq" variant="secondary" className="rounded-full px-7">
+                    Learn about verification
+                  </PremiumButton>
+                </div>
+              </div>
+
+              <div className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-6 shadow-[0_20px_50px_rgba(47,47,47,0.05)]">
+                <div className="grid gap-4">
+                  {featuredProfiles.length ? (
+                    featuredProfiles.map((profile, index) => (
+                      <div
+                        key={profile._id || profile.id || profile.displayId}
+                        className="flex items-center gap-4 rounded-2xl border border-[#A10E4D]/8 bg-[#FFF9F5] px-4 py-4"
+                      >
+                        <div className="flex size-14 items-center justify-center rounded-full bg-[#A10E4D]/10 font-cormorant text-xl font-semibold text-[#A10E4D]">
+                          {(profile.personal?.firstName || 'V').slice(0, 1)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold text-[#2F2F2F]">
+                            {profile.personal?.firstName || 'Vivah member'}
+                            {profile.personal?.age ? `, ${profile.personal.age}` : ''}
+                          </p>
+                          <p className="mt-1 text-sm text-[#5F5F5F]">
+                            {[profile.location?.city, profile.location?.state].filter(Boolean).join(', ') ||
+                              'Australia'}
+                          </p>
+                        </div>
+                        <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#A10E4D] shadow-sm">
+                          {['Gold Verified', 'Safe & Genuine', 'Trust Checked'][index] || 'Verified'}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-[#A10E4D]/8 bg-[#FFF9F5] px-6 py-10 text-center text-sm text-[#5F5F5F]">
+                      Verified member previews appear here once featured profiles are available.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderMembershipCta() {
+    return (
+      <section className="pb-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="overflow-hidden rounded-[36px] border border-[#A10E4D]/10 bg-[linear-gradient(135deg,#FFF7F2_0%,#FFFDFB_42%,#FFF7ED_100%)] shadow-[0_28px_70px_rgba(161,14,77,0.08)]">
+            <div className="grid gap-0 lg:grid-cols-[0.92fr_1.08fr]">
+              <div className="p-8 lg:p-10">
+                <div className="inline-flex rounded-full border border-[#D4A04C]/25 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#A10E4D]">
+                  Premium membership
+                </div>
+                <h2 className="mt-5 font-playfair text-4xl font-bold leading-tight text-[#2F2F2F] sm:text-5xl">
+                  Choose the right plan for meaningful connections
+                </h2>
+                <p className="mt-5 max-w-xl text-lg leading-8 text-[#5F5F5F]">
+                  Unlock direct messaging, advanced search filters, higher visibility, and trust-building features designed for serious matrimonial journeys.
+                </p>
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {[
+                    '100% verified profiles',
+                    'Safe & secure platform',
+                    'Genuine introductions',
+                    'Priority customer support',
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-3 text-sm font-medium text-[#2F2F2F]">
+                      <ShieldCheck className="size-4 text-[#A10E4D]" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <PremiumButton href="/membership" className="rounded-full px-7">
+                    Explore membership
+                  </PremiumButton>
+                  <PremiumButton href="/matches" variant="secondary" className="rounded-full px-7">
+                    Explore matches
+                  </PremiumButton>
+                </div>
+              </div>
+
+              <div className="grid gap-px bg-[#A10E4D]/8 md:grid-cols-3">
+                {curatedPlans.map((plan, index) => (
+                  <div
+                    key={plan.code}
+                    className={cx(
+                      'relative bg-white p-8',
+                      index === 1 && 'bg-[linear-gradient(180deg,#FFFDF7_0%,#FFFFFF_100%)]',
+                    )}
+                  >
+                    {index === 1 ? (
+                      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#D4A04C] px-4 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#2F2F2F]">
+                        Most Popular
+                      </div>
+                    ) : null}
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#A10E4D]">
+                      {plan.name}
+                    </p>
+                    <div className="mt-4 flex items-end gap-2">
+                      <span className="font-playfair text-5xl font-bold text-[#2F2F2F]">
+                        {formatMoney(plan.priceCents, plan.currency)}
+                      </span>
+                      <span className="pb-2 text-sm text-[#5F5F5F]">/ {plan.interval.toLowerCase()}</span>
+                    </div>
+                    <ul className="mt-6 space-y-3 text-sm leading-6 text-[#5F5F5F]">
+                      {plan.features.slice(0, 4).map((feature) => (
+                        <li key={feature} className="flex gap-3">
+                          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[#1F9D68]" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <PremiumButton
+                      href="/membership"
+                      variant={index === 1 ? 'primary' : 'secondary'}
+                      className="mt-8 w-full rounded-full"
+                    >
+                      View {plan.name}
+                    </PremiumButton>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderBlog() {
+    return (
+      <section className="pb-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <div className="text-sm font-semibold uppercase tracking-[0.22em] text-[#D4A04C]">
+                Guidance for serious members
+              </div>
+              <h2 className="mt-4 font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">
+                Resources & stories
+              </h2>
+            </div>
+            <PremiumButton href="/blog" variant="secondary" className="rounded-full px-6">
+              Browse resources
+            </PremiumButton>
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {resourceCards.map((blog, index) => (
+              <article
+                key={`${blog.slug || blog.title}-${index}`}
+                className="rounded-[28px] border border-[#A10E4D]/8 bg-white p-7 shadow-[0_18px_45px_rgba(47,47,47,0.05)]"
+              >
+                <div className="inline-flex rounded-full bg-[#FFF1F5] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#A10E4D]">
+                  Vivah guide
+                </div>
+                <h3 className="mt-5 font-cormorant text-3xl font-semibold text-[#2F2F2F]">
+                  {blog.title || 'Thoughtful matrimonial advice'}
+                </h3>
+                <p className="mt-4 text-base leading-7 text-[#5F5F5F]">
+                  {blog.body || 'Guidance to help members create stronger profiles, safer conversations, and more aligned introductions.'}
+                </p>
+                <Link href="/blog" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]">
+                  Read article
+                  <ArrowRight className="size-4" />
+                </Link>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderFaq() {
+    return (
+      <section className="pb-24">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="text-sm font-semibold uppercase tracking-[0.22em] text-[#D4A04C]">
+              Clear, respectful, trustworthy
+            </div>
+            <h2 className="mt-4 font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">
+              Frequently asked questions
+            </h2>
+          </div>
+          <div className="mt-10 rounded-[30px] border border-[#A10E4D]/8 bg-white p-4 shadow-[0_20px_50px_rgba(47,47,47,0.05)] sm:p-6">
+            <FAQAccordion
+              items={faqs.map((faq) => ({
+                question: faq.question,
+                answer: faq.answer,
+              }))}
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderSection(section: CmsSection) {
+    switch (section.key) {
+      case 'hero':
+        return renderHero(section);
+      case 'stats':
+      case 'trust-strip':
+        return renderStats();
+      case 'success-stories':
+      case 'testimonials':
+        return renderSuccessStories();
+      case 'how-it-works':
+        return renderHowItWorks();
+      case 'verification':
+      case 'why-vivah':
+        return renderVerification();
+      case 'membership-cta':
+        return renderMembershipCta();
+      case 'blog':
+        return renderBlog();
+      case 'faq':
+        return renderFaq();
+      default:
+        return null;
     }
-    
-    // Default fallback order
-    return [
-      { key: 'hero' },
-      { key: 'trust-strip' },
-      { key: 'stats' },
-      { key: 'why-vivah' },
-      { key: 'how-it-works' },
-      { key: 'testimonials' },
-      { key: 'success-stories' },
-      { key: 'membership-cta' },
-      { key: 'faq' },
-    ] as CmsSection[];
-  }, [dynamicSections]);
+  }
 
   return (
     <div className="bg-[#FFF9F5] text-[#2F2F2F] font-poppins selection:bg-[#A10E4D] selection:text-white">
       <PublicHeader />
-      
-      {sectionsToRender.map((section) => {
-        switch (section.key) {
-          case 'hero':
-            return (
-              <div key="hero-block">
-                <section className="relative min-h-[90vh] pt-28 pb-20 lg:pt-36 lg:pb-32 overflow-hidden flex items-center bg-gradient-to-br from-[#FFF9F5] via-[#FFF5EF] to-[#D4A04C]/10">
-                  <div className="absolute inset-x-0 top-0 h-px bg-[#D4A04C]/40" />
-                  <div className="absolute inset-x-0 bottom-0 h-px bg-[#A10E4D]/10" />
-
-                  <div className="max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-[1fr_0.9fr] gap-16 items-center relative z-10">
-                    <motion.div
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.8 }}
-                    >
-                      <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#D4A04C] mb-4">
-                        Australia&apos;s Premium Matrimonial Platform
-                      </p>
-                      <h1 className="text-5xl lg:text-6xl xl:text-7xl font-playfair font-bold text-[#A10E4D] leading-[1.1] mb-6">
-                        {section.title || home.hero?.title || 'Find a life partner who truly matches your values.'}
-                      </h1>
-                      <p className="text-lg text-[#5F5F5F] leading-relaxed mb-8 max-w-xl">
-                        {section.subtitle || home.hero?.subtitle ||
-                          "Vivah Australia helps serious singles and families discover verified, compatible matrimonial matches across Australia's Indian and South Asian community."}
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-4 mb-10">
-                        <Link
-                          href={section.ctaHref || '/register'}
-                          className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] px-8 py-4 text-sm font-bold text-white shadow-xl shadow-[#A10E4D]/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl font-poppins"
-                        >
-                          {section.ctaLabel || home.hero?.primaryAction || 'Create Free Profile'}
-                          <ChevronRight className="size-4 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                        <Link
-                          href="/matches"
-                          className="rounded-full border border-[#A10E4D]/20 bg-white/50 px-8 py-4 text-sm font-bold text-[#A10E4D] backdrop-blur-sm transition-all duration-300 hover:bg-white hover:border-[#A10E4D]/40 font-poppins"
-                        >
-                          Explore Matches
-                        </Link>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-[#5F5F5F]">
-                        <span className="flex items-center gap-1.5">
-                          <ShieldCheck className="size-4 text-[#1F9D68]" /> Verified Profiles
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Lock className="size-4 text-[#D4A04C]" /> Privacy First
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Heart className="size-4 text-[#E74C7C]" /> Serious Matchmaking
-                        </span>
-                      </div>
-                    </motion.div>
-
-                    {/* Floating Cards Mockup */}
-                    <div className="relative h-[450px] lg:h-[550px] w-full hidden md:block">
-                      <motion.div
-                        animate={{ y: [0, -15, 0] }}
-                        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                        className="absolute top-10 right-10 z-20 w-[280px] bg-white/80 backdrop-blur-xl border border-white p-4 rounded-3xl shadow-2xl shadow-[#A10E4D]/10"
-                      >
-                        <div className="relative h-40 w-full rounded-2xl overflow-hidden bg-[#A10E4D]/10 mb-3">
-                          <img
-                            src={section.imageUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=80"}
-                            alt="Profile"
-                            className="h-full w-full object-cover"
-                          />
-                          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold text-emerald-700 flex items-center gap-1">
-                            <ShieldCheck className="size-3" /> Gold Verified
-                          </div>
-                        </div>
-                        <h3 className="font-semibold text-lg text-[#2F2F2F] font-cormorant">Priya, 29</h3>
-                        <p className="text-xs text-[#5F5F5F] mt-1">Melbourne • Software Engineer</p>
-                        <div className="mt-3 bg-[#FFF9F5] rounded-xl p-2.5 flex items-center justify-between border border-[#A10E4D]/5">
-                          <span className="text-xs font-medium text-[#5F5F5F]">Compatibility</span>
-                          <span className="text-xs font-bold text-[#A10E4D]">94% Match</span>
-                        </div>
-                      </motion.div>
-
-                      <motion.div
-                        animate={{ y: [0, 15, 0] }}
-                        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                        className="absolute bottom-10 left-10 z-10 w-[260px] bg-white/90 backdrop-blur-xl border border-white p-4 rounded-3xl shadow-2xl shadow-[#D4A04C]/15"
-                      >
-                        <div className="relative h-36 w-full rounded-2xl overflow-hidden bg-[#D4A04C]/10 mb-3">
-                          <img
-                            src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&q=80"
-                            alt="Profile"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <h3 className="font-semibold text-lg text-[#2F2F2F] font-cormorant">Arjun, 32</h3>
-                        <p className="text-xs text-[#5F5F5F] mt-1">Sydney • Finance</p>
-                        <div className="mt-3 w-full bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] text-white rounded-xl py-2 text-center text-xs font-bold shadow-md">
-                          New Match Request
-                        </div>
-                      </motion.div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Search Widget */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
-                    className="absolute bottom-0 w-full px-5 lg:px-8 translate-y-1/2 z-30"
-                  >
-                    <div className="max-w-5xl mx-auto bg-white rounded-2xl lg:rounded-full shadow-2xl shadow-[#A10E4D]/10 border border-[#A10E4D]/5 p-4 lg:p-3">
-                      <form
-                        onSubmit={handleSearchSubmit}
-                        className="flex flex-col lg:flex-row items-center gap-3 w-full"
-                      >
-                        <span className="hidden lg:block pl-4 text-sm font-bold text-[#2F2F2F]">
-                          I am looking for
-                        </span>
-                        <select
-                          value={lookingFor}
-                          onChange={(e) => setLookingFor(e.target.value as 'MALE' | 'FEMALE')}
-                          className="w-full lg:w-auto h-12 bg-[#FFF9F5] rounded-full px-4 text-sm font-medium text-[#5F5F5F] border-none outline-none focus:ring-2 focus:ring-[#A10E4D]/20"
-                        >
-                          <option value="FEMALE">A Woman</option>
-                          <option value="MALE">A Man</option>
-                        </select>
-                        <select
-                          value={ageRange}
-                          onChange={(e) => setAgeRange(e.target.value)}
-                          className="w-full lg:w-auto h-12 bg-[#FFF9F5] rounded-full px-4 text-sm font-medium text-[#5F5F5F] border-none outline-none focus:ring-2 focus:ring-[#A10E4D]/20"
-                        >
-                          <option value="25-30">Age 25 - 30</option>
-                          <option value="30-35">Age 30 - 35</option>
-                          <option value="35-40">Age 35 - 40</option>
-                        </select>
-                        <select
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          className="w-full lg:w-auto h-12 bg-[#FFF9F5] rounded-full px-4 text-sm font-medium text-[#5F5F5F] border-none outline-none focus:ring-2 focus:ring-[#A10E4D]/20"
-                        >
-                          <option value="Sydney">In Sydney</option>
-                          <option value="Melbourne">In Melbourne</option>
-                          <option value="Brisbane">In Brisbane</option>
-                          <option value="Anywhere">Anywhere in AU</option>
-                        </select>
-                        <select
-                          value={religion}
-                          onChange={(e) => setReligion(e.target.value)}
-                          className="w-full lg:w-auto h-12 bg-[#FFF9F5] rounded-full px-4 text-sm font-medium text-[#5F5F5F] border-none outline-none focus:ring-2 focus:ring-[#A10E4D]/20"
-                        >
-                          <option value="Any">Any Community</option>
-                          <option value="Hindu">Hindu</option>
-                          <option value="Sikh">Sikh</option>
-                          <option value="Muslim">Muslim</option>
-                        </select>
-                        <button
-                          type="submit"
-                          className="w-full lg:w-auto flex-1 h-12 bg-[#D4A04C] text-white font-bold text-sm rounded-full shadow-md hover:opacity-90 transition-opacity ml-auto"
-                        >
-                          Start Matching
-                        </button>
-                      </form>
-                    </div>
-                  </motion.div>
-                </section>
-                <div className="h-24 lg:h-16" />
-              </div>
-            );
-
-          case 'trust-strip':
-            const stripPoints = section.body
-              ? section.body.split(',').map((p) => p.trim())
-              : home.safety || ['Verified Profiles', 'Privacy First', 'Serious Matchmaking'];
-
-            return (
-              <section key="trust-strip" className="py-20 lg:py-28 bg-[#2F2F2F] text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=20')] opacity-5 mix-blend-screen" />
-                <div className="max-w-7xl mx-auto px-5 lg:px-8 relative z-10 font-poppins">
-                  <FadeIn className="text-center max-w-3xl mx-auto mb-16">
-                    <Shield className="size-12 text-[#D4A04C] mx-auto mb-6" />
-                    <h3 className="text-3xl lg:text-4xl font-playfair font-bold mb-6">
-                      {section.title || 'Trust is built into every step.'}
-                    </h3>
-                    <p className="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto mb-6">
-                      {section.subtitle || 'Vivah Australia gives members control over visibility, privacy, verification, and communication so every connection feels safer and more intentional.'}
-                    </p>
-                    {stripPoints.length > 0 && (
-                      <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm font-medium text-white/80">
-                        {stripPoints.map((point) => (
-                          <span
-                            key={point}
-                            className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full"
-                          >
-                            <ShieldCheck className="size-4 text-[#1F9D68]" /> {point}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </FadeIn>
-
-                  <div className="grid md:grid-cols-5 gap-4">
-                    {[
-                      { l: 'Basic', d: 'Email + Mobile Verified', c: 'border-white/10' },
-                      { l: 'Silver', d: 'ID Document Reviewed', c: 'border-[#a8aeb8]/40' },
-                      {
-                        l: 'Gold',
-                        d: 'Address / Employment',
-                        c: 'border-[#D4A04C]/60 shadow-[0_0_15px_rgba(212,160,76,0.2)]',
-                      },
-                      { l: 'Platinum', d: 'Advanced Verification', c: 'border-[#b4b4b4]/60' },
-                      {
-                        l: 'Fully Verified',
-                        d: 'Highest Trust Level',
-                        c: 'border-[#1F9D68]/60 bg-[#1F9D68]/10',
-                      },
-                    ].map((badge, i) => (
-                      <FadeIn
-                        key={badge.l}
-                        delay={i * 0.1}
-                        className={`bg-white/5 backdrop-blur-md rounded-2xl p-6 border ${badge.c} text-center`}
-                      >
-                        <Award
-                          className={`size-8 mx-auto mb-4 ${badge.l === 'Gold' ? 'text-[#D4A04C]' : 'text-white/60'}`}
-                        />
-                        <h4 className="font-bold text-lg mb-2">{badge.l}</h4>
-                        <p className="text-xs text-white/60 uppercase tracking-wider">{badge.d}</p>
-                      </FadeIn>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            );
-
-          case 'stats':
-            // Parse custom stats from body e.g. "10k+ | Verified Profiles"
-            const customStats = section.body
-              ? section.body.split('\n').map((line) => {
-                  const parts = line.split('|').map((p) => p.trim());
-                  return { count: parts[0] || '0', label: parts[1] || '' };
-                })
-              : [
-                  { count: '10k+', label: 'Verified Profiles' },
-                  { count: '100%', label: 'Privacy Controlled' },
-                  { count: 'AU', label: 'Local Community' },
-                  { count: '#1', label: 'For Serious Bonds' },
-                ];
-
-            return (
-              <section key="stats" className="py-12 bg-white">
-                <div className="max-w-7xl mx-auto px-5 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-x divide-[#A10E4D]/10">
-                  {customStats.map((stat, idx) => (
-                    <FadeIn key={idx} delay={idx * 0.1}>
-                      <div className="text-3xl lg:text-4xl font-playfair font-bold text-[#A10E4D] mb-2">
-                        {stat.count}
-                      </div>
-                      <div className="text-xs lg:text-sm font-semibold text-[#5F5F5F] uppercase tracking-wider">
-                        {stat.label}
-                      </div>
-                    </FadeIn>
-                  ))}
-                </div>
-              </section>
-            );
-
-          case 'why-vivah':
-            return (
-              <section key="why-vivah" className="py-20 lg:py-28 bg-[#FFF9F5]">
-                <div className="max-w-7xl mx-auto px-5 lg:px-8 grid lg:grid-cols-2 gap-16 items-center">
-                  <FadeIn className="relative h-[500px] rounded-[2rem] bg-white border border-[#A10E4D]/10 shadow-2xl p-6 hidden md:flex flex-col gap-4 font-poppins">
-                    <div className="flex items-center justify-between border-b border-[#A10E4D]/5 pb-4">
-                      <div className="flex gap-6">
-                        <span className="font-bold text-[#A10E4D] border-b-2 border-[#A10E4D] pb-4 -mb-4">
-                          Recommended
-                        </span>
-                        <span className="font-medium text-[#5F5F5F]">New</span>
-                      </div>
-                      <Sparkles className="size-5 text-[#D4A04C]" />
-                    </div>
-                    {[1, 2, 3].map((item) => (
-                      <div
-                        key={item}
-                        className="flex gap-4 p-4 rounded-2xl bg-[#FFF9F5] border border-[#A10E4D]/5 items-center"
-                      >
-                        <div className="size-16 rounded-full bg-[#A10E4D]/10 flex items-center justify-center font-playfair text-xl font-bold text-[#A10E4D]">
-                          A
-                        </div>
-                        <div className="flex-1">
-                          <div className="h-4 w-1/3 bg-[#5F5F5F]/20 rounded-full mb-2" />
-                          <div className="h-3 w-1/2 bg-[#5F5F5F]/10 rounded-full" />
-                        </div>
-                        <div className="size-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-                          <Heart className="size-4 text-[#E74C7C]" />
-                        </div>
-                      </div>
-                    ))}
-                    <div className="absolute -right-8 top-20 bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] text-white p-4 rounded-2xl shadow-xl">
-                      <p className="text-xs font-bold uppercase mb-1">New Match Alert</p>
-                      <p className="text-sm font-medium">Someone highly compatible joined!</p>
-                    </div>
-                  </FadeIn>
-
-                  <FadeIn>
-                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#D4A04C] mb-3">
-                      Smart Discovery
-                    </h2>
-                    <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F] mb-6">
-                      {section.title || 'Matchmaking that respects culture, values, and modern life.'}
-                    </h3>
-                    <p className="text-lg text-[#5F5F5F] mb-8 leading-relaxed">
-                      {section.subtitle || 'We blend advanced search capabilities with smart recommendations to help you find matches that align with your lifestyle and family expectations.'}
-                    </p>
-                    <ul className="grid sm:grid-cols-2 gap-4">
-                      {(section.body ? section.body.split('\n') : [
-                        'Advanced search filters',
-                        'Partner preference matching',
-                        'Compatibility indicators',
-                        'Recently active profiles',
-                        'Verified profile priority',
-                        'Saved favourites & shortlist',
-                      ]).map((feature) => (
-                        <li
-                          key={feature}
-                          className="flex items-center gap-3 text-sm font-bold text-[#2F2F2F]"
-                        >
-                          <CheckCircle className="size-5 text-[#1F9D68]" /> {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </FadeIn>
-                </div>
-              </section>
-            );
-
-          case 'how-it-works':
-            const steps = section.body
-              ? section.body.split('\n').map((s) => s.trim()).filter(Boolean)
-              : home.howItWorks || [
-                  'Add your personal, family, education, and partner preferences in a guided setup.',
-                  'Build trust with email, mobile, ID, address, and employment document reviews.',
-                  'Search by age, religion, community, education, profession, and verification status.',
-                  'Send interests and start private conversations only when both sides are comfortable.',
-                ];
-            
-            const stepTitles = ['Create Your Profile', 'Get Verified', 'Discover Matches', 'Connect Confidently'];
-            const stepIcons = [UserPlus, ShieldCheck, Search, Heart];
-
-            return (
-              <section key="how-it-works" className="py-20 lg:py-28 bg-[#FFF9F5]">
-                <div className="max-w-7xl mx-auto px-5 lg:px-8">
-                  <FadeIn className="text-center max-w-2xl mx-auto mb-16 font-poppins">
-                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#D4A04C] mb-3">
-                      Simple & Safe
-                    </h2>
-                    <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F]">
-                      {section.title || 'A simpler, safer way to find the right match.'}
-                    </h3>
-                  </FadeIn>
-
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {steps.slice(0, 4).map((stepText, idx) => {
-                      const Icon = stepIcons[idx] || CheckCircle;
-                      return (
-                        <FadeIn
-                          key={idx}
-                          delay={idx * 0.1}
-                          className="group bg-white rounded-3xl p-8 shadow-sm border border-[#A10E4D]/5 hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
-                        >
-                          <div className="size-16 rounded-2xl bg-gradient-to-br from-[#FFF9F5] to-[#FFF5EF] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <Icon className="size-8 text-[#E74C7C]" />
-                          </div>
-                          <h4 className="text-lg font-bold text-[#2F2F2F] mb-3 font-cormorant">
-                            {stepTitles[idx] || `Step ${idx + 1}`}
-                          </h4>
-                          <p className="text-sm text-[#5F5F5F] leading-relaxed">{stepText}</p>
-                        </FadeIn>
-                      );
-                    })}
-                  </div>
-                </div>
-              </section>
-            );
-
-          case 'testimonials':
-            return (
-              <section key="testimonials" className="py-20 lg:py-28 bg-[#FFF9F5]">
-                <div className="max-w-7xl mx-auto px-5 lg:px-8">
-                  <FadeIn className="text-center mb-16 font-poppins">
-                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#E74C7C] mb-3">
-                      Testimonials
-                    </h2>
-                    <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F]">
-                      {section.title || 'What our members say'}
-                    </h3>
-                  </FadeIn>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {testimonials.slice(0, 2).map((testimonial, index) => (
-                      <FadeIn
-                        key={testimonial.name ?? `testimonial-${index}`}
-                        delay={index * 0.1}
-                        className="rounded-3xl border border-[#A10E4D]/5 bg-white/70 p-6 font-poppins"
-                      >
-                        <p className="text-sm italic leading-7 text-[#5F5F5F]">
-                          &quot;
-                          {testimonial.quote ?? testimonial.body ?? 'A thoughtful matrimonial experience.'}
-                          &quot;
-                        </p>
-                        <p className="mt-4 text-sm font-bold text-[#A10E4D]">
-                          {testimonial.name ?? 'Vivah Australia member'}
-                        </p>
-                      </FadeIn>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            );
-
-          case 'success-stories':
-            return (
-              <section key="success-stories" className="py-20 lg:py-28 bg-[#FFF9F5]">
-                <div className="max-w-7xl mx-auto px-5 lg:px-8">
-                  <FadeIn className="text-center mb-16 font-poppins">
-                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#E74C7C] mb-3">
-                      Success Stories
-                    </h2>
-                    <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F]">
-                      {section.title || 'Real stories. Meaningful connections.'}
-                    </h3>
-                  </FadeIn>
-
-                  <div className="grid md:grid-cols-3 gap-8">
-                    {stories.slice(0, 3).map((story, i) => (
-                      <FadeIn
-                        key={i}
-                        delay={i * 0.1}
-                        className="bg-white rounded-3xl p-8 shadow-sm border border-[#A10E4D]/5 relative font-poppins"
-                      >
-                        <div className="absolute -top-5 -left-5 text-6xl text-[#D4A04C]/20 font-playfair">
-                          &quot;
-                        </div>
-                        <p className="text-[#5F5F5F] italic leading-relaxed relative z-10 mb-6">
-                          &quot;
-                          {story.body ||
-                            story.quote ||
-                            'We connected through shared values and honest conversations. Vivah helped us find someone serious and aligned with our future.'}
-                          &quot;
-                        </p>
-                        <div className="flex items-center gap-4">
-                          <div className="size-12 rounded-full bg-[#A10E4D]/10 flex items-center justify-center">
-                            <Heart className="size-5 text-[#A10E4D]" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-[#2F2F2F] font-cormorant">{story.title || 'Happy Couple'}</h4>
-                            <p className="text-xs text-[#5F5F5F] uppercase">Verified Members</p>
-                          </div>
-                        </div>
-                      </FadeIn>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            );
-
-          case 'membership-cta':
-            return (
-              <div key="membership-cta-block">
-                <section id="membership" className="py-20 lg:py-28 bg-white">
-                  <div className="max-w-7xl mx-auto px-5 lg:px-8">
-                    <FadeIn className="text-center max-w-2xl mx-auto mb-16 font-poppins">
-                      <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F] mb-4">
-                        {section.title || 'Choose your journey'}
-                      </h3>
-                      <p className="text-[#5F5F5F]">
-                        {section.subtitle || 'Start free, and upgrade when connection tools become valuable. Plans and pricing are transparent.'}
-                      </p>
-                    </FadeIn>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {plans.map((plan, i) => {
-                        const isPremium = plan.code === 'PLATINUM' || plan.code === 'GOLD';
-                        return (
-                          <FadeIn
-                            key={plan.code}
-                            delay={i * 0.1}
-                            className={`relative rounded-3xl p-8 border ${isPremium ? 'border-[#D4A04C] bg-gradient-to-b from-white to-[#FFF9F5] shadow-xl shadow-[#D4A04C]/10' : 'border-[#A10E4D]/10 bg-white shadow-sm'}`}
-                          >
-                            {plan.code === 'PLATINUM' && (
-                              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#D4A04C] text-[#2F2F2F] text-xs font-bold uppercase tracking-wider py-1 px-4 rounded-full font-poppins">
-                                Most Premium
-                              </div>
-                            )}
-                            <h4
-                              className={`text-xl font-bold ${isPremium ? 'text-[#D4A04C]' : 'text-[#A10E4D]'} mb-2 font-cormorant`}
-                            >
-                              {plan.name}
-                            </h4>
-                            <div className="flex items-baseline gap-1 mb-6 font-poppins">
-                              <span className="text-4xl font-playfair font-bold text-[#2F2F2F]">
-                                {formatMoney(plan.priceCents, plan.currency)}
-                              </span>
-                              {plan.priceCents > 0 && (
-                                <span className="text-sm text-[#5F5F5F]">/{plan.interval.toLowerCase()}</span>
-                              )}
-                            </div>
-                            <ul className="space-y-4 mb-8 font-poppins">
-                              {plan.features.map((f) => (
-                                <li
-                                  key={f}
-                                  className="flex items-start gap-3 text-sm text-[#5F5F5F] font-medium"
-                                >
-                                  <CheckCircle
-                                    className={`size-4 mt-0.5 shrink-0 ${isPremium ? 'text-[#D4A04C]' : 'text-[#A10E4D]/60'}`}
-                                  />{' '}
-                                  {f}
-                                </li>
-                              ))}
-                            </ul>
-                            <Link
-                              href="/register"
-                              className={`block w-full py-3 rounded-full text-center text-sm font-bold transition-all font-poppins ${
-                                isPremium
-                                  ? 'bg-[#D4A04C] text-[#2F2F2F] hover:opacity-90 shadow-md'
-                                  : 'bg-white border-2 border-[#A10E4D]/20 text-[#A10E4D] hover:bg-[#E74C7C]/10'
-                              }`}
-                            >
-                              {plan.priceCents === 0 ? 'Start Free' : `Choose ${plan.name}`}
-                            </Link>
-                          </FadeIn>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </section>
-
-                <section className="py-24 relative overflow-hidden bg-gradient-to-br from-[#A10E4D] to-[#6c002c] text-white text-center font-poppins">
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=20')] opacity-10 mix-blend-overlay" />
-                  <div className="max-w-4xl mx-auto px-5 relative z-10">
-                    <FadeIn>
-                      <h2 className="text-4xl lg:text-5xl font-playfair font-bold mb-6">
-                        Start your journey toward a meaningful match.
-                      </h2>
-                      <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto">
-                        Create your free profile today and discover serious, verified matrimonial matches across Australia.
-                      </p>
-                      <div className="flex flex-wrap justify-center gap-4">
-                        <Link
-                          href="/register"
-                          className="rounded-full bg-[#D4A04C] px-8 py-4 text-sm font-bold text-white shadow-xl hover:opacity-90 transition-opacity"
-                        >
-                          Create Free Profile
-                        </Link>
-                        <Link
-                          href="#membership"
-                          className="rounded-full border-2 border-white/30 bg-white/5 backdrop-blur px-8 py-4 text-sm font-bold text-white hover:bg-white/10 transition-all"
-                        >
-                          Explore Memberships
-                        </Link>
-                      </div>
-                    </FadeIn>
-                  </div>
-                </section>
-              </div>
-            );
-
-          case 'faq':
-            const faqItems = home.faq?.length
-              ? home.faq.map((item) => ({ q: item.question ?? '', a: item.answer ?? '' }))
-              : defaultFaqs;
-
-            return (
-              <section key="faq" className="py-20 lg:py-28 bg-[#FFF9F5]">
-                <div className="max-w-3xl mx-auto px-5 lg:px-8">
-                  <FadeIn className="text-center mb-12 font-poppins">
-                    <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F]">
-                      {section.title || 'Frequently Asked Questions'}
-                    </h3>
-                  </FadeIn>
-                  <div className="space-y-4 font-poppins">
-                    {faqItems.map((faq, i) => (
-                      <FadeIn key={i} delay={i * 0.05}>
-                        <div className="bg-white rounded-2xl border border-[#A10E4D]/10 overflow-hidden">
-                          <button
-                            className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
-                            onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                          >
-                            <span className="font-bold text-[#2F2F2F] font-cormorant">{faq.q}</span>
-                            <ChevronDown
-                              className={`size-5 text-[#A10E4D] transition-transform ${openFaq === i ? 'rotate-180' : ''}`}
-                            />
-                          </button>
-                          <AnimatePresence>
-                            {openFaq === i && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                              >
-                                <div className="px-6 pb-5 text-sm text-[#5F5F5F] leading-relaxed">
-                                  {faq.a}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </FadeIn>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            );
-
-          default:
-            return null;
-        }
-      })}
-
-      {/* Featured Profiles Section */}
-      <section id="matches" className="py-20 lg:py-28 bg-[#FFF9F5] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-5 lg:px-8">
-          <FadeIn className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="max-w-2xl font-poppins">
-              <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#E74C7C] mb-3">
-                Featured Today
-              </h2>
-              <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F]">
-                Meet our actively boosted members.
-              </h3>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setGenderFilter('ALL')}
-                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
-                  genderFilter === 'ALL'
-                    ? 'bg-[#A10E4D] text-white shadow-md'
-                    : 'border border-[#A10E4D]/20 text-[#A10E4D] hover:bg-[#FFF9F5]'
-                }`}
-              >
-                All Matches
-              </button>
-              <button
-                type="button"
-                onClick={() => setGenderFilter('FEMALE')}
-                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
-                  genderFilter === 'FEMALE'
-                    ? 'bg-[#A10E4D] text-white shadow-md'
-                    : 'border border-[#A10E4D]/20 text-[#A10E4D] hover:bg-[#FFF9F5]'
-                }`}
-              >
-                Brides (Female)
-              </button>
-              <button
-                type="button"
-                onClick={() => setGenderFilter('MALE')}
-                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
-                  genderFilter === 'MALE'
-                    ? 'bg-[#A10E4D] text-white shadow-md'
-                    : 'border border-[#A10E4D]/20 text-[#A10E4D] hover:bg-[#FFF9F5]'
-                }`}
-              >
-                Grooms (Male)
-              </button>
-            </div>
-          </FadeIn>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProfiles.length > 0 ? (
-              filteredProfiles.slice(0, 3).map((profile, i) => (
-                <FadeIn key={profile.displayId} delay={i * 0.1}>
-                  <ProfileMatchCard
-                    compact
-                    profile={{
-                      age: profile.personal?.age,
-                      city: profile.location?.city ?? profile.location?.state,
-                      id: profile._id ?? profile.displayId,
-                      matchScore: 95,
-                      name: profile.personal?.firstName ?? 'Vivah member',
-                      occupation: profile.employment?.occupation ?? 'Professional',
-                      religion: profile.religion?.religion,
-                      slug: profile.slug,
-                      verificationLevel: profile.verification?.level ?? 'VERIFIED',
-                      isBoosted: profile.isBoosted,
-                    }}
-                    actions={
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <PremiumButton
-                          href={`/profiles/${profile.slug || profile._id || profile.displayId}`}
-                          variant="secondary"
-                        >
-                          View Profile
-                        </PremiumButton>
-                        <PremiumButton href="/register">Send Interest</PremiumButton>
-                      </div>
-                    }
-                  />
-                </FadeIn>
-              ))
-            ) : (
-              <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-[#A10E4D]/5">
-                <p className="text-sm font-semibold text-[#5F5F5F]">
-                  No featured matches found for the selected gender filter.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Community Discovery Section */}
-      <section className="py-20 lg:py-28 bg-[#FFF9F5]">
-        <div className="max-w-7xl mx-auto px-5 lg:px-8">
-          <FadeIn className="text-center mb-12 font-poppins">
-            <h3 className="text-2xl lg:text-3xl font-playfair font-bold text-[#2F2F2F]">
-              Find matches across Australia&apos;s vibrant communities.
-            </h3>
-          </FadeIn>
-          <div className="flex flex-wrap justify-center gap-3 font-poppins">
-            {communities.map((c, i) => (
-              <FadeIn key={c} delay={i * 0.05}>
-                <Link
-                  href="/register"
-                  className="block bg-white border border-[#A10E4D]/10 px-5 py-3 rounded-full text-sm font-bold text-[#5F5F5F] hover:border-[#E74C7C] hover:text-[#A10E4D] hover:shadow-md transition-all"
-                >
-                  {c}
-                </Link>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Blog & Guidance Section */}
-      <section id="blog" className="py-20 lg:py-28 bg-white">
-        <div className="max-w-7xl mx-auto px-5 lg:px-8">
-          <FadeIn className="mb-12 font-poppins">
-            <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#E74C7C] mb-3">
-              Guidance
-            </h2>
-            <h3 className="text-3xl lg:text-4xl font-playfair font-bold text-[#2F2F2F]">
-              Insights for your matchmaking journey.
-            </h3>
-          </FadeIn>
-          <div className="grid md:grid-cols-3 gap-8 font-poppins">
-            {blogs.slice(0, 3).map((blog, i) => (
-              <FadeIn key={i} delay={i * 0.1} className="group cursor-pointer">
-                <div className="w-full h-48 bg-[#FFF9F5] rounded-3xl mb-5 flex items-center justify-center group-hover:shadow-md transition-shadow border border-[#A10E4D]/5">
-                  <PlayCircle className="size-10 text-[#A10E4D]/30" />
-                </div>
-                <p className="text-xs font-bold uppercase text-[#D4A04C] mb-2">Advice</p>
-                <h4 className="text-lg font-bold text-[#2F2F2F] mb-3 group-hover:text-[#A10E4D] transition-colors font-cormorant">
-                  {blog.title}
-                </h4>
-                <p className="text-sm text-[#5F5F5F] line-clamp-2 mb-4">
-                  {blog.body ||
-                    'Learn more about creating meaningful connections safely and securely.'}
-                </p>
-                <span className="text-sm font-bold text-[#A10E4D] flex items-center gap-1">
-                  Read More <ChevronRight className="size-4" />
-                </span>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
+      {sectionsToRender.map((section) => (
+        <div key={section.key}>{renderSection(section as CmsSection)}</div>
+      ))}
       <PublicFooter />
     </div>
   );
 }
+
+function SearchField({
+  children,
+  label,
+}: Readonly<{
+  children: React.ReactNode;
+  label: string;
+}>) {
+  return (
+    <label className="grid gap-2 text-sm font-semibold text-[#2F2F2F]">
+      {label}
+      <div className="relative">
+        {children}
+        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[#A10E4D]" />
+      </div>
+    </label>
+  );
+}
+
+const fieldClassName =
+  'h-[58px] w-full appearance-none rounded-2xl border border-[#A10E4D]/12 bg-[#FFFDFC] px-4 text-base text-[#2F2F2F] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#A10E4D]/8';

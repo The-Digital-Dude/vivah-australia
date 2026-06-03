@@ -22,6 +22,7 @@ export type MembershipEvent =
   | 'membership_plan_selected'
   | 'membership_checkout_started'
   | 'membership_checkout_completed'
+  | 'membership_coupon_applied'
   | 'membership_faq_opened'
   | 'membership_success_story_viewed'
   | 'membership_billing_toggle'
