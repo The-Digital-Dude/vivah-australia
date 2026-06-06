@@ -2,15 +2,19 @@ import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   BlockModel,
+  InterestModel,
   PhotoRequestModel,
   ProfileApprovalStatus,
   ProfileMediaModel,
   ProfileModel,
+  UserModel,
 } from '../models/index.js';
 import {
+  InterestStatus,
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
+  UserRole,
   VerificationStatus,
 } from '@vivah/shared';
 import { createNotification } from '../notifications/notifications.service.js';
@@ -205,6 +209,20 @@ export async function hasPhotoAccess(
   requesterId: Types.ObjectId,
   ownerId: Types.ObjectId,
 ): Promise<boolean> {
+  if (requesterId.equals(ownerId)) {
+    return true;
+  }
+
+  // Check if requester is an admin/moderator
+  const requester = await UserModel.findById(requesterId).lean();
+  if (
+    requester?.role === UserRole.ADMIN ||
+    requester?.role === UserRole.SUPER_ADMIN ||
+    requester?.role === UserRole.MODERATOR
+  ) {
+    return true;
+  }
+
   const now = new Date();
   const photoRequest = await PhotoRequestModel.findOne({
     requesterId,
@@ -214,7 +232,21 @@ export async function hasPhotoAccess(
     isDeleted: false,
   }).lean();
 
-  return !!photoRequest;
+  if (photoRequest) {
+    return true;
+  }
+
+  // Fallback: Check if there is an accepted interest between the two users
+  const interest = await InterestModel.findOne({
+    status: InterestStatus.ACCEPTED,
+    isDeleted: false,
+    $or: [
+      { senderId: requesterId, receiverId: ownerId },
+      { senderId: ownerId, receiverId: requesterId },
+    ],
+  }).lean();
+
+  return !!interest;
 }
 
 // ── Get the request status between two users ──────────────────────────────────
@@ -223,6 +255,8 @@ export async function getPhotoRequestStatus(
   requesterId: Types.ObjectId,
   ownerId: Types.ObjectId,
 ) {
+  const hasAccess = await hasPhotoAccess(requesterId, ownerId);
+
   const photoRequest = await PhotoRequestModel.findOne({
     requesterId,
     ownerId,
@@ -232,14 +266,8 @@ export async function getPhotoRequestStatus(
     .lean();
 
   if (!photoRequest) {
-    return { status: 'NONE' as const, hasAccess: false, requestId: null, accessGrantedUntil: null };
+    return { status: 'NONE' as const, hasAccess, requestId: null, accessGrantedUntil: null };
   }
-
-  const now = new Date();
-  const hasAccess =
-    photoRequest.status === 'ACCEPTED' &&
-    !!photoRequest.accessGrantedUntil &&
-    photoRequest.accessGrantedUntil > now;
 
   return {
     status: photoRequest.status,
