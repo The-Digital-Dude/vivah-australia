@@ -52,6 +52,34 @@ export default function LoginPage() {
     }
   };
 
+  const handleOAuth = async (provider: 'google' | 'facebook') => {
+    setError('');
+    setMessage('');
+    setPending(true);
+
+    try {
+      const mockToken = provider === 'google' ? 'mock-google-token' : 'mock-facebook-token';
+      const result = await postAuth(`oauth/${provider}`, { token: mockToken });
+      const data = result.data as any;
+
+      if (result.ok && data?.tokenPair?.accessToken) {
+        setSession({
+          accessToken: data.tokenPair.accessToken,
+          refreshToken: data.tokenPair.refreshToken,
+        });
+        setMessage('Signed in successfully.');
+        router.push('/member');
+        router.refresh();
+      } else {
+        setError(result.message || 'Social login failed');
+        setPending(false);
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An error occurred during social login');
+      setPending(false);
+    }
+  };
+
   return (
     <AuthShell
       title="Welcome back to Vivah Australia"
@@ -102,6 +130,32 @@ export default function LoginPage() {
 
         <div className="mt-2">
           <SubmitButton label="Sign In" pendingLabel="Signing in..." pending={pending} />
+        </div>
+
+        <div className="relative my-2">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-[#A10E4D]/10"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-[#FFF9F5] px-2 text-[#5F5F5F] font-semibold">Or continue with</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => void handleOAuth('google')}
+            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/10 bg-white px-4 text-sm font-semibold text-[#2F2F2F] hover:bg-[#FFF0F3] transition"
+          >
+            Google
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleOAuth('facebook')}
+            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/10 bg-white px-4 text-sm font-semibold text-[#2F2F2F] hover:bg-[#FFF0F3] transition"
+          >
+            Facebook
+          </button>
         </div>
 
         <div className="text-center mt-4">

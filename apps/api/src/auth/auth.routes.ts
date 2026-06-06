@@ -28,6 +28,8 @@ import {
   verifyEmail,
   verifyMobileRegistration,
 } from './auth.service.js';
+import { verifyGoogleToken, verifyFacebookToken, loginOrRegisterOAuth } from './oauth.service.js';
+import { HttpError } from './auth-errors.js';
 
 const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -171,6 +173,34 @@ export function createAuthRouter(config: AuthConfig): Router {
       const input = changePasswordSchema.parse(request.body);
       await changePassword(request.auth.userId, input);
       response.status(200).json({ message: 'Password changed' });
+    }),
+  );
+
+  router.post(
+    '/oauth/google',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const { token } = request.body;
+      if (typeof token !== 'string' || !token) {
+        throw new HttpError(400, 'Token is required');
+      }
+      const profile = await verifyGoogleToken(token);
+      const result = await loginOrRegisterOAuth('google', profile, config);
+      response.status(200).json(result);
+    }),
+  );
+
+  router.post(
+    '/oauth/facebook',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const { token } = request.body;
+      if (typeof token !== 'string' || !token) {
+        throw new HttpError(400, 'Token is required');
+      }
+      const profile = await verifyFacebookToken(token);
+      const result = await loginOrRegisterOAuth('facebook', profile, config);
+      response.status(200).json(result);
     }),
   );
 

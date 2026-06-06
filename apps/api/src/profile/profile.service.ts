@@ -21,6 +21,9 @@ import {
   ProfileModel,
   ProfileViewModel,
   UserModel,
+  InterestModel,
+  FavouriteModel,
+  SavedSearchModel,
 } from '../models/index.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import type { ProfileDocument } from '../models/profile.model.js';
@@ -597,7 +600,17 @@ export async function requestAccountDeletion(userId: Types.ObjectId) {
     await profile.save();
   }
 
-  await AuthTokenModel.deleteMany({ userId });
+  const profileId = profile?._id;
+
+  await Promise.all([
+    AuthTokenModel.deleteMany({ userId }),
+    ProfileMediaModel.updateMany({ userId }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    InterestModel.updateMany({ $or: [{ senderId: userId }, { recipientId: userId }] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    FavouriteModel.updateMany({ $or: [{ userId }, ...(profileId ? [{ profileId }] : [])] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    SavedSearchModel.updateMany({ userId }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    ProfileViewModel.updateMany({ $or: [{ viewerId: userId }, ...(profileId ? [{ profileId }, { profileUserId: profileId }] : [])] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    BlockModel.updateMany({ $or: [{ blockerId: userId }, { blockedId: userId }] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+  ]);
 
   await Promise.all([
     logAudit({

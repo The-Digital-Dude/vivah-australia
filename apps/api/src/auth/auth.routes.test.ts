@@ -352,4 +352,36 @@ describe('auth routes', () => {
       .send({ email, password: 'ChangedPassword123!' })
       .expect(200);
   }, 15000);
+
+  it('authenticates and registers Google OAuth user successfully', async () => {
+    const response = await request(app)
+      .post('/api/auth/oauth/google')
+      .send({ token: 'mock-google-token' })
+      .expect(200);
+
+    const body = bodyAs<{ user: { email: string; role: string }; tokenPair: TokenResponseBody }>(response);
+    expect(body.user.email).toBe('google-user@example.com');
+    expect(body.tokenPair.accessToken).toBeDefined();
+    expect(body.tokenPair.refreshToken).toBeDefined();
+
+    const dbUser = await UserModel.findOne({ email: 'google-user@example.com' }).orFail();
+    expect(dbUser.googleId).toBe('12345google');
+    expect(dbUser.authProviders).toContain('google');
+  });
+
+  it('authenticates and registers Facebook OAuth user successfully', async () => {
+    const response = await request(app)
+      .post('/api/auth/oauth/facebook')
+      .send({ token: 'mock-facebook-token' })
+      .expect(200);
+
+    const body = bodyAs<{ user: { email: string; role: string }; tokenPair: TokenResponseBody }>(response);
+    expect(body.user.email).toBe('facebook-user@example.com');
+    expect(body.tokenPair.accessToken).toBeDefined();
+    expect(body.tokenPair.refreshToken).toBeDefined();
+
+    const dbUser = await UserModel.findOne({ email: 'facebook-user@example.com' }).orFail();
+    expect(dbUser.facebookId).toBe('12345fb');
+    expect(dbUser.authProviders).toContain('facebook');
+  });
 });
