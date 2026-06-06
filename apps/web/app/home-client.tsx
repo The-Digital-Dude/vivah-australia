@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { FAQAccordion, PremiumButton, PublicFooter, PublicHeader } from '@/app/components';
 import type {
+  CmsSection,
   FeaturedProfile,
   HomeContent,
   PublicContentItem,
@@ -124,18 +125,7 @@ function formatMoney(cents: number, currency: string) {
   }).format(cents / 100);
 }
 
-interface CmsSection {
-  key: string;
-  title?: string;
-  subtitle?: string;
-  body?: string;
-  imageUrl?: string;
-  ctaLabel?: string;
-  ctaHref?: string;
-  visible: boolean;
-  sortOrder: number;
-  status: 'DRAFT' | 'PUBLISHED';
-}
+
 
 export default function HomeClient({
   home,

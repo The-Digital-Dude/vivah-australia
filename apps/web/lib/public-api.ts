@@ -154,8 +154,21 @@ export async function getBlogs(limit = 3) {
   return getJson<{ blogs: PublicContentItem[] }>(`/api/public/blogs?limit=${limit}`, { blogs: [] });
 }
 
+export interface CmsSection {
+  key: string;
+  title?: string;
+  subtitle?: string;
+  body?: string;
+  imageUrl?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  visible: boolean;
+  sortOrder: number;
+  status: 'DRAFT' | 'PUBLISHED';
+}
+
 export async function getCmsSections(pageKey: string) {
-  return getJson<{ sections: unknown[] }>(`/api/public/sections/${pageKey}`, { sections: [] });
+  return getJson<{ sections: CmsSection[] }>(`/api/public/sections/${pageKey}`, { sections: [] });
 }
 
 export async function getCmsPage(slug: string) {

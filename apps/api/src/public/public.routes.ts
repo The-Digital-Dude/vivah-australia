@@ -1,4 +1,5 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
+import type { Types } from 'mongoose';
 import rateLimit from 'express-rate-limit';
 import { URLSearchParams } from 'url';
 import {
@@ -844,7 +845,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsSectionInputSchema.parse(request.body);
-      const section = (await CmsSectionModel.create(input)) as { _id: unknown; key: unknown };
+      const section = (await CmsSectionModel.create(input)) as { _id: Types.ObjectId; key: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_SECTION_CREATED',
@@ -871,7 +872,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_SECTION_UPDATED',
         targetType: 'CmsSection',
-        targetId: (section as { _id: unknown })._id,
+        targetId: (section as { _id: Types.ObjectId })._id,
         metadata: { key: (section as { key: unknown }).key },
       });
       response.status(200).json({ section });
@@ -893,7 +894,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_SECTION_DELETED',
         targetType: 'CmsSection',
-        targetId: (section as { _id: unknown })._id,
+        targetId: (section as { _id: Types.ObjectId })._id,
         metadata: { key: (section as { key: unknown }).key },
       });
       response.status(204).send();
@@ -919,7 +920,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsFaqInputSchema.parse(request.body);
-      const faq = (await FaqModel.create(input)) as { _id: unknown };
+      const faq = (await FaqModel.create(input)) as { _id: Types.ObjectId };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_FAQ_CREATED',
@@ -945,7 +946,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_FAQ_UPDATED',
         targetType: 'Faq',
-        targetId: (faq as { _id: unknown })._id,
+        targetId: (faq as { _id: Types.ObjectId })._id,
       });
       response.status(200).json({ faq });
     }),
@@ -966,7 +967,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_FAQ_DELETED',
         targetType: 'Faq',
-        targetId: (faq as { _id: unknown })._id,
+        targetId: (faq as { _id: Types.ObjectId })._id,
       });
       response.status(204).send();
     }),
@@ -991,7 +992,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsTemplateInputSchema.parse(request.body);
-      const template = (await TemplateModel.create(input)) as { _id: unknown; key: unknown };
+      const template = (await TemplateModel.create(input)) as { _id: Types.ObjectId; key: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_TEMPLATE_CREATED',
@@ -1018,7 +1019,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_TEMPLATE_UPDATED',
         targetType: 'Template',
-        targetId: (template as { _id: unknown })._id,
+        targetId: (template as { _id: Types.ObjectId })._id,
         metadata: { key: (template as { key: unknown }).key },
       });
       response.status(200).json({ template });
@@ -1040,7 +1041,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_TEMPLATE_DELETED',
         targetType: 'Template',
-        targetId: (template as { _id: unknown })._id,
+        targetId: (template as { _id: Types.ObjectId })._id,
         metadata: { key: (template as { key: unknown }).key },
       });
       response.status(204).send();
@@ -1079,7 +1080,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'SYSTEM_SETTING_UPDATED',
         targetType: 'SystemSetting',
-        targetId: (setting as { _id: unknown })._id,
+        targetId: (setting as { _id: Types.ObjectId })._id,
         metadata: { key: (setting as { key: unknown }).key },
       });
       response.status(200).json({ setting });
@@ -1220,7 +1221,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsLandingPageInputSchema.parse(request.body);
-      const page = (await LandingPageModel.create(input)) as { _id: unknown; slug: unknown };
+      const page = (await LandingPageModel.create(input)) as { _id: Types.ObjectId; slug: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_LANDING_PAGE_CREATED',
@@ -1247,7 +1248,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_LANDING_PAGE_UPDATED',
         targetType: 'LandingPage',
-        targetId: (page as { _id: unknown })._id,
+        targetId: (page as { _id: Types.ObjectId })._id,
         metadata: { slug: (page as { slug: unknown }).slug },
       });
       response.status(200).json({ page });
@@ -1269,7 +1270,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_LANDING_PAGE_DELETED',
         targetType: 'LandingPage',
-        targetId: (page as { _id: unknown })._id,
+        targetId: (page as { _id: Types.ObjectId })._id,
         metadata: { slug: (page as { slug: unknown }).slug },
       });
       response.status(204).send();
@@ -1296,7 +1297,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsPromotionInputSchema.parse(request.body);
-      const promotion = (await PromotionModel.create(input)) as { _id: unknown; code: unknown };
+      const promotion = (await PromotionModel.create(input)) as { _id: Types.ObjectId; code: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_PROMOTION_CREATED',
@@ -1323,7 +1324,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_PROMOTION_UPDATED',
         targetType: 'Promotion',
-        targetId: (promotion as { _id: unknown })._id,
+        targetId: (promotion as { _id: Types.ObjectId })._id,
         metadata: { code: (promotion as { code: unknown }).code },
       });
       response.status(200).json({ promotion });
@@ -1345,7 +1346,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_PROMOTION_DELETED',
         targetType: 'Promotion',
-        targetId: (promotion as { _id: unknown })._id,
+        targetId: (promotion as { _id: Types.ObjectId })._id,
         metadata: { code: (promotion as { code: unknown }).code },
       });
       response.status(204).send();
@@ -1372,7 +1373,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsCampaignBannerInputSchema.parse(request.body);
-      const banner = (await CampaignBannerModel.create(input)) as { _id: unknown; key: unknown };
+      const banner = (await CampaignBannerModel.create(input)) as { _id: Types.ObjectId; key: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_CAMPAIGN_BANNER_CREATED',
@@ -1399,7 +1400,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_CAMPAIGN_BANNER_UPDATED',
         targetType: 'CampaignBanner',
-        targetId: (banner as { _id: unknown })._id,
+        targetId: (banner as { _id: Types.ObjectId })._id,
         metadata: { key: (banner as { key: unknown }).key },
       });
       response.status(200).json({ banner });
@@ -1421,7 +1422,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_CAMPAIGN_BANNER_DELETED',
         targetType: 'CampaignBanner',
-        targetId: (banner as { _id: unknown })._id,
+        targetId: (banner as { _id: Types.ObjectId })._id,
         metadata: { key: (banner as { key: unknown }).key },
       });
       response.status(204).send();
