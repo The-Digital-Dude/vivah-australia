@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "pnpm --filter @vivah/shared build && pnpm --filter @vivah/ui build && pnpm -r typecheck",
     "test": "pnpm -r test",
+    "mcp:ollama": "node scripts/mcp-ollama-bridge.mjs",
     "route:qa": "node scripts/route-qa.mjs",
     "uptime:check": "node scripts/uptime-check.mjs",
     "format": "prettier --write .",

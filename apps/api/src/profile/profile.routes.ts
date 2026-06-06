@@ -10,9 +10,11 @@ import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   getOwnProfile,
+  deactivateOwnAccount,
   listRecentlyViewedProfiles,
   listProfileViewersReceived,
   getVisibleProfile,
+  requestAccountDeletion,
   submitOwnProfile,
   updateAccountSettings,
   updateNotificationPreferences,
@@ -107,16 +109,30 @@ export function createProfileRouter(config: AuthConfig): Router {
     }),
   );
 
-  router.post('/me/deactivate', requireAuth(config), (_request: AuthenticatedRequest, response) => {
-    response.status(202).json({ message: 'Deactivate request accepted.' });
-  });
+  router.post(
+    '/me/deactivate',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const result = await deactivateOwnAccount(auth.userId);
+      response.status(200).json({
+        message: 'Account deactivated.',
+        accountStatus: result.user.status,
+      });
+    }),
+  );
 
   router.post(
     '/me/delete-request',
     requireAuth(config),
-    (_request: AuthenticatedRequest, response) => {
-      response.status(202).json({ message: 'Delete request accepted.' });
-    },
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const result = await requestAccountDeletion(auth.userId);
+      response.status(200).json({
+        message: 'Account deletion request completed.',
+        accountStatus: result.user.status,
+      });
+    }),
   );
 
   router.get(

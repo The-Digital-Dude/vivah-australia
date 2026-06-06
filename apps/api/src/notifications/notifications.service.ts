@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { VerificationStatus, type PushSubscriptionInput } from '@vivah/shared';
 import { sendPush } from '../common/push.service.js';
 import { sendSms } from '../common/sms.service.js';
-import { sendEmail } from '../common/email.service.js';
+import { sendEmail, sendTemplatedEmail } from '../common/email.service.js';
 import { logActivity } from '../common/audit.service.js';
 import { recordRepeatedOtpFailures } from '../common/fraud.service.js';
 import {
@@ -23,6 +23,8 @@ export async function createNotification(input: {
   data?: Record<string, unknown>;
   emailSubject?: string;
   emailBody?: string;
+  emailTemplateKey?: string;
+  emailTemplateContext?: Record<string, unknown>;
   smsBody?: string;
   pushBody?: string;
 }) {
@@ -37,12 +39,27 @@ export async function createNotification(input: {
   if (input.emailSubject && input.emailBody) {
     const user = await UserModel.findById(input.userId);
     if (user?.email && (user.notificationPreferences?.emailNotifications ?? true)) {
-      await sendEmail({
-        to: user.email,
-        subject: input.emailSubject,
-        text: input.emailBody,
-        html: `<p>${input.emailBody}</p>`,
-      });
+      if (input.emailTemplateKey) {
+        await sendTemplatedEmail({
+          to: user.email,
+          templateKey: input.emailTemplateKey,
+          context: {
+            ...input.emailTemplateContext,
+            title: input.title,
+            body: input.body ?? input.emailBody,
+          },
+          subjectFallback: input.emailSubject,
+          textFallback: input.emailBody,
+          htmlFallback: `<p>${input.emailBody}</p>`,
+        });
+      } else {
+        await sendEmail({
+          to: user.email,
+          subject: input.emailSubject,
+          text: input.emailBody,
+          html: `<p>${input.emailBody}</p>`,
+        });
+      }
     }
   }
 

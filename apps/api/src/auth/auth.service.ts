@@ -8,7 +8,8 @@ import {
   type RegisterMobileInput,
 } from '@vivah/shared';
 import type { Types } from 'mongoose';
-import { sendEmail } from '../common/email.service.js';
+import { sendTemplatedEmail } from '../common/email.service.js';
+import { env } from '../env.js';
 import {
   AuthProvider,
   AuthTokenModel,
@@ -167,12 +168,20 @@ export async function registerWithEmail(
 
   const verificationLink = `${getWebBaseUrl()}/verify-email?token=${verificationToken}`;
 
-  await sendEmail({
+  await sendTemplatedEmail({
     to: input.email,
     from: 'noreply@vivahaustralia.com.au',
-    subject: 'Verify your email address',
-    text: `Please click the following link to verify your email address: ${verificationLink}`,
-    html: `<p>Please click the following link to verify your email address:</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
+    templateKey: 'auth_email_verification',
+    context: {
+      firstName: input.firstName,
+      lastName: input.lastName,
+      verificationLink,
+      supportEmail: env.EMAIL_FROM,
+      appName: 'Vivah Australia',
+    },
+    subjectFallback: 'Verify your email address',
+    textFallback: `Please click the following link to verify your email address: ${verificationLink}`,
+    htmlFallback: `<p>Please click the following link to verify your email address:</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
   });
 
   return {
@@ -397,12 +406,18 @@ export async function requestPasswordReset(
 
   const resetLink = `${getWebBaseUrl()}/reset-password?token=${resetToken}`;
 
-  await sendEmail({
+  await sendTemplatedEmail({
     to: user.email,
     from: 'noreply@vivahaustralia.com.au',
-    subject: 'Reset your password',
-    text: `Please click the following link to reset your password: ${resetLink}`,
-    html: `<p>Please click the following link to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
+    templateKey: 'auth_password_reset',
+    context: {
+      resetLink,
+      supportEmail: env.EMAIL_FROM,
+      appName: 'Vivah Australia',
+    },
+    subjectFallback: 'Reset your password',
+    textFallback: `Please click the following link to reset your password: ${resetLink}`,
+    htmlFallback: `<p>Please click the following link to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
   });
 
   return config.exposeSensitiveTokens ? { resetToken } : {};

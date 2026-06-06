@@ -642,6 +642,11 @@ export async function reviewProfile(
     userId: profile.userId,
     type: 'PROFILE_REVIEWED',
     title: `Profile ${status.toLowerCase().replace('_', ' ')}`,
+    emailTemplateKey: 'notification_profile_reviewed',
+    emailTemplateContext: {
+      status,
+      reason: input.reason,
+    },
     emailSubject: 'Your Vivah Australia profile was reviewed',
     emailBody: `Your profile review status is now ${status}.`,
     ...(input.reason ? { body: input.reason } : {}),
@@ -864,6 +869,12 @@ export async function reviewVerificationRequest(
     userId: request.userId,
     type: 'VERIFICATION_REVIEWED',
     title: `Verification ${input.status.toLowerCase().replace('_', ' ')}`,
+    emailTemplateKey: 'notification_verification_reviewed',
+    emailTemplateContext: {
+      type: request.type,
+      status: input.status,
+      reason: input.reason,
+    },
     emailSubject: 'Your verification request was reviewed',
     emailBody: `Your ${request.type.toLowerCase()} verification request is ${input.status}.`,
     ...(input.reason ? { body: input.reason } : {}),
@@ -897,6 +908,11 @@ export async function performModerationAction(
       type: 'MODERATION_WARNING',
       title: 'Moderation warning',
       body: 'A moderator reviewed a report linked to your account. Please follow community guidelines.',
+      emailTemplateKey: 'notification_moderation_warning',
+      emailTemplateContext: {
+        action,
+        reportType: report.targetType,
+      },
       emailSubject: 'Vivah Australia moderation warning',
       emailBody:
         'A moderator reviewed a report linked to your account. Please follow community guidelines.',

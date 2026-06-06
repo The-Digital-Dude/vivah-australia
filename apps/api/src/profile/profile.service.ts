@@ -1,4 +1,5 @@
 import {
+  AccountStatus,
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
@@ -8,10 +9,12 @@ import {
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { recordHighVelocityProfileViews } from '../common/fraud.service.js';
+import { logActivity, logAudit } from '../common/audit.service.js';
 import { HttpError } from '../auth/auth-errors.js';
 import { isPaidMember } from '../billing/billing.service.js';
 import {
   BlockModel,
+  AuthTokenModel,
   NotificationModel,
   ProfileApprovalStatus,
   ProfileMediaModel,
@@ -525,4 +528,92 @@ export async function updateNotificationPreferences(
   user.notificationPreferences = preferences;
   await user.save();
   return user.notificationPreferences;
+}
+
+export async function deactivateOwnAccount(userId: Types.ObjectId) {
+  const now = new Date();
+  const [user, profile] = await Promise.all([
+    UserModel.findById(userId).orFail(),
+    ProfileModel.findOne({ userId, isDeleted: false }),
+  ]);
+
+  user.status = AccountStatus.SUSPENDED;
+  user.failedLoginAttempts = 0;
+  user.refreshTokenVersion += 1;
+  user.set('lockUntil', undefined);
+  user.set('updatedBy', userId);
+  await user.save();
+
+  if (profile) {
+    profile.visibility.status = ProfileVisibility.HIDDEN;
+    profile.set('updatedBy', userId);
+    await profile.save();
+  }
+
+  await AuthTokenModel.deleteMany({ userId });
+
+  await Promise.all([
+    logAudit({
+      actorId: userId,
+      actorRole: user.role,
+      action: 'ACCOUNT_DEACTIVATED',
+      targetType: 'User',
+      targetId: userId,
+      metadata: { status: AccountStatus.SUSPENDED },
+    }),
+    logActivity({
+      actorId: userId,
+      event: 'ACCOUNT_DEACTIVATED',
+      metadata: { status: AccountStatus.SUSPENDED, deactivatedAt: now.toISOString() },
+    }),
+  ]);
+
+  return { user, profile };
+}
+
+export async function requestAccountDeletion(userId: Types.ObjectId) {
+  const now = new Date();
+  const [user, profile] = await Promise.all([
+    UserModel.findById(userId).orFail(),
+    ProfileModel.findOne({ userId, isDeleted: false }),
+  ]);
+
+  user.status = AccountStatus.DELETED;
+  user.isDeleted = true;
+  user.deletedAt = now;
+  user.deletedBy = userId;
+  user.failedLoginAttempts = 0;
+  user.refreshTokenVersion += 1;
+  user.set('lockUntil', undefined);
+  user.set('updatedBy', userId);
+  await user.save();
+
+  if (profile) {
+    profile.visibility.status = ProfileVisibility.HIDDEN;
+    profile.isDeleted = true;
+    profile.deletedAt = now;
+    profile.deletedBy = userId;
+    profile.set('updatedBy', userId);
+    await profile.save();
+  }
+
+  await AuthTokenModel.deleteMany({ userId });
+
+  await Promise.all([
+    logAudit({
+      actorId: userId,
+      actorRole: user.role,
+      action: 'ACCOUNT_DELETION_REQUESTED',
+      targetType: 'User',
+      targetId: userId,
+      metadata: { status: AccountStatus.DELETED },
+    }),
+    logActivity({
+      actorId: userId,
+      event: 'ACCOUNT_DELETION_REQUESTED',
+      metadata: { deletedAt: now.toISOString() },
+    }),
+  ]);
+
+  return { user, profile };
 }

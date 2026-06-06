@@ -1,12 +1,12 @@
 import request from 'supertest';
 import type { Response } from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { AccountStatus } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
-import { MobileOtpModel, ProfileModel, UserModel } from '../models/index.js';
+import { MobileOtpModel, ProfileModel, TemplateModel, UserModel } from '../models/index.js';
 import type { AuthConfig } from './auth-types.js';
 
 const authConfig: AuthConfig = {
@@ -108,6 +108,39 @@ describe('auth routes', () => {
     const verifiedUser = await UserModel.findById(user._id).orFail();
     expect(verifiedUser.emailVerified).toBe(true);
     expect(verifiedUser.status).toBe(AccountStatus.ACTIVE);
+  });
+
+  it('renders the CMS email verification template when one exists', async () => {
+    await TemplateModel.create({
+      key: 'auth_email_verification',
+      type: 'EMAIL',
+      subject: 'Welcome {{firstName}}, verify your email',
+      body:
+        '<p>Hello {{firstName}},</p><p>Use this link to verify your email: <a href="{{verificationLink}}">{{verificationLink}}</a></p>',
+      variables: ['firstName', 'verificationLink'],
+    });
+
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    try {
+      const registerResponse = await request(app).post('/api/auth/register/email').send({
+        email: 'templated@example.com',
+        password: 'StrongPassword123!',
+        firstName: 'Asha',
+        lastName: 'Khan',
+        termsAccepted: true,
+        marketingConsent: false,
+      });
+
+      expect(registerResponse.status).toBe(201);
+
+      const loggedOutput = logSpy.mock.calls.flat().join('\n');
+      expect(loggedOutput).toContain('Subject: Welcome Asha, verify your email');
+      expect(loggedOutput).toContain('Hello Asha');
+      expect(loggedOutput).toContain('/verify-email?token=');
+    } finally {
+      logSpy.mockRestore();
+    }
   });
 
   it('rejects duplicate email registration', async () => {

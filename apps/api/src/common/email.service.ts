@@ -1,3 +1,4 @@
+import { TemplateModel } from '../models/index.js';
 import { env } from '../env.js';
 
 export interface Email {
@@ -10,6 +11,84 @@ export interface Email {
 
 export interface EmailProvider {
   sendEmail(email: Email): Promise<void>;
+}
+
+export interface EmailTemplateContext {
+  [key: string]: unknown;
+}
+
+export interface TemplatedEmail extends Omit<Email, 'subject' | 'html' | 'text'> {
+  templateKey: string;
+  context?: EmailTemplateContext;
+  subjectFallback: string;
+  textFallback?: string;
+  htmlFallback?: string;
+}
+
+type RenderValue = string | number | boolean | null | undefined;
+
+const emailQueue: Array<Promise<void>> = [];
+let queueTail = Promise.resolve();
+
+function enqueueEmailSend(task: () => Promise<void>) {
+  const next = queueTail.then(task, task);
+  queueTail = next.catch(() => {});
+  emailQueue.push(next);
+  void next.finally(() => {
+    const index = emailQueue.indexOf(next);
+    if (index >= 0) {
+      emailQueue.splice(index, 1);
+    }
+  });
+  return next;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function toStringValue(value: RenderValue) {
+  if (value === null || value === undefined) return '';
+  return String(value);
+}
+
+function getPathValue(context: EmailTemplateContext, path: string) {
+  return path.split('.').reduce<unknown>((current, segment) => {
+    if (current && typeof current === 'object' && segment in current) {
+      return (current as Record<string, unknown>)[segment];
+    }
+    return undefined;
+  }, context);
+}
+
+function renderTemplateString(
+  template: string,
+  context: EmailTemplateContext = {},
+  options: { html?: boolean } = {},
+) {
+  const withRawValues = template.replace(/{{{\s*([\w.-]+)\s*}}}/g, (_match, key: string) => {
+    const value = getPathValue(context, key);
+    return toStringValue(value as RenderValue);
+  });
+
+  return withRawValues.replace(/{{\s*([\w.-]+)\s*}}/g, (_match, key: string) => {
+    const value = getPathValue(context, key);
+    const rendered = toStringValue(value as RenderValue);
+    return options.html ? escapeHtml(rendered) : rendered;
+  });
+}
+
+async function loadEmailTemplate(key: string) {
+  return TemplateModel.findOne({ key, type: 'EMAIL', isDeleted: false }).lean();
+}
+
+function stripHtmlTags(value: string) {
+  return value.replace(/<[^>]+>/g, '');
 }
 
 class ConsoleEmailProvider implements EmailProvider {
@@ -111,5 +190,24 @@ function getEmailProvider(): EmailProvider {
 
 export async function sendEmail(email: Email): Promise<void> {
   const emailProvider = getEmailProvider();
-  await emailProvider.sendEmail(email);
+  await enqueueEmailSend(() => emailProvider.sendEmail(email));
+}
+
+export async function sendTemplatedEmail(input: TemplatedEmail): Promise<void> {
+  const template = await loadEmailTemplate(input.templateKey);
+  const subjectSource = template?.subject?.trim() || input.subjectFallback;
+  const htmlSource = template?.body?.trim() || input.htmlFallback || input.textFallback || input.subjectFallback;
+  const renderedSubject = renderTemplateString(subjectSource, input.context);
+  const renderedHtml = renderTemplateString(htmlSource, input.context, { html: true });
+  const renderedText = input.textFallback
+    ? renderTemplateString(input.textFallback, input.context)
+    : stripHtmlTags(renderedHtml);
+
+  await sendEmail({
+    to: input.to,
+    ...(input.from ? { from: input.from } : {}),
+    subject: renderedSubject,
+    html: renderedHtml,
+    text: renderedText,
+  });
 }

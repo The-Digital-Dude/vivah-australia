@@ -7,6 +7,7 @@ import { AccountStatus, SubscriptionStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
+  AuthTokenModel,
   BlockModel,
   FraudEventModel,
   NotificationModel,
@@ -18,6 +19,8 @@ import {
   UserModel,
 } from '../models/index.js';
 import { createTokenPair } from '../auth/token.service.js';
+import { hashToken } from '../auth/token.service.js';
+import { AuthTokenPurpose } from '../models/auth-token.model.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 
 const authConfig: AuthConfig = {
@@ -488,5 +491,70 @@ describe('profile routes', () => {
       }),
     ).toBe(2);
     expect(await ProfileViewModel.countDocuments({ viewerId: viewer.user._id })).toBe(1);
+  });
+
+  it('deactivates the account, hides the profile, and revokes refresh sessions', async () => {
+    const { user, accessToken } = await createUser('deactivate@example.com');
+    const profile = await createProfile(user._id);
+
+    await AuthTokenModel.create({
+      userId: user._id,
+      purpose: AuthTokenPurpose.EMAIL_VERIFICATION,
+      tokenHash: hashToken('deactivate-token'),
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    const response = await request(app)
+      .post('/api/me/deactivate')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      message: 'Account deactivated.',
+      accountStatus: AccountStatus.SUSPENDED,
+    });
+
+    const updatedUser = await UserModel.findById(user._id).lean();
+    const updatedProfile = await ProfileModel.findById(profile._id).lean();
+
+    expect(updatedUser?.status).toBe(AccountStatus.SUSPENDED);
+    expect(updatedUser?.refreshTokenVersion).toBe(1);
+    expect(updatedProfile?.visibility.status).toBe('HIDDEN');
+    expect(
+      await AuthTokenModel.countDocuments({ userId: user._id, isDeleted: false }),
+    ).toBe(0);
+  });
+
+  it('soft deletes the account, removes the profile, and clears auth tokens', async () => {
+    const { user, accessToken } = await createUser('delete-request@example.com');
+    const profile = await createProfile(user._id);
+
+    await AuthTokenModel.create({
+      userId: user._id,
+      purpose: AuthTokenPurpose.PASSWORD_RESET,
+      tokenHash: hashToken('delete-request-token'),
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    const response = await request(app)
+      .post('/api/me/delete-request')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      message: 'Account deletion request completed.',
+      accountStatus: AccountStatus.DELETED,
+    });
+
+    const updatedUser = await UserModel.findById(user._id).lean();
+    const updatedProfile = await ProfileModel.findById(profile._id).lean();
+
+    expect(updatedUser?.status).toBe(AccountStatus.DELETED);
+    expect(updatedUser?.isDeleted).toBe(true);
+    expect(updatedProfile?.isDeleted).toBe(true);
+    expect(updatedProfile?.deletedAt).toBeTruthy();
+    expect(
+      await AuthTokenModel.countDocuments({ userId: user._id, isDeleted: false }),
+    ).toBe(0);
   });
 });

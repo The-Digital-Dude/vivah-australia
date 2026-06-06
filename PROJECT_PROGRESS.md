@@ -1,6 +1,6 @@
 # Vivah Australia Project Progress
 
-Last audited: 2026-06-03
+Last audited: 2026-06-06
 
 This file tracks what is implemented in the current codebase against `vivah_ai_ready_development_tasklist.md`.
 
@@ -12,6 +12,7 @@ This file tracks what is implemented in the current codebase against `vivah_ai_r
 - Public/member frontend alignment sprint FE-001 audit, FE-002 shared design system, FE-003 shared public/member layout, FE-004 clickable profile cards, FE-005 premium public profile detail page, FE-006 static pages alignment, and FE-007 auth pages alignment are complete in `FRONTEND_PROGRESS.md` and `UI_UX_TASKLIST.md`; FE-005 profile detail links now resolve by ObjectId, slug, or display ID, signed-in members can view member-only profile URLs with client auth, unauthenticated member-only profiles show a sign-in-required state, FE-006 root-level static public pages pull from CMS APIs with clean Ivory layouts, burgundy typography, and gold accenting, FE-007 authentication pages feature a dynamic desktop split-screen layout with an emotional brand panel and clean secure verification routes, and remaining public/member page redesign work continues from FE-008.
 - Realistic demo database seeding now creates deterministic admin/member accounts, 40 detailed matrimonial profiles, media, interactions, conversations, verification requests, notifications, billing records, CMS/blog/community content, reports, audit/activity logs, and fraud/risk examples; `seed`, `seed:demo`, and guarded `seed:reset` are documented in `SEEDING_GUIDE.md`.
 - Tests currently cover shared validators, database model/index registration, auth routes, public/CMS/contact routes, profile routes, admin/RBAC, media, match, interactions, messaging, billing, community moderation, and API health routes.
+- Transactional email delivery now supports CMS-backed templates for verification and recovery flows, with queued dispatch and fallback console/sendgrid/mailgun providers.
 - `pnpm route:qa` provides repeatable local route checks for public, auth, admin, member, API, CMS, and seeded dynamic profile routes.
 - Scheduled uptime monitoring is wired through `.github/workflows/uptime-monitor.yml` and `scripts/uptime-check.mjs`, using configured public health-check URLs for the API and web app.
 - Optional webhook-based error tracking is wired for API startup failures, unexpected Express 500s, and uncaught/unhandled process errors, with env-controlled activation and service-level tests.
@@ -116,25 +117,36 @@ The following modules do not yet have full business-feature implementations in t
 
 ## Known Gaps In Implemented Areas
 
-- Email sending uses console locally and can use SendGrid or Mailgun when configured. Template library, async queueing, and preference-gated sends remain.
-- Contact form uses hCaptcha when configured and skips server verification only when `HCAPTCHA_SECRET` is unset for local development.
-- Profile notification preferences are persisted on the user document and currently gate email, SMS, and push delivery paths. Marketing-specific unsubscribe coverage is still incomplete.
-- Account deactivate and delete-request endpoints currently return accepted responses but do not yet perform lifecycle workflows.
-- Public homepage now supports CMS-managed hero, how-it-works, safety, FAQ, and contact copy through `/admin/cms`; deeper per-section visual layout controls remain future work.
-- Media upload uses Cloudinary signed-upload parameters when `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are configured; local development falls back to mock signed upload metadata.
-- Private media access is app-signed for owner/admin flows; accepted-interest private gallery unlock still needs to be wired into media access rules.
-- Match recommendations are calculated on demand; stored recommendation snapshots and dedicated newly joined/recently active/highly compatible endpoints are not implemented yet.
+### Implemented
+
+- Public homepage content is CMS-managed for hero, how-it-works, safety, FAQ, and contact copy through `/admin/cms`.
+- Media upload uses Cloudinary signed-upload parameters when `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are configured.
+- Chat attachments reuse the signed-upload trust model as media: the server mints uploads, message sends reference owned uploaded attachment IDs, and message reads return signed private access URLs.
 - Safety reports create moderation records and keep a reported-user risk counter in sync through `REPORTED_USER_RISK_SCORE` fraud events as reports open, assign, resolve, and dismiss.
-- Chat attachments now reuse the same signed-upload trust model as media: the server mints uploads, message sends reference owned uploaded attachment IDs, and message reads return signed private access URLs.
-- Billing uses Stripe when `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are configured; local development falls back to mock checkout records for plan checkout testing.
+- Billing uses Stripe when `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are configured, with mock checkout records used for local plan checkout testing.
+- Audit/activity services record core admin and verification events and can be browsed in admin.
+- CI runs typecheck, tests, build, and route QA in GitHub Actions.
+
+### Partial
+
+- Email sending uses console locally and can use SendGrid or Mailgun when configured; the template library, async queueing, and preference-gated sends remain.
+- Contact form uses hCaptcha when configured and skips server verification only when `HCAPTCHA_SECRET` is unset for local development.
+- Profile notification preferences are persisted on the user document and currently gate email, SMS, and push delivery paths; marketing-specific unsubscribe coverage is still incomplete.
+- Account deactivate and delete-request endpoints currently return accepted responses but do not yet perform lifecycle workflows.
+- Private media access is app-signed for owner/admin flows, but accepted-interest private gallery unlock still needs to be wired into media access rules.
+- Match recommendations are calculated on demand; stored recommendation snapshots and dedicated newly joined/recently active/highly compatible endpoints are not implemented yet.
 - Payment provider abstraction is limited to persisted provider fields; a PayPal adapter and custom Payment Element wallet UI remain future work.
 - Profile boosts activate and expire by time window, but boosted ranking and public boosted badges still need search/homepage integration.
-- Admin auth is guarded client-side because the current web auth token is stored in localStorage; moving auth to httpOnly cookies would allow server-side Next route protection.
 - Verification documents are represented by encrypted storage metadata; signed admin preview URLs are in place, while secure member-side upload to the media storage flow still remains.
 - Notification/email delivery now has member read/read-all/delete UI and configurable provider selection; production templates, preferences, and queueing remain future work.
-- Audit/activity services record core admin and verification events and can be browsed in admin; sensitive document access logging remains future work.
 - Playwright smoke coverage and route QA exist, but broader frontend component/integration coverage and a deeper E2E scenario matrix are still needed.
-- CI runs typecheck, tests, build, and route QA in GitHub Actions; full deployment automation and environment promotion remain future work.
+
+### Planned / Future
+
+- Deeper per-section visual layout controls for the public homepage remain future work.
+- Admin auth is still guarded client-side because the current web auth token is stored in localStorage; moving auth to httpOnly cookies would allow server-side Next route protection.
+- Full deployment automation and environment promotion remain future work.
+- Marketing-specific unsubscribe coverage, production notification templates, and queueing are still pending completion.
 
 ## Verification Status
 
