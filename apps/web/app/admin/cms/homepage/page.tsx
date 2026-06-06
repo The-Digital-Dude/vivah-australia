@@ -7,12 +7,8 @@ import {
   ArrowDown, 
   Eye, 
   EyeOff, 
-  FileEdit, 
   Save, 
-  Sparkles, 
-  Undo,
   Settings,
-  HelpCircle,
   Play
 } from 'lucide-react';
 import AdminShell from '../../admin-shell';

@@ -363,7 +363,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   router.get(
     '/public/blogs/:slug',
     asyncHandler(async (request, response) => {
-      const blog = await BlogPostModel.findOne({
+      const blog: unknown = await BlogPostModel.findOne({
         slug: request.params.slug,
         published: true,
         isDeleted: false,
@@ -844,7 +844,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsSectionInputSchema.parse(request.body);
-      const section = await CmsSectionModel.create(input);
+      const section = (await CmsSectionModel.create(input)) as { _id: unknown; key: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_SECTION_CREATED',
@@ -862,17 +862,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsSectionInputSchema.parse(request.body);
-      const section = await CmsSectionModel.findByIdAndUpdate(request.params.id, input, {
+      const section = (await CmsSectionModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as unknown;
       if (!section) throw new HttpError(404, 'Section not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_SECTION_UPDATED',
         targetType: 'CmsSection',
-        targetId: section._id,
-        metadata: { key: section.key },
+        targetId: (section as { _id: unknown })._id,
+        metadata: { key: (section as { key: unknown }).key },
       });
       response.status(200).json({ section });
     }),
@@ -883,18 +883,18 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const section = await CmsSectionModel.findByIdAndUpdate(
+      const section = (await CmsSectionModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as unknown;
       if (!section) throw new HttpError(404, 'Section not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_SECTION_DELETED',
         targetType: 'CmsSection',
-        targetId: section._id,
-        metadata: { key: section.key },
+        targetId: (section as { _id: unknown })._id,
+        metadata: { key: (section as { key: unknown }).key },
       });
       response.status(204).send();
     }),
@@ -919,7 +919,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsFaqInputSchema.parse(request.body);
-      const faq = await FaqModel.create(input);
+      const faq = (await FaqModel.create(input)) as { _id: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_FAQ_CREATED',
@@ -936,16 +936,16 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsFaqInputSchema.parse(request.body);
-      const faq = await FaqModel.findByIdAndUpdate(request.params.id, input, {
+      const faq = (await FaqModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as unknown;
       if (!faq) throw new HttpError(404, 'FAQ not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_FAQ_UPDATED',
         targetType: 'Faq',
-        targetId: faq._id,
+        targetId: (faq as { _id: unknown })._id,
       });
       response.status(200).json({ faq });
     }),
@@ -956,17 +956,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const faq = await FaqModel.findByIdAndUpdate(
+      const faq = (await FaqModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as unknown;
       if (!faq) throw new HttpError(404, 'FAQ not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_FAQ_DELETED',
         targetType: 'Faq',
-        targetId: faq._id,
+        targetId: (faq as { _id: unknown })._id,
       });
       response.status(204).send();
     }),
@@ -991,7 +991,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsTemplateInputSchema.parse(request.body);
-      const template = await TemplateModel.create(input);
+      const template = (await TemplateModel.create(input)) as { _id: unknown; key: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_TEMPLATE_CREATED',
@@ -1009,17 +1009,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsTemplateInputSchema.parse(request.body);
-      const template = await TemplateModel.findByIdAndUpdate(request.params.id, input, {
+      const template = (await TemplateModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as unknown;
       if (!template) throw new HttpError(404, 'Template not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_TEMPLATE_UPDATED',
         targetType: 'Template',
-        targetId: template._id,
-        metadata: { key: template.key },
+        targetId: (template as { _id: unknown })._id,
+        metadata: { key: (template as { key: unknown }).key },
       });
       response.status(200).json({ template });
     }),
@@ -1030,18 +1030,18 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const template = await TemplateModel.findByIdAndUpdate(
+      const template = (await TemplateModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as unknown;
       if (!template) throw new HttpError(404, 'Template not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_TEMPLATE_DELETED',
         targetType: 'Template',
-        targetId: template._id,
-        metadata: { key: template.key },
+        targetId: (template as { _id: unknown })._id,
+        metadata: { key: (template as { key: unknown }).key },
       });
       response.status(204).send();
     }),
@@ -1063,22 +1063,24 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const setting = await SystemSettingModel.findOneAndUpdate(
+      const body = request.body as Record<string, unknown>;
+      const setting = (await SystemSettingModel.findOneAndUpdate(
         { key: request.params.key },
         {
           key: request.params.key,
-          value: request.body.value,
-          description: request.body.description,
+          value: body.value,
+          description: body.description,
           isDeleted: false,
         },
         { upsert: true, returnDocument: 'after', runValidators: true },
-      );
+      )) as unknown;
+      if (!setting) throw new HttpError(404, 'Setting not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'SYSTEM_SETTING_UPDATED',
         targetType: 'SystemSetting',
-        targetId: setting._id,
-        metadata: { key: setting.key },
+        targetId: (setting as { _id: unknown })._id,
+        metadata: { key: (setting as { key: unknown }).key },
       });
       response.status(200).json({ setting });
     }),
@@ -1089,7 +1091,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   router.get(
     '/public/matrimony/:slug',
     asyncHandler(async (request, response) => {
-      const page = await LandingPageModel.findOne({
+      const page: unknown = await LandingPageModel.findOne({
         slug: request.params.slug,
         active: true,
         isDeleted: false,
@@ -1136,7 +1138,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         throw new HttpError(400, 'Coupon code is required');
       }
 
-      const promo = await PromotionModel.findOne({
+      const promo: unknown = await PromotionModel.findOne({
         code: code.toUpperCase().trim(),
         active: true,
         isDeleted: false,
@@ -1218,7 +1220,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsLandingPageInputSchema.parse(request.body);
-      const page = await LandingPageModel.create(input);
+      const page = (await LandingPageModel.create(input)) as { _id: unknown; slug: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_LANDING_PAGE_CREATED',
@@ -1236,17 +1238,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsLandingPageInputSchema.parse(request.body);
-      const page = await LandingPageModel.findByIdAndUpdate(request.params.id, input, {
+      const page = (await LandingPageModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as unknown;
       if (!page) throw new HttpError(404, 'Landing page not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_LANDING_PAGE_UPDATED',
         targetType: 'LandingPage',
-        targetId: page._id,
-        metadata: { slug: page.slug },
+        targetId: (page as { _id: unknown })._id,
+        metadata: { slug: (page as { slug: unknown }).slug },
       });
       response.status(200).json({ page });
     }),
@@ -1257,18 +1259,18 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const page = await LandingPageModel.findByIdAndUpdate(
+      const page = (await LandingPageModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as unknown;
       if (!page) throw new HttpError(404, 'Landing page not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_LANDING_PAGE_DELETED',
         targetType: 'LandingPage',
-        targetId: page._id,
-        metadata: { slug: page.slug },
+        targetId: (page as { _id: unknown })._id,
+        metadata: { slug: (page as { slug: unknown }).slug },
       });
       response.status(204).send();
     }),
@@ -1294,7 +1296,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsPromotionInputSchema.parse(request.body);
-      const promotion = await PromotionModel.create(input);
+      const promotion = (await PromotionModel.create(input)) as { _id: unknown; code: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_PROMOTION_CREATED',
@@ -1312,17 +1314,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsPromotionInputSchema.parse(request.body);
-      const promotion = await PromotionModel.findByIdAndUpdate(request.params.id, input, {
+      const promotion = (await PromotionModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as unknown;
       if (!promotion) throw new HttpError(404, 'Promotion not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_PROMOTION_UPDATED',
         targetType: 'Promotion',
-        targetId: promotion._id,
-        metadata: { code: promotion.code },
+        targetId: (promotion as { _id: unknown })._id,
+        metadata: { code: (promotion as { code: unknown }).code },
       });
       response.status(200).json({ promotion });
     }),
@@ -1333,18 +1335,18 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const promotion = await PromotionModel.findByIdAndUpdate(
+      const promotion = (await PromotionModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as unknown;
       if (!promotion) throw new HttpError(404, 'Promotion not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_PROMOTION_DELETED',
         targetType: 'Promotion',
-        targetId: promotion._id,
-        metadata: { code: promotion.code },
+        targetId: (promotion as { _id: unknown })._id,
+        metadata: { code: (promotion as { code: unknown }).code },
       });
       response.status(204).send();
     }),
@@ -1370,7 +1372,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsCampaignBannerInputSchema.parse(request.body);
-      const banner = await CampaignBannerModel.create(input);
+      const banner = (await CampaignBannerModel.create(input)) as { _id: unknown; key: unknown };
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_CAMPAIGN_BANNER_CREATED',
@@ -1388,17 +1390,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsCampaignBannerInputSchema.parse(request.body);
-      const banner = await CampaignBannerModel.findByIdAndUpdate(request.params.id, input, {
+      const banner = (await CampaignBannerModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as unknown;
       if (!banner) throw new HttpError(404, 'Campaign banner not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_CAMPAIGN_BANNER_UPDATED',
         targetType: 'CampaignBanner',
-        targetId: banner._id,
-        metadata: { key: banner.key },
+        targetId: (banner as { _id: unknown })._id,
+        metadata: { key: (banner as { key: unknown }).key },
       });
       response.status(200).json({ banner });
     }),
@@ -1409,18 +1411,18 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const banner = await CampaignBannerModel.findByIdAndUpdate(
+      const banner = (await CampaignBannerModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as unknown;
       if (!banner) throw new HttpError(404, 'Campaign banner not found');
       await logAudit({
         ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
         action: 'CMS_CAMPAIGN_BANNER_DELETED',
         targetType: 'CampaignBanner',
-        targetId: banner._id,
-        metadata: { key: banner.key },
+        targetId: (banner as { _id: unknown })._id,
+        metadata: { key: (banner as { key: unknown }).key },
       });
       response.status(204).send();
     }),

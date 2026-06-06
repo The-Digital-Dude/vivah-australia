@@ -29,7 +29,6 @@ import {
   Sparkles,
   Star,
   UserRoundCheck,
-  Zap,
 } from 'lucide-react';
 
 interface InterestProfile {

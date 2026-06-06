@@ -100,6 +100,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
             {/* Cover Image */}
             <div className="relative w-full h-[320px] md:h-[450px] rounded-3xl overflow-hidden bg-[#FFF5EF] border border-neutral-200 mt-6">
               {blog.coverImage ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={blog.coverImage}
                   alt={blog.title}

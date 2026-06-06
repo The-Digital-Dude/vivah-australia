@@ -21,7 +21,7 @@ vi.mock('next/link', () => ({
 }));
 
 vi.mock('@/lib/member-api', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/member-api')>('@/lib/member-api');
+  const actual = await vi.importActual<Record<string, unknown>>('@/lib/member-api');
   return {
     ...actual,
     useMemberRequest: () => memberRequestMock,
@@ -87,7 +87,7 @@ describe('ProfileForm draft saving', () => {
 
   function patchCalls() {
     return memberRequestMock.mock.calls.filter(
-      (call) => call[0] === '/api/me/profile' && call[1]?.method === 'PATCH',
+      (call) => call[0] === '/api/me/profile' && (call[1] as { method?: string } | undefined)?.method === 'PATCH',
     );
   }
 
@@ -129,11 +129,11 @@ describe('ProfileForm draft saving', () => {
             firstName: 'Priya',
             lastName: 'Sharma',
             gender: 'FEMALE',
-            dateOfBirth: expect.any(Date),
+            dateOfBirth: expect.any(Date) as unknown,
             maritalStatus: 'NEVER_MARRIED',
-          }),
-        }),
-      }),
+          }) as unknown,
+        }) as unknown,
+      }) as unknown,
     ]);
 
     expect(screen.getByText('Draft saved successfully')).toBeTruthy();
@@ -177,10 +177,10 @@ describe('ProfileForm draft saving', () => {
           personal: expect.objectContaining({
             firstName: 'Anaya',
             lastName: 'Patel',
-            dateOfBirth: expect.any(Date),
-          }),
-        }),
-      }),
+            dateOfBirth: expect.any(Date) as unknown,
+          }) as unknown,
+        }) as unknown,
+      }) as unknown,
     ]);
 
     fireEvent.change(screen.getByLabelText('Country'), {
@@ -208,9 +208,9 @@ describe('ProfileForm draft saving', () => {
             country: 'Australia',
             state: 'Victoria',
             city: 'Melbourne',
-          }),
-        }),
-      }),
+          }) as unknown,
+        }) as unknown,
+      }) as unknown,
     ]);
 
     expect(screen.getByText('Step 3 of 10')).toBeTruthy();

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, type FormEvent } from 'react';
-import { Mail, MessageSquare, Bell, Save, Play, Eye, FileEdit, Trash2, HelpCircle } from 'lucide-react';
+import { Mail, MessageSquare, Bell, Save, Eye, FileEdit, Trash2 } from 'lucide-react';
 import AdminShell from '../../admin-shell';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 import { cmsTemplateInputSchema } from '@vivah/shared';
@@ -303,7 +303,7 @@ export default function TemplateManagerPage() {
           {/* EDITOR & PREVIEW PANELS */}
           <div className="grid gap-6 lg:grid-cols-2">
             {/* EDITOR */}
-            <form onSubmit={handleSave} className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm space-y-4">
+            <form onSubmit={(e) => void handleSave(e)} className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm space-y-4">
               <div>
                 <h4 className="text-sm font-bold text-neutral-800">Template Settings</h4>
               </div>
@@ -338,7 +338,7 @@ export default function TemplateManagerPage() {
                   <span className="uppercase tracking-wider text-neutral-400">Channel Type</span>
                   <select
                     value={editor.type}
-                    onChange={(e) => setEditor(prev => ({ ...prev, type: e.target.value as any }))}
+                    onChange={(e) => setEditor(prev => ({ ...prev, type: e.target.value as Template['type'] }))}
                     disabled={!!selectedId}
                     className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none disabled:bg-neutral-50"
                   >

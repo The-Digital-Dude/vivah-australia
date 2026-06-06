@@ -70,7 +70,7 @@ vi.mock('../submit-button', () => ({
 }));
 
 vi.mock('@/lib/auth-api', () => ({
-  postAuth: (...args: unknown[]) => postAuthMock(...args),
+  postAuth: (...args: unknown[]) => postAuthMock(...args) as unknown,
 }));
 
 vi.mock('@/app/auth-context', () => ({

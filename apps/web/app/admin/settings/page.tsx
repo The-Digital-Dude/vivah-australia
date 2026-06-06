@@ -9,9 +9,7 @@ import {
   Sliders, 
   Home, 
   Save, 
-  Search,
-  CheckCircle,
-  AlertCircle
+  Search
 } from 'lucide-react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
@@ -19,7 +17,7 @@ import { useMemberRequest } from '@/lib/member-api';
 interface SystemSetting {
   _id?: string;
   key: string;
-  value: any;
+  value: unknown;
   description?: string;
 }
 
@@ -52,12 +50,12 @@ const SETTING_SCHEMAS = [
 
 export default function SettingsManagerPage() {
   const memberRequest = useMemberRequest();
-  const [settings, setSettings] = useState<SystemSetting[]>([]);
+  const [, setSettings] = useState<SystemSetting[]>([]);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
   const [activeGroup, setActiveGroup] = useState<string>('general');
   const [searchQuery, setSearchQuery] = useState('');
-  const [editedValues, setEditedValues] = useState<Record<string, any>>({});
+  const [editedValues, setEditedValues] = useState<Record<string, unknown>>({});
 
   const loadSettings = async () => {
     setPending(true);
@@ -68,7 +66,7 @@ export default function SettingsManagerPage() {
       setSettings(loaded);
       
       // Initialize editedValues state
-      const initialValues: Record<string, any> = {};
+      const initialValues: Record<string, unknown> = {};
       SETTING_SCHEMAS.forEach(schema => {
         const found = loaded.find(s => s.key === schema.key);
         initialValues[schema.key] = found ? found.value : schema.default;
@@ -90,7 +88,7 @@ export default function SettingsManagerPage() {
     
     // Validation
     const schema = SETTING_SCHEMAS.find(s => s.key === key);
-    if (schema?.type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    if (schema?.type === 'email' && typeof value === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       setMessage('Invalid email address format.');
       setPending(false);
       return;
@@ -265,7 +263,7 @@ export default function SettingsManagerPage() {
                         <div className="space-y-3">
                           <textarea
                             rows={4}
-                            value={value || ''}
+                            value={(value as string) || ''}
                             onChange={(e) => setEditedValues(prev => ({ ...prev, [setting.key]: e.target.value }))}
                             className="w-full rounded-xl border border-neutral-250 p-3 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] leading-relaxed"
                           />
@@ -283,7 +281,7 @@ export default function SettingsManagerPage() {
                         <div className="flex gap-2">
                           <input
                             type={setting.type}
-                            value={value || ''}
+                            value={(value as string) || ''}
                             onChange={(e) => setEditedValues(prev => ({ ...prev, [setting.key]: e.target.value }))}
                             className="h-10 flex-1 rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                           />

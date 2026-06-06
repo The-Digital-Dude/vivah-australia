@@ -71,7 +71,7 @@ export default async function FaqPage() {
   const { faqs } = await getFaqs();
 
   const faqItems = faqs && faqs.length > 0
-    ? faqs.map(f => ({ question: f.question, answer: f.answer }))
+    ? (faqs as { question: string; answer: string }[]).map(f => ({ question: f.question, answer: f.answer }))
     : fallbackFaqs;
 
   return (

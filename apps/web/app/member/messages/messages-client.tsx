@@ -228,9 +228,10 @@ export default function MessagesClient() {
     }
 
     const form = new FormData(event.currentTarget);
+    const bodyVal = form.get('body');
     const payload = {
       body:
-        typeof form.get('body') === 'string' ? String(form.get('body')).trim() || undefined : undefined,
+        typeof bodyVal === 'string' ? bodyVal.trim() || undefined : undefined,
       attachments: pendingAttachments.map((attachment) => ({ attachmentId: attachment.id })),
     };
     const parsed = messageCreateSchema.safeParse(payload);

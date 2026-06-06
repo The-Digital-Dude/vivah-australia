@@ -6,7 +6,7 @@ import MatchDiscovery from './match-discovery';
 const memberRequestMock = vi.fn();
 
 vi.mock('@/lib/member-api', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/member-api')>('@/lib/member-api');
+  const actual = await vi.importActual<Record<string, unknown>>('@/lib/member-api');
   return {
     ...actual,
     useMemberRequest: () => memberRequestMock,

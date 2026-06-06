@@ -61,6 +61,9 @@ interface CmsContent {
   coupleName?: string;
   published: boolean;
   updatedAt?: string;
+  coverImage?: string;
+  tags?: string[];
+  readTimeMinutes?: number;
 }
 
 interface Testimonial {
@@ -711,7 +714,7 @@ function ContentManager({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editor, setEditor] = useState(initialEmptyEditor);
 
-  function selectItem(item: any) {
+  function selectItem(item: CmsContent) {
     setSelectedId(item._id);
     setEditor({
       slug: item.slug,
@@ -1304,7 +1307,7 @@ function FaqManager({
             <span className="uppercase tracking-wider text-neutral-400">Category</span>
             <select
               value={editor.category}
-              onChange={(e) => setEditor((current) => ({ ...current, category: e.target.value as any }))}
+              onChange={(e) => setEditor((current) => ({ ...current, category: e.target.value as Faq['category'] }))}
               className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             >
               <option value="GENERAL">General</option>

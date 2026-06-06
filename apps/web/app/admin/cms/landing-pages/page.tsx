@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, type FormEvent } from 'react';
-import { Globe, Plus, Trash2, Save, Eye, MapPin, BookOpen, Search, ToggleLeft, ToggleRight, ExternalLink } from 'lucide-react';
+import { Globe, Plus, Trash2, Save, MapPin, BookOpen, Search, ToggleLeft, ToggleRight, ExternalLink } from 'lucide-react';
 import AdminShell from '../../admin-shell';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 import { cmsLandingPageInputSchema } from '@vivah/shared';

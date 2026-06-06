@@ -1370,22 +1370,24 @@ export default function PricingClient() {
                         <button
                           type="button"
                           disabled={couponPending || !couponInput.trim()}
-                          onClick={async () => {
-                            if (!couponInput.trim()) return;
-                            setCouponPending(true);
-                            setCouponError('');
-                            const result = await validateCoupon(couponInput.trim(), effectivePlan?.code);
-                            setCouponPending(false);
-                            if (result.ok && result.data.discountPercent) {
-                              setCouponApplied({
-                                code: result.data.code ?? couponInput,
-                                label: result.data.label ?? '',
-                                discountPercent: result.data.discountPercent,
-                              });
-                              track('membership_coupon_applied', { code: couponInput });
-                            } else {
-                              setCouponError(result.data.message ?? 'Invalid coupon code.');
-                            }
+                          onClick={() => {
+                            void (async () => {
+                              if (!couponInput.trim()) return;
+                              setCouponPending(true);
+                              setCouponError('');
+                              const result = await validateCoupon(couponInput.trim(), effectivePlan?.code);
+                              setCouponPending(false);
+                              if (result.ok && result.data.discountPercent) {
+                                setCouponApplied({
+                                  code: result.data.code ?? couponInput,
+                                  label: result.data.label ?? '',
+                                  discountPercent: result.data.discountPercent,
+                                });
+                                track('membership_coupon_applied', { code: couponInput });
+                              } else {
+                                setCouponError(result.data.message ?? 'Invalid coupon code.');
+                              }
+                            })();
                           }}
                           className="h-11 rounded-2xl bg-[#A10E4D] hover:bg-[#890B40] px-5 text-sm font-bold text-white disabled:opacity-50 transition"
                         >

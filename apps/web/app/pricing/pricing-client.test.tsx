@@ -8,6 +8,7 @@ const trackMock = vi.fn();
 const fetchMock = vi.fn();
 
 vi.mock('next/image', () => ({
+  // eslint-disable-next-line @next/next/no-img-element
   default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
 }));
 
@@ -17,17 +18,15 @@ vi.mock('framer-motion', () => ({
     {
       get: (_, tag: string) =>
         ({ children, ...props }: { children?: ReactNode } & Record<string, unknown>) => {
-          const {
-            initial: _initial,
-            animate: _animate,
-            exit: _exit,
-            transition: _transition,
-            whileHover: _whileHover,
-            whileInView: _whileInView,
-            viewport: _viewport,
-            variants: _variants,
-            ...domProps
-          } = props;
+          const domProps = { ...props };
+          delete domProps.initial;
+          delete domProps.animate;
+          delete domProps.exit;
+          delete domProps.transition;
+          delete domProps.whileHover;
+          delete domProps.whileInView;
+          delete domProps.viewport;
+          delete domProps.variants;
           return createElement(tag, domProps, children);
         },
     },
@@ -69,11 +68,11 @@ vi.mock('@/app/components/ui/badge', () => ({
 }));
 
 vi.mock('@/lib/analytics', () => ({
-  track: (...args: unknown[]) => trackMock(...args),
+  track: (...args: unknown[]) => trackMock(...args) as unknown,
 }));
 
 vi.mock('@/lib/member-api', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/member-api')>('@/lib/member-api');
+  const actual = await vi.importActual<Record<string, unknown>>('@/lib/member-api');
   return {
     ...actual,
     useMemberRequest: () => memberRequestMock,
@@ -137,7 +136,7 @@ describe('PricingClient checkout flow', () => {
 
     vi.stubGlobal('fetch', fetchMock);
     fetchMock.mockResolvedValue({
-      json: async () => plansResponse,
+      json: () => Promise.resolve(plansResponse),
     });
 
     memberRequestMock.mockImplementation((url: string) => {

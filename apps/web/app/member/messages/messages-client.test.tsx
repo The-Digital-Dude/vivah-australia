@@ -1,5 +1,4 @@
-import type { ReactNode } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import MessagesClient from './messages-client';
 
@@ -15,7 +14,7 @@ vi.mock('@/app/auth-context', () => ({
 }));
 
 vi.mock('@/lib/member-api', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/member-api')>('@/lib/member-api');
+  const actual = await vi.importActual<Record<string, unknown>>('@/lib/member-api');
   return {
     ...actual,
     useMemberRequest: () => memberRequestMock,

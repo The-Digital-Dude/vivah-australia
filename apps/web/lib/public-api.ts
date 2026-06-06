@@ -54,6 +54,21 @@ export interface PublicContentItem {
   seoDescription?: string;
 }
 
+export interface PublicBlog {
+  slug: string;
+  title: string;
+  body: string;
+  readTimeMinutes?: number;
+  coverImage?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt?: string;
+  authorId?: {
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
 export interface PublicPage {
   slug: string;
   title: string;
@@ -140,7 +155,7 @@ export async function getBlogs(limit = 3) {
 }
 
 export async function getCmsSections(pageKey: string) {
-  return getJson<{ sections: any[] }>(`/api/public/sections/${pageKey}`, { sections: [] });
+  return getJson<{ sections: unknown[] }>(`/api/public/sections/${pageKey}`, { sections: [] });
 }
 
 export async function getCmsPage(slug: string) {
@@ -148,11 +163,11 @@ export async function getCmsPage(slug: string) {
 }
 
 export async function getFaqs() {
-  return getJson<{ faqs: any[] }>('/api/public/faqs', { faqs: [] });
+  return getJson<{ faqs: unknown[] }>('/api/public/faqs', { faqs: [] });
 }
 
 export async function getBlogBySlug(slug: string) {
-  return getJson<{ blog: any | null }>(`/api/public/blogs/${slug}`, { blog: null });
+  return getJson<{ blog: PublicBlog | null }>(`/api/public/blogs/${slug}`, { blog: null });
 }
 
 export async function submitContactInquiry(body: Record<string, unknown>) {
