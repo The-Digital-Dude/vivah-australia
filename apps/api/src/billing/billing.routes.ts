@@ -31,6 +31,7 @@ import {
   listSubscriptions,
   updatePlan,
   upsertPlan,
+  createPaymentIntent,
 } from './billing.service.js';
 
 function asyncHandler(
@@ -82,6 +83,20 @@ export function createBillingRouter(config: AuthConfig): Router {
       const auth = requireRequestAuth(request);
       const input = checkoutSessionSchema.parse(request.body);
       response.status(201).json(await createCheckoutSession(auth.userId, input));
+    }),
+  );
+
+  router.post(
+    '/billing/payment-intent',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const { amountCents, currency } = request.body;
+      if (typeof amountCents !== 'number' || amountCents <= 0) {
+        throw new HttpError(400, 'Invalid amountCents');
+      }
+      const result = await createPaymentIntent(auth.userId, amountCents, currency);
+      response.status(201).json(result);
     }),
   );
 

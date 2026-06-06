@@ -1,8 +1,13 @@
-import type {
-  ButtonHTMLAttributes,
-  InputHTMLAttributes,
-  ReactNode,
-  SelectHTMLAttributes,
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type SelectHTMLAttributes,
 } from 'react';
 
 export function cx(...classes: Array<string | false | null | undefined>) {
@@ -226,6 +231,334 @@ export function DataTable({
         </thead>
         <tbody className="divide-y">{children}</tbody>
       </table>
+    </div>
+  );
+}
+
+// Custom DatePicker component
+export function DatePicker({
+  label,
+  className,
+  ...props
+}: InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#5E6470]">
+          {label}
+        </span>
+      )}
+      <input
+        type="date"
+        className={cx(
+          uiTokens.input,
+          'bg-white text-[#232323] transition-colors focus:border-[#7A1E3A]',
+          className,
+        )}
+        {...props}
+      />
+    </div>
+  );
+}
+
+// Toast Notification System
+export interface ToastMessage {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
+const ToastContext = createContext<{
+  addToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  removeToast: (id: string) => void;
+  toasts: ToastMessage[];
+} | null>(null);
+
+export function ToastProvider({ children }: { children: ReactNode }) {
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  return (
+    <ToastContext.Provider value={{ addToast, removeToast, toasts }}>
+      {children}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+    </ToastContext.Provider>
+  );
+}
+
+export function useToast() {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
+}
+
+function ToastContainer({
+  toasts,
+  removeToast,
+}: {
+  toasts: ToastMessage[];
+  removeToast: (id: string) => void;
+}) {
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full">
+      {toasts.map((toast) => (
+        <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
+      ))}
+    </div>
+  );
+}
+
+function ToastItem({ toast, onClose }: { toast: ToastMessage; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div
+      className={cx(
+        'flex items-center justify-between gap-3 rounded-lg border p-4 shadow-lg transition-all duration-300',
+        toast.type === 'success' && 'bg-[#F7FBF8] border-[#1F6F4A]/20 text-[#1F6F4A]',
+        toast.type === 'error' && 'bg-[#FDECEF] border-[#7A1E3A]/20 text-[#7A1E3A]',
+        toast.type === 'info' && 'bg-[#FFF8F1] border-[#7A1E3A]/20 text-[#5E6470]',
+      )}
+    >
+      <span className="text-sm font-medium">{toast.message}</span>
+      <button
+        onClick={onClose}
+        className="text-current opacity-70 hover:opacity-100 focus:outline-none text-lg leading-none"
+        type="button"
+      >
+        &times;
+      </button>
+    </div>
+  );
+}
+
+// ProfileCard Component
+export function ProfileCard({
+  avatarUrl,
+  name,
+  age,
+  location,
+  occupation,
+  isVerified,
+  isBoosted,
+  onClick,
+  actionLabel = 'View Profile',
+}: {
+  avatarUrl?: string;
+  name: string;
+  age: number;
+  location: string;
+  occupation: string;
+  isVerified?: boolean;
+  isBoosted?: boolean;
+  onClick?: () => void;
+  actionLabel?: string;
+}) {
+  return (
+    <div className={cx(uiTokens.card, 'relative overflow-hidden flex flex-col gap-4 group hover:shadow-md transition-all border-[#7A1E3A]/10')}>
+      {isBoosted && (
+        <div className="absolute top-2 right-2 z-10">
+          <Badge tone="danger">Featured</Badge>
+        </div>
+      )}
+      <div className="aspect-[4/5] w-full rounded-md bg-[#FFF8F1] overflow-hidden relative border border-[#7A1E3A]/5">
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={name} className="h-full w-full object-cover transition-transform group-hover:scale-105 duration-300" />
+        ) : (
+          <div className="h-full w-full flex flex-col items-center justify-center bg-[#FDECEF] text-[#7A1E3A]">
+            <span className="text-3xl font-bold uppercase">{name.slice(0, 2)}</span>
+          </div>
+        )}
+      </div>
+      
+      <div className="flex flex-col flex-1">
+        <div className="flex items-center gap-1.5">
+          <h3 className="font-semibold text-lg text-[#232323] truncate">{name}</h3>
+          {isVerified && (
+            <span className="inline-flex size-4 items-center justify-center rounded-full bg-[#1F6F4A] text-[10px] font-bold text-white" title="Verified Member">
+              ✓
+            </span>
+          )}
+        </div>
+        
+        <p className="text-sm text-[#5E6470] font-medium mt-1">
+          {age} Yrs • {occupation}
+        </p>
+        <p className="text-xs text-[#5E6470] mt-0.5">
+          {location}
+        </p>
+      </div>
+
+      {onClick && (
+        <Button onClick={onClick} className="w-full mt-auto">
+          {actionLabel}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// PlanCard Component
+export function PlanCard({
+  name,
+  price,
+  period = 'month',
+  features,
+  isPopular,
+  ctaText = 'Select Plan',
+  onCtaClick,
+}: {
+  name: string;
+  price: string;
+  period?: string;
+  features: string[];
+  isPopular?: boolean;
+  ctaText?: string;
+  onCtaClick?: () => void;
+}) {
+  return (
+    <div
+      className={cx(
+        uiTokens.card,
+        'flex flex-col gap-6 relative p-6',
+        isPopular ? 'border-2 border-[#7A1E3A] shadow-md' : 'border-[#7A1E3A]/10',
+      )}
+    >
+      {isPopular && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#7A1E3A] px-3 py-1 text-xs font-semibold text-white">
+          Most Popular
+        </div>
+      )}
+      
+      <div className="text-center">
+        <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-[#5E6470]">{name}</h4>
+        <div className="mt-4 flex items-baseline justify-center">
+          <span className="text-4xl font-semibold text-[#232323]">{price}</span>
+          <span className="text-sm text-[#5E6470] ml-1">/{period}</span>
+        </div>
+      </div>
+
+      <ul className="flex flex-col gap-3 flex-1">
+        {features.map((feature, i) => (
+          <li key={i} className="flex items-start gap-2.5 text-sm text-[#5E6470]">
+            <span className="text-[#1F6F4A] font-bold">✓</span>
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+
+      <Button
+        onClick={onCtaClick}
+        variant={isPopular ? 'primary' : 'secondary'}
+        className="w-full"
+      >
+        {ctaText}
+      </Button>
+    </div>
+  );
+}
+
+// FileUploader Component
+export function FileUploader({
+  accept,
+  maxSizeMB = 5,
+  onFileSelect,
+  isUploading = false,
+  error,
+  label = 'Upload file',
+}: {
+  accept?: string;
+  maxSizeMB?: number;
+  onFileSelect: (file: File) => void;
+  isUploading?: boolean;
+  error?: string | null;
+  label?: string;
+}) {
+  const [isDragActive, setIsDragActive] = useState(false);
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setIsDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        alert(`File is too large. Max size is ${maxSizeMB}MB.`);
+        return;
+      }
+      onFileSelect(file);
+    }
+  }, [maxSizeMB, onFileSelect]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        alert(`File is too large. Max size is ${maxSizeMB}MB.`);
+        return;
+      }
+      onFileSelect(file);
+    }
+  }, [maxSizeMB, onFileSelect]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div
+        onDragEnter={handleDrag}
+        onDragOver={handleDrag}
+        onDragLeave={handleDrag}
+        onDrop={handleDrop}
+        className={cx(
+          'border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors min-h-[160px]',
+          isDragActive ? 'border-[#7A1E3A] bg-[#FDECEF]' : 'border-[#7A1E3A]/20 bg-white hover:border-[#7A1E3A]/40',
+        )}
+      >
+        <input
+          type="file"
+          id="file-upload-input"
+          className="hidden"
+          accept={accept}
+          onChange={handleChange}
+          disabled={isUploading}
+        />
+        <label htmlFor="file-upload-input" className="flex flex-col items-center justify-center gap-2 cursor-pointer w-full text-center">
+          <span className="text-[#7A1E3A] text-2xl font-bold">↑</span>
+          <span className="text-sm font-semibold text-[#232323]">{label}</span>
+          <span className="text-xs text-[#5E6470]">
+            Drag & drop here or click to browse. Max size: {maxSizeMB}MB.
+          </span>
+        </label>
+      </div>
+      {isUploading && (
+        <p className="text-xs text-[#7A1E3A] animate-pulse">Uploading file...</p>
+      )}
+      {error && (
+        <p className="text-xs text-[#7A1E3A] font-semibold">{error}</p>
+      )}
     </div>
   );
 }

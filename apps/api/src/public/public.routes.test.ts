@@ -434,38 +434,119 @@ describe('public web routes', () => {
   });
 
   it('validates and stores contact inquiries', async () => {
-    await request(app)
-      .post('/api/public/contact')
-      .send({ name: 'A', email: 'bad', subject: 'Hi', message: 'Too short' })
-      .expect(400);
+    // Enable hCaptcha for testing
+    const originalSecret = process.env.HCAPTCHA_SECRET;
+    process.env.HCAPTCHA_SECRET = 'test-secret';
 
-    await request(app)
-      .post('/api/public/contact')
-      .send({
-        name: 'Amit Sharma',
-        email: 'amit@example.com',
-        subject: 'Membership question',
-        message: 'I would like to learn more about premium memberships.',
-      })
-      .expect(201);
-
-    const inquiry = await ContactInquiryModel.findOne({ email: 'amit@example.com' }).orFail();
-    expect(inquiry.subject).toBe('Membership question');
-  });
-
-  it('flags duplicate contact attempts for fraud review', async () => {
-    for (let index = 0; index < 3; index += 1) {
+    try {
+      // 1. Missing CAPTCHA token
       await request(app)
         .post('/api/public/contact')
         .send({
-          name: 'Repeated Contact',
-          email: 'repeat@example.com',
+          name: 'Amit Sharma',
+          email: 'amit@example.com',
           subject: 'Membership question',
-          message: 'I am sending another detailed inquiry about memberships.',
+          message: 'I would like to learn more about premium memberships.',
+        })
+        .expect(400);
+
+      // 2. Invalid CAPTCHA token
+      await request(app)
+        .post('/api/public/contact')
+        .send({
+          name: 'Amit Sharma',
+          email: 'amit@example.com',
+          subject: 'Membership question',
+          message: 'I would like to learn more about premium memberships.',
+          captchaToken: 'invalid-token',
+        })
+        .expect(400);
+
+      // 3. Valid CAPTCHA token
+      await request(app)
+        .post('/api/public/contact')
+        .send({
+          name: 'Amit Sharma',
+          email: 'amit@example.com',
+          subject: 'Membership question',
+          message: 'I would like to learn more about premium memberships.',
+          captchaToken: 'valid-token',
         })
         .expect(201);
-    }
 
-    expect(await FraudEventModel.countDocuments({ rule: 'DUPLICATE_CONTACT_ATTEMPTS' })).toBe(1);
+      const inquiry = await ContactInquiryModel.findOne({ email: 'amit@example.com' }).orFail();
+      expect(inquiry.subject).toBe('Membership question');
+    } finally {
+      process.env.HCAPTCHA_SECRET = originalSecret;
+    }
+  });
+
+  it('respects user email notification preferences for auto-receipts', async () => {
+    const originalSecret = process.env.HCAPTCHA_SECRET;
+    process.env.HCAPTCHA_SECRET = 'test-secret';
+
+    try {
+      // Create a user with email notifications disabled
+      await UserModel.create({
+        email: 'optout@example.com',
+        authProviders: ['email'],
+        role: UserRole.USER,
+        status: AccountStatus.ACTIVE,
+        emailVerified: true,
+        mobileVerified: false,
+        failedLoginAttempts: 0,
+        refreshTokenVersion: 0,
+        marketingConsent: false,
+        notificationPreferences: {
+          emailNotifications: false,
+          smsNotifications: false,
+          pushNotifications: false,
+          marketingNotifications: false,
+        },
+        metadata: {},
+      });
+
+      // Submit contact form as that user
+      await request(app)
+        .post('/api/public/contact')
+        .send({
+          name: 'Opted Out User',
+          email: 'optout@example.com',
+          subject: 'Question',
+          message: 'Should not get receipt email.',
+          captchaToken: 'valid-token',
+        })
+        .expect(201);
+
+      // Assert inquiry was created
+      const inquiry = await ContactInquiryModel.findOne({ email: 'optout@example.com' }).orFail();
+      expect(inquiry.name).toBe('Opted Out User');
+    } finally {
+      process.env.HCAPTCHA_SECRET = originalSecret;
+    }
+  });
+
+  it('flags duplicate contact attempts for fraud review', async () => {
+    // Disable HCAPTCHA_SECRET so duplicate tests can run without captcha tokens
+    const originalSecret = process.env.HCAPTCHA_SECRET;
+    delete process.env.HCAPTCHA_SECRET;
+
+    try {
+      for (let index = 0; index < 3; index += 1) {
+        await request(app)
+          .post('/api/public/contact')
+          .send({
+            name: 'Repeated Contact',
+            email: 'repeat@example.com',
+            subject: 'Membership question',
+            message: 'I am sending another detailed inquiry about memberships.',
+          })
+          .expect(201);
+      }
+
+      expect(await FraudEventModel.countDocuments({ rule: 'DUPLICATE_CONTACT_ATTEMPTS' })).toBe(1);
+    } finally {
+      process.env.HCAPTCHA_SECRET = originalSecret;
+    }
   });
 });

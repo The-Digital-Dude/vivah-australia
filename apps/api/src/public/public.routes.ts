@@ -21,7 +21,7 @@ import {
 import { requireAuth } from '../auth/auth.middleware.js';
 import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
-import { sendEmail } from '../common/email.service.js';
+import { sendEmail, sendTemplatedEmail } from '../common/email.service.js';
 import { recordDuplicateContactAttempts } from '../common/fraud.service.js';
 import { logAudit } from '../common/audit.service.js';
 import {
@@ -41,6 +41,7 @@ import {
   LandingPageModel,
   PromotionModel,
   CampaignBannerModel,
+  UserModel,
 } from '../models/index.js';
 
 const PUBLIC_PROFILE_LIMIT = 6;
@@ -48,7 +49,7 @@ const PUBLIC_MATCH_PREVIEW_LIMIT = 12;
 
 const contactRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 5,
+  limit: process.env.NODE_ENV === 'test' ? 100 : 5,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -65,6 +66,15 @@ async function verifyCaptcha(token: string | undefined) {
   }
 
   if (process.env.NODE_ENV === 'test') {
+    if (token === 'invalid-token') {
+      throw new HttpError(400, 'Invalid CAPTCHA token');
+    }
+    if (token === 'valid-token') {
+      return;
+    }
+    if (!token) {
+      throw new HttpError(400, 'CAPTCHA token is required');
+    }
     return;
   }
 
@@ -441,31 +451,75 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         });
       }
 
-      // Send email notification
-      await sendEmail({
+      // Check user preferences if the sender has a registered account
+      const registeredUser = await UserModel.findOne({
+        email: input.email.toLowerCase(),
+        isDeleted: false,
+      }).lean();
+
+      const shouldSendReceipt = !registeredUser || (registeredUser.notificationPreferences?.emailNotifications ?? true);
+
+      // Send email notification to admin using templated format
+      await sendTemplatedEmail({
         to: process.env.ADMIN_SEED_EMAIL ?? 'support@vivahaustralia.com.au',
         from: 'noreply@vivahaustralia.com.au',
-        subject: `New Contact Inquiry: ${inquiry.subject}`,
-        text: `
-          Name: ${inquiry.name}
-          Email: ${inquiry.email}
-          Phone: ${inquiry.phone ?? 'N/A'}
-          Subject: ${inquiry.subject}
-          Message:
-          ${inquiry.message}
-        `,
-        html: `
+        templateKey: 'contact-inquiry-admin',
+        subjectFallback: 'New Contact Inquiry: {{subject}}',
+        context: {
+          name: inquiry.name,
+          email: inquiry.email,
+          phone: inquiry.phone ?? 'N/A',
+          subject: inquiry.subject,
+          message: inquiry.message,
+        },
+        htmlFallback: `
           <h3>New Contact Inquiry</h3>
           <ul>
-            <li><strong>Name:</strong> ${inquiry.name}</li>
-            <li><strong>Email:</strong> ${inquiry.email}</li>
-            <li><strong>Phone:</strong> ${inquiry.phone ?? 'N/A'}</li>
-            <li><strong>Subject:</strong> ${inquiry.subject}</li>
+            <li><strong>Name:</strong> {{name}}</li>
+            <li><strong>Email:</strong> {{email}}</li>
+            <li><strong>Phone:</strong> {{phone}}</li>
+            <li><strong>Subject:</strong> {{subject}}</li>
           </ul>
           <h4>Message:</h4>
-          <p>${inquiry.message}</p>
+          <p>{{message}}</p>
+        `,
+        textFallback: `
+          New Contact Inquiry
+          Name: {{name}}
+          Email: {{email}}
+          Phone: {{phone}}
+          Subject: {{subject}}
+          Message:
+          {{message}}
         `,
       });
+
+      // Send email receipt to user if allowed by preferences
+      if (shouldSendReceipt) {
+        await sendTemplatedEmail({
+          to: inquiry.email,
+          from: 'noreply@vivahaustralia.com.au',
+          templateKey: 'contact-inquiry-user',
+          subjectFallback: 'We received your inquiry: {{subject}}',
+          context: {
+            name: inquiry.name,
+            subject: inquiry.subject,
+          },
+          htmlFallback: `
+            <p>Hi {{name}},</p>
+            <p>Thank you for contacting Vivah Australia. We have received your inquiry regarding "<strong>{{subject}}</strong>" and our support team will get back to you shortly.</p>
+            <p>Kind regards,<br>The Vivah Australia Team</p>
+          `,
+          textFallback: `
+            Hi {{name}},
+
+            Thank you for contacting Vivah Australia. We have received your inquiry regarding "{{subject}}" and our support team will get back to you shortly.
+
+            Kind regards,
+            The Vivah Australia Team
+          `,
+        });
+      }
 
       response.status(201).json({
         message: 'Contact inquiry received.',

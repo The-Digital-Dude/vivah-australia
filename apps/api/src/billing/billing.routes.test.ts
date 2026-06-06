@@ -444,4 +444,18 @@ describe('billing routes and webhooks', () => {
       env.NODE_ENV = originalNodeEnv;
     }
   });
+
+  it('creates a Stripe PaymentIntent successfully', async () => {
+    const user = await createUser('intent-user@example.com');
+    const response = await request(app)
+      .post('/api/billing/payment-intent')
+      .set('Authorization', `Bearer ${user.accessToken}`)
+      .send({ amountCents: 5000, currency: 'AUD' })
+      .expect(201);
+
+    const body = bodyAs<{ clientSecret: string; amountCents: number; currency: string }>(response);
+    expect(body.clientSecret).toContain('mock_client_secret_intent_');
+    expect(body.amountCents).toBe(5000);
+    expect(body.currency).toBe('AUD');
+  });
 });

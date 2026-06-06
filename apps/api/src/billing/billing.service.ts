@@ -633,3 +633,30 @@ export function constructStripeEvent(body: Buffer, signature?: string) {
 
   return stripe.webhooks.constructEvent(body, signature, env.STRIPE_WEBHOOK_SECRET);
 }
+
+export async function createPaymentIntent(userId: Types.ObjectId, amountCents: number, currency = 'AUD') {
+  if (!stripe) {
+    if (env.NODE_ENV === 'production') {
+      throw new HttpError(400, 'Stripe billing is not configured in production.');
+    }
+    return {
+      clientSecret: 'mock_client_secret_intent_' + Math.random().toString(36).substring(7),
+      amountCents,
+      currency,
+    };
+  }
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amountCents,
+    currency: currency.toLowerCase(),
+    metadata: {
+      userId: String(userId),
+    },
+  });
+
+  return {
+    clientSecret: paymentIntent.client_secret,
+    amountCents,
+    currency,
+  };
+}
