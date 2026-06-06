@@ -39,6 +39,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate environment variables
+        env:
+          API_BASE_URL: http://ci.vivahaustralia.com.au
+          WEB_BASE_URL: http://ci.vivahaustralia.com.au
+          MONGODB_URI: mongodb://localhost:27017/vivah_ci
+          JWT_ACCESS_SECRET: ci-access-secret-32-chars-minimum-ok
+          JWT_REFRESH_SECRET: ci-refresh-secret-32chars-minimum-ok
+          CORS_ORIGINS: http://localhost:3000
+        run: node scripts/env-check.mjs
+
       - name: Run Linting
         run: pnpm lint
 

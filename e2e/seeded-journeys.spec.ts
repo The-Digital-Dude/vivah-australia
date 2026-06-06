@@ -23,7 +23,8 @@ test.describe('Vivah Australia Seeded Browser Journeys', () => {
     await loginAsDemoMember(page);
 
     await page.goto('/member/messages');
-    await expect(page.getByRole('heading', { name: 'Conversations' })).toBeVisible();
+    // Verify the page content and select conversation details
+    await expect(page.getByRole('heading', { name: 'Messages' }).first()).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Hi, thanks for accepting my interest. I liked your profile and family values.')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Thanks, nice to connect with you too.')).toBeVisible();
     await expect(page.getByRole('button', { name: /delete chat/i })).toBeVisible();

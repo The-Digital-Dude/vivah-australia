@@ -473,22 +473,41 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
           message: inquiry.message,
         },
         htmlFallback: `
-          <h3>New Contact Inquiry</h3>
-          <ul>
-            <li><strong>Name:</strong> {{name}}</li>
-            <li><strong>Email:</strong> {{email}}</li>
-            <li><strong>Phone:</strong> {{phone}}</li>
-            <li><strong>Subject:</strong> {{subject}}</li>
-          </ul>
-          <h4>Message:</h4>
-          <p>{{message}}</p>
+          <div style="font-family: 'Playfair Display', Georgia, serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #A10E4D/10; border-radius: 16px; background-color: #FFF9F5;">
+            <h2 style="color: #A10E4D; border-bottom: 2px solid #D4A04C; padding-bottom: 10px;">New Contact Inquiry Received</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+              <tr>
+                <td style="padding: 8px 0; font-weight: bold; color: #2F2F2F; width: 120px;">Name:</td>
+                <td style="padding: 8px 0; color: #5F5F5F;">{{name}}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; font-weight: bold; color: #2F2F2F;">Email:</td>
+                <td style="padding: 8px 0; color: #5F5F5F;">{{email}}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; font-weight: bold; color: #2F2F2F;">Phone:</td>
+                <td style="padding: 8px 0; color: #5F5F5F;">{{phone}}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; font-weight: bold; color: #2F2F2F;">Subject:</td>
+                <td style="padding: 8px 0; color: #A10E4D; font-weight: 600;">{{subject}}</td>
+              </tr>
+            </table>
+            <h3 style="color: #2F2F2F; margin-top: 20px; border-top: 1px solid #A10E4D/10; padding-top: 15px;">Message Details</h3>
+            <p style="color: #5F5F5F; line-height: 1.6; background-color: #white; padding: 15px; border-radius: 12px; border: 1px solid #A10E4D/5;">{{message}}</p>
+            <div style="margin-top: 30px; font-size: 11px; text-align: center; color: #B7832E; border-top: 1px solid #A10E4D/10; padding-top: 15px;">
+              Vivah Australia Administrative System
+            </div>
+          </div>
         `,
         textFallback: `
           New Contact Inquiry
+          ===================
           Name: {{name}}
           Email: {{email}}
           Phone: {{phone}}
           Subject: {{subject}}
+
           Message:
           {{message}}
         `,
@@ -506,9 +525,21 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
             subject: inquiry.subject,
           },
           htmlFallback: `
-            <p>Hi {{name}},</p>
-            <p>Thank you for contacting Vivah Australia. We have received your inquiry regarding "<strong>{{subject}}</strong>" and our support team will get back to you shortly.</p>
-            <p>Kind regards,<br>The Vivah Australia Team</p>
+            <div style="font-family: 'Playfair Display', Georgia, serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #A10E4D/10; border-radius: 20px; background-color: #FFF9F5; text-align: center;">
+              <h2 style="color: #A10E4D; margin-bottom: 5px;">Thank You for Reaching Out</h2>
+              <div style="width: 50px; height: 2px; background-color: #D4A04C; margin: 15px auto;"></div>
+              <p style="color: #2F2F2F; font-size: 16px; line-height: 1.6;">Hi {{name}},</p>
+              <p style="color: #5F5F5F; font-size: 14px; line-height: 1.6; max-width: 480px; margin: 0 auto;">
+                We have received your inquiry regarding "<strong>{{subject}}</strong>". Our dedicated support team is reviewing your message and will get back to you shortly.
+              </p>
+              <p style="color: #5F5F5F; font-size: 14px; line-height: 1.6; margin-top: 25px;">
+                Kind regards,<br>
+                <strong style="color: #A10E4D;">The Vivah Australia Team</strong>
+              </p>
+              <div style="margin-top: 35px; border-top: 1px solid #A10E4D/10; padding-top: 20px; font-size: 12px; color: #B7832E;">
+                This is an automated confirmation of receipt. Please do not reply directly to this email.
+              </div>
+            </div>
           `,
           textFallback: `
             Hi {{name}},

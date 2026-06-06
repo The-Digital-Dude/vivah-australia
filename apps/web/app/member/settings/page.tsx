@@ -362,6 +362,74 @@ export default function MemberSettingsPage() {
           </PremiumCard>
         </div>
 
+        <PremiumCard className="rounded-[32px] border border-red-200/40 bg-[#FFF0F3]/30 p-6 sm:p-7">
+          <div className="flex items-center gap-3 border-b border-[#A10E4D]/10 pb-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFF0F3] text-red-700">
+              <ShieldCheck className="size-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-[#2F2F2F]">Danger Zone</h2>
+              <p className="text-sm text-[#6B7280]">
+                Temporarily deactivate your matrimonial profile or permanently delete your account.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <div className="rounded-[24px] border border-[#A10E4D]/10 bg-white p-5 flex flex-col justify-between">
+              <div>
+                <h3 className="font-semibold text-[#2F2F2F] text-base">Deactivate Profile</h3>
+                <p className="mt-2 text-xs leading-5 text-[#6B7280]">
+                  Hide your profile from search, discovery, and recommendations. You can log back in later to reactivate.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (confirm('Are you sure you want to deactivate your profile? This hides you from all members.')) {
+                    const res = await memberRequest('/api/me/deactivate', { method: 'POST' });
+                    setMessage(res.message);
+                    if (res.ok) {
+                      localStorage.removeItem('auth_token');
+                      localStorage.removeItem('refresh_token');
+                      window.location.href = '/login';
+                    }
+                  }
+                }}
+                className="mt-4 w-full h-11 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm transition"
+              >
+                Deactivate profile
+              </button>
+            </div>
+
+            <div className="rounded-[24px] border border-red-200 bg-white p-5 flex flex-col justify-between">
+              <div>
+                <h3 className="font-semibold text-red-700 text-base">Delete Account</h3>
+                <p className="mt-2 text-xs leading-5 text-[#6B7280]">
+                  Permanently delete your profile, conversations, uploads, and data. This action is irreversible.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (confirm('Are you sure you want to delete your account? This will permanently erase your profile, matches, and messages.')) {
+                    const res = await memberRequest('/api/me/delete-request', { method: 'POST' });
+                    setMessage(res.message);
+                    if (res.ok) {
+                      localStorage.removeItem('auth_token');
+                      localStorage.removeItem('refresh_token');
+                      window.location.href = '/';
+                    }
+                  }
+                }}
+                className="mt-4 w-full h-11 rounded-2xl bg-red-700 hover:bg-red-800 text-white font-semibold text-sm transition"
+              >
+                Delete account
+              </button>
+            </div>
+          </div>
+        </PremiumCard>
+
         {message ? (
           <div className="rounded-[24px] border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-4 text-sm font-semibold text-[#7A1E3A]">
             {message}

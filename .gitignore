@@ -22,3 +22,5 @@ data
 playwright-report/
 test-results/
 tmp-web-dev.log
+.backups/
+.codex-temp/

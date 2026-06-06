@@ -18,6 +18,7 @@ import { createNotificationsRouter } from './notifications/notifications.routes.
 import { createPublicRouter } from './public/public.routes.js';
 import { createProfileRouter } from './profile/profile.routes.js';
 import { reportApplicationError } from './common/error-tracking.service.js';
+import { logger } from './common/logger.js';
 
 function isZodValidationError(error: unknown): error is z.ZodError {
   return (
@@ -59,25 +60,30 @@ export function createApp(options: CreateAppOptions): Express {
     next();
   });
 
-  // Structured Logging Middleware
+  // Structured HTTP Request Logging (pino child logger per request)
   app.use((request: Request, response: Response, next: express.NextFunction) => {
+    const isHealthCheck = request.url === '/health' || request.url === '/api/health';
     const startTime = Date.now();
+    const reqLog = logger.child({
+      requestId: request.headers['x-request-id'],
+      method: request.method,
+      url: request.url,
+    });
+
     response.on('finish', () => {
-      const duration = Date.now() - startTime;
-      const logData = {
-        timestamp: new Date().toISOString(),
-        requestId: response.getHeader('x-request-id'),
-        method: request.method,
-        url: request.originalUrl,
-        status: response.statusCode,
-        durationMs: duration,
-        userAgent: request.headers['user-agent'],
-        ip: request.ip,
-      };
-      if (process.env.NODE_ENV !== 'test') {
-        console.log(JSON.stringify(logData));
+      if (isHealthCheck) return; // suppress health-check noise
+      const durationMs = Date.now() - startTime;
+      const statusCode = response.statusCode;
+      const logData = { statusCode, durationMs };
+      if (statusCode >= 500) {
+        reqLog.error(logData, 'HTTP request completed');
+      } else if (statusCode >= 400) {
+        reqLog.warn(logData, 'HTTP request completed');
+      } else {
+        reqLog.info(logData, 'HTTP request completed');
       }
     });
+
     next();
   });
 
@@ -117,14 +123,10 @@ export function createApp(options: CreateAppOptions): Express {
       return;
     }
 
-    if (process.env.NODE_ENV !== 'test') {
-      console.error(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        requestId: reqId,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      }));
-    }
+    logger.error({
+      requestId: reqId,
+      err: error instanceof Error ? error : new Error(String(error)),
+    }, 'Unhandled request error');
 
     void reportApplicationError({
       source: 'express',

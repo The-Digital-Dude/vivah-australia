@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { createApp } from './app.js';
 import { reportApplicationError } from './common/error-tracking.service.js';
+import { logger } from './common/logger.js';
 import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
@@ -20,16 +21,7 @@ async function reportProcessError(
   const message = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
 
-  if (process.env.NODE_ENV !== 'test') {
-    console.error(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        source,
-        message,
-        stack,
-      }),
-    );
-  }
+  logger.error({ source, err: error instanceof Error ? error : new Error(message), stack }, `Process error: ${source}`);
 
   await reportApplicationError({
     source,
@@ -66,7 +58,7 @@ async function startServer() {
   });
 
   server.listen(env.API_PORT, () => {
-    console.log(`API listening on ${env.API_BASE_URL}`);
+    logger.info({ url: env.API_BASE_URL, port: env.API_PORT }, 'API server started');
   });
 }
 
