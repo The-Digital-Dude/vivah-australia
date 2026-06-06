@@ -22,23 +22,19 @@ export interface VerificationProviderAssignment {
 }
 
 export interface IdentityVerificationProvider {
-  beginIdentityVerification(
-    context: VerificationProviderRequestContext,
-  ): Promise<VerificationProviderAssignment>;
+  beginIdentityVerification(context: VerificationProviderRequestContext): VerificationProviderAssignment;
 }
 
 export interface FacialVerificationProvider {
-  beginFacialVerification(
-    context: VerificationProviderRequestContext,
-  ): Promise<VerificationProviderAssignment>;
+  beginFacialVerification(context: VerificationProviderRequestContext): VerificationProviderAssignment;
 }
 
 export interface PoliceCheckProvider {
-  beginPoliceCheck(context: VerificationProviderRequestContext): Promise<VerificationProviderAssignment>;
+  beginPoliceCheck(context: VerificationProviderRequestContext): VerificationProviderAssignment;
 }
 
 export interface VisaVerificationProvider {
-  beginVisaVerification(context: VerificationProviderRequestContext): Promise<VerificationProviderAssignment>;
+  beginVisaVerification(context: VerificationProviderRequestContext): VerificationProviderAssignment;
 }
 
 function createManualReference(type: string, requestId: string) {
@@ -49,25 +45,25 @@ const manualReviewProvider: IdentityVerificationProvider &
   FacialVerificationProvider &
   PoliceCheckProvider &
   VisaVerificationProvider = {
-  async beginIdentityVerification(context) {
+  beginIdentityVerification(context) {
     return {
       provider: 'manual-review',
       providerReferenceId: createManualReference('IDENTITY', context.requestId),
     };
   },
-  async beginFacialVerification(context) {
+  beginFacialVerification(context) {
     return {
       provider: 'manual-review',
       providerReferenceId: createManualReference('FACIAL', context.requestId),
     };
   },
-  async beginPoliceCheck(context) {
+  beginPoliceCheck(context) {
     return {
       provider: 'manual-review',
       providerReferenceId: createManualReference('POLICE_CLEARANCE', context.requestId),
     };
   },
-  async beginVisaVerification(context) {
+  beginVisaVerification(context) {
     return {
       provider: 'manual-review',
       providerReferenceId: createManualReference('VISA', context.requestId),
@@ -75,23 +71,23 @@ const manualReviewProvider: IdentityVerificationProvider &
   },
 };
 
-export async function assignVerificationProvider(
+export function assignVerificationProvider(
   type: VerificationRequestCreateInput['type'],
   context: VerificationProviderRequestContext,
 ): Promise<VerificationProviderAssignment> {
   switch (type) {
     case 'IDENTITY':
-      return manualReviewProvider.beginIdentityVerification(context);
+      return Promise.resolve(manualReviewProvider.beginIdentityVerification(context));
     case 'FACIAL':
-      return manualReviewProvider.beginFacialVerification(context);
+      return Promise.resolve(manualReviewProvider.beginFacialVerification(context));
     case 'POLICE_CLEARANCE':
-      return manualReviewProvider.beginPoliceCheck(context);
+      return Promise.resolve(manualReviewProvider.beginPoliceCheck(context));
     case 'VISA':
-      return manualReviewProvider.beginVisaVerification(context);
+      return Promise.resolve(manualReviewProvider.beginVisaVerification(context));
     default:
-      return {
+      return Promise.resolve({
         provider: 'manual-review',
         providerReferenceId: createManualReference(type, context.requestId),
-      };
+      });
   }
 }

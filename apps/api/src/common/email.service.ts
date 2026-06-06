@@ -17,6 +17,11 @@ export interface EmailTemplateContext {
   [key: string]: unknown;
 }
 
+interface EmailTemplateRecord {
+  subject?: string;
+  body: string;
+}
+
 export interface TemplatedEmail extends Omit<Email, 'subject' | 'html' | 'text'> {
   templateKey: string;
   context?: EmailTemplateContext;
@@ -27,19 +32,14 @@ export interface TemplatedEmail extends Omit<Email, 'subject' | 'html' | 'text'>
 
 type RenderValue = string | number | boolean | null | undefined;
 
-const emailQueue: Array<Promise<void>> = [];
 let queueTail = Promise.resolve();
 
-function enqueueEmailSend(task: () => Promise<void>) {
+function enqueueEmailSend(task: () => Promise<void>): Promise<void> {
   const next = queueTail.then(task, task);
-  queueTail = next.catch(() => {});
-  emailQueue.push(next);
-  void next.finally(() => {
-    const index = emailQueue.indexOf(next);
-    if (index >= 0) {
-      emailQueue.splice(index, 1);
-    }
-  });
+  queueTail = next.then(
+    () => undefined,
+    () => undefined,
+  );
   return next;
 }
 
@@ -83,8 +83,10 @@ function renderTemplateString(
   });
 }
 
-async function loadEmailTemplate(key: string) {
-  return TemplateModel.findOne({ key, type: 'EMAIL', isDeleted: false }).lean();
+async function loadEmailTemplate(key: string): Promise<EmailTemplateRecord | null> {
+  return (await TemplateModel.findOne({ key, type: 'EMAIL', isDeleted: false }).lean().exec()) as
+    | EmailTemplateRecord
+    | null;
 }
 
 function stripHtmlTags(value: string) {
@@ -196,7 +198,8 @@ export async function sendEmail(email: Email): Promise<void> {
 export async function sendTemplatedEmail(input: TemplatedEmail): Promise<void> {
   const template = await loadEmailTemplate(input.templateKey);
   const subjectSource = template?.subject?.trim() || input.subjectFallback;
-  const htmlSource = template?.body?.trim() || input.htmlFallback || input.textFallback || input.subjectFallback;
+  const htmlSource =
+    template?.body?.trim() || input.htmlFallback || input.textFallback || input.subjectFallback;
   const renderedSubject = renderTemplateString(subjectSource, input.context);
   const renderedHtml = renderTemplateString(htmlSource, input.context, { html: true });
   const renderedText = input.textFallback

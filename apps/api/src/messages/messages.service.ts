@@ -364,7 +364,7 @@ export async function listMessages(userId: Types.ObjectId, conversationId: strin
     .sort({ createdAt: 1 })
     .populate('attachmentIds');
 
-  return Promise.all(messages.map((message) => publicMessage(message, userId)));
+  return messages.map((message) => publicMessage(message, userId));
 }
 
 export async function markConversationRead(userId: Types.ObjectId, conversationId: string) {
@@ -456,7 +456,7 @@ function publicAttachment(
   };
 }
 
-async function publicMessage(message: MessageDocument, viewerId: Types.ObjectId) {
+function publicMessage(message: MessageDocument, viewerId: Types.ObjectId) {
   const populated = message.toObject({ virtuals: true }) as unknown as {
     _id: Types.ObjectId;
     conversationId: Types.ObjectId;
