@@ -79,6 +79,7 @@ export const MediaCategory = {
   PROFILE_PHOTO: 'PROFILE_PHOTO',
   PUBLIC_GALLERY: 'PUBLIC_GALLERY',
   PRIVATE_GALLERY: 'PRIVATE_GALLERY',
+  VIDEO_INTRO: 'VIDEO_INTRO',
 } as const;
 
 export type MediaCategory = (typeof MediaCategory)[keyof typeof MediaCategory];

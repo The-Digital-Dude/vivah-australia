@@ -14,6 +14,7 @@ interface MediaItem {
   originalFilename: string;
   isPrimary: boolean;
   moderationReason?: string;
+  mediaType?: string;
 }
 
 interface MediaListResponse {
@@ -66,7 +67,7 @@ export default function MediaManager() {
     const file = form.get('file');
 
     if (!(file instanceof File)) {
-      setMessage('Choose an image file to upload.');
+      setMessage('Choose a media file to upload.');
       setPending(false);
       return;
     }
@@ -204,6 +205,7 @@ export default function MediaManager() {
               <option value="PROFILE_PHOTO">Profile photo</option>
               <option value="PUBLIC_GALLERY">Public gallery</option>
               <option value="PRIVATE_GALLERY">Private gallery</option>
+              <option value="VIDEO_INTRO">Video introduction</option>
             </select>
           </label>
           <label className="grid gap-2 text-sm font-semibold text-[#232323]">
@@ -218,11 +220,11 @@ export default function MediaManager() {
             </select>
           </label>
           <label className="grid gap-2 text-sm font-semibold text-[#232323]">
-            Photo
+            Media file
             <input
               name="file"
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
               required
               className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 py-3 text-sm"
             />
@@ -269,13 +271,21 @@ export default function MediaManager() {
             key={item.id}
             className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_18px_45px_rgba(122,31,43,0.05)]"
           >
-            <div className="aspect-[4/3] overflow-hidden rounded-[22px] bg-neutral-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={item.assetUrl}
-                alt={item.originalFilename}
-                className="size-full object-cover"
-              />
+            <div className="aspect-[4/3] overflow-hidden rounded-[22px] bg-neutral-100 flex items-center justify-center">
+              {item.mediaType === 'VIDEO' || item.category === 'VIDEO_INTRO' ? (
+                <video
+                  src={item.assetUrl}
+                  controls
+                  className="size-full object-cover"
+                />
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={item.assetUrl}
+                  alt={item.originalFilename}
+                  className="size-full object-cover"
+                />
+              )}
             </div>
             <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wide">
               <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-[#7A1E3A]">

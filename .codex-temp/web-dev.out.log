@@ -1,0 +1,13 @@
+
+> @vivah/web@0.1.0 dev D:\AI\Vivah Australia\apps\web
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.108:3001
+- Environments: .env
+✓ Ready in 693ms
+[?25h
+D:\AI\Vivah Australia\apps\web:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @vivah/web@0.1.0 dev: `next dev`
+Exit status 1

@@ -123,13 +123,14 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
   const visibility = input.visibility ?? defaultVisibility(input.category);
   const cloudinary = cloudinaryConfig();
   const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
+  const isVideo = input.category === MediaCategory.VIDEO_INTRO;
 
   const media = await ProfileMediaModel.create({
     userId,
     profileId: profile._id,
     assetUrl: `${LOCAL_UPLOAD_BASE_URL}/api/media/${storageKey}`,
     storageKey,
-    mediaType: 'PHOTO',
+    mediaType: isVideo ? 'VIDEO' : 'PHOTO',
     category: input.category,
     uploadStatus: MediaUploadStatus.SIGNED,
     mimeType: input.mimeType,
@@ -180,7 +181,7 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
     upload: {
       provider: 'cloudinary',
       method: 'POST',
-      url: `https://api.cloudinary.com/v1_1/${cloudinary.cloudName}/image/upload`,
+      url: `https://api.cloudinary.com/v1_1/${cloudinary.cloudName}/${isVideo ? 'video' : 'image'}/upload`,
       expiresAt: expiresAt.toISOString(),
       fields: {
         ...Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])),

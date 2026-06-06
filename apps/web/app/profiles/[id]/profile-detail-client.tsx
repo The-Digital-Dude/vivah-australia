@@ -75,6 +75,7 @@ interface ProfileDetail {
   displayId: string;
   completionPercentage: number;
   photoUrl?: string;
+  videoUrl?: string;
   publicGallery?: PublicPhoto[];
   personal?: {
     firstName?: string;
@@ -1376,7 +1377,7 @@ function StarterCard({
 
 // ─── Audio/Video Intro Placeholder ──────────────────────────────────────────
 
-function IntroMediaPlaceholder({ firstName }: Readonly<{ firstName?: string }>) {
+function IntroMediaPlaceholder({ firstName, videoUrl }: Readonly<{ firstName?: string; videoUrl?: string }>) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="rounded-[26px] border border-dashed border-[#D4A04C]/40 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
@@ -1391,18 +1392,29 @@ function IntroMediaPlaceholder({ firstName }: Readonly<{ firstName?: string }>) 
           Coming soon
         </span>
       </div>
-      <div className="rounded-[26px] border border-dashed border-[#A10E4D]/20 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFFFFF_100%)] p-5 text-center">
-        <div className="mx-auto grid size-14 place-items-center rounded-full bg-[#A10E4D]/8">
-          <Video className="size-6 text-[#A10E4D]" />
+      {videoUrl ? (
+        <div className="rounded-[26px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_12px_30px_rgba(161,14,77,0.05)] overflow-hidden flex flex-col items-start">
+          <p className="text-sm font-semibold text-[#2F2F2F] mb-3">Video Introduction</p>
+          <video
+            src={videoUrl}
+            controls
+            className="w-full aspect-video rounded-2xl border border-[#A10E4D]/10 bg-black"
+          />
         </div>
-        <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">Video Introduction</p>
-        <p className="mt-2 text-xs leading-5 text-[#6B7280]">
-          Short video intros help build confidence before reaching out.
-        </p>
-        <span className="mt-3 inline-block rounded-full bg-[#A10E4D]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#A10E4D]">
-          Coming soon
-        </span>
-      </div>
+      ) : (
+        <div className="rounded-[26px] border border-dashed border-[#A10E4D]/20 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFFFFF_100%)] p-5 text-center">
+          <div className="mx-auto grid size-14 place-items-center rounded-full bg-[#A10E4D]/8">
+            <Video className="size-6 text-[#A10E4D]" />
+          </div>
+          <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">Video Introduction</p>
+          <p className="mt-2 text-xs leading-5 text-[#6B7280]">
+            Short video intros help build confidence before reaching out.
+          </p>
+          <span className="mt-3 inline-block rounded-full bg-[#A10E4D]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#A10E4D]">
+            Coming soon
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -2200,7 +2212,7 @@ function ProfileDetailView({
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C] mb-4">
                   Voice & video introduction
                 </p>
-                <IntroMediaPlaceholder {...(firstName !== undefined ? { firstName } : {})} />
+                <IntroMediaPlaceholder {...(firstName !== undefined ? { firstName } : {})} {...(profile.videoUrl !== undefined ? { videoUrl: profile.videoUrl } : {})} />
               </div>
             </div>
           </ProfileSurface>

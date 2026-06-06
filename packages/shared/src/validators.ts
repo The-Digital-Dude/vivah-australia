@@ -292,18 +292,55 @@ const objectIdSchema = z
   .regex(/^[a-f\d]{24}$/i, 'Invalid identifier');
 
 const imageMimeTypes = ['image/jpeg', 'image/png', 'image/webp'] as const;
+const videoMimeTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'] as const;
 
-export const mediaSignUploadSchema = z.object({
-  category: mediaCategorySchema,
-  visibility: mediaVisibilitySchema.optional(),
-  fileName: z.string().trim().min(1).max(180),
-  mimeType: z.enum(imageMimeTypes),
-  fileSizeBytes: z
-    .number()
-    .int()
-    .min(1)
-    .max(10 * 1024 * 1024),
-});
+export const mediaSignUploadSchema = z
+  .object({
+    category: mediaCategorySchema,
+    visibility: mediaVisibilitySchema.optional(),
+    fileName: z.string().trim().min(1).max(180),
+    mimeType: z.string().trim(),
+    fileSizeBytes: z.number().int().min(1),
+  })
+  .superRefine((data, ctx) => {
+    if (data.category === MediaCategory.VIDEO_INTRO) {
+      if (!videoMimeTypes.includes(data.mimeType as any)) {
+        ctx.addIssue({
+          path: ['mimeType'],
+          code: z.ZodIssueCode.custom,
+          message: `Unsupported video type. Allowed types: ${videoMimeTypes.join(', ')}`,
+        });
+      }
+      if (data.fileSizeBytes > 50 * 1024 * 1024) {
+        ctx.addIssue({
+          path: ['fileSizeBytes'],
+          code: z.ZodIssueCode.too_big,
+          maximum: 50 * 1024 * 1024,
+          type: 'number',
+          inclusive: true,
+          message: 'Video files must be under 50MB',
+        });
+      }
+    } else {
+      if (!imageMimeTypes.includes(data.mimeType as any)) {
+        ctx.addIssue({
+          path: ['mimeType'],
+          code: z.ZodIssueCode.custom,
+          message: `Unsupported image type. Allowed types: ${imageMimeTypes.join(', ')}`,
+        });
+      }
+      if (data.fileSizeBytes > 10 * 1024 * 1024) {
+        ctx.addIssue({
+          path: ['fileSizeBytes'],
+          code: z.ZodIssueCode.too_big,
+          maximum: 10 * 1024 * 1024,
+          type: 'number',
+          inclusive: true,
+          message: 'Image files must be under 10MB',
+        });
+      }
+    }
+  });
 
 export const mediaCompleteUploadSchema = z.object({
   mediaId: z.string().trim().min(1),

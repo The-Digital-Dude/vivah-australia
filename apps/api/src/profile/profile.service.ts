@@ -243,17 +243,27 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
   const visibleProfile = applyPrivacy(profile, viewerId) as unknown as Record<string, unknown>;
 
   if (profile.visibility.showPhoto) {
-    const media = await ProfileMediaModel.find({
-      profileId: profile._id,
-      uploadStatus: MediaUploadStatus.UPLOADED,
-      approvalStatus: VerificationStatus.APPROVED,
-      mediaType: 'PHOTO',
-      category: { $in: [MediaCategory.PROFILE_PHOTO, MediaCategory.PUBLIC_GALLERY] },
-      visibility: { $in: [MediaVisibility.PUBLIC, MediaVisibility.MATCHES_ONLY] },
-      isDeleted: false,
-    })
-      .sort({ isPrimary: -1, createdAt: -1 })
-      .lean();
+    const [media, videoIntro] = await Promise.all([
+      ProfileMediaModel.find({
+        profileId: profile._id,
+        uploadStatus: MediaUploadStatus.UPLOADED,
+        approvalStatus: VerificationStatus.APPROVED,
+        mediaType: 'PHOTO',
+        category: { $in: [MediaCategory.PROFILE_PHOTO, MediaCategory.PUBLIC_GALLERY] },
+        visibility: { $in: [MediaVisibility.PUBLIC, MediaVisibility.MATCHES_ONLY] },
+        isDeleted: false,
+      })
+        .sort({ isPrimary: -1, createdAt: -1 })
+        .lean(),
+      ProfileMediaModel.findOne({
+        profileId: profile._id,
+        uploadStatus: MediaUploadStatus.UPLOADED,
+        approvalStatus: VerificationStatus.APPROVED,
+        mediaType: 'VIDEO',
+        category: MediaCategory.VIDEO_INTRO,
+        isDeleted: false,
+      }).lean()
+    ]);
 
     visibleProfile.photoUrl = media[0]?.assetUrl;
     visibleProfile.publicGallery = media.map((item) => ({
@@ -262,9 +272,11 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
       isPrimary: item.isPrimary,
       category: item.category,
     }));
+    visibleProfile.videoUrl = videoIntro?.assetUrl;
   } else {
     visibleProfile.photoUrl = undefined;
     visibleProfile.publicGallery = [];
+    visibleProfile.videoUrl = undefined;
   }
 
   return visibleProfile;

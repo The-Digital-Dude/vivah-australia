@@ -234,6 +234,57 @@ describe('media routes', () => {
     expect(accessBody.access.token).toEqual(expect.any(String));
   });
 
+  it('creates a signed VIDEO_INTRO upload with video mime type and 50MB limit', async () => {
+    const { user, accessToken } = await createUser('video-intro@example.com');
+    await createProfile(user._id);
+
+    // Valid video upload
+    const response = await request(app)
+      .post('/api/me/media/sign-upload')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        category: MediaCategory.VIDEO_INTRO,
+        fileName: 'intro.mp4',
+        mimeType: 'video/mp4',
+        fileSizeBytes: 20 * 1024 * 1024, // 20MB — within 50MB limit
+      })
+      .expect(201);
+
+    const body = bodyAs<SignResponseBody>(response);
+    expect(body.media.category).toBe(MediaCategory.VIDEO_INTRO);
+    expect(body.media.uploadStatus).toBe(MediaUploadStatus.SIGNED);
+    expect(body.upload.provider).toBe('mock');
+  });
+
+  it('rejects VIDEO_INTRO uploads with image mime type or files over 50MB', async () => {
+    const { user, accessToken } = await createUser('video-invalid@example.com');
+    await createProfile(user._id);
+
+    // Reject image MIME type for VIDEO_INTRO
+    await request(app)
+      .post('/api/me/media/sign-upload')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        category: MediaCategory.VIDEO_INTRO,
+        fileName: 'photo.jpg',
+        mimeType: 'image/jpeg',
+        fileSizeBytes: 1 * 1024 * 1024,
+      })
+      .expect(400);
+
+    // Reject video over 50MB limit
+    await request(app)
+      .post('/api/me/media/sign-upload')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        category: MediaCategory.VIDEO_INTRO,
+        fileName: 'huge.mp4',
+        mimeType: 'video/mp4',
+        fileSizeBytes: 51 * 1024 * 1024,
+      })
+      .expect(400);
+  });
+
   it('allows admin media review and queue listing', async () => {
     const owner = await createUser('owner-media@example.com');
     const admin = await createUser('admin-media@example.com', UserRole.ADMIN);
