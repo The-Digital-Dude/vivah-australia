@@ -511,4 +511,93 @@ describe('match routes', () => {
       .expect(200);
     expect(bodyAs<{ savedSearches: unknown[] }>(emptyResponse).savedSearches).toHaveLength(0);
   });
+
+  it('filters matches by subscription tier and date joined', async () => {
+    const viewer = await createUser('filter-viewer@example.com');
+    await addPremiumSubscription(viewer.user._id);
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA250001',
+      firstName: 'Amit',
+      gender: Gender.MALE,
+      age: 32,
+    });
+
+    const userPremium = await createUser('premium-match@example.com');
+    const userFree = await createUser('free-match@example.com');
+
+    const profilePremium = await createProfile({
+      userId: userPremium.user._id,
+      displayId: 'VA250002',
+      firstName: 'Priya Premium',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+    });
+    const planPremium = await PlanModel.create({
+      code: 'PREMIUM_TEST',
+      name: 'Premium Test',
+      priceCents: 4900,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: [],
+      limits: {},
+      active: true,
+    });
+    await SubscriptionModel.create({
+      userId: userPremium.user._id,
+      planId: planPremium._id,
+      status: SubscriptionStatus.ACTIVE,
+      startsAt: new Date(Date.now() - 1000),
+    });
+
+    await createProfile({
+      userId: userFree.user._id,
+      displayId: 'VA250003',
+      firstName: 'Priya Free',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+    });
+
+    const subRes1 = await request(app)
+      .get('/api/matches/search?gender=FEMALE&city=Sydney&subscription=PREMIUM_TEST')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    const body1 = bodyAs<MatchResponseBody>(subRes1);
+    expect(body1.results).toHaveLength(1);
+    expect(body1.results[0]?.firstName).toBe('Priya Premium');
+
+    const subRes2 = await request(app)
+      .get('/api/matches/search?gender=FEMALE&city=Sydney&subscription=FREE')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    const body2 = bodyAs<MatchResponseBody>(subRes2);
+    expect(body2.results).toHaveLength(1);
+    expect(body2.results[0]?.firstName).toBe('Priya Free');
+
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+    await mongoose.connection.db?.collection('profiles').updateOne({ _id: profilePremium._id }, { $set: { createdAt: fiveDaysAgo } });
+
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    const dateRes1 = await request(app)
+      .get(`/api/matches/search?gender=FEMALE&city=Sydney&dateJoinedAfter=${twoDaysAgo.toISOString()}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    const dateBody1 = bodyAs<MatchResponseBody>(dateRes1);
+    expect(dateBody1.results).toHaveLength(1);
+    expect(dateBody1.results[0]?.firstName).toBe('Priya Free');
+
+    const dateRes2 = await request(app)
+      .get(`/api/matches/search?gender=FEMALE&city=Sydney&dateJoinedBefore=${twoDaysAgo.toISOString()}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    const dateBody2 = bodyAs<MatchResponseBody>(dateRes2);
+    expect(dateBody2.results).toHaveLength(1);
+    expect(dateBody2.results[0]?.firstName).toBe('Priya Premium');
+  });
 });

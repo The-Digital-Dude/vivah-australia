@@ -436,6 +436,9 @@ export const profileSearchQuerySchema = z
     drinkingHabits: csvQueryParam(),
     familyValues: csvQueryParam(),
     recentlyActive: z.coerce.boolean().optional(),
+    subscription: csvQueryParam(),
+    dateJoinedAfter: z.coerce.date().optional(),
+    dateJoinedBefore: z.coerce.date().optional(),
   })
   .refine(
     (input) =>

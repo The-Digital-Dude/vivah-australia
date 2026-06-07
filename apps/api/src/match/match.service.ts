@@ -41,6 +41,9 @@ const ADVANCED_FILTER_KEYS: Array<keyof ProfileSearchQueryInput> = [
   'drinkingHabits',
   'familyValues',
   'recentlyActive',
+  'subscription',
+  'dateJoinedAfter',
+  'dateJoinedBefore',
 ];
 
 type ProfileFilter = Record<string, unknown>;
@@ -307,6 +310,60 @@ async function buildSearchFilter(
     filter._id = {
       ...(typeof filter._id === 'object' && filter._id !== null ? filter._id : {}),
       $in: await getProfileIdsWithApprovedPhoto(),
+    };
+  }
+
+  if (input.subscription && input.subscription.length > 0) {
+    const now = new Date();
+    const selectedPlans = await PlanModel.find({
+      code: { $in: input.subscription },
+      isDeleted: false,
+    }).lean();
+    const selectedPlanIds = selectedPlans.map((p) => p._id);
+
+    const activeSelectedSubs = await SubscriptionModel.find({
+      planId: { $in: selectedPlanIds },
+      status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
+      startsAt: { $lte: now },
+      isDeleted: false,
+      $or: [{ endsAt: { $exists: false } }, { endsAt: { $gt: now } }],
+    }).lean();
+    const selectedUserIds = activeSelectedSubs.map((s) => s.userId);
+
+    const paidPlans = await PlanModel.find({
+      code: { $ne: 'FREE' },
+      isDeleted: false,
+    }).lean();
+    const paidPlanIds = paidPlans.map((p) => p._id);
+
+    const activePaidSubs = await SubscriptionModel.find({
+      planId: { $in: paidPlanIds },
+      status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
+      startsAt: { $lte: now },
+      isDeleted: false,
+      $or: [{ endsAt: { $exists: false } }, { endsAt: { $gt: now } }],
+    }).lean();
+    const paidUserIds = activePaidSubs.map((s) => s.userId);
+
+    const includesFree = input.subscription.includes('FREE');
+
+    if (includesFree) {
+      filter.$or = [
+        { userId: { $in: selectedUserIds } },
+        { userId: { $nin: paidUserIds } },
+      ];
+    } else {
+      filter.userId = {
+        ...(typeof filter.userId === 'object' && filter.userId !== null ? filter.userId : {}),
+        $in: selectedUserIds,
+      };
+    }
+  }
+
+  if (input.dateJoinedAfter || input.dateJoinedBefore) {
+    filter.createdAt = {
+      ...(input.dateJoinedAfter ? { $gte: input.dateJoinedAfter } : {}),
+      ...(input.dateJoinedBefore ? { $lte: input.dateJoinedBefore } : {}),
     };
   }
 
