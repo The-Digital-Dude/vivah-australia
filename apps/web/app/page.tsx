@@ -39,7 +39,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,249,245,0.98)_0%,rgba(255,249,245,0.9)_34%,rgba(255,249,245,0.28)_45%,rgba(255,249,245,0.04)_50%)]" />
         {/* <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,249,245,0.14)_0%,rgba(255,249,245,0.04)_48%,rgba(255,249,245,0.92)_100%)]" /> */}
 
-        <div className="px-4 sm:px-6 lg:px-8">
+        <div className="px-8 sm:px-12 lg:px-16">
           <div className="relative mx-auto flex justify-center min-h-[calc(100vh-80px)] container flex-col">
             <div className="max-w-2xl pt-10 sm:pt-14 lg:pt-8">
               <h1 className="max-w-xl font-playfair text-5xl font-bold leading-[0.98] text-[#2f2f2f] sm:text-6xl lg:text-7xl">

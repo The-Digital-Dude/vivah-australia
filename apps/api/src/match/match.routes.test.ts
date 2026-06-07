@@ -580,7 +580,8 @@ describe('match routes', () => {
 
     const fiveDaysAgo = new Date();
     fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-    await mongoose.connection.db?.collection('profiles').updateOne({ _id: profilePremium._id }, { $set: { createdAt: fiveDaysAgo } });
+    const profilePremiumId = (profilePremium as unknown as { _id: mongoose.Types.ObjectId })._id;
+    await ProfileModel.collection.updateOne({ _id: profilePremiumId }, { $set: { createdAt: fiveDaysAgo } });
 
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);

@@ -385,16 +385,18 @@ export default function MemberSettingsPage() {
               </div>
               <button
                 type="button"
-                onClick={async () => {
-                  if (confirm('Are you sure you want to deactivate your profile? This hides you from all members.')) {
-                    const res = await memberRequest('/api/me/deactivate', { method: 'POST' });
-                    setMessage(res.message);
-                    if (res.ok) {
-                      localStorage.removeItem('auth_token');
-                      localStorage.removeItem('refresh_token');
-                      window.location.href = '/login';
+                onClick={() => {
+                  void (async () => {
+                    if (confirm('Are you sure you want to deactivate your profile? This hides you from all members.')) {
+                      const res = await memberRequest('/api/me/deactivate', { method: 'POST' });
+                      setMessage(res.message);
+                      if (res.ok) {
+                        localStorage.removeItem('auth_token');
+                        localStorage.removeItem('refresh_token');
+                        window.location.href = '/login';
+                      }
                     }
-                  }
+                  })();
                 }}
                 className="mt-4 w-full h-11 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm transition"
               >
@@ -411,16 +413,18 @@ export default function MemberSettingsPage() {
               </div>
               <button
                 type="button"
-                onClick={async () => {
-                  if (confirm('Are you sure you want to delete your account? This will permanently erase your profile, matches, and messages.')) {
-                    const res = await memberRequest('/api/me/delete-request', { method: 'POST' });
-                    setMessage(res.message);
-                    if (res.ok) {
-                      localStorage.removeItem('auth_token');
-                      localStorage.removeItem('refresh_token');
-                      window.location.href = '/';
+                onClick={() => {
+                  void (async () => {
+                    if (confirm('Are you sure you want to delete your account? This will permanently erase your profile, matches, and messages.')) {
+                      const res = await memberRequest('/api/me/delete-request', { method: 'POST' });
+                      setMessage(res.message);
+                      if (res.ok) {
+                        localStorage.removeItem('auth_token');
+                        localStorage.removeItem('refresh_token');
+                        window.location.href = '/';
+                      }
                     }
-                  }
+                  })();
                 }}
                 className="mt-4 w-full h-11 rounded-2xl bg-red-700 hover:bg-red-800 text-white font-semibold text-sm transition"
               >

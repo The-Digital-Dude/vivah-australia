@@ -22,7 +22,7 @@ import {
 import { requireAuth } from '../auth/auth.middleware.js';
 import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
-import { sendEmail, sendTemplatedEmail } from '../common/email.service.js';
+import { sendTemplatedEmail } from '../common/email.service.js';
 import { recordDuplicateContactAttempts } from '../common/fraud.service.js';
 import { logAudit } from '../common/audit.service.js';
 import {

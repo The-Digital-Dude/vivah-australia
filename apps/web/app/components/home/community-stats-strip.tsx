@@ -10,7 +10,7 @@ const communityStats = [
 
 export function CommunityStatsStrip() {
   return (
-    <section className="relative z-20 -mt-8 px-4 sm:px-6 lg:px-8">
+    <section className="relative z-20 -mt-8 px-8 sm:px-12 lg:px-16">
       <div className="container mx-auto">
         <div className="grid overflow-hidden rounded-2xl bg-[#a10e4d] shadow-[0_18px_42px_rgba(161,14,77,0.24)] ring-1 ring-white/35 sm:grid-cols-2 lg:grid-cols-5">
           {communityStats.map(({ value, label, icon: Icon }) => (

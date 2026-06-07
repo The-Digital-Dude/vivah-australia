@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { Search, Send, ShieldCheck, UserRoundPlus } from 'lucide-react';
+import { ChevronRight, Search, Send, ShieldCheck, UserRoundPlus } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 const steps = [
@@ -79,40 +79,38 @@ function FadeInAnimation({
 
 export function HowItWorksSection() {
   return (
-    <section className="bg-white px-4 py-14 sm:px-6 lg:px-0">
+    <section className="bg-[#fff9f5] px-8 py-14 sm:px-12 lg:px-16">
       <div className="container mx-auto">
         <h2 className="text-center font-playfair text-3xl font-bold leading-tight text-[#2f2f2f] sm:text-4xl">
           How Vivah Australia Works
         </h2>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4 xl:gap-8">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4 xl:gap-8">
           {steps.map(({ title, description, icon: Icon }, index) => (
             <FadeInAnimation key={title} index={index}>
-              <article className="group relative flex min-h-[210px] flex-col items-center justify-center px-5 py-8 text-center transition duration-300">
-                <span className="absolute left-12 top-4 flex size-8 items-center justify-center rounded-full bg-[#d60b4f] text-base font-bold text-white shadow-[0_10px_24px_rgba(214,11,79,0.22)]">
+              <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-[28px] border border-[#d4a04c]/30 bg-white px-6 py-10 text-center shadow-sm hover:shadow-[0_22px_48px_rgba(161,14,77,0.06)] hover:-translate-y-1 transition duration-300">
+                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-[#a10e4d] text-sm font-bold text-white shadow-[0_8px_20px_rgba(161,14,77,0.2)]">
                   {index + 1}
                 </span>
 
-                <div className="flex size-20 items-center justify-center rounded-full bg-[rgba(231,76,124,0.14)] text-[#a10e4d] transition duration-300 group-hover:scale-110 group-hover:bg-[rgba(231,76,124,0.2)]">
+                <div className="flex size-20 items-center justify-center rounded-full bg-[rgba(231,76,124,0.12)] text-[#a10e4d] transition duration-300 group-hover:scale-110 group-hover:bg-[rgba(231,76,124,0.18)]">
                   <Icon
-                    className="size-11 transition duration-300 group-hover:scale-110"
+                    className="size-10 transition duration-300 group-hover:scale-110"
                     strokeWidth={1.8}
                   />
                 </div>
 
-                <h3 className="mt-6 text-lg font-bold leading-tight text-[#1f1f1f]">{title}</h3>
-                <p className="mt-3 max-w-[190px] text-sm font-medium leading-6 text-[#2f2f2f]">
+                <h3 className="mt-6 text-lg font-bold leading-tight text-[#2f2f2f]">{title}</h3>
+                <p className="mt-3 max-w-[210px] text-sm font-medium leading-relaxed text-[#5f5f5f]">
                   {description}
                 </p>
 
                 {index < steps.length - 1 ? (
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute left-[calc(100%+0.25rem)] top-1/2 hidden w-7 -translate-y-1/2 xl:block"
+                    className="pointer-events-none absolute left-[calc(100%+0.25rem)] top-1/2 hidden -translate-y-1/2 text-[#a10e4d]/40 xl:block z-10"
                   >
-                    <div className="relative border-t-2 border-dotted border-[#2f2f2f]/55">
-                      <span className="absolute -right-1.5 -top-[5px] size-2.5 rotate-45 border-r-2 border-t-2 border-[#2f2f2f]/55" />
-                    </div>
+                    <ChevronRight className="size-7" strokeWidth={2.5} />
                   </div>
                 ) : null}
               </article>

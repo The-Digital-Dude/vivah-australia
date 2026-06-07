@@ -304,7 +304,7 @@ export const mediaSignUploadSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.category === MediaCategory.VIDEO_INTRO) {
-      if (!videoMimeTypes.includes(data.mimeType as any)) {
+      if (!videoMimeTypes.includes(data.mimeType as typeof videoMimeTypes[number])) {
         ctx.addIssue({
           path: ['mimeType'],
           code: z.ZodIssueCode.custom,
@@ -322,7 +322,7 @@ export const mediaSignUploadSchema = z
         });
       }
     } else {
-      if (!imageMimeTypes.includes(data.mimeType as any)) {
+      if (!imageMimeTypes.includes(data.mimeType as typeof imageMimeTypes[number])) {
         ctx.addIssue({
           path: ['mimeType'],
           code: z.ZodIssueCode.custom,

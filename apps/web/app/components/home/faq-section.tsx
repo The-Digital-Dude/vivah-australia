@@ -1,4 +1,4 @@
-import { FAQAccordion, PremiumButton } from '@/app/components';
+import { FAQAccordion } from '@/app/components';
 
 const faqItems = [
   {
@@ -31,7 +31,7 @@ const faqItems = [
 export function FaqSection() {
   return (
     <section className="bg-[#e74c7d04] py-20 sm:py-24">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-8 sm:px-12 lg:px-16">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
             Trust, privacy, and membership

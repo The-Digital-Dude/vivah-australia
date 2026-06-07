@@ -1,9 +1,9 @@
-import { HeartHandshake, Search, Sparkles } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { HeroSelect } from './hero-select';
 
 export function HeroSearchForm() {
   return (
-    <section className="relative z-10 overflow-hidden px-4 py-14 sm:px-6 lg:px-8">
+    <section className="relative z-10 overflow-hidden px-8 py-14 sm:px-12 lg:px-16">
       <form
         action="/matches"
         className="relative mx-auto container overflow-hidden rounded-[28px] border border-[#a10e4d]/12 bg-white/95 px-5 py-8 backdrop-blur sm:px-8 sm:py-10"

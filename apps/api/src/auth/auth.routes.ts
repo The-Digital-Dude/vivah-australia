@@ -180,7 +180,7 @@ export function createAuthRouter(config: AuthConfig): Router {
     '/oauth/google',
     authRateLimit,
     asyncHandler(async (request: Request, response: Response) => {
-      const { token } = request.body;
+      const { token } = request.body as Record<string, unknown>;
       if (typeof token !== 'string' || !token) {
         throw new HttpError(400, 'Token is required');
       }
@@ -194,7 +194,7 @@ export function createAuthRouter(config: AuthConfig): Router {
     '/oauth/facebook',
     authRateLimit,
     asyncHandler(async (request: Request, response: Response) => {
-      const { token } = request.body;
+      const { token } = request.body as Record<string, unknown>;
       if (typeof token !== 'string' || !token) {
         throw new HttpError(400, 'Token is required');
       }

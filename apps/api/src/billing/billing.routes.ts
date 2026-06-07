@@ -91,9 +91,12 @@ export function createBillingRouter(config: AuthConfig): Router {
     requireAuth(config),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
-      const { amountCents, currency } = request.body;
+      const { amountCents, currency } = request.body as Record<string, unknown>;
       if (typeof amountCents !== 'number' || amountCents <= 0) {
         throw new HttpError(400, 'Invalid amountCents');
+      }
+      if (typeof currency !== 'string') {
+        throw new HttpError(400, 'Invalid currency');
       }
       const result = await createPaymentIntent(auth.userId, amountCents, currency);
       response.status(201).json(result);

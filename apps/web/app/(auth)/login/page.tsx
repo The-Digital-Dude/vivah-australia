@@ -60,9 +60,14 @@ export default function LoginPage() {
     try {
       const mockToken = provider === 'google' ? 'mock-google-token' : 'mock-facebook-token';
       const result = await postAuth(`oauth/${provider}`, { token: mockToken });
-      const data = result.data as any;
+      const data = result.data as {
+        tokenPair?: {
+          accessToken: string;
+          refreshToken: string;
+        };
+      } | undefined;
 
-      if (result.ok && data?.tokenPair?.accessToken) {
+      if (result.ok && data?.tokenPair?.accessToken && data.tokenPair.refreshToken) {
         setSession({
           accessToken: data.tokenPair.accessToken,
           refreshToken: data.tokenPair.refreshToken,

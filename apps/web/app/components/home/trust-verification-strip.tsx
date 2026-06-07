@@ -25,7 +25,7 @@ const trustFeatures = [
 
 export function TrustVerificationStrip() {
   return (
-    <section className="border-y border-[#d4a04c]/18 bg-[#fff9f5] px-4 py-5 sm:px-6 lg:px-0">
+    <section className="border-y border-[#d4a04c]/18 bg-[#fff9f5] px-8 py-5 sm:px-12 lg:px-16">
       <div className="container mx-auto">
         <div className="grid gap-y-5 sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-[#d4a04c]/20">
           {trustFeatures.map(({ label, icon: Icon }) => (

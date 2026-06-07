@@ -1,7 +1,6 @@
 import { AccountStatus, UserRole } from '@vivah/shared';
-import { Types } from 'mongoose';
 import { HttpError } from './auth-errors.js';
-import { AuthProvider, ProfileModel, UserModel, type UserDocument } from '../models/index.js';
+import { AuthProvider, ProfileModel, UserModel, type UserDocument, type User } from '../models/index.js';
 import type { AuthConfig } from './auth-types.js';
 import { createTokenPair, type TokenPair } from './token.service.js';
 
@@ -80,7 +79,7 @@ export async function loginOrRegisterOAuth(
   }
 
   const lookupKey = provider === 'google' ? { googleId: profile.id } : { facebookId: profile.id };
-  let user: any = await UserModel.findOne(lookupKey);
+  let user: UserDocument | null = await UserModel.findOne(lookupKey);
 
   if (!user) {
     // Check if user exists by email
@@ -107,7 +106,7 @@ export async function loginOrRegisterOAuth(
       const providerEnum = provider === 'google' ? AuthProvider.GOOGLE : AuthProvider.FACEBOOK;
       const now = new Date();
       
-      const userCreateData: any = {
+      const userCreateData: Partial<User> = {
         email: profile.email.toLowerCase(),
         authProviders: [providerEnum],
         role: UserRole.USER,

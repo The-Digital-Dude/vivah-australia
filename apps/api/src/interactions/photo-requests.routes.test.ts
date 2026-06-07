@@ -159,12 +159,12 @@ describe('photo requests & private gallery media access', () => {
     await addPrivateMedia(owner.user._id, ownerProfile._id, 'https://cdn.example.com/priya-private.jpg');
 
     await request(app)
-      .get(`/api/profiles/${ownerProfile._id}/private-gallery`)
+      .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(403);
 
     const statusRes = await request(app)
-      .get(`/api/me/photo-requests/status/${ownerProfile._id}`)
+      .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(false);
@@ -188,15 +188,15 @@ describe('photo requests & private gallery media access', () => {
     });
 
     const galleryRes = await request(app)
-      .get(`/api/profiles/${ownerProfile._id}/private-gallery`)
+      .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
-    const photos = bodyAs<{ photos: any[] }>(galleryRes).photos;
+    const photos = bodyAs<{ photos: { assetUrl: string }[] }>(galleryRes).photos;
     expect(photos).toHaveLength(1);
     expect(photos[0].assetUrl).toBe('https://cdn.example.com/priya-private.jpg');
 
     const statusRes = await request(app)
-      .get(`/api/me/photo-requests/status/${ownerProfile._id}`)
+      .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(true);
@@ -216,15 +216,15 @@ describe('photo requests & private gallery media access', () => {
     });
 
     const galleryRes = await request(app)
-      .get(`/api/profiles/${ownerProfile._id}/private-gallery`)
+      .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
-    const photos = bodyAs<{ photos: any[] }>(galleryRes).photos;
+    const photos = bodyAs<{ photos: { assetUrl: string }[] }>(galleryRes).photos;
     expect(photos).toHaveLength(1);
     expect(photos[0].assetUrl).toBe('https://cdn.example.com/priya-private.jpg');
 
     const statusRes = await request(app)
-      .get(`/api/me/photo-requests/status/${ownerProfile._id}`)
+      .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(true);
@@ -236,13 +236,13 @@ describe('photo requests & private gallery media access', () => {
     await addPrivateMedia(owner.user._id, ownerProfile._id, 'https://cdn.example.com/priya-private.jpg');
 
     const galleryRes = await request(app)
-      .get(`/api/profiles/${ownerProfile._id}/private-gallery`)
+      .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .expect(200);
-    expect(bodyAs<{ photos: any[] }>(galleryRes).photos).toHaveLength(1);
+    expect(bodyAs<{ photos: unknown[] }>(galleryRes).photos).toHaveLength(1);
 
     const statusRes = await request(app)
-      .get(`/api/me/photo-requests/status/${ownerProfile._id}`)
+      .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .expect(200);
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(true);
@@ -255,13 +255,13 @@ describe('photo requests & private gallery media access', () => {
     await addPrivateMedia(owner.user._id, ownerProfile._id, 'https://cdn.example.com/priya-private.jpg');
 
     const galleryRes = await request(app)
-      .get(`/api/profiles/${ownerProfile._id}/private-gallery`)
+      .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
-    expect(bodyAs<{ photos: any[] }>(galleryRes).photos).toHaveLength(1);
+    expect(bodyAs<{ photos: unknown[] }>(galleryRes).photos).toHaveLength(1);
 
     const statusRes = await request(app)
-      .get(`/api/me/photo-requests/status/${ownerProfile._id}`)
+      .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(true);

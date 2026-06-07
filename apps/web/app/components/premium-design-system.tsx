@@ -598,7 +598,7 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/90 backdrop-blur-xl font-poppins">
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="px-8 sm:px-12 lg:px-16">
         <div className="mx-auto flex h-20 container items-center justify-between gap-4">
           <Link href="/" className="flex items-center">
             <Image
@@ -737,7 +737,7 @@ export function PublicHeader() {
 export function PublicFooter() {
   return (
     <footer className="border-t border-[#A10E4D]/10 bg-[#2F2F2F]  py-12 text-white  font-poppins">
-      <div className="mx-auto grid container gap-8 px-4 sm:px-6 lg:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="mx-auto grid container gap-8 px-8 sm:px-12 lg:px-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Image src="/logo.png" height={100} width={100} alt="logo" />
           <p className="mt-4 max-w-sm text-sm leading-6 text-white/65">

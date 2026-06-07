@@ -147,7 +147,7 @@ export function SuccessStoriesSlider() {
   }, [carouselApi]);
 
   return (
-    <section className="bg-[#fff9f5] px-4 py-14 sm:px-6 lg:px-8">
+    <section className="bg-[#fff9f5] px-8 py-14 sm:px-12 lg:px-16">
       <div className="container mx-auto">
         <div className="mb-8 flex flex-col items-center gap-4 text-center sm:relative">
           <div>

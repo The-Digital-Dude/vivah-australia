@@ -101,27 +101,27 @@ function FadeInAnimation({
 
 export function MinimalPricingSection() {
   return (
-    <section className="px-4 py-16 sm:px-6 lg:px-8 bg-white">
+    <section className="px-8 py-16 sm:px-12 lg:px-16 bg-white">
       <div className="container mx-auto">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
-              Membership plans
-            </p>
-            <h2 className="mt-3 font-playfair text-4xl font-bold leading-tight text-[#2f2f2f] sm:text-5xl">
-              Find the plan that fits your search
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-[#5f5f5f]">
-              Start free, then upgrade when you are ready for direct communication, better
-              visibility, and priority support.
-            </p>
+        <div className="mx-auto max-w-3xl text-center flex flex-col items-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
+            Membership plans
+          </p>
+          <h2 className="mt-3 font-playfair text-4xl font-bold leading-tight text-[#2f2f2f] sm:text-5xl">
+            Find the plan that fits your search
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[#5f5f5f]">
+            Start free, then upgrade when you are ready for direct communication, better
+            visibility, and priority support.
+          </p>
+          <div className="mt-6">
+            <Link
+              href="/pricing"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#a10e4d]/25 bg-white px-5 py-2.5 text-sm font-semibold text-[#a10e4d] shadow-sm transition hover:bg-[#fff3f7] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20"
+            >
+              Compare all features
+            </Link>
           </div>
-          <Link
-            href="/pricing"
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#a10e4d]/25 bg-white px-5 py-2.5 text-sm font-semibold text-[#a10e4d] shadow-sm transition hover:bg-[#fff3f7] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20"
-          >
-            Compare all features
-          </Link>
         </div>
 
         <div className="mt-9 grid gap-px overflow-hidden rounded-2xl border border-[#a10e4d]/10 shadow-[0_20px_55px_rgba(47,47,47,0.07)] md:grid-cols-2 xl:grid-cols-4">
