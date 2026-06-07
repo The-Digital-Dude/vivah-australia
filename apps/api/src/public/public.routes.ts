@@ -3,6 +3,7 @@ import type { Types } from 'mongoose';
 import rateLimit from 'express-rate-limit';
 import { URLSearchParams } from 'url';
 import {
+  AccountStatus,
   cmsBannerInputSchema,
   cmsContentInputSchema,
   cmsHomeContentSchema,
@@ -188,10 +189,15 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   router.get(
     '/public/featured-profiles',
     asyncHandler(async (_request, response) => {
+      const nonActiveUserIds = await UserModel.find({
+        $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
+      }).distinct('_id');
+
       const baseFilter: Record<string, unknown> = {
         isDeleted: false,
         'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
         'visibility.status': { $ne: 'HIDDEN' },
+        userId: { $nin: nonActiveUserIds },
       };
       
       const now = new Date();
@@ -236,10 +242,15 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       const religion =
         typeof request.query.religion === 'string' ? request.query.religion.trim() : undefined;
 
+      const nonActiveUserIds = await UserModel.find({
+        $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
+      }).distinct('_id');
+
       const baseFilter: Record<string, unknown> = {
         isDeleted: false,
         'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
         'visibility.status': { $ne: 'HIDDEN' },
+        userId: { $nin: nonActiveUserIds },
       };
 
       if (gender) {

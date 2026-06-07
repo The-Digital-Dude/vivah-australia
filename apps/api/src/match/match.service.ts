@@ -1,4 +1,5 @@
 import {
+  AccountStatus,
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
@@ -18,6 +19,7 @@ import {
   ProfileModel,
   SavedSearchModel,
   SubscriptionModel,
+  UserModel,
 } from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';
 
@@ -590,10 +592,13 @@ async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]
 }
 
 export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearchQueryInput) {
-  const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
+  const [viewerProfile, blockedUserIds, hiddenUserIds, nonActiveUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
     getBlockedUserIds(userId),
     getHiddenUserIds(userId),
+    UserModel.find({
+      $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
+    }).distinct('_id'),
     getSubscriptionLimits(userId),
   ]);
 
@@ -604,7 +609,7 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
   const pageSize = Math.min(input.pageSize, limits.searchPageSize);
   const filter = await buildSearchFilter(
     viewerProfile,
-    [...blockedUserIds, ...hiddenUserIds],
+    [...blockedUserIds, ...hiddenUserIds, ...nonActiveUserIds],
     input,
   );
   const total = await ProfileModel.countDocuments(filter);
@@ -666,15 +671,22 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
 }
 
 export async function recommendedMatches(userId: Types.ObjectId, requestedLimit: number) {
-  const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
+  const [viewerProfile, blockedUserIds, hiddenUserIds, nonActiveUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
     getBlockedUserIds(userId),
     getHiddenUserIds(userId),
+    UserModel.find({
+      $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
+    }).distinct('_id'),
     getSubscriptionLimits(userId),
   ]);
   const limit = Math.min(requestedLimit, limits.recommendationLimit);
   const preference = viewerProfile.partnerPreference ?? {};
-  const filter = buildBaseVisibilityFilter(viewerProfile, [...blockedUserIds, ...hiddenUserIds]);
+  const filter = buildBaseVisibilityFilter(viewerProfile, [
+    ...blockedUserIds,
+    ...hiddenUserIds,
+    ...nonActiveUserIds,
+  ]);
 
   if (viewerProfile.personal.gender === 'MALE') {
     filter['personal.gender'] = 'FEMALE';

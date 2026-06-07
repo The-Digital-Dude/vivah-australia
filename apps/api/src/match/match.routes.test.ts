@@ -600,4 +600,115 @@ describe('match routes', () => {
     expect(dateBody2.results).toHaveLength(1);
     expect(dateBody2.results[0]?.firstName).toBe('Priya Premium');
   });
+
+  it('prioritizes active boosted profiles and excludes non-active/deleted/suspended/banned users', async () => {
+    const viewer = await createUser('boost-viewer@example.com');
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA260001',
+      firstName: 'Viewer',
+      gender: Gender.MALE,
+      age: 30,
+    });
+
+    const activeUser = await createUser('active-user@example.com');
+    const suspendedUser = await createUser('suspended-user@example.com');
+    await UserModel.updateOne({ _id: suspendedUser.user._id }, { $set: { status: AccountStatus.SUSPENDED } });
+    const bannedUser = await createUser('banned-user@example.com');
+    await UserModel.updateOne({ _id: bannedUser.user._id }, { $set: { status: AccountStatus.BANNED } });
+    const deletedUser = await createUser('deleted-user@example.com');
+    await UserModel.updateOne({ _id: deletedUser.user._id }, { $set: { isDeleted: true } });
+
+    // Profile for active standard user
+    await createProfile({
+      userId: activeUser.user._id,
+      displayId: 'VA260002',
+      firstName: 'Priya Standard',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+    });
+
+    // Profile for active boosted user
+    const boostedUser = await createUser('boosted-user@example.com');
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 1);
+    await createProfile({
+      userId: boostedUser.user._id,
+      displayId: 'VA260003',
+      firstName: 'Priya Boosted',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+      activeBoostEndsAt: futureDate,
+    });
+
+    // Profiles for non-active users
+    await createProfile({
+      userId: suspendedUser.user._id,
+      displayId: 'VA260004',
+      firstName: 'Priya Suspended',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+    });
+    await createProfile({
+      userId: bannedUser.user._id,
+      displayId: 'VA260005',
+      firstName: 'Priya Banned',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+    });
+    await createProfile({
+      userId: deletedUser.user._id,
+      displayId: 'VA260006',
+      firstName: 'Priya Deleted',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+    });
+
+    // 1. Search profiles (non-recommended sort: NEWEST)
+    const searchRes = await request(app)
+      .get('/api/matches/search?gender=FEMALE&city=Sydney&sort=NEWEST')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const searchBody = bodyAs<MatchResponseBody>(searchRes);
+    // Suspended, banned, and deleted users should be excluded
+    expect(searchBody.results).toHaveLength(2);
+    // Priya Boosted should be first because of active boost
+    expect(searchBody.results[0]?.firstName).toBe('Priya Boosted');
+    expect(searchBody.results[1]?.firstName).toBe('Priya Standard');
+
+    // 2. Search profiles (recommended sort)
+    const recSearchRes = await request(app)
+      .get('/api/matches/search?gender=FEMALE&city=Sydney&sort=RECOMMENDED')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const recSearchBody = bodyAs<MatchResponseBody>(recSearchRes);
+    expect(recSearchBody.results).toHaveLength(2);
+    expect(recSearchBody.results[0]?.firstName).toBe('Priya Boosted');
+    expect(recSearchBody.results[1]?.firstName).toBe('Priya Standard');
+
+    // 3. Recommended matches endpoint
+    const recMatchesRes = await request(app)
+      .get('/api/matches/recommended')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const recMatchesBody = bodyAs<MatchResponseBody>(recMatchesRes);
+    // Filtered by gender/preferences inside recommendedMatches
+    const sdyResults = recMatchesBody.results.filter(r => r.city === 'Sydney');
+    expect(sdyResults).toHaveLength(2);
+    expect(sdyResults[0]?.firstName).toBe('Priya Boosted');
+    expect(sdyResults[1]?.firstName).toBe('Priya Standard');
+  });
 });

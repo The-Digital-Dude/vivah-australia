@@ -549,4 +549,120 @@ describe('public web routes', () => {
       process.env.HCAPTCHA_SECRET = originalSecret;
     }
   });
+
+  it('excludes non-active/deleted/suspended/banned users and prioritizes boosted profiles in public matching lists', async () => {
+    const activeUser = await UserModel.create({
+      email: 'public-active@example.com',
+      authProviders: ['email'],
+      role: UserRole.USER,
+      status: AccountStatus.ACTIVE,
+      emailVerified: true,
+      mobileVerified: false,
+      failedLoginAttempts: 0,
+      refreshTokenVersion: 0,
+      marketingConsent: false,
+      metadata: {},
+    });
+
+    const boostedUser = await UserModel.create({
+      email: 'public-boosted@example.com',
+      authProviders: ['email'],
+      role: UserRole.USER,
+      status: AccountStatus.ACTIVE,
+      emailVerified: true,
+      mobileVerified: false,
+      failedLoginAttempts: 0,
+      refreshTokenVersion: 0,
+      marketingConsent: false,
+      metadata: {},
+    });
+
+    const suspendedUser = await UserModel.create({
+      email: 'public-suspended@example.com',
+      authProviders: ['email'],
+      role: UserRole.USER,
+      status: AccountStatus.SUSPENDED,
+      emailVerified: true,
+      mobileVerified: false,
+      failedLoginAttempts: 0,
+      refreshTokenVersion: 0,
+      marketingConsent: false,
+      metadata: {},
+    });
+
+    // Create profiles
+    await ProfileModel.create({
+      userId: activeUser._id,
+      displayId: 'VA900010',
+      completionPercentage: 80,
+      personal: { firstName: 'Active User', age: 31, gender: 'FEMALE' },
+      religion: { languagesSpoken: [] },
+      location: { city: 'Sydney', country: 'Australia' },
+      education: {},
+      employment: { occupation: 'Accountant', annualIncomeVisibility: 'PRIVATE' },
+      family: {},
+      lifestyle: {},
+      about: {},
+      partnerPreference: {},
+      verification: { level: 'BASIC' },
+      visibility: { status: 'PUBLIC' },
+      stats: { profileViews: 0, lastActiveAt: new Date() },
+      moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
+    });
+
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 1);
+    await ProfileModel.create({
+      userId: boostedUser._id,
+      displayId: 'VA900011',
+      completionPercentage: 80,
+      personal: { firstName: 'Boosted User', age: 31, gender: 'FEMALE' },
+      religion: { languagesSpoken: [] },
+      location: { city: 'Sydney', country: 'Australia' },
+      education: {},
+      employment: { occupation: 'Accountant', annualIncomeVisibility: 'PRIVATE' },
+      family: {},
+      lifestyle: {},
+      about: {},
+      partnerPreference: {},
+      verification: { level: 'BASIC' },
+      visibility: { status: 'PUBLIC' },
+      stats: { profileViews: 0, lastActiveAt: new Date(), activeBoostEndsAt: futureDate },
+      moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
+    });
+
+    await ProfileModel.create({
+      userId: suspendedUser._id,
+      displayId: 'VA900012',
+      completionPercentage: 80,
+      personal: { firstName: 'Suspended User', age: 31, gender: 'FEMALE' },
+      religion: { languagesSpoken: [] },
+      location: { city: 'Sydney', country: 'Australia' },
+      education: {},
+      employment: { occupation: 'Accountant', annualIncomeVisibility: 'PRIVATE' },
+      family: {},
+      lifestyle: {},
+      about: {},
+      partnerPreference: {},
+      verification: { level: 'BASIC' },
+      visibility: { status: 'PUBLIC' },
+      stats: { profileViews: 0, lastActiveAt: new Date(), activeBoostEndsAt: futureDate },
+      moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
+    });
+
+    // Verify featured-profiles
+    const resFeatured = await request(app).get('/api/public/featured-profiles').expect(200);
+    const bodyFeatured = bodyAs<FeaturedProfilesResponse>(resFeatured);
+    // Suspended user must be excluded, boosted user must come first
+    expect(bodyFeatured.profiles).toHaveLength(2);
+    expect(bodyFeatured.profiles[0]?.displayId).toBe('VA900011');
+    expect(bodyFeatured.profiles[1]?.displayId).toBe('VA900010');
+
+    // Verify public matches route
+    const resMatches = await request(app).get('/api/public/matches?gender=FEMALE').expect(200);
+    const bodyMatches = bodyAs<PublicMatchesResponse>(resMatches);
+    expect(bodyMatches.profiles).toHaveLength(2);
+    expect(bodyMatches.profiles[0]?.displayId).toBe('VA900011');
+    expect(bodyMatches.profiles[1]?.displayId).toBe('VA900010');
+  });
 });
