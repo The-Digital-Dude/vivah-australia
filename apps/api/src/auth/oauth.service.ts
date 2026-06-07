@@ -190,12 +190,16 @@ export async function loginOrRegisterOAuth(
     refreshTokenVersion: user.refreshTokenVersion,
   });
 
+  const userResult: { id: string; email?: string; role: string } = {
+    id: user.id || String(user._id),
+    role: user.role,
+  };
+  if (user.email) {
+    userResult.email = user.email;
+  }
+
   return {
-    user: {
-      id: user.id || String(user._id),
-      email: user.email || undefined,
-      role: user.role,
-    },
+    user: userResult,
     tokenPair,
   };
 }
