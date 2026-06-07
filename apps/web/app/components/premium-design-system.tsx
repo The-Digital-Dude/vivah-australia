@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useState,
   type ButtonHTMLAttributes,
@@ -29,12 +30,12 @@ import { useAuth } from '@/app/auth-context';
 
 export const premiumTokens = {
   burgundy: '#A10E4D', // Deep Maroon
-  gold: '#D4A04C',     // Wedding Gold
-  ivory: '#FFF9F5',    // Warm Ivory
+  gold: '#D4A04C', // Wedding Gold
+  ivory: '#FFF9F5', // Warm Ivory
   surface: '#FFFFFF',
-  text: '#2F2F2F',     // Charcoal
+  text: '#2F2F2F', // Charcoal
   muted: '#5F5F5F',
-  blush: '#E74C7C',    // Soft Rose
+  blush: '#E74C7C', // Soft Rose
 } as const;
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -57,7 +58,8 @@ const buttonStyles = {
     'border border-[#A10E4D]/20 bg-white text-[#A10E4D] shadow-sm hover:border-[#A10E4D]/40 hover:bg-[#E74C7C]/10 font-poppins',
   ghost: 'text-[#A10E4D] hover:bg-[#E74C7C]/10 font-poppins',
   gold: 'bg-[#D4A04C] text-[#2F2F2F] shadow-lg shadow-[#D4A04C]/20 hover:opacity-90 font-poppins',
-  danger: 'border border-[#A10E4D]/20 bg-[#E74C7C]/10 text-[#A10E4D] hover:bg-[#E74C7C]/20 font-poppins',
+  danger:
+    'border border-[#A10E4D]/20 bg-[#E74C7C]/10 text-[#A10E4D] hover:bg-[#E74C7C]/20 font-poppins',
 } as const;
 
 export function PremiumButton({
@@ -114,7 +116,7 @@ export function PageHero({
 }: Readonly<{ actions?: ReactNode; children?: ReactNode; eyebrow?: string; title: string }>) {
   return (
     <section className="overflow-hidden bg-[#FFF9F5] px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto container">
         <div className="max-w-3xl">
           {eyebrow ? (
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">{eyebrow}</p>
@@ -156,8 +158,12 @@ export function SectionHeader({
         {eyebrow ? (
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">{eyebrow}</p>
         ) : null}
-        <h2 className="mt-2 text-2xl font-bold text-[#2F2F2F] md:text-3xl font-cormorant">{title}</h2>
-        {subtitle ? <p className="mt-3 text-sm leading-6 text-[#5F5F5F] font-poppins">{subtitle}</p> : null}
+        <h2 className="mt-2 text-2xl font-bold text-[#2F2F2F] md:text-3xl font-cormorant">
+          {title}
+        </h2>
+        {subtitle ? (
+          <p className="mt-3 text-sm leading-6 text-[#5F5F5F] font-poppins">{subtitle}</p>
+        ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
@@ -242,72 +248,70 @@ export function ProfileMatchCard({
             </div>
           ) : null}
         </div>
-          <div className="min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-xl font-semibold text-[#2F2F2F] font-cormorant">
-                  {profile.name ?? 'Vivah member'}
-                  {profile.age ? `, ${profile.age}` : ''}
-                </h3>
-                <p className="mt-1 text-sm text-[#5F5F5F]">
-                  {profile.city || 'Australia'}
-                </p>
-              </div>
-              {typeof profile.matchScore === 'number' ? (
-                <MatchScoreBadge score={profile.matchScore} />
-              ) : null}
+        <div className="min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-xl font-semibold text-[#2F2F2F] font-cormorant">
+                {profile.name ?? 'Vivah member'}
+                {profile.age ? `, ${profile.age}` : ''}
+              </h3>
+              <p className="mt-1 text-sm text-[#5F5F5F]">{profile.city || 'Australia'}</p>
             </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <VerificationBadge level={profile.verificationLevel} />
-              {profile.occupation ? (
-                <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#5F5F5F]">
-                  {profile.occupation}
-                </span>
-              ) : null}
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {[profile.community, profile.education, profile.religion]
-                .filter(Boolean)
-                .slice(0, compact ? 2 : 3)
-                .map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-full border border-[#A10E4D]/10 bg-white px-3 py-1 text-xs font-semibold text-[#5F5F5F]"
-                  >
-                    {item}
-                  </span>
-                ))}
-            </div>
-
-            {profile.highlights?.length ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {profile.highlights.slice(0, compact ? 2 : 3).map((item) => (
-                  <span
-                    key={item}
-                    className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-emerald-700"
-                  >
-                    <ShieldCheck className="size-3.5" />
-                    {item}
-                  </span>
-                ))}
-              </div>
+            {typeof profile.matchScore === 'number' ? (
+              <MatchScoreBadge score={profile.matchScore} />
             ) : null}
-
-            {profile.privacyHint ? (
-              <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#D4A04C]/35 bg-[#D4A04C]/10 px-3 py-1 text-xs font-semibold text-[#D4A04C]">
-                <ShieldCheck className="size-3.5" />
-                {profile.privacyHint}
-              </div>
-            ) : null}
-
-            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#A10E4D] font-poppins">
-              View profile <ChevronRight className="size-4" />
-            </span>
           </div>
-        </Link>
-        {actions ? <div className="border-t border-[#A10E4D]/10 px-4 py-3">{actions}</div> : null}
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <VerificationBadge level={profile.verificationLevel} />
+            {profile.occupation ? (
+              <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#5F5F5F]">
+                {profile.occupation}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[profile.community, profile.education, profile.religion]
+              .filter(Boolean)
+              .slice(0, compact ? 2 : 3)
+              .map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-[#A10E4D]/10 bg-white px-3 py-1 text-xs font-semibold text-[#5F5F5F]"
+                >
+                  {item}
+                </span>
+              ))}
+          </div>
+
+          {profile.highlights?.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {profile.highlights.slice(0, compact ? 2 : 3).map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-emerald-700"
+                >
+                  <ShieldCheck className="size-3.5" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {profile.privacyHint ? (
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#D4A04C]/35 bg-[#D4A04C]/10 px-3 py-1 text-xs font-semibold text-[#D4A04C]">
+              <ShieldCheck className="size-3.5" />
+              {profile.privacyHint}
+            </div>
+          ) : null}
+
+          <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#A10E4D] font-poppins">
+            View profile <ChevronRight className="size-4" />
+          </span>
+        </div>
+      </Link>
+      {actions ? <div className="border-t border-[#A10E4D]/10 px-4 py-3">{actions}</div> : null}
     </article>
   );
 }
@@ -319,7 +323,9 @@ export function ProfileDetailSection({
   return (
     <PremiumCard>
       <h2 className="text-lg font-semibold text-[#2F2F2F] font-cormorant">{title}</h2>
-      <div className="mt-4 grid gap-2 text-sm leading-6 text-[#5F5F5F] font-poppins">{children}</div>
+      <div className="mt-4 grid gap-2 text-sm leading-6 text-[#5F5F5F] font-poppins">
+        {children}
+      </div>
     </PremiumCard>
   );
 }
@@ -421,7 +427,10 @@ export function OnboardingFormSkeleton() {
       <div className="flex flex-col gap-4 border-b border-[#A10E4D]/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-2 overflow-x-auto pb-2">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-9 w-24 shrink-0 rounded-full bg-[#E74C7C]/10 animate-pulse" />
+            <div
+              key={index}
+              className="h-9 w-24 shrink-0 rounded-full bg-[#E74C7C]/10 animate-pulse"
+            />
           ))}
         </div>
         <div className="h-4 w-40 rounded bg-[#E74C7C]/10 animate-pulse" />
@@ -454,7 +463,9 @@ export function FormField({
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { label: string; optional?: boolean }) {
   return (
-    <label className={cx('grid gap-2 text-sm font-semibold text-[#2F2F2F] font-poppins', className)}>
+    <label
+      className={cx('grid gap-2 text-sm font-semibold text-[#2F2F2F] font-poppins', className)}
+    >
       <span>
         {label}
         {optional ? <span className="font-normal text-[#5F5F5F]"> optional</span> : null}
@@ -479,7 +490,9 @@ export function SelectField({
   optional?: boolean;
 }) {
   return (
-    <label className={cx('grid gap-2 text-sm font-semibold text-[#2F2F2F] font-poppins', className)}>
+    <label
+      className={cx('grid gap-2 text-sm font-semibold text-[#2F2F2F] font-poppins', className)}
+    >
       <span>
         {label}
         {optional ? <span className="font-normal text-[#5F5F5F]"> optional</span> : null}
@@ -552,7 +565,7 @@ export function MemberPageLayout({
   return (
     <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F] font-poppins">
       <PublicHeader />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto container px-4 py-8 sm:px-6 lg:px-8">
         <SectionHeader eyebrow="Member" title={title} subtitle={subtitle} />
         <div className="mt-8">{children}</div>
       </main>
@@ -585,7 +598,7 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/90 backdrop-blur-xl font-poppins">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-20 container items-center justify-between gap-4 px-4 sm:px-6 lg:px-0">
         <Link href="/" className="flex items-center">
           <Image
             src="/logo.png"
@@ -620,11 +633,19 @@ export function PublicHeader() {
             </>
           ) : (
             <>
-              <PremiumButton href="/login" variant="ghost">
+              <PremiumButton
+                href="/login"
+                variant="secondary"
+                className="min-h-11 rounded-xl border-[#A10E4D]/25 bg-white px-7 text-[#A10E4D] shadow-[0_4px_12px_rgba(161,14,77,0.08)] hover:border-[#A10E4D]/45 hover:bg-white"
+              >
                 Login
               </PremiumButton>
-              <PremiumButton href="/register" variant="gold">
-                Create Free Profile
+              <PremiumButton
+                href="/register"
+                variant="primary"
+                className="min-h-11 rounded-xl px-7 shadow-[0_8px_18px_rgba(161,14,77,0.22)] hover:bg-[#8F0C44] hover:opacity-100"
+              >
+                Register Free
               </PremiumButton>
             </>
           )}
@@ -648,11 +669,7 @@ export function PublicHeader() {
           />
           <aside className="relative ml-auto h-full w-80 max-w-[85vw] bg-[#FFF9F5] p-5 shadow-2xl">
             <div className="flex items-center justify-between gap-4">
-              <Link
-                href="/"
-                className="flex items-center"
-                onClick={() => setOpen(false)}
-              >
+              <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
                 <Image
                   src="/logo.png"
                   alt="Vivah Australia Logo"
@@ -691,11 +708,19 @@ export function PublicHeader() {
                 </PremiumButton>
               ) : (
                 <>
-                  <PremiumButton href="/login" variant="secondary">
+                  <PremiumButton
+                    href="/login"
+                    variant="secondary"
+                    className="min-h-11 rounded-xl border-[#A10E4D]/25 bg-white px-7 text-[#A10E4D] shadow-[0_4px_12px_rgba(161,14,77,0.08)] hover:border-[#A10E4D]/45 hover:bg-white"
+                  >
                     Login
                   </PremiumButton>
-                  <PremiumButton href="/register" variant="gold">
-                    Create Free Profile
+                  <PremiumButton
+                    href="/register"
+                    variant="primary"
+                    className="min-h-11 rounded-xl px-7 shadow-[0_8px_18px_rgba(161,14,77,0.22)] hover:bg-[#8F0C44] hover:opacity-100"
+                  >
+                    Register Free
                   </PremiumButton>
                 </>
               )}
@@ -709,10 +734,10 @@ export function PublicHeader() {
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-[#A10E4D]/10 bg-[#2F2F2F] px-4 py-12 text-white sm:px-6 lg:px-8 font-poppins">
-      <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <footer className="border-t border-[#A10E4D]/10 bg-[#2F2F2F]  py-12 text-white  font-poppins">
+      <div className="mx-auto grid container gap-8 px-4 sm:px-6 lg:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <p className="text-xl font-bold font-playfair">Vivah Australia</p>
+          <Image src="/logo.png" height={100} width={100} alt="logo" />
           <p className="mt-4 max-w-sm text-sm leading-6 text-white/65">
             Premium matrimonial matchmaking for serious Australian singles and families.
           </p>
@@ -742,7 +767,7 @@ export function PublicFooter() {
           ]}
         />
       </div>
-      <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-xs text-white/50">
+      <div className="mx-auto mt-10 container border-t border-white/10 pt-6 text-xs text-white/50">
         Copyright {new Date().getFullYear()} Vivah Australia. All rights reserved.
       </div>
     </footer>
@@ -848,7 +873,12 @@ export function FAQAccordion({
 }: Readonly<{
   items: Array<{ question: string; answer: string }>;
 }>) {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [openIdx, setOpenIdx] = useState<number | null>(items.length > 0 ? 0 : null);
+  const shouldReduceMotion = useReducedMotion();
+  const contentTransition = {
+    duration: shouldReduceMotion ? 0 : 0.26,
+    ease: [0.22, 1, 0.36, 1],
+  } as const;
 
   return (
     <div className="space-y-4 font-poppins">
@@ -861,6 +891,7 @@ export function FAQAccordion({
           >
             <button
               type="button"
+              aria-expanded={isOpen}
               onClick={() => setOpenIdx(isOpen ? null : idx)}
               className="flex w-full items-center justify-between px-6 py-5 text-left font-semibold text-[#2F2F2F] outline-none transition duration-200"
             >
@@ -872,11 +903,22 @@ export function FAQAccordion({
                 )}
               />
             </button>
-            {isOpen ? (
-              <div className="px-6 pb-5 text-sm leading-relaxed text-[#5F5F5F] border-t border-[#A10E4D]/5 pt-4">
-                {item.answer}
-              </div>
-            ) : null}
+            <AnimatePresence initial={false}>
+              {isOpen ? (
+                <motion.div
+                  key="content"
+                  initial={shouldReduceMotion ? false : { height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={contentTransition}
+                  className="overflow-hidden"
+                >
+                  <div className="border-t border-[#A10E4D]/5 px-6 pb-5 pt-4 text-sm leading-relaxed text-[#5F5F5F]">
+                    {item.answer}
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </div>
         );
       })}
