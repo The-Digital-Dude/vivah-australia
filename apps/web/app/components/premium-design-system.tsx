@@ -598,66 +598,68 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/90 backdrop-blur-xl font-poppins">
-      <div className="mx-auto flex h-20 container items-center justify-between gap-4 px-4 sm:px-6 lg:px-0">
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="Vivah Australia Logo"
-            width={160}
-            height={64}
-            className="w-auto object-contain"
-            style={{ width: 'auto', height: '64px' }}
-            priority
-          />
-        </Link>
-        <nav className="hidden items-center gap-7 text-sm font-semibold text-[#5F5F5F] lg:flex">
-          {links.map(([label, href]) => (
-            <Link key={href} href={href} className="transition hover:text-[#A10E4D]">
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="hidden items-center gap-3 lg:flex">
-          {initialized && token ? (
-            <>
-              <PremiumButton
-                href="/member/notifications"
-                variant="secondary"
-                className="min-h-10 px-3"
-              >
-                <Bell className="size-4" />
-              </PremiumButton>
-              <PremiumButton variant="ghost" onClick={clearToken}>
-                Logout
-              </PremiumButton>
-            </>
-          ) : (
-            <>
-              <PremiumButton
-                href="/login"
-                variant="secondary"
-                className="min-h-11 rounded-xl border-[#A10E4D]/25 bg-white px-7 text-[#A10E4D] shadow-[0_4px_12px_rgba(161,14,77,0.08)] hover:border-[#A10E4D]/45 hover:bg-white"
-              >
-                Login
-              </PremiumButton>
-              <PremiumButton
-                href="/register"
-                variant="primary"
-                className="min-h-11 rounded-xl px-7 shadow-[0_8px_18px_rgba(161,14,77,0.22)] hover:bg-[#8F0C44] hover:opacity-100"
-              >
-                Register Free
-              </PremiumButton>
-            </>
-          )}
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-20 container items-center justify-between gap-4">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Vivah Australia Logo"
+              width={160}
+              height={64}
+              className="w-auto object-contain"
+              style={{ width: 'auto', height: '64px' }}
+              priority
+            />
+          </Link>
+          <nav className="hidden items-center gap-7 text-sm font-semibold text-[#5F5F5F] lg:flex">
+            {links.map(([label, href]) => (
+              <Link key={href} href={href} className="transition hover:text-[#A10E4D]">
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <div className="hidden items-center gap-3 lg:flex">
+            {initialized && token ? (
+              <>
+                <PremiumButton
+                  href="/member/notifications"
+                  variant="secondary"
+                  className="min-h-10 px-3"
+                >
+                  <Bell className="size-4" />
+                </PremiumButton>
+                <PremiumButton variant="ghost" onClick={clearToken}>
+                  Logout
+                </PremiumButton>
+              </>
+            ) : (
+              <>
+                <PremiumButton
+                  href="/login"
+                  variant="secondary"
+                  className="min-h-11 rounded-xl border-[#A10E4D]/25 bg-white px-7 text-[#A10E4D] shadow-[0_4px_12px_rgba(161,14,77,0.08)] hover:border-[#A10E4D]/45 hover:bg-white"
+                >
+                  Login
+                </PremiumButton>
+                <PremiumButton
+                  href="/register"
+                  variant="primary"
+                  className="min-h-11 rounded-xl px-7 shadow-[0_8px_18px_rgba(161,14,77,0.22)] hover:bg-[#8F0C44] hover:opacity-100"
+                >
+                  Register Free
+                </PremiumButton>
+              </>
+            )}
+          </div>
+          <button
+            type="button"
+            aria-label="Open menu"
+            className="rounded-full border border-[#A10E4D]/15 bg-white p-2 text-[#A10E4D] lg:hidden"
+            onClick={() => setOpen(true)}
+          >
+            <Menu className="size-5" />
+          </button>
         </div>
-        <button
-          type="button"
-          aria-label="Open menu"
-          className="rounded-full border border-[#A10E4D]/15 bg-white p-2 text-[#A10E4D] lg:hidden"
-          onClick={() => setOpen(true)}
-        >
-          <Menu className="size-5" />
-        </button>
       </div>
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">
