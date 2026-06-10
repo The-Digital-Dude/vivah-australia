@@ -877,10 +877,13 @@ export function FAQAccordion({
 }>) {
   const [openIdx, setOpenIdx] = useState<number | null>(items.length > 0 ? 0 : null);
   const shouldReduceMotion = useReducedMotion();
-  const contentTransition = {
-    duration: shouldReduceMotion ? 0 : 0.26,
-    ease: [0.22, 1, 0.36, 1],
-  } as const;
+  const contentTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : {
+        type: 'spring',
+        stiffness: 220,
+        damping: 24,
+      };
 
   return (
     <div className="space-y-4 font-poppins">
@@ -889,19 +892,35 @@ export function FAQAccordion({
         return (
           <div
             key={idx}
-            className="overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white transition shadow-sm hover:shadow-md animate-fade-in"
+            className={cx(
+              'relative group overflow-hidden rounded-2xl border transition-all duration-300 animate-fade-in',
+              isOpen
+                ? 'border-[#d4a04c]/80 bg-[#fffdfa] shadow-[0_12px_28px_rgba(212,160,76,0.06)]'
+                : 'border-[#A10E4D]/10 bg-white shadow-sm hover:border-[#A10E4D]/25 hover:shadow-md',
+            )}
           >
+            {/* Left gold border highlight on hover or when open */}
+            <div
+              className={cx(
+                "absolute left-0 top-0 bottom-0 w-1 bg-[#d4a04c] origin-center transition-all duration-300",
+                isOpen ? "opacity-100 scale-y-100" : "opacity-0 scale-y-50 group-hover:opacity-100 group-hover:scale-y-100"
+              )}
+            />
+
             <button
               type="button"
               aria-expanded={isOpen}
               onClick={() => setOpenIdx(isOpen ? null : idx)}
-              className="flex w-full items-center justify-between px-6 py-5 text-left font-semibold text-[#2F2F2F] outline-none transition duration-200"
+              className={cx(
+                'flex w-full items-center justify-between px-6 py-5 text-left font-semibold outline-none transition-all duration-300',
+                isOpen ? 'text-[#a10e4d]' : 'text-[#2F2F2F]',
+              )}
             >
               <span>{item.question}</span>
               <ChevronDown
                 className={cx(
-                  'size-5 text-[#A10E4D] transition-transform duration-300',
-                  isOpen && 'rotate-180',
+                  'size-5 transition-transform duration-300',
+                  isOpen ? 'rotate-180 text-[#d4a04c]' : 'text-[#A10E4D]',
                 )}
               />
             </button>
@@ -912,10 +931,10 @@ export function FAQAccordion({
                   initial={shouldReduceMotion ? false : { height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={contentTransition}
+                  transition={contentTransition as any}
                   className="overflow-hidden"
                 >
-                  <div className="border-t border-[#A10E4D]/5 px-6 pb-5 pt-4 text-sm leading-relaxed text-[#5F5F5F]">
+                  <div className="border-t border-[#d4a04c]/10 px-6 pb-5 pt-4 text-sm leading-relaxed text-[#5F5F5F]">
                     {item.answer}
                   </div>
                 </motion.div>
@@ -927,6 +946,7 @@ export function FAQAccordion({
     </div>
   );
 }
+
 
 export function ContactCard({
   title,
