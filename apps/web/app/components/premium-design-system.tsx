@@ -71,6 +71,7 @@ export function PremiumButton({
   type = 'button',
   variant = 'primary',
 }: PremiumButtonProps) {
+  const shouldReduceMotion = useReducedMotion();
   const classes = cx(
     'inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#D4A04C]/50 disabled:cursor-not-allowed disabled:opacity-50',
     buttonStyles[variant],
@@ -78,17 +79,32 @@ export function PremiumButton({
   );
 
   if (href) {
+    const MotionLink = motion(Link);
+
     return (
-      <Link href={href} className={classes} aria-disabled={disabled}>
+      <MotionLink
+        href={href}
+        className={classes}
+        aria-disabled={disabled}
+        {...(shouldReduceMotion ? {} : { whileHover: { y: -1, scale: 1.01 } })}
+        {...(shouldReduceMotion ? {} : { whileTap: { scale: 0.98 } })}
+      >
         {children}
-      </Link>
+      </MotionLink>
     );
   }
 
   return (
-    <button type={type} className={classes} onClick={onClick} disabled={disabled}>
+    <motion.button
+      type={type}
+      className={classes}
+      onClick={onClick}
+      disabled={disabled}
+      {...(shouldReduceMotion ? {} : { whileHover: { y: -1, scale: 1.01 } })}
+      {...(shouldReduceMotion ? {} : { whileTap: { scale: 0.98 } })}
+    >
       {children}
-    </button>
+    </motion.button>
   );
 }
 
@@ -96,15 +112,20 @@ export function PremiumCard({
   children,
   className,
 }: Readonly<{ children: ReactNode; className?: string }>) {
+  const shouldReduceMotion = useReducedMotion();
   return (
-    <section
+    <motion.section
       className={cx(
         'rounded-3xl border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(161,14,77,0.06)]',
         className,
       )}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </section>
+    </motion.section>
   );
 }
 
@@ -147,12 +168,17 @@ export function SectionHeader({
   subtitle?: string | undefined;
   title: string;
 }>) {
+  const shouldReduceMotion = useReducedMotion();
   return (
-    <div
+    <motion.div
       className={cx(
         'flex flex-col gap-4 md:flex-row md:items-end md:justify-between',
         align === 'center' && 'items-center text-center md:items-center md:justify-center',
       )}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="max-w-2xl">
         {eyebrow ? (
@@ -166,7 +192,7 @@ export function SectionHeader({
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
-    </div>
+    </motion.div>
   );
 }
 
@@ -200,16 +226,22 @@ export function ProfileMatchCard({
   compact?: boolean;
   profile: ProfileMatchCardProfile;
 }>) {
+  const shouldReduceMotion = useReducedMotion();
   const initials = (profile.name ?? 'V').slice(0, 1).toUpperCase();
   const href = `/profiles/${profile.slug || profile.id}`;
   const [imageLoaded, setImageLoaded] = useState(!profile.photoUrl);
 
   return (
-    <article
+    <motion.article
       className={cx(
         'overflow-hidden rounded-[30px] border border-[#A10E4D]/10 bg-white shadow-[0_18px_45px_rgba(161,14,77,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(161,14,77,0.08)]',
         className,
       )}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      {...(shouldReduceMotion ? {} : { whileHover: { y: -6, scale: 1.01 } })}
+      viewport={{ once: true, amount: 0.22 }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.42, ease: [0.22, 1, 0.36, 1] }}
     >
       <Link href={href} className={cx('grid gap-4 p-4', compact ? '' : '')}>
         <div className="relative grid aspect-[4/4.8] place-items-center overflow-hidden rounded-[24px] bg-[#E74C7C]/10 text-3xl font-semibold text-[#A10E4D] font-cormorant">
@@ -312,7 +344,7 @@ export function ProfileMatchCard({
         </div>
       </Link>
       {actions ? <div className="border-t border-[#A10E4D]/10 px-4 py-3">{actions}</div> : null}
-    </article>
+    </motion.article>
   );
 }
 
@@ -574,8 +606,16 @@ export function MemberPageLayout({
   );
 }
 
+const homeMenuLinks = [
+  ['Classic Home', '/'],
+  ['Premium Home', '/homepage/premium'],
+  ['Search Home', '/homepage/search'],
+  ['Story Home', '/homepage/story'],
+  ['Slider Home', '/homepage/slider'],
+  ['Animated Home', '/homepage/animated'],
+] as const;
+
 const publicLinks = [
-  ['Home', '/'],
   ['Matches', '/matches'],
   ['Membership', '/pricing'],
   ['Verification', '/verification-policy'],
@@ -595,12 +635,13 @@ export function PublicHeader() {
   const { clearToken, initialized, token } = useAuth();
   const [open, setOpen] = useState(false);
   const links = initialized && token ? memberLinks : publicLinks;
+  const MotionLink = motion(Link);
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/90 backdrop-blur-xl font-poppins">
       <div className="px-8 sm:px-12 lg:px-16">
-        <div className="mx-auto flex h-20 container items-center justify-between gap-4">
-          <Link href="/" className="flex items-center">
+        <div className="mx-auto flex min-h-20 container items-center justify-between gap-3 py-3 lg:h-20 lg:py-0">
+          <Link href="/" className="flex shrink-0 items-center">
             <Image
               src="/logo.png"
               alt="Vivah Australia Logo"
@@ -611,14 +652,45 @@ export function PublicHeader() {
               priority
             />
           </Link>
-          <nav className="hidden items-center gap-7 text-sm font-semibold text-[#5F5F5F] lg:flex">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-[13px] font-semibold text-[#5F5F5F] lg:flex">
+            {!(initialized && token) && (
+              <div className="group relative">
+                <Link
+                  href="/"
+                  className="flex items-center gap-1 py-2 transition hover:text-[#A10E4D]"
+                >
+                  Home
+                  <ChevronDown className="size-3.5 transition-transform duration-200 group-hover:rotate-180" />
+                </Link>
+                <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                  <div className="w-56 overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white p-2 shadow-[0_24px_60px_rgba(47,47,47,0.14)]">
+                    {homeMenuLinks.map(([label, href]) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        className="flex items-center justify-between rounded-xl px-4 py-2.5 text-[13px] font-semibold text-[#2F2F2F] transition hover:bg-[#FFF1F5] hover:text-[#A10E4D]"
+                      >
+                        {label}
+                        <ChevronRight className="size-3.5 text-[#D4A04C]" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
             {links.map(([label, href]) => (
-              <Link key={href} href={href} className="transition hover:text-[#A10E4D]">
+              <MotionLink
+                key={href}
+                href={href}
+                className="transition hover:text-[#A10E4D]"
+                {...{ whileHover: { y: -1 } }}
+                {...{ whileTap: { scale: 0.98 } }}
+              >
                 {label}
-              </Link>
+              </MotionLink>
             ))}
           </nav>
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden shrink-0 items-center gap-3 lg:flex">
             {initialized && token ? (
               <>
                 <PremiumButton
@@ -692,15 +764,36 @@ export function PublicHeader() {
               </button>
             </div>
             <nav className="mt-8 grid gap-3">
+              {!(initialized && token) && (
+                <div className="rounded-2xl border border-[#A10E4D]/10 bg-white p-2">
+                  <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+                    Homepages
+                  </p>
+                  {homeMenuLinks.map(([label, href]) => (
+                    <MotionLink
+                      key={href}
+                      href={href}
+                      onClick={() => setOpen(false)}
+                      className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-[#2F2F2F] hover:bg-[#FFF1F5] hover:text-[#A10E4D]"
+                      {...{ whileHover: { x: 4 } }}
+                      {...{ whileTap: { scale: 0.98 } }}
+                    >
+                      {label}
+                    </MotionLink>
+                  ))}
+                </div>
+              )}
               {links.map(([label, href]) => (
-                <Link
+                <MotionLink
                   key={href}
                   href={href}
                   onClick={() => setOpen(false)}
                   className="rounded-2xl px-3 py-3 text-sm font-semibold text-[#2F2F2F] hover:bg-[#E74C7C]/10"
+                  {...{ whileHover: { x: 4 } }}
+                  {...{ whileTap: { scale: 0.98 } }}
                 >
                   {label}
-                </Link>
+                </MotionLink>
               ))}
             </nav>
             <div className="mt-8 grid gap-3">
@@ -887,24 +980,32 @@ export function FAQAccordion({
       {items.map((item, idx) => {
         const isOpen = openIdx === idx;
         return (
-          <div
+          <motion.div
             key={idx}
-            className="overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white transition shadow-sm hover:shadow-md animate-fade-in"
+            className={cx(
+              'overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white shadow-sm transition-shadow',
+              isOpen ? 'shadow-md' : 'hover:shadow-md',
+            )}
+            whileHover={{ y: -1 }}
+            transition={{ duration: 0.18 }}
           >
-            <button
+            <motion.button
               type="button"
               aria-expanded={isOpen}
               onClick={() => setOpenIdx(isOpen ? null : idx)}
               className="flex w-full items-center justify-between px-6 py-5 text-left font-semibold text-[#2F2F2F] outline-none transition duration-200"
+              whileTap={{ scale: 0.995 }}
+              whileHover={{ x: 1 }}
             >
               <span>{item.question}</span>
-              <ChevronDown
-                className={cx(
-                  'size-5 text-[#A10E4D] transition-transform duration-300',
-                  isOpen && 'rotate-180',
-                )}
-              />
-            </button>
+              <motion.span
+                animate={{ rotate: isOpen ? 180 : 0, scale: isOpen ? 1.05 : 1 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="grid place-items-center"
+              >
+                <ChevronDown className="size-5 text-[#A10E4D]" />
+              </motion.span>
+            </motion.button>
             <AnimatePresence initial={false}>
               {isOpen ? (
                 <motion.div
@@ -915,13 +1016,19 @@ export function FAQAccordion({
                   transition={contentTransition}
                   className="overflow-hidden"
                 >
-                  <div className="border-t border-[#A10E4D]/5 px-6 pb-5 pt-4 text-sm leading-relaxed text-[#5F5F5F]">
+                  <motion.div
+                    initial={shouldReduceMotion ? false : { y: -4, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -4, opacity: 0 }}
+                    transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+                    className="border-t border-[#A10E4D]/5 px-6 pb-5 pt-4 text-sm leading-relaxed text-[#5F5F5F]"
+                  >
                     {item.answer}
-                  </div>
+                  </motion.div>
                 </motion.div>
               ) : null}
             </AnimatePresence>
-          </div>
+          </motion.div>
         );
       })}
     </div>

@@ -1267,7 +1267,7 @@ export default function PricingClient() {
               {BILLING_OPTIONS.map((option) => {
                 const isSelected = selectedBilling === option.value;
                 return (
-                  <button
+                  <motion.button
                     key={option.value}
                     type="button"
                     role="radio"
@@ -1282,6 +1282,8 @@ export default function PricingClient() {
                         ? 'bg-[#A10E4D] text-white shadow-[0_12px_30px_rgba(122,31,43,0.22)]'
                         : 'bg-white text-[#A10E4D] hover:bg-[#FFF7EA]',
                     )}
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-bold">{option.label}</span>
@@ -1296,7 +1298,7 @@ export default function PricingClient() {
                         </span>
                       ) : null}
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -1440,13 +1442,18 @@ export default function PricingClient() {
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {RECOMMENDATION_QUESTIONS.map((question) => (
-                <div key={question.key} className="rounded-2xl bg-white p-5 border border-[#A10E4D]/8">
+                <motion.div
+                  key={question.key}
+                  className="rounded-2xl bg-white p-5 border border-[#A10E4D]/8"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <p className="text-sm font-semibold text-[#2F2F2F]">{question.prompt}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {question.options.map((option) => {
                       const isSelected = recommendationAnswers[question.key] === option.value;
                       return (
-                        <button
+                        <motion.button
                           key={`${question.key}-${String(option.value)}`}
                           type="button"
                           onClick={() => handleRecommendationAnswer(question.key, option.value)}
@@ -1456,13 +1463,15 @@ export default function PricingClient() {
                               ? 'border-[#A10E4D] bg-[#A10E4D] text-white shadow-sm'
                               : 'border-[#A10E4D]/12 bg-[#FFF9F5] text-[#A10E4D] hover:bg-[#FFF7EA]',
                           )}
+                          whileHover={{ y: -1 }}
+                          whileTap={{ scale: 0.98 }}
                         >
                           {option.label}
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>

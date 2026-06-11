@@ -4,9 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
-import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion, type Variants } from 'framer-motion';
 
 const successStories = [
   {
@@ -164,50 +164,66 @@ export function SuccessStoriesSlider() {
               Real stories of love and companionship
             </p>
           </div>
-          <Link
-            href="/success-stories"
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#a10e4d]/25 bg-white px-5 text-sm font-semibold text-[#a10e4d] shadow-sm transition hover:border-[#a10e4d]/45 hover:bg-[#fff4f8] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20 sm:absolute sm:right-0 sm:top-0"
+          <motion.div
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            className="sm:absolute sm:right-0 sm:top-0"
           >
-            View All Stories
-          </Link>
+            <Link
+              href="/success-stories"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#a10e4d]/25 bg-white px-5 text-sm font-semibold text-[#a10e4d] shadow-sm transition hover:border-[#a10e4d]/45 hover:bg-[#fff4f8] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20"
+            >
+              View All Stories
+            </Link>
+          </motion.div>
         </div>
 
-        <motion.div
-          className="relative"
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <button
+        <div className="relative">
+          <motion.button
+            whileHover={{ scale: 1.1, backgroundColor: '#fff9f5', borderColor: '#a10e4d' }}
+            whileTap={{ scale: 0.95 }}
             type="button"
             aria-label="Previous success stories"
             onClick={showPreviousStory}
             className="absolute left-0 top-1/2 z-10 hidden size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#a10e4d]/10 bg-white text-[#2f2f2f] shadow-[0_10px_28px_rgba(47,47,47,0.14)] transition hover:text-[#a10e4d] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20 md:inline-flex"
           >
             <ChevronLeft className="size-5" />
-          </button>
+          </motion.button>
 
           <div ref={carouselRef} className="overflow-hidden px-10 py-2">
             <div className="-ml-8 flex gap-4 cursor-grab active:cursor-grabbing">
               {successStories.map((story) => (
                 <div key={story.names} className="min-w-0 flex-[0_0_100%] md:flex-[0_0_33.333%]">
                   <motion.article
-                    className="grid h-full min-h-[190px] grid-cols-1 gap-5 rounded-lg shadow-[rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.06)_0px_1px_2px_0px] bg-white p-5 sm:grid-cols-[160px_1fr] md:grid-cols-1 xl:grid-cols-[160px_1fr]"
-                    whileHover={{ y: -6, scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover="hover"
+                    variants={{
+                      hover: { y: -5 }
+                    }}
+                    className="grid h-full min-h-[190px] grid-cols-1 gap-5 rounded-lg shadow-[rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.06)_0px_1px_2px_0px] bg-white p-5 sm:grid-cols-[160px_1fr] md:grid-cols-1 xl:grid-cols-[160px_1fr] transition-all duration-300 cursor-pointer"
                   >
-                    <div className="relative size-40 overflow-hidden rounded-full border-4 border-white bg-[#fff4f8] shadow-[0_8px_22px_rgba(161,14,77,0.14)]">
+                    <motion.div
+                      variants={{
+                        hover: { scale: 1.05 }
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className="relative size-40 overflow-hidden rounded-full border-4 border-white bg-[#fff4f8] shadow-[0_8px_22px_rgba(161,14,77,0.14)]"
+                    >
                       <Image
                         src={story.image}
                         alt={`${story.names} success story`}
                         width={160}
                         height={160}
                       />
-                    </div>
+                    </motion.div>
                     <div className="min-w-0">
-                      <Quote className="mb-1 size-5 fill-[#d4a04c] text-[#d4a04c]" />
+                      <motion.div
+                        variants={{
+                          hover: { rotate: [0, -15, 15, 0], scale: 1.15, transition: { duration: 0.5 } }
+                        }}
+                        className="inline-block"
+                      >
+                        <Quote className="mb-1 size-5 fill-[#d4a04c] text-[#d4a04c]" />
+                      </motion.div>
                       <p className="text-sm font-medium leading-6 text-[#2f2f2f]">{story.quote}</p>
                       <p className="mt-4 text-sm font-bold text-[#2f2f2f]">- {story.names}</p>
                       <p className="mt-1 text-xs font-medium text-[#5f5f5f]">{story.location}</p>
@@ -218,27 +234,34 @@ export function SuccessStoriesSlider() {
             </div>
           </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1, backgroundColor: '#fff9f5', borderColor: '#a10e4d' }}
+            whileTap={{ scale: 0.95 }}
             type="button"
             aria-label="Next success stories"
             onClick={showNextStory}
             className="absolute right-0 top-1/2 z-10 hidden size-11 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#a10e4d]/10 bg-white text-[#2f2f2f] shadow-[0_10px_28px_rgba(47,47,47,0.14)] transition hover:text-[#a10e4d] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20 md:inline-flex"
           >
             <ChevronRight className="size-5" />
-          </button>
+          </motion.button>
+        </div>
 
         <div className="mt-5 flex items-center justify-center gap-3">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             type="button"
             aria-label="Previous success stories"
             onClick={showPreviousStory}
             className="inline-flex size-10 items-center justify-center rounded-full border border-[#a10e4d]/10 bg-white text-[#2f2f2f] shadow-sm md:hidden"
           >
             <ChevronLeft className="size-5" />
-          </button>
+          </motion.button>
           {successStories.map((_, index) => (
-            <button
+            <motion.button
               key={index}
+              whileHover={{ scale: 1.3 }}
+              whileTap={{ scale: 0.9 }}
               type="button"
               aria-label={`Show success story ${index + 1}`}
               aria-current={activeStory === index ? 'true' : undefined}
@@ -248,16 +271,17 @@ export function SuccessStoriesSlider() {
               }`}
             />
           ))}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             type="button"
             aria-label="Next success stories"
             onClick={showNextStory}
             className="inline-flex size-10 items-center justify-center rounded-full border border-[#a10e4d]/10 bg-white text-[#2f2f2f] shadow-sm md:hidden"
           >
             <ChevronRight className="size-5" />
-          </button>
+          </motion.button>
         </div>
-      </motion.div>
       </div>
     </section>
   );
