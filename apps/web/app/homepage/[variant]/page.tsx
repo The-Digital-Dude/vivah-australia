@@ -47,9 +47,9 @@ const variantCopy: Record<
 };
 
 const variantImages = {
-  premium: '/home/hero-vivah-australia.png',
-  search: '/success-stories/couple-sydney.jpg',
-  story: '/success-stories/couple-melbourne.jpg',
+  premium: '/home/hero-vivah-australia.jpg',
+  search: '/home/success-stories/couple-04.jpg',
+  story: '/home/success-stories/couple-02.jpg',
 } as const;
 
 export async function generateMetadata({

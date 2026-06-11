@@ -12,83 +12,83 @@ const successStories = [
   {
     names: 'Neha & Chirag',
     location: 'Melbourne, VIC',
-    image: '/home/success-stories/couple-01.png',
+    image: '/home/success-stories/couple-01.jpg',
     quote:
       'We found each other on Vivah Australia and today we are starting our beautiful journey together. Thank you Vivah Australia!',
   },
   {
     names: 'Priya & Kunal',
     location: 'Sydney, NSW',
-    image: '/home/success-stories/couple-02.png',
+    image: '/home/success-stories/couple-02.jpg',
     quote:
       'The verification process gave us confidence and the platform helped us find a compatible match.',
   },
   {
     names: 'Anjali & Manish',
     location: 'Brisbane, QLD',
-    image: '/home/success-stories/couple-03.png',
+    image: '/home/success-stories/couple-03.jpg',
     quote:
       'A trustworthy platform with genuine profiles and great support from the Vivah Australia team.',
   },
   {
     names: 'Riya & Arjun',
     location: 'Perth, WA',
-    image: '/home/success-stories/couple-04.png',
+    image: '/home/success-stories/couple-04.jpg',
     quote:
       'The matches felt serious and family-oriented. We connected quickly and everything moved naturally from there.',
   },
   {
     names: 'Meera & Rohan',
     location: 'Adelaide, SA',
-    image: '/home/success-stories/couple-05.png',
+    image: '/home/success-stories/couple-05.jpg',
     quote: 'Vivah Australia made the search respectful, simple, and safe for both our families.',
   },
   {
     names: 'Isha & Dev',
     location: 'Canberra, ACT',
-    image: '/home/success-stories/couple-06.png',
+    image: '/home/success-stories/couple-06.jpg',
     quote:
       'We appreciated the verified profiles and clear member details. It helped us focus on the right conversations.',
   },
   {
     names: 'Kavya & Nikhil',
     location: 'Gold Coast, QLD',
-    image: '/home/success-stories/couple-07.png',
+    image: '/home/success-stories/couple-07.jpg',
     quote:
       'From the first message to meeting our families, the experience felt calm, private, and genuine.',
   },
   {
     names: 'Simran & Harsh',
     location: 'Geelong, VIC',
-    image: '/home/success-stories/couple-08.png',
+    image: '/home/success-stories/couple-08.jpg',
     quote:
       'We both wanted a serious relationship within the Indian community in Australia, and this platform brought us together.',
   },
   {
     names: 'Aditi & Varun',
     location: 'Hobart, TAS',
-    image: '/home/success-stories/couple-09.png',
+    image: '/home/success-stories/couple-09.jpg',
     quote:
       'The search filters helped us discover someone aligned with our values, lifestyle, and future plans.',
   },
   {
     names: 'Pooja & Sameer',
     location: 'Newcastle, NSW',
-    image: '/home/success-stories/couple-10.png',
+    image: '/home/success-stories/couple-10.jpg',
     quote:
       'We liked that the platform felt premium without being overwhelming. It gave our families confidence too.',
   },
   {
     names: 'Naina & Akash',
     location: 'Darwin, NT',
-    image: '/home/success-stories/couple-11.png',
+    image: '/home/success-stories/couple-11.jpg',
     quote:
       'Finding a compatible match across Australia felt much easier with verified profiles and thoughtful details.',
   },
   {
     names: 'Tara & Mihir',
     location: 'Wollongong, NSW',
-    image: '/home/success-stories/couple-12.png',
+    image: '/home/success-stories/couple-12.jpg',
     quote:
       'We started with one honest conversation and soon realised our families, goals, and expectations matched beautifully.',
   },
@@ -206,13 +206,14 @@ export function SuccessStoriesSlider() {
                         hover: { scale: 1.05 }
                       }}
                       transition={{ duration: 0.3 }}
-                      className="relative size-40 overflow-hidden rounded-full border-4 border-white bg-[#fff4f8] shadow-[0_8px_22px_rgba(161,14,77,0.14)]"
+                      className="relative size-40 shrink-0 overflow-hidden rounded-full border-4 border-white bg-[#fff4f8] shadow-[0_8px_22px_rgba(161,14,77,0.14)]"
                     >
                       <Image
                         src={story.image}
                         alt={`${story.names} success story`}
-                        width={160}
-                        height={160}
+                        fill
+                        sizes="160px"
+                        className="object-cover object-top"
                       />
                     </motion.div>
                     <div className="min-w-0">

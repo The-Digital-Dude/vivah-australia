@@ -267,7 +267,7 @@ const SUCCESS_STORIES = [
     id: 'sydney',
     names: 'Priya & Arjun',
     location: 'Sydney, NSW',
-    image: '/success-stories/couple-sydney.jpg',
+    image: '/home/success-stories/couple-01.jpg',
     story: 'We connected through Vivah after Arjun upgraded to Gold. Within three weeks we were having genuine conversations — something that felt impossible on other platforms. We got engaged last December.',
     duration: 'Met in 6 weeks',
     tier: 'Gold member',
@@ -276,7 +276,7 @@ const SUCCESS_STORIES = [
     id: 'melbourne',
     names: 'Kavya & Rahul',
     location: 'Melbourne, VIC',
-    image: '/success-stories/couple-melbourne.jpg',
+    image: '/home/success-stories/couple-05.jpg',
     story: 'The advanced filters were the game changer. I could find someone who shared my values, not just my city. Rahul\'s Premium profile showed up first because his profile was boosted — and the rest is history.',
     duration: 'Met in 5 weeks',
     tier: 'Premium member',
@@ -285,7 +285,7 @@ const SUCCESS_STORIES = [
     id: 'brisbane',
     names: 'Ananya & Dev',
     location: 'Brisbane, QLD',
-    image: '/success-stories/couple-brisbane.jpg',
+    image: '/home/success-stories/couple-06.jpg',
     story: 'As a busy professional, I needed a platform that respected my time. Vivah\'s Platinum membership gave me exactly that — curated introductions and a team that helped me present my best self. Dev and I are planning our wedding now.',
     duration: 'Met in 4 weeks',
     tier: 'Platinum member',
@@ -1137,9 +1137,9 @@ export default function PricingClient() {
                     </div>
                     <div className="mt-4 flex -space-x-2">
                       {[
-                        '/success-stories/couple-sydney.jpg',
-                        '/success-stories/couple-melbourne.jpg',
-                        '/success-stories/couple-brisbane.jpg',
+                        '/home/success-stories/couple-01.jpg',
+                        '/home/success-stories/couple-05.jpg',
+                        '/home/success-stories/couple-06.jpg',
                       ].map((src, index) => (
                         <div key={src} className="relative size-11 overflow-hidden rounded-full border-2 border-white shadow-sm">
                           <Image

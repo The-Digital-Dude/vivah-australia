@@ -140,7 +140,7 @@ const demoStories = [
     title: 'Priya & Kunal',
     body: 'The verification process gave us confidence and the platform helped us find a truly compatible match.',
     location: 'Sydney, NSW',
-    imageUrl: '/success-stories/couple-sydney.jpg',
+    imageUrl: '/home/success-stories/couple-02.jpg',
   },
   {
     title: 'Anjali & Manish',
@@ -152,19 +152,19 @@ const demoStories = [
     title: 'Riya & Arjun',
     body: 'The matches felt serious and family-oriented. We connected quickly and everything moved naturally from there.',
     location: 'Perth, WA',
-    imageUrl: '/home/success-stories/couple-04.png',
+    imageUrl: '/home/success-stories/couple-04.jpg',
   },
   {
     title: 'Meera & Rohan',
     body: 'Vivah Australia made the search respectful, simple, and safe for both our families.',
     location: 'Adelaide, SA',
-    imageUrl: '/home/success-stories/couple-05.png',
+    imageUrl: '/home/success-stories/couple-05.jpg',
   },
   {
     title: 'Isha & Dev',
     body: 'We appreciated the verified profiles and clear member details. It helped us focus on the right conversations.',
     location: 'Canberra, ACT',
-    imageUrl: '/home/success-stories/couple-06.png',
+    imageUrl: '/home/success-stories/couple-06.jpg',
   },
 ] as const;
 
@@ -573,7 +573,7 @@ export default function HomeClient({
             className="relative h-80 w-full sm:h-96 lg:h-auto lg:w-[45%]"
           >
             <Image
-              src={section?.imageUrl || '/home/hero-vivah-australia-1752x1200.png'}
+              src={section?.imageUrl || '/home/hero-vivah-australia.jpg'}
               alt="Vivah Australia — couples connecting across Australia"
               fill
               priority

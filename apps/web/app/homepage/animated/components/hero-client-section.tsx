@@ -47,7 +47,7 @@ export function HeroClientSection() {
         className="absolute inset-0 z-0 select-none pointer-events-none"
       >
         <Image
-          src="/home/hero-vivah-australia.png"
+          src="/home/hero-vivah-australia.jpg"
           alt="Indian couple in wedding attire beside Sydney Harbour"
           fill
           priority
