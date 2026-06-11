@@ -40,6 +40,7 @@ export const apiEnvSchema = z.object({
   WEB_PUSH_PRIVATE_KEY: nonEmptyString.optional(),
   ERROR_TRACKING_PROVIDER: z.enum(['none', 'webhook']).default('none'),
   ERROR_TRACKING_WEBHOOK_URL: nonEmptyString.optional(),
+  REDIS_URI: urlString.default('redis://localhost:6379'),
 });
 
 export const webEnvSchema = z.object({

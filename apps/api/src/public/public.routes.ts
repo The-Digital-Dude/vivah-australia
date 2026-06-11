@@ -2,6 +2,9 @@ import { Router, type NextFunction, type Request, type Response } from 'express'
 import type { Types } from 'mongoose';
 import rateLimit from 'express-rate-limit';
 import { URLSearchParams } from 'url';
+import NodeCache from 'node-cache';
+
+const publicCache = new NodeCache({ stdTTL: 300, checkperiod: 310 });
 import {
   AccountStatus,
   cmsBannerInputSchema,
@@ -182,22 +185,26 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   router.get(
     '/public/home',
     asyncHandler(async (_request, response) => {
-      response.status(200).json(await getHomeContent());
+      const cached = publicCache.get('homeContent');
+      if (cached) {
+        response.status(200).json(cached);
+        return;
+      }
+      const content = await getHomeContent();
+      publicCache.set('homeContent', content);
+      response.status(200).json(content);
     }),
   );
 
   router.get(
     '/public/featured-profiles',
     asyncHandler(async (_request, response) => {
-      const nonActiveUserIds = await UserModel.find({
-        $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
-      }).distinct('_id');
-
       const baseFilter: Record<string, unknown> = {
         isDeleted: false,
+        userIsDeleted: false,
+        userStatus: AccountStatus.ACTIVE,
         'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
         'visibility.status': { $ne: 'HIDDEN' },
-        userId: { $nin: nonActiveUserIds },
       };
       
       const now = new Date();
@@ -242,15 +249,12 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       const religion =
         typeof request.query.religion === 'string' ? request.query.religion.trim() : undefined;
 
-      const nonActiveUserIds = await UserModel.find({
-        $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
-      }).distinct('_id');
-
       const baseFilter: Record<string, unknown> = {
         isDeleted: false,
+        userIsDeleted: false,
+        userStatus: AccountStatus.ACTIVE,
         'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
         'visibility.status': { $ne: 'HIDDEN' },
-        userId: { $nin: nonActiveUserIds },
       };
 
       if (gender) {
@@ -314,11 +318,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   router.get(
     '/public/plans',
     asyncHandler(async (_request, response) => {
+      const cached = publicCache.get('plans');
+      if (cached) {
+        response.status(200).json({ plans: cached });
+        return;
+      }
       const plans = await PlanModel.find({ active: true, isDeleted: false })
         .sort({ priceCents: 1 })
         .select('code name priceCents currency interval features limits')
         .lean();
 
+      publicCache.set('plans', plans, 3600);
       response.status(200).json({ plans });
     }),
   );
@@ -419,12 +429,19 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   router.get(
     '/public/faqs',
     asyncHandler(async (request, response) => {
+      const cached = publicCache.get('faqs');
+      if (cached) {
+        response.status(200).json({ faqs: cached });
+        return;
+      }
       const faqs = await FaqModel.find({
         active: true,
         isDeleted: false,
       })
         .sort({ displayOrder: 1 })
         .lean();
+      
+      publicCache.set('faqs', faqs, 3600);
       response.status(200).json({ faqs });
     }),
   );
@@ -605,6 +622,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         { upsert: true, returnDocument: 'after', runValidators: true },
       );
 
+      publicCache.del('homeContent');
       response.status(200).json({ content: input });
     }),
   );

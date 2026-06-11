@@ -244,6 +244,8 @@ function buildBaseVisibilityFilter(
     _id: { $ne: viewerProfile._id },
     userId: { $nin: [viewerProfile.userId, ...excludedUserIds] },
     isDeleted: false,
+    userIsDeleted: false,
+    userStatus: AccountStatus.ACTIVE,
     'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
     'visibility.status': { $in: [ProfileVisibility.PUBLIC, ProfileVisibility.MEMBERS_ONLY] },
   };
@@ -542,6 +544,7 @@ async function approvedPhotoMap(profiles: ProfileDocument[]) {
     isDeleted: false,
   })
     .sort({ isPrimary: -1, createdAt: -1 })
+    .select('profileId assetUrl')
     .lean();
 
   const map = new Map<string, string>();
@@ -592,13 +595,10 @@ async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]
 }
 
 export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearchQueryInput) {
-  const [viewerProfile, blockedUserIds, hiddenUserIds, nonActiveUserIds, limits] = await Promise.all([
+  const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
     getBlockedUserIds(userId),
     getHiddenUserIds(userId),
-    UserModel.find({
-      $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
-    }).distinct('_id'),
     getSubscriptionLimits(userId),
   ]);
 
@@ -609,14 +609,17 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
   const pageSize = Math.min(input.pageSize, limits.searchPageSize);
   const filter = await buildSearchFilter(
     viewerProfile,
-    [...blockedUserIds, ...hiddenUserIds, ...nonActiveUserIds],
+    [...blockedUserIds, ...hiddenUserIds],
     input,
   );
   const total = await ProfileModel.countDocuments(filter);
 
+  const matchSelect = 'displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto';
+
   if (input.sort === 'RECOMMENDED') {
     const candidates = await ProfileModel.find(filter)
       .sort({ 'stats.lastActiveAt': -1, completionPercentage: -1, createdAt: -1 })
+      .select(matchSelect)
       .limit(RECOMMENDED_CANDIDATE_LIMIT);
     const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
     const cards = await toMatchCards(viewerProfile, candidates);
@@ -652,14 +655,14 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
   let profiles: ProfileDocument[] = [];
 
   if (skip < totalBoosted) {
-    const boosted = await ProfileModel.find(boostedFilter).sort(sortFor(input)).skip(skip).limit(pageSize);
+    const boosted = await ProfileModel.find(boostedFilter).sort(sortFor(input)).skip(skip).select(matchSelect).limit(pageSize);
     profiles = profiles.concat(boosted);
   }
 
   if (profiles.length < pageSize) {
     const standardSkip = Math.max(0, skip - totalBoosted);
     const standardLimit = pageSize - profiles.length;
-    const standard = await ProfileModel.find(standardFilter).sort(sortFor(input)).skip(standardSkip).limit(standardLimit);
+    const standard = await ProfileModel.find(standardFilter).sort(sortFor(input)).skip(standardSkip).select(matchSelect).limit(standardLimit);
     profiles = profiles.concat(standard);
   }
 
@@ -671,13 +674,10 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
 }
 
 export async function recommendedMatches(userId: Types.ObjectId, requestedLimit: number) {
-  const [viewerProfile, blockedUserIds, hiddenUserIds, nonActiveUserIds, limits] = await Promise.all([
+  const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
     getBlockedUserIds(userId),
     getHiddenUserIds(userId),
-    UserModel.find({
-      $or: [{ status: { $ne: AccountStatus.ACTIVE } }, { isDeleted: true }],
-    }).distinct('_id'),
     getSubscriptionLimits(userId),
   ]);
   const limit = Math.min(requestedLimit, limits.recommendationLimit);
@@ -685,7 +685,6 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
   const filter = buildBaseVisibilityFilter(viewerProfile, [
     ...blockedUserIds,
     ...hiddenUserIds,
-    ...nonActiveUserIds,
   ]);
 
   if (viewerProfile.personal.gender === 'MALE') {
@@ -701,8 +700,11 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
     };
   }
 
+  const matchSelect = 'displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto';
+
   const candidates = await ProfileModel.find(filter)
     .sort({ 'stats.lastActiveAt': -1, createdAt: -1 })
+    .select(matchSelect)
     .limit(RECOMMENDED_CANDIDATE_LIMIT);
   const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
 

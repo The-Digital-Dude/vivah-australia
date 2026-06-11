@@ -122,5 +122,42 @@ userSchema.index({ facebookId: 1 }, { unique: true, sparse: true });
 userSchema.index({ appleId: 1 }, { unique: true, sparse: true });
 userSchema.index({ status: 1, role: 1 });
 
+userSchema.post('save', async function (doc) {
+  if (doc) {
+    const { ProfileModel } = await import('./profile.model.js');
+    await ProfileModel.updateOne(
+      { userId: doc._id },
+      { $set: { userStatus: doc.status, userIsDeleted: doc.isDeleted } }
+    );
+  }
+});
+
+userSchema.post('findOneAndUpdate', async function (doc) {
+  if (doc) {
+    const { ProfileModel } = await import('./profile.model.js');
+    await ProfileModel.updateOne(
+      { userId: doc._id },
+      { $set: { userStatus: doc.status, userIsDeleted: doc.isDeleted } }
+    );
+  }
+});
+
+userSchema.post('updateOne', async function () {
+  const update = this.getUpdate() as Record<string, any>;
+  if (update && update.$set && (update.$set.status !== undefined || update.$set.isDeleted !== undefined)) {
+    const query = this.getQuery();
+    if (query._id) {
+      const { ProfileModel } = await import('./profile.model.js');
+      await ProfileModel.updateOne(
+        { userId: query._id },
+        { $set: { 
+           ...(update.$set.status !== undefined ? { userStatus: update.$set.status } : {}),
+           ...(update.$set.isDeleted !== undefined ? { userIsDeleted: update.$set.isDeleted } : {})
+        } }
+      );
+    }
+  }
+});
+
 export const UserModel = getOrCreateModel<User>('User', userSchema);
 export { userSchema };

@@ -1,5 +1,22 @@
 import { TemplateModel } from '../models/index.js';
 import { env } from '../env.js';
+import { Queue, Worker } from 'bullmq';
+import { Redis } from 'ioredis';
+
+const redisConnection = new Redis(env.REDIS_URI, {
+  maxRetriesPerRequest: null,
+});
+
+export const emailQueue = new Queue('emailQueue', { connection: redisConnection as any });
+
+export const emailWorker = new Worker('emailQueue', async (job) => {
+  const emailProvider = getEmailProvider();
+  await emailProvider.sendEmail(job.data as Email);
+}, { connection: redisConnection as any });
+
+emailWorker.on('failed', (job, err) => {
+  console.error(`Email job ${job?.id} failed:`, err);
+});
 
 export interface Email {
   to: string;
@@ -32,16 +49,7 @@ export interface TemplatedEmail extends Omit<Email, 'subject' | 'html' | 'text'>
 
 type RenderValue = string | number | boolean | null | undefined;
 
-let queueTail = Promise.resolve();
 
-function enqueueEmailSend(task: () => Promise<void>): Promise<void> {
-  const next = queueTail.then(task, task);
-  queueTail = next.then(
-    () => undefined,
-    () => undefined,
-  );
-  return next;
-}
 
 function escapeHtml(value: string) {
   return value
@@ -191,8 +199,13 @@ function getEmailProvider(): EmailProvider {
 }
 
 export async function sendEmail(email: Email): Promise<void> {
-  const emailProvider = getEmailProvider();
-  await enqueueEmailSend(() => emailProvider.sendEmail(email));
+  await emailQueue.add('sendEmail', email, {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 1000,
+    },
+  });
 }
 
 export async function sendTemplatedEmail(input: TemplatedEmail): Promise<void> {

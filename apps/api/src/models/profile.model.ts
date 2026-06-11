@@ -8,6 +8,8 @@ import {
   type MaritalStatus as MaritalStatusType,
   type ProfileVisibility as ProfileVisibilityType,
   type VerificationLevel as VerificationLevelType,
+  AccountStatus,
+  type AccountStatus as AccountStatusType,
 } from '@vivah/shared';
 import { Schema, type HydratedDocument, type Types } from 'mongoose';
 import { auditedSchemaFields, getOrCreateModel, timestampedSchemaOptions } from './common.js';
@@ -154,6 +156,8 @@ export interface Profile {
   isDeleted: boolean;
   deletedAt?: Date;
   deletedBy?: Types.ObjectId;
+  userStatus: AccountStatusType;
+  userIsDeleted: boolean;
 }
 
 export type ProfileDocument = HydratedDocument<Profile>;
@@ -161,6 +165,8 @@ export type ProfileDocument = HydratedDocument<Profile>;
 const profileSchema = new Schema<Profile>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    userStatus: { type: String, enum: Object.values(AccountStatus), default: AccountStatus.PENDING, required: true },
+    userIsDeleted: { type: Boolean, default: false, required: true },
     displayId: { type: String, required: true, trim: true },
     slug: { type: String, trim: true, lowercase: true },
     completionPercentage: { type: Number, default: 0, min: 0, max: 100, required: true },
@@ -324,21 +330,10 @@ profileSchema.index({ 'employment.occupation': 1 });
 profileSchema.index({ 'education.highestQualification': 1 });
 profileSchema.index({ 'verification.level': 1 });
 profileSchema.index({ 'visibility.status': 1 });
-profileSchema.index({
-  'moderation.approvalStatus': 1,
-  'visibility.status': 1,
-  'personal.gender': 1,
-  'personal.dateOfBirth': 1,
-  'location.country': 1,
-  'location.state': 1,
-  'location.city': 1,
-  'religion.religion': 1,
-  'religion.community': 1,
-  'religion.caste': 1,
-  'religion.motherTongue': 1,
-  'employment.occupation': 1,
-  'education.highestQualification': 1,
-});
+profileSchema.index({ userStatus: 1, userIsDeleted: 1 });
+profileSchema.index({ 'stats.activeBoostEndsAt': -1 });
+profileSchema.index({ 'personal.gender': 1, 'personal.age': 1 });
+profileSchema.index({ 'visibility.status': 1, 'moderation.approvalStatus': 1 });
 
 export const ProfileModel = getOrCreateModel<Profile>('Profile', profileSchema);
 export { profileSchema };
