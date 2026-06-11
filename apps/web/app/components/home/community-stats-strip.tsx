@@ -1,3 +1,6 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import { Heart, Map, ShieldCheck, Users } from 'lucide-react';
 
 const communityStats = [
@@ -14,9 +17,14 @@ export function CommunityStatsStrip() {
       <div className="container mx-auto">
         <div className="grid overflow-hidden rounded-2xl bg-[#a10e4d] shadow-[0_18px_42px_rgba(161,14,77,0.24)] ring-1 ring-white/35 sm:grid-cols-2 lg:grid-cols-5">
           {communityStats.map(({ value, label, icon: Icon }) => (
-            <div
+            <motion.div
               key={`${value}-${label}`}
               className="relative flex min-h-[92px] items-center gap-4 px-5 py-5 text-white after:absolute after:inset-y-5 after:right-0 after:hidden after:w-px after:bg-white/20 last:after:hidden lg:px-6 lg:after:block"
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -3 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[#d4a04c]/70 text-[#d4a04c]">
                 <Icon className="size-7" strokeWidth={2.1} />
@@ -29,7 +37,7 @@ export function CommunityStatsStrip() {
                   {label}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

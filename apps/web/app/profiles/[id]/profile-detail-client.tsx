@@ -977,10 +977,13 @@ function GalleryExperienceSection({
         <div className="grid gap-4">
           {gallery.length > 0 ? (
             <>
-              <button
+              <motion.button
                 type="button"
                 onClick={() => setLightboxUrl(gallery[0]?.assetUrl ?? null)}
                 className="group relative aspect-[4/4.8] overflow-hidden rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF0F3]"
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.2 }}
               >
                 <Image
                   src={gallery[0]!.assetUrl}
@@ -999,16 +1002,19 @@ function GalleryExperienceSection({
                     Gallery
                   </ToneBadge>
                 </div>
-              </button>
+              </motion.button>
 
               {gallery.length > 1 ? (
                 <div className="grid grid-cols-3 gap-3">
                   {gallery.slice(1, 4).map((photo, index) => (
-                    <button
+                    <motion.button
                       key={photo.id}
                       type="button"
                       onClick={() => setLightboxUrl(photo.assetUrl)}
                       className="group relative aspect-[4/4.6] overflow-hidden rounded-[22px] border border-[#A10E4D]/10 bg-[#FFF0F3]"
+                      whileHover={{ y: -2, scale: 1.01 }}
+                      whileTap={{ scale: 0.985 }}
+                      transition={{ duration: 0.18 }}
                     >
                       <Image
                         src={photo.assetUrl}
@@ -1017,7 +1023,7 @@ function GalleryExperienceSection({
                         sizes="(min-width: 768px) 20vw, 33vw"
                         className="object-cover transition duration-500 group-hover:scale-105"
                       />
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               ) : null}
@@ -1037,7 +1043,11 @@ function GalleryExperienceSection({
         </div>
 
         <div className="grid gap-4">
-          <div className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5">
+          <motion.div
+            className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5"
+            whileHover={{ y: -2 }}
+            transition={{ duration: 0.18 }}
+          >
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
               First impression
             </p>
@@ -1048,7 +1058,7 @@ function GalleryExperienceSection({
               Use the compatibility and trust signals above to decide whether this feels like a
               serious introduction, then request more photos if you want to go deeper.
             </p>
-          </div>
+          </motion.div>
 
           <PrivateGalleryAccessCard
             profileId={profileId}
@@ -1227,11 +1237,14 @@ function PrivateGalleryAccessCard({
         ) : photos.length > 0 ? (
           <div className="mt-4 grid grid-cols-2 gap-3">
             {photos.slice(0, 4).map((photo) => (
-              <button
+              <motion.button
                 key={photo.id}
                 type="button"
                 onClick={() => onPreviewPhoto(photo.assetUrl)}
                 className="relative overflow-hidden rounded-[20px] border border-[#A10E4D]/10"
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.18 }}
               >
                 <Image
                   src={photo.assetUrl}
@@ -1241,7 +1254,7 @@ function PrivateGalleryAccessCard({
                   className="object-cover transition duration-300 hover:scale-105"
                 />
                 <span className="block aspect-[4/4.6]" aria-hidden="true" />
-              </button>
+              </motion.button>
             ))}
           </div>
         ) : (
@@ -2006,13 +2019,15 @@ function ProfileDetailView({
                 }
               }}
             >
-              <TabsList className="w-full justify-start gap-2 overflow-x-auto rounded-[24px] border border-[#A10E4D]/10 bg-white/95 px-2 py-2 shadow-[0_14px_30px_rgba(122,31,43,0.10)] backdrop-blur">
-                {PROFILE_SECTION_TABS.map((tab) => (
-                  <TabsTrigger key={tab.key} value={tab.key}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              <motion.div whileHover={{ y: -1 }} transition={{ duration: 0.18 }}>
+                <TabsList className="w-full justify-start gap-2 overflow-x-auto rounded-[24px] border border-[#A10E4D]/10 bg-white/95 px-2 py-2 shadow-[0_14px_30px_rgba(122,31,43,0.10)] backdrop-blur">
+                  {PROFILE_SECTION_TABS.map((tab) => (
+                    <TabsTrigger key={tab.key} value={tab.key}>
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </motion.div>
             </Tabs>
           </div>
 
@@ -2028,13 +2043,15 @@ function ProfileDetailView({
                 }
               }}
             >
-              <TabsList className="w-full bg-white/95 shadow-[0_14px_30px_rgba(122,31,43,0.10)] backdrop-blur overflow-x-auto">
-                {MOBILE_SECTION_TABS.map((tab) => (
-                  <TabsTrigger key={tab.key} value={tab.key}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              <motion.div whileHover={{ y: -1 }} transition={{ duration: 0.18 }}>
+                <TabsList className="w-full bg-white/95 shadow-[0_14px_30px_rgba(122,31,43,0.10)] backdrop-blur overflow-x-auto">
+                  {MOBILE_SECTION_TABS.map((tab) => (
+                    <TabsTrigger key={tab.key} value={tab.key}>
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </motion.div>
             </Tabs>
           </div>
 
@@ -2363,7 +2380,12 @@ function ProfileDetailView({
 
               <div className="grid gap-3">
                 {timeline.map((item, index) => (
-                  <div key={item.label} className="flex items-start gap-4">
+                  <motion.div
+                    key={item.label}
+                    className="flex items-start gap-4"
+                    whileHover={{ x: 2 }}
+                    transition={{ duration: 0.18 }}
+                  >
                     <div
                       className={cx(
                         'relative z-10 mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full',
@@ -2378,7 +2400,7 @@ function ProfileDetailView({
                       <p className="text-sm font-semibold text-[#2F2F2F]">{item.label}</p>
                       <p className="mt-1.5 text-sm leading-6 text-[#6B7280]">{item.body}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>

@@ -1,12 +1,19 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { HeroSelect } from './hero-select';
 
 export function HeroSearchForm() {
   return (
     <section className="relative z-10 overflow-hidden px-8 py-14 sm:px-12 lg:px-16">
-      <form
+      <motion.form
         action="/matches"
         className="relative mx-auto container overflow-hidden rounded-[28px] border border-[#a10e4d]/12 bg-white/95 px-5 py-8 backdrop-blur sm:px-8 sm:py-10"
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -52,15 +59,17 @@ export function HeroSearchForm() {
             <option value="Brisbane">Brisbane</option>
             <option value="Perth">Perth</option>
           </HeroSelect>
-          <button
+          <motion.button
             type="submit"
             className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#a10e4d] px-8 text-base font-semibold text-white shadow-[0_20px_45px_rgba(161,14,77,0.25)] transition hover:-translate-y-0.5 hover:bg-[#8e0d43] hover:shadow-[0_24px_55px_rgba(161,14,77,0.32)] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20 lg:w-auto"
+            whileHover={{ y: -2, scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
           >
             <Search className="size-4 transition group-hover:scale-110" />
             Find Matches
-          </button>
+          </motion.button>
         </div>
-      </form>
+      </motion.form>
     </section>
   );
 }

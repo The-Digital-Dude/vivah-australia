@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from './auth-context';
 import CampaignBannerStrip from './components/campaign-banner-strip';
+import SmoothScrollProvider from './smooth-scroll-provider';
 
 export const metadata: Metadata = {
   title: 'Vivah Australia',
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en-AU">
       <body>
         <CampaignBannerStrip />
+        <SmoothScrollProvider />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

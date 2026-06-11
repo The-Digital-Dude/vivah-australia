@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
+import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -171,7 +172,13 @@ export function SuccessStoriesSlider() {
           </Link>
         </div>
 
-        <div className="relative">
+        <motion.div
+          className="relative"
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
           <button
             type="button"
             aria-label="Previous success stories"
@@ -185,7 +192,12 @@ export function SuccessStoriesSlider() {
             <div className="-ml-8 flex gap-4 cursor-grab active:cursor-grabbing">
               {successStories.map((story) => (
                 <div key={story.names} className="min-w-0 flex-[0_0_100%] md:flex-[0_0_33.333%]">
-                  <article className="grid h-full min-h-[190px] grid-cols-1 gap-5 rounded-lg shadow-[rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.06)_0px_1px_2px_0px] bg-white p-5 sm:grid-cols-[160px_1fr] md:grid-cols-1 xl:grid-cols-[160px_1fr]">
+                  <motion.article
+                    className="grid h-full min-h-[190px] grid-cols-1 gap-5 rounded-lg shadow-[rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.06)_0px_1px_2px_0px] bg-white p-5 sm:grid-cols-[160px_1fr] md:grid-cols-1 xl:grid-cols-[160px_1fr]"
+                    whileHover={{ y: -6, scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  >
                     <div className="relative size-40 overflow-hidden rounded-full border-4 border-white bg-[#fff4f8] shadow-[0_8px_22px_rgba(161,14,77,0.14)]">
                       <Image
                         src={story.image}
@@ -200,7 +212,7 @@ export function SuccessStoriesSlider() {
                       <p className="mt-4 text-sm font-bold text-[#2f2f2f]">- {story.names}</p>
                       <p className="mt-1 text-xs font-medium text-[#5f5f5f]">{story.location}</p>
                     </div>
-                  </article>
+                  </motion.article>
                 </div>
               ))}
             </div>
@@ -214,7 +226,6 @@ export function SuccessStoriesSlider() {
           >
             <ChevronRight className="size-5" />
           </button>
-        </div>
 
         <div className="mt-5 flex items-center justify-center gap-3">
           <button
@@ -246,6 +257,7 @@ export function SuccessStoriesSlider() {
             <ChevronRight className="size-5" />
           </button>
         </div>
+      </motion.div>
       </div>
     </section>
   );
