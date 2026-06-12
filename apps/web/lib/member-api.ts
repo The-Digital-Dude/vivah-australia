@@ -36,6 +36,7 @@ export function useMemberRequest() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
           },
+          credentials: 'include',
           ...(options.body ? { body: JSON.stringify(options.body) } : {}),
         });
 
@@ -64,6 +65,7 @@ export async function logoutRefreshToken(refreshToken: string) {
   await fetch(`${apiBaseUrl}/api/auth/logout`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ refreshToken }),
   });
 }
@@ -83,6 +85,7 @@ export async function memberRequest(
       'Content-Type': 'application/json',
       ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
     },
+    credentials: 'include',
     ...(options.body ? { body: JSON.stringify(options.body) } : {}),
   });
 

@@ -1,0 +1,406 @@
+VIVAH AUSTRALIA
+PHASE 1 SOFTWARE DEVELOPMENT SCOPE OF WORK
+Document Version
+Version 1.0
+Project Name
+Vivah
+ Australia
+Project Type
+Premium Matrimony & Matchmaking Platform
+Purpose
+Vivah
+ Australia is a secure matrimonial platform designed primarily for the Indian community in Australia, with future scalability to international markets.
+The platform will provide users with the ability to create matrimonial profiles, search for suitable matches, communicate through an internal messaging system, participate in community discussions, complete profile verification processes, and manage membership subscriptions through a secure and scalable online platform.
+1. PLATFORM COMPONENTS
+Phase 1 will include:
+Public Website
+Member Portal
+Admin CRM
+Matchmaking System
+Profile Verification System
+Internal Messaging System
+Community Chat Rooms
+Membership & Subscription System
+Payment System
+Notification System
+Reporting & Analytics System
+Mobile Responsive Platform
+2. PUBLIC WEBSITE
+Homepage
+Homepage shall include:
+Hero Banner
+Featured Profiles
+Success Stories
+Membership Plans
+How It Works
+Safety & Verification Section
+Testimonials
+Blog Highlights
+Frequently Asked Questions
+Contact Information
+Static Pages
+About Us
+Contact Us
+Privacy Policy
+Terms & Conditions
+Refund Policy
+Safety Guidelines
+Community Guidelines
+Verification Policy
+Help Centre
+FAQ Page
+3. USER REGISTRATION MODULE
+Registration Methods
+Users may register using:
+Email Address
+Mobile Number
+Google Login
+Facebook Login
+Apple Login
+Account Verification
+Email OTP Verification
+Mobile OTP Verification
+Account Activation Workflow
+Authentication Features
+Login
+Logout
+Forgot Password
+Reset Password
+Change Password
+Session Management
+4. MEMBER PROFILE MODULE
+Personal Information
+First Name
+Last Name
+Gender
+Date of Birth
+Age
+Height
+Weight
+Marital Status
+Number of Children
+Disability Status
+Religious Information
+Religion
+Community
+Caste
+Sub-Caste
+Mother Tongue
+Languages Spoken
+Location Information
+Country
+State
+City
+Suburb
+Citizenship Status
+Visa Status
+Education Information
+Highest Qualification
+Institution Name
+Graduation Year
+Additional Certifications
+Employment Information
+Occupation
+Industry
+Employment Status
+Employer Name
+Annual Income
+Family Information
+Father Details
+Mother Details
+Sibling Details
+Family Values
+Family Type
+Lifestyle Information
+Smoking Habits
+Drinking Habits
+Dietary Preferences
+Fitness Interests
+Religious Practices
+Personal Description
+About Me
+Hobbies
+Interests
+Personal Goals
+Partner Expectations
+5. PROFILE MEDIA MANAGEMENT
+Photo Management
+Profile Photo Upload
+Multiple Photo Uploads
+Private Gallery
+Public Gallery
+Photo Approval Workflow
+Photo Visibility Controls
+Video Introduction
+Introduction Video Upload
+Video Approval Workflow
+Video Visibility Settings
+6. PROFILE VERIFICATION MODULE
+Verification Levels
+Basic Verification
+Email Verified
+Mobile Verified
+Identity Verification
+Accepted Documents:
+Driver Licence
+Passport
+Government Issued Identification
+Address Verification
+Accepted Documents:
+Utility Bill
+Rental Agreement
+Bank Statement
+Employment Verification
+Accepted Documents:
+Payslip
+Employment Letter
+ABN Registration Documents
+Visa Verification
+Accepted Documents:
+Visa Grant Letter
+VEVO Report
+Permanent Residency Documentation
+Police Clearance Verification
+Accepted Documents:
+AFP Police Check
+National Police Check
+NZ Police Check
+Facial Verification
+Selfie Verification
+Face Matching
+Liveness Detection
+Verification Badges
+Basic Verified
+Silver Verified
+Gold Verified
+Platinum Verified
+Fully Verified
+7. MATCHMAKING MODULE
+Search Filters
+Age
+Gender
+Religion
+Community
+Caste
+Mother Tongue
+Country
+State
+City
+Education
+Occupation
+Income Range
+Marital Status
+Height
+Verification Status
+Match Suggestions
+Recommended Matches
+Newly Joined Profiles
+Recently Active Profiles
+Highly Compatible Profiles
+8. INTEREST MANAGEMENT MODULE
+Users shall be able to:
+Send Interest
+Accept Interest
+Reject Interest
+Withdraw Interest
+Save Favourite Profiles
+Block Members
+Report Members
+9. INTERNAL COMMUNICATION MODULE
+Private Messaging System
+The platform shall include a fully integrated internal messaging system.
+Features
+One-to-One Messaging
+Emoji Support
+Image Sharing
+Document Sharing
+Read Receipts
+Typing Indicators
+Conversation History
+Delete Conversation
+Block User
+Report User
+Privacy Controls
+Allow Messaging Only After Interest Acceptance
+Message Restriction Controls
+User Blocking Controls
+10. COMMUNITY CHAT ROOMS
+The platform shall include community discussion rooms.
+Categories
+General Discussions
+New Members
+Success Stories
+Community Support
+Cultural Discussions
+Platform Announcements
+Features
+Create Posts
+Comment on Posts
+Reactions & Likes
+Report Content
+Moderator Controls
+Admin Controls
+11. MEMBERSHIP & SUBSCRIPTION MODULE
+IMPORTANT NOTICE
+The membership plans listed below are examples only and are provided for reference purposes. The client may modify, add, remove, rename, restructure, or replace plans, pricing, durations, benefits, restrictions, and feature allocations at any time before launch or during platform operation.
+Example Free Membership
+Create Profile
+Upload Photos
+Limited Search
+Limited Interests
+Community Chat Access
+Example Premium Membership
+Unlimited Search
+Unlimited Interests
+Internal Messaging Access
+Additional Profile Visibility
+Example Gold Membership
+Advanced Search Filters
+Priority Visibility
+Verification Priority
+Enhanced Profile Features
+Example Platinum Membership
+Featured Profile Placement
+Maximum Visibility
+Premium Badge
+Additional Premium Benefits
+12. PROFILE BOOST SYSTEM
+The platform shall support profile promotion features.
+Features
+Boost Profile for Fixed Duration
+Featured Member Listings
+Homepage Featured Placement
+Search Result Priority Placement
+13. PAYMENT MODULE
+Supported Payment Methods:
+Credit Cards
+Debit Cards
+Stripe
+PayPal
+Apple Pay
+Google Pay
+Features:
+Recurring Subscription Billing
+Invoice Generation
+Payment History
+Coupon Codes
+Promotional Discounts
+Refund Processing
+14. NOTIFICATION MODULE
+Email Notifications
+Registration Confirmation
+Verification Updates
+Interest Notifications
+Message Notifications
+Subscription Updates
+SMS Notifications
+OTP Verification
+Important Account Alerts
+Push Notifications
+New Interests
+New Messages
+Subscription Reminders
+15. ADMIN CRM
+User Management
+View Members
+Edit Members
+Suspend Members
+Ban Members
+Delete Members
+Verification Management
+Review Documents
+Approve Verification
+Reject Verification
+Request Re-Submission
+Membership Management
+Subscription Management
+Payment Monitoring
+Refund Management
+Content Management
+Homepage Content
+Banners
+Blogs
+Testimonials
+FAQs
+Static Pages
+Moderation
+User Reports
+Content Reports
+Chat Moderation
+Community Room Moderation
+Reporting
+User Statistics
+Verification Statistics
+Revenue Reports
+Subscription Reports
+Platform Activity Reports
+16. SECURITY MODULE
+The platform shall include:
+SSL Encryption
+Password Encryption
+Role-Based Access Control
+Activity Logs
+Audit Logs
+Secure File Storage
+Data Encryption
+Fraud Prevention Measures
+17. MOBILE RESPONSIVE DESIGN
+The platform shall be fully responsive across:
+Desktop Devices
+Tablets
+Mobile Browsers
+18. PHASE 2 FEATURES (NOT INCLUDED IN PHASE 1)
+The following features are excluded from Phase 1 and may be considered in future development phases:
+Communication
+One-to-One Video Calling
+Group Video Calling
+Voice Calling
+Scheduled Video Meetings
+Mobile Applications
+Android Application
+iOS Application
+Biometric Login
+Native Push Notifications
+Advanced Features
+AI Matchmaking Engine
+AI Compatibility Scoring
+Astrology Matching
+Family Accounts
+Wedding Vendor Marketplace
+Wedding Planning Services
+Franchise Portal
+Multi-Language Translation System
+Advanced Government API Integrations
+19. THIRD-PARTY SERVICES (EXCLUDED FROM DEVELOPMENT COST)
+The following services are external provider services and are not included within the development fees:
+Hosting Infrastructure
+Cloud Hosting Services
+MongoDB Database Services
+SMS Gateway Providers
+Email Service Providers
+Stripe Fees
+PayPal Fees
+Apple Developer Account
+Google Developer Account
+Cloudflare Security Services
+Identity Verification Providers
+Facial Verification Providers
+Police Check Verification Providers
+Visa Verification Providers
+VEVO Verification Services
+CDN Services
+Backup Services
+AI Service Providers
+All third-party subscriptions, API usage fees, transaction fees, verification fees, setup fees, and ongoing service charges shall be payable separately by the platform owner.
+20. PROJECT TIMELINE
+Estimated Phase 1 Development Timeline:
+Discovery & Planning
+UI/UX Design
+Backend Development
+Frontend Development
+Testing & Quality Assurance
+Deployment
+  
+Estimated Delivery Time:
+Approximately 6 Weeks
+Timeline may vary based on change requests, additional requirements, client approvals, and third-party service integrations.

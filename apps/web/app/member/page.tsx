@@ -646,7 +646,7 @@ export default function MemberDashboardPage() {
                   <p className="mt-1 text-sm text-white/70">
                     {acceptedInterests > 0
                       ? `${acceptedInterests} accepted interest${acceptedInterests === 1 ? '' : 's'} already opened the door.`
-                      : 'Responding to interests is the fastest way to unlock momentum.'}
+                      : 'Responding to interests is the best way to get conversations going.'}
                   </p>
                 </div>
               </div>
@@ -725,7 +725,7 @@ export default function MemberDashboardPage() {
                 ) : (
                   <div className="md:col-span-2 xl:col-span-4">
                     <EmptyState title="No discovery picks yet">
-                      Complete your profile and partner preferences to unlock better recommendations.
+                      Complete your profile and partner preferences to get better recommendations.
                     </EmptyState>
                   </div>
                 )}
@@ -816,7 +816,7 @@ export default function MemberDashboardPage() {
               <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
                 <SectionHeader
                   eyebrow="Relationship progress"
-                  title="Profile completion and trust journey"
+                  title="Profile completion and verification"
                   subtitle="These milestones help your profile move from visible to trusted and ready."
                 />
 

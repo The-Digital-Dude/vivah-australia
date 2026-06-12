@@ -116,10 +116,7 @@ export default function RegisterPage() {
       });
 
       if (result.ok && result.data?.accessToken) {
-        setSession({
-          accessToken: result.data.accessToken,
-          refreshToken: result.data.refreshToken,
-        });
+        setSession({ user: result.data?.user as any });
         setSuccess('Mobile number verified. Welcome to Vivah Australia.');
         router.push('/member');
         router.refresh();

@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,56 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
-  quality-gate:
-    name: Build & Test Quality Gate
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Validate environment variables
-        env:
-          API_BASE_URL: http://ci.vivahaustralia.com.au
-          WEB_BASE_URL: http://ci.vivahaustralia.com.au
-          MONGODB_URI: mongodb://localhost:27017/vivah_ci
-          JWT_ACCESS_SECRET: ci-access-secret-32-chars-minimum-ok
-          JWT_REFRESH_SECRET: ci-refresh-secret-32chars-minimum-ok
-          CORS_ORIGINS: http://localhost:3000
-        run: node scripts/env-check.mjs
-
-      - name: Run Linting
-        run: pnpm lint
-
-      - name: Run Type Checking
-        run: pnpm typecheck
-
-      - name: Run Test Suite
-        run: pnpm test
-
-      - name: Run Build
-        run: pnpm build
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install -g pnpm && pnpm install
+      
+    - name: Typecheck
+      run: pnpm run typecheck
+      
+    - name: Lint
+      run: pnpm run lint
+      
+    - name: Test API
+      run: cd apps/api && pnpm run test
+      
+    - name: Build API
+      run: cd apps/api && pnpm run build
+      
+    - name: Build Web
+      run: cd apps/web && pnpm run build

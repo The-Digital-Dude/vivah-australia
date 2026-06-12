@@ -46,6 +46,8 @@ import {
   updateUserRole,
   updateUserStatus,
   updateUser,
+  getRevenueAnalytics,
+  getVerificationAnalytics,
 } from './admin.service.js';
 
 function asyncHandler(
@@ -108,6 +110,24 @@ export function createAdminRouter(config: AuthConfig): Router {
     requirePermission(AdminPermission.ANALYTICS_READ),
     asyncHandler(async (request, response) => {
       response.status(200).json(await getAnalyticsSummary(analyticsRangeFromQuery(request.query)));
+    }),
+  );
+
+  router.get(
+    '/admin/analytics/revenue',
+    requireAuth(config),
+    requirePermission(AdminPermission.ANALYTICS_READ),
+    asyncHandler(async (request, response) => {
+      response.status(200).json(await getRevenueAnalytics(analyticsRangeFromQuery(request.query)));
+    }),
+  );
+
+  router.get(
+    '/admin/analytics/verification',
+    requireAuth(config),
+    requirePermission(AdminPermission.ANALYTICS_READ),
+    asyncHandler(async (_request, response) => {
+      response.status(200).json(await getVerificationAnalytics());
     }),
   );
 

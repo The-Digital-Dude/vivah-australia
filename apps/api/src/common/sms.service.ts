@@ -1,50 +1,45 @@
+import twilio from 'twilio';
+import { Queue, Worker } from 'bullmq';
+import { Redis } from 'ioredis';
 import { env } from '../env.js';
+import { logger } from './logger.js';
 
-export interface SmsProvider {
-  sendSms(input: { to: string; message: string }): Promise<void>;
+const redisConnection = new Redis(env.REDIS_URI, {
+  maxRetriesPerRequest: null,
+});
+
+let twilioClient: twilio.Twilio | null = null;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 }
 
-class ConsoleSmsProvider implements SmsProvider {
-  sendSms(input: { to: string; message: string }) {
-    console.info(`--- SMS Sent ---\nTo: ${input.to}\n${input.message}\n----------------`);
-    return Promise.resolve();
+export interface SmsJobData {
+  to: string;
+  body: string;
+}
+
+export const smsQueue = new Queue<SmsJobData>('smsQueue', { connection: redisConnection as any });
+
+export const smsWorker = new Worker<SmsJobData>('smsQueue', async (job) => {
+  if (!twilioClient || !process.env.TWILIO_FROM_NUMBER) {
+    logger.warn('Twilio not configured, skipping SMS send to ' + job.data.to);
+    return;
   }
-}
+  
+  await twilioClient.messages.create({
+    body: job.data.body,
+    from: process.env.TWILIO_FROM_NUMBER,
+    to: job.data.to,
+  });
+}, { connection: redisConnection as any });
 
-class TwilioSmsProvider implements SmsProvider {
-  async sendSms(input: { to: string; message: string }) {
-    if (!env.TWILIO_ACCOUNT_SID || !env.TWILIO_AUTH_TOKEN || !env.TWILIO_FROM_NUMBER) {
-      throw new Error('Twilio SMS provider is not configured');
-    }
+smsWorker.on('failed', (job, err) => {
+  logger.error({ err, jobId: job?.id }, 'SMS job failed');
+});
 
-    const credentials = Buffer.from(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`).toString(
-      'base64',
-    );
-    const response = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/Messages.json`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          From: env.TWILIO_FROM_NUMBER,
-          To: input.to,
-          Body: input.message,
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error('Twilio SMS send failed');
-    }
-  }
-}
-
-const provider: SmsProvider =
-  env.SMS_PROVIDER === 'twilio' ? new TwilioSmsProvider() : new ConsoleSmsProvider();
-
-export async function sendSms(input: { to: string; message: string }) {
-  await provider.sendSms(input);
+export async function sendSms(to: string, body: string) {
+  await smsQueue.add('send', { to, body }, {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 2000 },
+  });
 }

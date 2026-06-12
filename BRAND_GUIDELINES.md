@@ -35,7 +35,7 @@ This tagline reflects our core belief that we do more than just introductions. W
 - Represents emotional connection
 - Love, compatibility and understanding
 - Genuine relationships
-- The beginning of a beautiful journey
+- The beginning of a beautiful relationship
 
 ### Creating Futures
 - Represents commitment and marriage
@@ -103,7 +103,7 @@ abcdefghijklmnopqrstuvwxyz
 | 💎 **Premium** | A refined, polished experience worthy of life's most important decision |
 | 🤝 **Warm** | Approachable, empathetic, and culturally connected |
 | 🙏 **Respectful** | Honouring traditions, families, and individual boundaries |
-| 👨‍👩‍👧 **Family-Oriented** | Inclusive of family involvement in the matchmaking journey |
+| 👨‍👩‍👧 **Family-Oriented** | Inclusive of family involvement in the matchmaking process |
 | ✨ **Authentic** | Real profiles, real stories, genuine intent |
 
 ---
@@ -121,6 +121,13 @@ We speak with clarity and empathy. We respect traditions while embracing modern 
 - Clear
 - Respectful
 - Positive
+
+### Deprecated Terminology (AI Jargon)
+Avoid using robotic, overly gamified, or generic AI jargon such as:
+- ❌ **"Journey"** (Use: experience, process, search, relationship)
+- ❌ **"Unlock"** (Use: get access, view, join)
+- ❌ **"Seamless"** (Use: easy, simple)
+- ❌ **"Elevate"** (Use: improve, enhance)
 
 ---
 

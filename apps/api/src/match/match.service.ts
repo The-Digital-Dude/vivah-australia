@@ -20,6 +20,7 @@ import {
   SavedSearchModel,
   SubscriptionModel,
   UserModel,
+  MatchRecommendationModel,
 } from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';
 
@@ -681,6 +682,37 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
     getSubscriptionLimits(userId),
   ]);
   const limit = Math.min(requestedLimit, limits.recommendationLimit);
+
+  // Try to use cached recommendations
+  const cachedMatches = await MatchRecommendationModel.find({ userId })
+    .sort({ score: -1 })
+    .limit(limit)
+    .lean();
+
+  if (cachedMatches.length > 0) {
+    const profileIds = cachedMatches.map(m => m.recommendedProfileId);
+    const candidates = await ProfileModel.find({ _id: { $in: profileIds }, isDeleted: false });
+    
+    // Convert to MatchCards
+    const results = await toMatchCards(viewerProfile, candidates);
+    
+    // Attach reasons and score from cache
+    const cachedById = new Map(cachedMatches.map(c => [String(c.recommendedProfileId), c]));
+    for (const res of results) {
+      const cache = cachedById.get(String(res.id));
+      if (cache) {
+        res.matchScore = cache.score;
+        res.matchReasons = cache.reasons;
+      }
+    }
+    
+    // Sort properly
+    results.sort((a, b) => b.matchScore - a.matchScore);
+    
+    return { results, limits };
+  }
+
+  // Fallback to on-the-fly computation
   const preference = viewerProfile.partnerPreference ?? {};
   const filter = buildBaseVisibilityFilter(viewerProfile, [
     ...blockedUserIds,

@@ -362,6 +362,34 @@ export async function getAnalyticsSummary(input: DateRangeInput = {}) {
   };
 }
 
+export async function getRevenueAnalytics(input: DateRangeInput = {}) {
+  const range = dateRange(input);
+  const rangeMatch = createdAtMatch(range);
+  
+  const dailyRevenue = await PaymentModel.aggregate<{ _id: string; totalCents: number; count: number }>([
+    { $match: { isDeleted: false, status: 'SUCCEEDED', ...rangeMatch } },
+    {
+      $group: {
+        _id: { $dateToString: { date: '$createdAt', format: '%Y-%m-%d' } },
+        totalCents: { $sum: '$amountCents' },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  return { dailyRevenue };
+}
+
+export async function getVerificationAnalytics() {
+  const verificationLevels = await ProfileModel.aggregate<{ _id: string; count: number }>([
+    { $match: { isDeleted: false } },
+    { $group: { _id: '$verification.level', count: { $sum: 1 } } }
+  ]);
+
+  return { verificationLevels };
+}
+
 export async function getAnalyticsCsv(input: DateRangeInput = {}) {
   const summary = await getAnalyticsSummary(input);
   return [

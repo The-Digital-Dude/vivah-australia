@@ -10,7 +10,7 @@ interface AuthContextType {
   userRole: string | null;
   initialized: boolean;
   setToken: (token: string | null) => void;
-  setSession: (tokens: { accessToken: string; refreshToken?: string | undefined }) => void;
+  setSession: (data: { user?: { role: string } }) => void;
   refreshAccessToken: () => Promise<string | null>;
   clearToken: () => void;
 }
@@ -56,11 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setSession = (tokens: { accessToken: string; refreshToken?: string | undefined }) => {
-    setToken(tokens.accessToken);
-    if (tokens.refreshToken) {
-      setRefreshTokenState(tokens.refreshToken);
-      localStorage.setItem('refresh_token', tokens.refreshToken);
+  const setSession = (data: { user?: { role: string } }) => {
+    setToken('cookie-based');
+    if (data.user) {
+      setUserRole(data.user.role);
     }
   };
 
@@ -90,19 +89,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
-    const data = (await response.json()) as { accessToken?: string; refreshToken?: string };
-    if (!data.accessToken || !data.refreshToken) {
+    const data = (await response.json()) as { user?: { role: string } };
+    if (!data.user) {
       clearToken();
       return null;
     }
 
-    setTokenState(data.accessToken);
-    setRefreshTokenState(data.refreshToken);
-    setUserRole(roleFromToken(data.accessToken));
-    localStorage.setItem('auth_token', data.accessToken);
-    localStorage.setItem('refresh_token', data.refreshToken);
-    return data.accessToken;
-  }, [clearToken, refreshToken, roleFromToken]);
+    setTokenState('cookie-based');
+    setUserRole(data.user.role);
+    localStorage.setItem('auth_token', 'cookie-based');
+    return 'cookie-based';
+  }, [clearToken]);
 
   return (
     <AuthContext.Provider

@@ -28,8 +28,33 @@ import {
   verifyEmail,
   verifyMobileRegistration,
 } from './auth.service.js';
-import { verifyGoogleToken, verifyFacebookToken, loginOrRegisterOAuth } from './oauth.service.js';
+import { verifyGoogleToken, verifyFacebookToken, verifyAppleToken, loginOrRegisterOAuth } from './oauth.service.js';
 import { HttpError } from './auth-errors.js';
+
+function setAuthCookies(response: Response, accessToken: string, refreshToken: string) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax' as const,
+    path: '/',
+  };
+  
+  response.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 }); // 15 mins
+  response.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 days
+}
+
+function clearAuthCookies(response: Response) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax' as const,
+    path: '/',
+  };
+  response.clearCookie('accessToken', cookieOptions);
+  response.clearCookie('refreshToken', cookieOptions);
+}
 
 const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -94,7 +119,8 @@ export function createAuthRouter(config: AuthConfig): Router {
     asyncHandler(async (request: Request, response: Response) => {
       const input = mobileOtpVerifySchema.parse(request.body);
       const result = await verifyMobileRegistration(input.mobile, input.code, config);
-      response.status(200).json(result);
+      setAuthCookies(response, result.accessToken, result.refreshToken);
+      response.status(200).json({ user: result.user });
     }),
   );
 
@@ -114,7 +140,8 @@ export function createAuthRouter(config: AuthConfig): Router {
     asyncHandler(async (request: Request, response: Response) => {
       const input = loginSchema.parse(request.body);
       const result = await loginWithEmail(input, config);
-      response.status(200).json(result);
+      setAuthCookies(response, result.accessToken, result.refreshToken);
+      response.status(200).json({ user: result.user });
     }),
   );
 
@@ -123,8 +150,13 @@ export function createAuthRouter(config: AuthConfig): Router {
     authRateLimit,
     asyncHandler(async (request: Request, response: Response) => {
       const input = refreshTokenSchema.parse(request.body);
-      const result = await refreshSession(input.refreshToken, config);
-      response.status(200).json(result);
+      const refreshTokenToUse = request.cookies?.refreshToken || input.refreshToken;
+      if (!refreshTokenToUse) {
+        throw new HttpError(400, 'Refresh token is required');
+      }
+      const result = await refreshSession(refreshTokenToUse, config);
+      setAuthCookies(response, result.accessToken, result.refreshToken);
+      response.status(200).json({ user: result.user });
     }),
   );
 
@@ -132,8 +164,12 @@ export function createAuthRouter(config: AuthConfig): Router {
     '/logout',
     authRateLimit,
     asyncHandler(async (request: Request, response: Response) => {
-      const input = logoutSchema.parse(request.body);
-      await logout(input.refreshToken, config);
+      const input = logoutSchema.partial().parse(request.body);
+      const refreshTokenToUse = request.cookies?.refreshToken || input.refreshToken;
+      if (refreshTokenToUse) {
+        await logout(refreshTokenToUse, config);
+      }
+      clearAuthCookies(response);
       response.status(204).send();
     }),
   );
@@ -186,7 +222,8 @@ export function createAuthRouter(config: AuthConfig): Router {
       }
       const profile = await verifyGoogleToken(token);
       const result = await loginOrRegisterOAuth('google', profile, config);
-      response.status(200).json(result);
+      setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
+      response.status(200).json({ user: result.user });
     }),
   );
 
@@ -200,7 +237,38 @@ export function createAuthRouter(config: AuthConfig): Router {
       }
       const profile = await verifyFacebookToken(token);
       const result = await loginOrRegisterOAuth('facebook', profile, config);
-      response.status(200).json(result);
+      setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
+      response.status(200).json({ user: result.user });
+    }),
+  );
+
+  router.post(
+    '/oauth/apple',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const { token } = request.body as Record<string, unknown>;
+      if (typeof token !== 'string' || !token) {
+        throw new HttpError(400, 'Token is required');
+      }
+      const profile = await verifyAppleToken(token);
+      const result = await loginOrRegisterOAuth('apple', profile, config);
+      setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
+      response.status(200).json({ user: result.user });
+    }),
+  );
+
+  router.post(
+    '/oauth/facebook',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const { token } = request.body as Record<string, unknown>;
+      if (typeof token !== 'string' || !token) {
+        throw new HttpError(400, 'Token is required');
+      }
+      const profile = await verifyFacebookToken(token);
+      const result = await loginOrRegisterOAuth('facebook', profile, config);
+      setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
+      response.status(200).json({ user: result.user });
     }),
   );
 

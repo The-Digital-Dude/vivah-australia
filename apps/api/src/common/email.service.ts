@@ -208,11 +208,34 @@ export async function sendEmail(email: Email): Promise<void> {
   });
 }
 
+const DEFAULT_HTML_TEMPLATES: Record<string, string> = {
+  WELCOME_EMAIL: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h1 style="color: #A10E4D;">Welcome to Vivah Australia, {{ firstName }}!</h1>
+      <p>We're so glad you're here. Take a few minutes to complete your profile and start connecting with genuine people looking for a serious relationship.</p>
+    </div>
+  `,
+  OTP_VERIFICATION: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Verify Your Email</h2>
+      <p>Your verification code is: <strong style="font-size: 24px; letter-spacing: 2px;">{{ otp }}</strong></p>
+      <p>This code will expire in 10 minutes.</p>
+    </div>
+  `,
+  MATCH_NOTIFICATION: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Someone has shown interest in you!</h2>
+      <p>You have a new interest on your profile. Log in to see who it is and decide if you'd like to connect.</p>
+      <a href="{{ link }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Your Match</a>
+    </div>
+  `
+};
+
 export async function sendTemplatedEmail(input: TemplatedEmail): Promise<void> {
   const template = await loadEmailTemplate(input.templateKey);
   const subjectSource = template?.subject?.trim() || input.subjectFallback;
   const htmlSource =
-    template?.body?.trim() || input.htmlFallback || input.textFallback || input.subjectFallback;
+    template?.body?.trim() || DEFAULT_HTML_TEMPLATES[input.templateKey] || input.htmlFallback || input.textFallback || input.subjectFallback;
   const renderedSubject = renderTemplateString(subjectSource, input.context);
   const renderedHtml = renderTemplateString(htmlSource, input.context, { html: true });
   const renderedText = input.textFallback

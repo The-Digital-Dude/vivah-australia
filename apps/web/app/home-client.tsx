@@ -105,7 +105,7 @@ const fallbackFaqs = [
   {
     question: 'Is Vivah Australia free to join?',
     answer:
-      'Yes. You can create your profile, browse introductions, and begin your journey before upgrading for direct communication and visibility benefits.',
+      'Yes. You can create your profile, browse introductions, and begin your search before upgrading for direct communication and visibility benefits.',
   },
   {
     question: 'How does verification work?',
@@ -120,7 +120,7 @@ const fallbackFaqs = [
   {
     question: 'When can members message each other?',
     answer:
-      'Messaging is unlocked when a mutual connection is established and the conversation meets the current membership rules.',
+      'You can start messaging when a mutual connection is established and the conversation meets the current membership rules.',
   },
   {
     question: 'Can I report or block someone?',
@@ -132,37 +132,37 @@ const fallbackFaqs = [
 const demoStories = [
   {
     title: 'Neha & Chirag',
-    body: 'We found each other on Vivah Australia and today we are starting our beautiful journey together. Thank you Vivah Australia!',
+    body: 'We met on Vivah Australia and just clicked. The focus on family and shared values made all the difference. We’re getting married next spring!',
     location: 'Melbourne, VIC',
     imageUrl: '/success-stories/couple-melbourne.jpg',
   },
   {
     title: 'Priya & Kunal',
-    body: 'The verification process gave us confidence and the platform helped us find a truly compatible match.',
+    body: 'We had both almost given up on finding someone with the same cultural background in Sydney. Vivah made the introduction, and the rest is history.',
     location: 'Sydney, NSW',
     imageUrl: '/home/success-stories/couple-02.jpg',
   },
   {
     title: 'Anjali & Manish',
-    body: 'A trustworthy platform with genuine profiles and great support from the Vivah Australia team.',
+    body: 'Having verified profiles meant we didn’t waste time. Our families met after just a month of dating, and we knew it was right.',
     location: 'Brisbane, QLD',
     imageUrl: '/success-stories/couple-brisbane.jpg',
   },
   {
     title: 'Riya & Arjun',
-    body: 'The matches felt serious and family-oriented. We connected quickly and everything moved naturally from there.',
+    body: 'We loved how upfront everyone was about what they wanted. It took the pressure off and let us just be ourselves.',
     location: 'Perth, WA',
     imageUrl: '/home/success-stories/couple-04.jpg',
   },
   {
     title: 'Meera & Rohan',
-    body: 'Vivah Australia made the search respectful, simple, and safe for both our families.',
+    body: 'I was hesitant about online matchmaking, but the privacy controls here gave me peace of mind. Rohan and I are so grateful.',
     location: 'Adelaide, SA',
     imageUrl: '/home/success-stories/couple-05.jpg',
   },
   {
     title: 'Isha & Dev',
-    body: 'We appreciated the verified profiles and clear member details. It helped us focus on the right conversations.',
+    body: 'From our first chat, it was clear we shared the same goals. We are officially engaged and planning a wedding in Canberra!',
     location: 'Canberra, ACT',
     imageUrl: '/home/success-stories/couple-06.jpg',
   },
@@ -983,7 +983,7 @@ export default function HomeClient({
               href="/register"
               className="btn-shimmer inline-flex items-center gap-2 rounded-full bg-[#A10E4D] px-9 py-4 text-sm font-bold text-white shadow-[0_16px_40px_rgba(161,14,77,0.26)] transition hover:-translate-y-0.5 hover:bg-[#8E0D43] hover:shadow-[0_22px_50px_rgba(161,14,77,0.34)]"
             >
-              Start Your Journey <ArrowRight className="size-4" />
+              Begin Your Search <ArrowRight className="size-4" />
             </Link>
           </div>
         </div>
@@ -1115,8 +1115,7 @@ export default function HomeClient({
               <em className="not-italic text-[#A10E4D]">meaningful connections</em>
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-[#5F5F5F]">
-              Unlock direct messaging, advanced filters, and trust-building features designed for serious
-              matrimonial journeys.
+              Get full access to direct messaging, advanced filters, and features built for serious relationships.
             </p>
           </div>
 
@@ -1187,7 +1186,7 @@ export default function HomeClient({
           ) : (
             <div className="rounded-[32px] border border-[#A10E4D]/10 bg-white p-10 text-center shadow-[0_24px_65px_rgba(161,14,77,0.07)]">
               <p className="mb-6 text-lg text-[#5F5F5F]">
-                Unlock direct messaging, advanced search filters, and trust-building features.
+                Get full access to direct messaging, advanced search filters, and trust-building features.
               </p>
               <PremiumButton href="/membership" className="rounded-full px-8">
                 Explore Membership

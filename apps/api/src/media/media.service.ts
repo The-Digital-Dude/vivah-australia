@@ -4,6 +4,7 @@ import {
   MediaUploadStatus,
   MediaVisibility,
   VerificationStatus,
+  InterestStatus,
 } from '@vivah/shared';
 import type {
   MediaCompleteUploadInput,
@@ -13,7 +14,7 @@ import type {
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
-import { ProfileMediaModel, ProfileModel, type ProfileMediaDocument } from '../models/index.js';
+import { ProfileMediaModel, ProfileModel, InterestModel, type ProfileMediaDocument } from '../models/index.js';
 
 const UPLOAD_TTL_SECONDS = 10 * 60;
 const ACCESS_TTL_SECONDS = 5 * 60;
@@ -259,7 +260,33 @@ export async function deleteOwnMedia(userId: Types.ObjectId, mediaId: string) {
 }
 
 export async function createMediaAccess(userId: Types.ObjectId, mediaId: string) {
-  const media = await getOwnMediaOrFail(userId, mediaId);
+  if (!Types.ObjectId.isValid(mediaId)) {
+    throw new HttpError(404, 'Media not found');
+  }
+
+  const media = await ProfileMediaModel.findOne({ _id: mediaId, isDeleted: false });
+
+  if (!media) {
+    throw new HttpError(404, 'Media not found');
+  }
+
+  if (String(media.userId) !== String(userId)) {
+    if (media.visibility === MediaVisibility.PRIVATE) {
+      // Check for ACCEPTED interest
+      const interest = await InterestModel.findOne({
+        $or: [
+          { senderId: userId, receiverId: media.userId },
+          { senderId: media.userId, receiverId: userId },
+        ],
+        status: InterestStatus.ACCEPTED,
+        isDeleted: false,
+      });
+
+      if (!interest) {
+        throw new HttpError(403, 'You do not have permission to view this private media. An accepted interest is required.');
+      }
+    }
+  }
 
   if (media.uploadStatus !== MediaUploadStatus.UPLOADED) {
     throw new HttpError(400, 'Media has not been uploaded');

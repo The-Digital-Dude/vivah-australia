@@ -34,13 +34,10 @@ export default function LoginPage() {
     try {
       const result = await postAuth('login', { email, password });
 
-      if (result.ok && result.data?.accessToken) {
-        setSession({
-          accessToken: result.data.accessToken,
-          refreshToken: result.data.refreshToken,
-        });
-        setMessage('Signed in successfully.');
-        router.push('/member');
+      if (result.ok) {
+        setSession({ user: result.data?.user as any });
+        toast({ title: 'Welcome back', description: 'Session started' });
+        router.push(searchParams.get('returnUrl') || '/member');
         router.refresh();
       } else {
         setError(result.message || 'Login failed');

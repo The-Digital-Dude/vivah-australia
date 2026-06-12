@@ -11,7 +11,7 @@ import { Types } from 'mongoose';
 import { recordHighVelocityProfileViews } from '../common/fraud.service.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
 import { HttpError } from '../auth/auth-errors.js';
-import { isPaidMember } from '../billing/billing.service.js';
+import { isPaidMember, cancelSubscription } from '../billing/billing.service.js';
 import {
   BlockModel,
   AuthTokenModel,
@@ -623,6 +623,12 @@ export async function requestAccountDeletion(userId: Types.ObjectId) {
     ProfileViewModel.updateMany({ $or: [{ viewerId: userId }, ...(profileId ? [{ profileId }, { profileUserId: profileId }] : [])] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
     BlockModel.updateMany({ $or: [{ blockerId: userId }, { blockedId: userId }] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
   ]);
+
+  try {
+    await cancelSubscription(userId);
+  } catch (err) {
+    // Ignore if no active subscription
+  }
 
   await Promise.all([
     logAudit({

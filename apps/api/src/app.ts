@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import express, { type Express, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import { z } from 'zod';
+import cookieParser from 'cookie-parser';
 import { createAdminRouter } from './admin/admin.routes.js';
 import { createAuthRouter } from './auth/auth.routes.js';
 import { isHttpError } from './auth/auth-errors.js';
@@ -17,6 +18,7 @@ import { createMessagesRouter } from './messages/messages.routes.js';
 import { createNotificationsRouter } from './notifications/notifications.routes.js';
 import { createPublicRouter } from './public/public.routes.js';
 import { createProfileRouter } from './profile/profile.routes.js';
+import { createVerificationRouter } from './verification/verification.routes.js';
 import { reportApplicationError } from './common/error-tracking.service.js';
 import { logger } from './common/logger.js';
 
@@ -89,6 +91,7 @@ export function createApp(options: CreateAppOptions): Express {
 
   app.use('/api', createStripeWebhookRouter());
   app.use(express.json({ limit: '1mb' }));
+  app.use(cookieParser());
 
   const healthHandler = (_request: Request, response: Response) => {
     response.status(200).json({ status: 'ok' });
@@ -109,6 +112,7 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createBillingRouter(options.auth));
   app.use('/api', createAdminRouter(options.auth));
   app.use('/api', createNotificationsRouter(options.auth));
+  app.use('/api', createVerificationRouter(options.auth));
 
   app.use((error: unknown, request: Request, response: Response, _next: express.NextFunction) => {
     const reqId = response.getHeader('x-request-id') || request.headers['x-request-id'];

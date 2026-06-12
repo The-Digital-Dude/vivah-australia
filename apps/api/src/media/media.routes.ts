@@ -129,6 +129,22 @@ export function createMediaRouter(config: AuthConfig): Router {
   );
 
   router.get(
+    '/media/:id/access',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const mediaId = request.params.id;
+
+      if (!mediaId) {
+        throw new HttpError(404, 'Media not found');
+      }
+
+      const result = await createMediaAccess(auth.userId, mediaId);
+      response.status(200).json(result);
+    }),
+  );
+
+  router.get(
     '/admin/media',
     requireAuth(config),
     asyncHandler(async (request: AuthenticatedRequest, response) => {

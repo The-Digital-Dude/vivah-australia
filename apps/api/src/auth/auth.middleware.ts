@@ -49,13 +49,19 @@ const rolePermissions: Record<UserRoleType, AdminPermission[]> = {
 export function requireAuth(config: AuthConfig) {
   return (request: AuthenticatedRequest, _response: Response, next: NextFunction) => {
     void (async () => {
-      const header = request.header('authorization');
+      let token = request.cookies?.accessToken as string | undefined;
 
-      if (!header?.startsWith('Bearer ')) {
+      if (!token) {
+        const header = request.header('authorization');
+        if (header?.startsWith('Bearer ')) {
+          token = header.slice('Bearer '.length);
+        }
+      }
+
+      if (!token) {
         throw new HttpError(401, 'Authentication required');
       }
 
-      const token = header.slice('Bearer '.length);
       const payload = verifyAccessToken(config, token);
       const user = await UserModel.findById(payload.sub).orFail();
 

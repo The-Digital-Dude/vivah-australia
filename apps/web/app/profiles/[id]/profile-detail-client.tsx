@@ -625,7 +625,7 @@ function buildConversationStarters(profile: ProfileDetail): string[] {
   }
 
   if (profile.employment?.occupation) {
-    starters.push(`Ask about their career journey in ${profile.employment.occupation} and what they find most meaningful about it.`);
+    starters.push(`Ask them what they enjoy most about working as a ${profile.employment.occupation}.`);
   }
 
   if (profile.location?.city) {

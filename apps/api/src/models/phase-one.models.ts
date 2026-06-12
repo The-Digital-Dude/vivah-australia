@@ -1318,7 +1318,40 @@ export const PaymentModel = getOrCreateModel<Payment>('Payment', paymentSchema);
 export const UsageCounterModel = getOrCreateModel<UsageCounter>('UsageCounter', usageCounterSchema);
 export const InvoiceModel = getOrCreateModel<Invoice>('Invoice', invoiceSchema);
 export const CouponModel = getOrCreateModel<Coupon>('Coupon', couponSchema);
-export const RefundModel = getOrCreateModel<Refund>('Refund', refundSchema);
+export const RefundModel = getOrCreateModel<RefundDocument, typeof refundSchema>(
+  'Refund',
+  refundSchema,
+);
+
+export interface MatchRecommendation {
+  userId: ObjectId;
+  recommendedProfileId: ObjectId;
+  score: number;
+  reasons: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const matchRecommendationSchema = new Schema<MatchRecommendation>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    recommendedProfileId: { type: Schema.Types.ObjectId, ref: 'Profile', required: true },
+    score: { type: Number, required: true },
+    reasons: { type: [String], default: [] },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'match_recommendations' },
+);
+
+matchRecommendationSchema.index({ userId: 1, score: -1 });
+
+export type MatchRecommendationDocument = HydratedDocument<MatchRecommendation>;
+
+export const MatchRecommendationModel = getOrCreateModel<MatchRecommendationDocument, typeof matchRecommendationSchema>(
+  'MatchRecommendation',
+  matchRecommendationSchema,
+);
 export const ProfileBoostModel = getOrCreateModel<ProfileBoost>('ProfileBoost', profileBoostSchema);
 export const NotificationModel = getOrCreateModel<Notification>('Notification', notificationSchema);
 export const AuditLogModel = getOrCreateModel<AuditLog>('AuditLog', auditLogSchema);

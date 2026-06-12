@@ -33,6 +33,7 @@ import {
   upsertPlan,
   createPaymentIntent,
 } from './billing.service.js';
+import { createPayPalOrder, capturePayPalOrder } from './paypal.service.js';
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -100,6 +101,32 @@ export function createBillingRouter(config: AuthConfig): Router {
       }
       const result = await createPaymentIntent(auth.userId, amountCents, currency);
       response.status(201).json(result);
+    }),
+  );
+
+  router.post(
+    '/billing/paypal/create-order',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const { amount, currency } = request.body as { amount: number; currency?: string };
+      if (typeof amount !== 'number' || amount <= 0) {
+        throw new HttpError(400, 'Invalid amount');
+      }
+      const order = await createPayPalOrder(amount, currency);
+      response.status(201).json({ id: order.id });
+    }),
+  );
+
+  router.post(
+    '/billing/paypal/capture-order',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const { orderId } = request.body as { orderId: string };
+      if (!orderId) {
+        throw new HttpError(400, 'Order ID is required');
+      }
+      const result = await capturePayPalOrder(orderId);
+      response.status(200).json(result);
     }),
   );
 

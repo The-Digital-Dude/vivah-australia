@@ -139,8 +139,9 @@ const TIER_ORDER: TierKey[] = ['FREE', 'PREMIUM', 'GOLD', 'PLATINUM'];
 const TIER_CONTENT: Record<TierKey, TierContent> = {
   FREE: {
     tierKey: 'FREE',
+    highlight: false,
     displayName: 'Free',
-    positioning: 'Start your journey',
+    positioning: 'Begin your search',
     outcomeHeadline: 'Explore at your own pace',
     benefits: [
       { icon: <Users className="size-4" />, label: 'Build your profile', outcome: 'Make a strong first impression with a complete, polished profile' },
@@ -176,7 +177,8 @@ const TIER_CONTENT: Record<TierKey, TierContent> = {
       { icon: <Eye className="size-4" />, label: 'Get noticed', outcome: 'Get noticed by more serious members with monthly profile boosts' },
       { icon: <Shield className="size-4" />, label: 'Privacy first', outcome: 'Stay in full control of your photo privacy and visibility' },
     ],
-    ctaLabel: 'Unlock Premium',
+    icon: Sparkles,
+    ctaLabel: 'Upgrade to Premium',
     microcopy: 'Most popular with members actively looking for a partner.',
     comparison: {
       monthlyInterests: '50 interests / month',
@@ -334,7 +336,7 @@ const FAQ_ITEMS = [
   {
     id: 'after-upgrade',
     question: 'What happens immediately after I upgrade?',
-    answer: 'Your membership tools unlock immediately after payment is confirmed. That means messaging access, advanced filtering, and visibility upgrades are available straight away — no waiting period.',
+    answer: 'Your membership tools become available immediately after payment is confirmed. That means messaging access, advanced filtering, and visibility upgrades are available straight away — no waiting period.',
   },
   {
     id: 'secure',

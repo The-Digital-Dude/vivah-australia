@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { X, Loader2, Lock } from 'lucide-react';
 import { useMemberRequest } from '@/lib/member-api';
 import { PremiumButton } from '@/app/components';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
 interface Plan {
   code: string;
@@ -106,22 +107,53 @@ export default function UpgradeModal({
           </p>
         </div>
 
-        <PremiumButton
-          onClick={() => {
-            void startCheckout();
-          }}
-          disabled={submitting || plan.code === 'FREE'}
-          className="w-full h-12"
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="size-4 animate-spin shrink-0" />
-              Connecting secure Stripe checkout...
-            </>
-          ) : (
-            'Continue to Checkout'
-          )}
-        </PremiumButton>
+        <div className="space-y-3">
+          <PremiumButton
+            onClick={() => {
+              void startCheckout();
+            }}
+            disabled={submitting || plan.code === 'FREE'}
+            className="w-full h-12"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="size-4 animate-spin shrink-0" />
+                Connecting secure Stripe checkout...
+              </>
+            ) : (
+              'Pay with Card (Stripe)'
+            )}
+          </PremiumButton>
+
+          <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test', currency: plan.currency }}>
+            <PayPalButtons
+              style={{ layout: 'horizontal', height: 48, color: 'gold' }}
+              createOrder={async () => {
+                const res = await memberRequest('/api/billing/paypal/create-order', {
+                  method: 'POST',
+                  body: { amount: plan.priceCents / 100, currency: plan.currency }
+                });
+                if (!res.ok) {
+                  setMessage(res.message);
+                  throw new Error(res.message);
+                }
+                const data = res.data as { id: string };
+                return data.id;
+              }}
+              onApprove={async (data, actions) => {
+                const res = await memberRequest('/api/billing/paypal/capture-order', {
+                  method: 'POST',
+                  body: { orderId: data.orderID }
+                });
+                if (!res.ok) {
+                  setMessage(res.message);
+                } else {
+                  window.location.href = '/member/dashboard';
+                }
+              }}
+            />
+          </PayPalScriptProvider>
+        </div>
       </section>
     </div>
   );

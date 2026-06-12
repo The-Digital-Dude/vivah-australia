@@ -5,6 +5,7 @@ import { logger } from './common/logger.js';
 import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
+import { matchCachingQueue, matchCachingWorker } from './match/match.worker.js';
 
 const authConfig = {
   accessSecret: env.JWT_ACCESS_SECRET,
@@ -59,6 +60,13 @@ async function startServer() {
 
   server.listen(env.API_PORT, () => {
     logger.info({ url: env.API_BASE_URL, port: env.API_PORT }, 'API server started');
+  });
+
+  // Schedule match caching
+  await matchCachingQueue.add('precalculate-matches', {}, {
+    repeat: {
+      pattern: '0 2 * * *' // Nightly at 2:00 AM
+    }
   });
 }
 

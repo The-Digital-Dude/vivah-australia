@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
     });
 
     const role = (result.data?.user as { role?: string } | undefined)?.role;
-    if (!result.ok || !result.data?.accessToken) {
+    if (!result.ok) {
       setError(result.message || 'Login failed');
       setPending(false);
       return;
@@ -41,10 +41,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    setSession({
-      accessToken: result.data.accessToken,
-      refreshToken: result.data.refreshToken,
-    });
+    setSession({ user: result.data?.user as any });
     router.push('/admin/dashboard');
   }
 
