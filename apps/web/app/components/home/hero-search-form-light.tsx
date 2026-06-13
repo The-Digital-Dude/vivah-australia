@@ -6,7 +6,7 @@ import { HeroSelect } from './hero-select-light';
 
 export function HeroSearchForm() {
   return (
-    <section className="relative z-10 overflow-hidden px-8 py-14 sm:px-12 lg:px-16">
+    <section className="relative z-10 overflow-hidden">
       <motion.form
         action="/matches"
         className="relative mx-auto container overflow-hidden rounded-[28px] border border-[#D9A05B]/30 bg-gradient-to-br from-white to-[#FDFBF7] px-5 py-8 shadow-[0_40px_100px_rgba(217,160,91,0.15)] sm:px-8 sm:py-10"

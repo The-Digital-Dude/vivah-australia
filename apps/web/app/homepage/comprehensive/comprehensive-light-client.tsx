@@ -16,66 +16,44 @@ const HowItWorksSectionLight = dynamic(() => import('@/app/components/home/how-i
 const RevampedMembershipCardsLight = dynamic(() => import('@/app/components/revamped-membership-cards-light').then(mod => mod.RevampedMembershipCards), { ssr: true });
 const RedesignedFaqSectionLight = dynamic(() => import('@/app/components/redesigned-faq-light').then(mod => mod.RedesignedFaqSection), { ssr: true });
 
-// This is the StoryHero adapted for our editorial comprehensive page
-function StoryHero({ data }: { data: any }) {
+// This is the Unified Hero adapted for our luxury comprehensive page
+function UnifiedHeroLight({ data }: { data: any }) {
   return (
-    <section className="relative overflow-hidden border-b border-[#D9A05B]/20 bg-transparent px-8 py-20 sm:px-12 lg:px-16">
-      {/* Transparent background to let Cashmere glows show through */}
-
-      <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_0.92fr] lg:items-center">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#E74C7C]/30 bg-white/80 px-4 py-2 backdrop-blur-sm">
-            <Heart className="size-3.5 fill-[#E74C7C] text-[#E74C7C]" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#A10E4D]">
-              Real stories of love
-            </span>
-          </div>
-          <div className="mt-6">
-            <AnimatedWordPlay 
-              theme="light"
-              eyebrow="Premium Indian Matrimony"
-              prefix="Your Search for"
-              words={['Love', 'Companionship', 'Forever', 'Connection']}
-              suffix=" Ends Here."
-              body="Experience AustraliaÎ“Ã‡Ã–s most trusted Indian matrimony platform. We combine 100% verified profiles with personalized matchmaking to help you find a partner who shares your cultural roots and Australian lifestyle." 
-            />
-          </div>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href="/register"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#E74C7C] px-7 py-3.5 text-sm font-bold text-white shadow-[0_16px_38px_rgba(231,76,124,0.35)] transition hover:-translate-y-0.5 hover:bg-[#D63D6D]"
-            >
-              <Heart className="size-4 fill-white" />
-              Start Your Journey
-            </a>
-            <a
-              href="/blog"
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#E74C7C]/35 bg-white px-7 py-3.5 text-sm font-bold text-[#A10E4D] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF1F5]"
-            >
-              See Success Stories
-            </a>
-          </div>
+    <section className="relative overflow-hidden border-b border-[#D9A05B]/20 bg-transparent pt-20 sm:pt-24 lg:pt-32">
+      <div className="relative mx-auto max-w-7xl px-8 sm:px-12 lg:px-16 text-center">
+        
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#D9A05B]/30 bg-white/80 px-4 py-2 backdrop-blur-sm shadow-sm mx-auto">
+          <Heart className="size-3.5 fill-[#D9A05B] text-[#D9A05B]" />
+          <span className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#C48C45]">
+            Premium Indian Matrimony
+          </span>
+        </div>
+        
+        <div className="mt-8 flex justify-center">
+          <AnimatedWordPlay 
+            theme="light"
+            prefix="Your Search for"
+            words={['Love', 'Companionship', 'Forever', 'Connection']}
+            suffix=" Ends Here."
+            body="Experience Australia's most trusted Indian matrimony platform. We combine 100% verified profiles with personalized matchmaking to help you find a partner who shares your cultural roots and Australian lifestyle." 
+          />
+        </div>
+        
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          <a
+            href="/register"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#D9A05B] to-[#C48C45] px-8 py-3.5 text-sm font-bold text-white shadow-[0_16px_38px_rgba(217,160,91,0.35)] transition hover:-translate-y-0.5 hover:from-[#C48C45] hover:to-[#AF7830]"
+          >
+            <Heart className="size-4 fill-white" />
+            Start Your Journey
+          </a>
         </div>
 
-        <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div className="rotate-1 rounded-2xl bg-gradient-to-br from-white to-[#FDFBF7] p-4 pb-20 shadow-[0_40px_100px_rgba(217,160,91,0.15)] border border-[#D9A05B]/30 transition duration-500 hover:rotate-0 hover:-translate-y-2">
-            <div className="relative aspect-square overflow-hidden rounded-lg">
-              <Image
-                src="/home/success-stories/couple-02.jpg"
-                alt="Vivah Australia success story"
-                fill
-                priority
-                className="object-cover"
-                sizes="(min-width: 1024px) 40vw, 100vw"
-              />
-            </div>
-            <p className="absolute bottom-6 left-0 right-0 text-center font-cormorant text-2xl font-semibold italic text-[#2A111A]">
-              Neha &amp; Chirag &mdash; Melbourne
-            </p>
-          </div>
-          <div className="absolute -left-8 -top-8 -z-10 hidden h-48 w-40 -rotate-3 rounded-xl bg-gradient-to-br from-white to-[#FDFBF7] p-2 shadow-[0_20px_50px_rgba(217,160,91,0.1)] border border-[#D9A05B]/20 lg:block">
-          </div>
+        {/* The Search Form directly integrated into the Hero */}
+        <div className="mt-16 mb-16 relative z-20 mx-auto max-w-5xl">
+          <HeroSearchFormLight />
         </div>
+        
       </div>
     </section>
   );
@@ -87,37 +65,25 @@ export function ComprehensiveLightClient({ data }: { data?: any }) {
       <PublicHeader />
       
       <PremiumFloatingElementsLight>
-        {/* 1. Header from "story homepage" */}
-        <StoryHero data={data} />
+        {/* 1. The Unified Hero (Above the Fold) */}
+        <UnifiedHeroLight data={data} />
 
-        {/* Metric Strip moved to right after the hero */}
+        {/* 2. Trust Sequence */}
         <div className="bg-transparent py-16">
           <CommunityStatsStripLight />
         </div>
-
-        {/* 2. Search Section from "current homepage" */}
-        <section className="bg-transparent px-8 pt-16 pb-10 sm:px-12 lg:px-16">
-          <div className="mx-auto max-w-7xl">
-            <div className="text-center mb-10">
-               <h2 className="font-playfair text-4xl font-bold text-[#2A111A]">Connect with Compatible Indian Singles Across Australia</h2>
-            </div>
-            <HeroSearchFormLight />
-          </div>
-        </section>
-
-        {/* 3. Success Story from "current homepage" (Bento style) */}
-        <BentoSuccessStoriesLight />
-
-        {/* Trust Strip */}
         <TrustVerificationStripLight />
 
-        {/* 4. How Vivah Australia Works from "animated homepage" */}
+        {/* 3. The Journey (How it Works) */}
         <HowItWorksSectionLight />
 
-        {/* 5. Subscription/membership revamped */}
+        {/* 4. Emotional Proof */}
+        <BentoSuccessStoriesLight />
+
+        {/* 5. Commitment & Pricing */}
         <RevampedMembershipCardsLight />
 
-        {/* 6. FAQ Section redesigned */}
+        {/* 6. FAQ Section */}
         <RedesignedFaqSectionLight />
       </PremiumFloatingElementsLight>
 
