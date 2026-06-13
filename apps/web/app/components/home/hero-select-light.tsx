@@ -10,10 +10,10 @@ export function HeroSelect({
   name: string;
 }>) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#2f2f2f]">
+    <label className="grid gap-2 text-sm font-semibold text-[#2A111A]">
       {label}
       <select
-        className="h-12 w-full rounded-lg border border-[#A10E4D]/20 bg-white px-4 text-base text-[#1A1A1A] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#A10E4D]/10 shadow-sm"
+        className="h-12 w-full rounded-lg border border-[#D9A05B]/30 bg-white/80 px-4 text-base text-[#2A111A] outline-none transition focus:border-[#D9A05B] focus:ring-4 focus:ring-[#D9A05B]/20 shadow-sm"
         name={name}
       >
         {children}

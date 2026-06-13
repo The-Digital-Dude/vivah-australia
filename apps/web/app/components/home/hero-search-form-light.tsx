@@ -9,7 +9,7 @@ export function HeroSearchForm() {
     <section className="relative z-10 overflow-hidden px-8 py-14 sm:px-12 lg:px-16">
       <motion.form
         action="/matches"
-        className="relative mx-auto container overflow-hidden rounded-[28px] border border-[#D4A04C]/15 bg-white px-5 py-8 shadow-[0_40px_100px_rgba(0,0,0,0.06)] sm:px-8 sm:py-10"
+        className="relative mx-auto container overflow-hidden rounded-[28px] border border-[#D9A05B]/30 bg-gradient-to-br from-white to-[#FDFBF7] px-5 py-8 shadow-[0_40px_100px_rgba(217,160,91,0.15)] sm:px-8 sm:py-10"
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.35 }}
@@ -17,18 +17,17 @@ export function HeroSearchForm() {
       >
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <h2 className="font-playfair text-3xl font-bold leading-tight text-[#1A1A1A] sm:text-4xl lg:text-5xl">
-              Start with the details that <span className="bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] bg-clip-text text-transparent">matter most</span>
+            <h2 className="font-playfair text-3xl font-bold leading-tight text-[#2A111A] sm:text-4xl lg:text-5xl">
+              Start with the details that <span className="bg-gradient-to-r from-[#D9A05B] to-[#E74C7C] bg-clip-text text-transparent">matter most</span>
             </h2>
           </div>
 
-          <p className="max-w-md text-sm font-medium leading-6 text-[#5f5f5f] sm:text-base">
-            Refine age, community, and city to discover serious Australian matches with stronger
-            compatibility signals.
+          <p className="max-w-sm text-sm font-medium leading-relaxed text-[#4A0E25] lg:text-right">
+            Connect with verified professionals who share your cultural values and lifestyle.
           </p>
         </div>
 
-        <div className="relative mt-7 grid gap-4 rounded-2xl border border-[#E74C7C]/15 bg-[#FFF9F5] p-4 shadow-inner sm:p-5 lg:grid-cols-[1.4fr_0.75fr_0.75fr_1.35fr_1.35fr_auto] lg:items-end">
+        <div className="relative mt-7 grid gap-4 rounded-2xl border border-[#D9A05B]/20 bg-[#FCF8F2] p-4 shadow-inner sm:p-5 lg:grid-cols-[1.4fr_0.75fr_0.75fr_1.35fr_1.35fr_auto] lg:items-end">
           <HeroSelect label="I am looking for" name="gender">
             <option value="FEMALE">Bride</option>
             <option value="MALE">Groom</option>
@@ -60,8 +59,8 @@ export function HeroSearchForm() {
             <option value="Perth">Perth</option>
           </HeroSelect>
           <motion.button
+            className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D9A05B] to-[#C48C45] px-6 text-sm font-bold text-white shadow-[0_8px_20px_rgba(217,160,91,0.35)] transition hover:from-[#C48C45] hover:to-[#AF7830] focus:outline-none focus:ring-4 focus:ring-[#D9A05B]/30"
             type="submit"
-            className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] px-8 text-base font-semibold text-white shadow-[0_20px_45px_rgba(231,76,124,0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_55px_rgba(231,76,124,0.4)] focus:outline-none focus:ring-4 focus:ring-[#e74c7c]/20 lg:w-auto"
             whileHover={{ y: -2, scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
           >

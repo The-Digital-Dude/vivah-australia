@@ -16,21 +16,17 @@ export function PremiumFloatingElements({ children }: { children: React.ReactNod
   const y3 = useTransform(scrollYProgress, [0, 1], [0, -300]);
 
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden bg-[#fff9f5]">
-      {/* Background Aurora Orbs (Tripled Density) */}
+    <div ref={containerRef} className="relative w-full overflow-hidden bg-[#FCF8F2]">
+      {/* Background Ambient Gold/Rose Gold Glows */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {/* Layer 1 - Original */}
-        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3], x: [0, 100, 0], y: [0, -50, 0] }} transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }} className="absolute -left-[10%] top-[10%] h-[500px] w-[500px] rounded-full bg-[#E74C7C]/20 blur-[100px]" />
-        <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2], x: [0, -100, 0], y: [0, 100, 0] }} transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }} className="absolute -right-[10%] top-[30%] h-[600px] w-[600px] rounded-full bg-[#D4A04C]/15 blur-[120px]" />
-        <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2], x: [0, 50, 0], y: [0, -100, 0] }} transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }} className="absolute bottom-[20%] left-[20%] h-[400px] w-[400px] rounded-full bg-[#A10E4D]/15 blur-[100px]" />
+        {/* Layer 1 - Massive, ultra-soft glows */}
+        <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15], x: [0, 80, 0], y: [0, -40, 0] }} transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }} className="absolute -left-[10%] top-[5%] h-[700px] w-[700px] rounded-full bg-[#E8C39E] blur-[140px]" />
+        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1], x: [0, -100, 0], y: [0, 80, 0] }} transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }} className="absolute -right-[15%] top-[25%] h-[800px] w-[800px] rounded-full bg-[#E7A5A5] blur-[150px]" />
+        <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1], x: [0, 50, 0], y: [0, -100, 0] }} transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut' }} className="absolute bottom-[10%] left-[20%] h-[600px] w-[600px] rounded-full bg-[#E8C39E] blur-[130px]" />
         
-        {/* Layer 2 - Extra Density */}
-        <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.35, 0.15], x: [0, -80, 0], y: [0, 60, 0] }} transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }} className="absolute right-[20%] top-[5%] h-[450px] w-[450px] rounded-full bg-[#E74C7C]/25 blur-[110px]" />
-        <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.25, 0.45, 0.25], x: [0, 90, 0], y: [0, -70, 0] }} transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }} className="absolute left-[30%] top-[40%] h-[550px] w-[550px] rounded-full bg-[#D4A04C]/20 blur-[130px]" />
-        
-        {/* Layer 3 - Extra Density */}
-        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2], x: [0, -120, 0], y: [0, 90, 0] }} transition={{ duration: 19, repeat: Infinity, ease: 'easeInOut' }} className="absolute -right-[5%] bottom-[10%] h-[400px] w-[400px] rounded-full bg-[#A10E4D]/20 blur-[100px]" />
-        <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.3, 0.15], x: [0, 60, 0], y: [0, -60, 0] }} transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut' }} className="absolute left-[5%] bottom-[5%] h-[480px] w-[480px] rounded-full bg-[#E74C7C]/15 blur-[110px]" />
+        {/* Layer 2 - Extra warmth */}
+        <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.18, 0.08], x: [0, -80, 0], y: [0, 60, 0] }} transition={{ duration: 32, repeat: Infinity, ease: 'easeInOut' }} className="absolute right-[20%] top-[5%] h-[650px] w-[650px] rounded-full bg-[#D9A05B] blur-[140px]" />
+        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.22, 0.12], x: [0, 90, 0], y: [0, -70, 0] }} transition={{ duration: 35, repeat: Infinity, ease: 'easeInOut' }} className="absolute left-[30%] top-[50%] h-[750px] w-[750px] rounded-full bg-[#E7A5A5] blur-[160px]" />
       </div>
 
       {/* Floating UI Elements (Aggressive Parallax) */}
@@ -130,11 +126,11 @@ export function PremiumFloatingElements({ children }: { children: React.ReactNod
 
 function FloatingCard({ icon: Icon, text, color }: { icon: any; text: string; color: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-5 py-3 shadow-[0_16px_40px_rgba(161,14,77,0.08)] backdrop-blur-xl transition hover:bg-white/80">
-      <div className={`flex size-8 items-center justify-center rounded-full bg-white shadow-sm ${color}`}>
+    <div className="flex items-center gap-3 rounded-2xl border border-[#D9A05B]/30 bg-gradient-to-br from-white to-[#FDFBF7] px-5 py-3 shadow-[0_16px_40px_rgba(217,160,91,0.15)] transition hover:scale-105">
+      <div className={`flex size-8 items-center justify-center rounded-full bg-white shadow-sm border border-[#D9A05B]/20 ${color}`}>
         <Icon className="size-4" />
       </div>
-      <span className="font-semibold text-[#2f2f2f]">{text}</span>
+      <span className="font-semibold text-[#2A111A]">{text}</span>
     </div>
   );
 }

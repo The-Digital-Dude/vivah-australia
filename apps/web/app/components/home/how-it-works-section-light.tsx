@@ -79,29 +79,29 @@ function FadeInAnimation({
 
 export function HowItWorksSection() {
   return (
-    <section className="relative z-20 bg-white px-8 py-24 sm:px-12 lg:px-16 border-b border-[#E74C7C]/10">
+    <section className="relative z-20 bg-transparent px-8 py-24 sm:px-12 lg:px-16 border-b border-[#D9A05B]/20">
       <div className="container mx-auto">
-        <h2 className="text-center font-playfair text-4xl font-bold leading-tight text-[#1A1A1A] sm:text-5xl">
+        <h2 className="text-center font-playfair text-4xl font-bold leading-tight text-[#2A111A] sm:text-5xl">
           Your Journey to Forever, Simplified.
         </h2>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4 xl:gap-8">
           {steps.map(({ title, description, icon: Icon }, index) => (
             <FadeInAnimation key={title} index={index}>
-              <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-sm border border-[#E74C7C]/15 bg-[#FFF9F5] px-6 py-10 text-center hover:-translate-y-2 transition duration-500">
-                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-white text-sm font-bold text-[#A10E4D] shadow-sm border border-[#A10E4D]/20">
+              <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-2xl border border-[#D9A05B]/30 bg-gradient-to-br from-white to-[#FDFBF7] px-6 py-10 text-center shadow-[0_20px_50px_rgba(217,160,91,0.1)] hover:-translate-y-2 transition duration-500">
+                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#D9A05B] to-[#C48C45] text-sm font-bold text-white shadow-[0_8px_20px_rgba(217,160,91,0.3)] border border-[#D9A05B]/30">
                   {index + 1}
                 </span>
 
-                <div className="flex size-20 items-center justify-center rounded-full bg-white border border-[#D4A04C]/30 shadow-sm text-[#D4A04C] transition duration-500 group-hover:scale-110 group-hover:shadow-md">
+                <div className="flex size-20 items-center justify-center rounded-full bg-white border border-[#D9A05B]/30 shadow-[0_10px_30px_rgba(217,160,91,0.15)] text-[#C48C45] transition duration-500 group-hover:scale-110 group-hover:shadow-md">
                   <Icon
                     className="size-10 transition duration-500 group-hover:scale-110"
                     strokeWidth={1.8}
                   />
                 </div>
 
-                <h3 className="mt-6 text-xl font-bold leading-tight text-[#1A1A1A] font-playfair">{title}</h3>
-                <p className="mt-3 max-w-[210px] text-sm font-medium leading-relaxed text-[#5f5f5f]">
+                <h3 className="mt-6 text-xl font-bold leading-tight text-[#2A111A] font-playfair">{title}</h3>
+                <p className="mt-3 max-w-[210px] text-sm font-medium leading-relaxed text-[#4A0E25]/80">
                   {description}
                 </p>
 

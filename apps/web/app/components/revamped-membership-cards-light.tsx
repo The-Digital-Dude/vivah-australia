@@ -12,8 +12,8 @@ const plans = [
     description: 'Perfect for exploring the community.',
     features: ['Create a verified profile', 'Browse basic matches', 'Receive interests'],
     isPopular: false,
-    color: 'from-[#FFF1F5] to-white border border-[#E74C7C]/20',
-    buttonColor: 'bg-white border border-[#E74C7C]/30 text-[#A10E4D] hover:bg-[#FFF1F5]',
+    color: 'from-white to-[#FDFBF7] border border-[#D9A05B]/20',
+    buttonColor: 'bg-white border border-[#D9A05B]/40 text-[#C48C45] hover:bg-[#FCF8F2] shadow-sm',
   },
   {
     name: 'Premium',
@@ -23,8 +23,8 @@ const plans = [
     description: 'Our most popular choice for serious commitment.',
     features: ['Unlimited direct messaging', 'View all private photos', 'Priority search ranking', 'Advanced compatibility filters'],
     isPopular: true,
-    color: 'from-[#E74C7C]/20 to-[#A10E4D]/10 border border-[#A10E4D]/20',
-    buttonColor: 'bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] hover:from-[#8E0D43] hover:to-[#A10E4D] text-white shadow-lg shadow-[#A10E4D]/25',
+    color: 'from-[#F7D88A]/20 to-[#D4A04C]/10 border border-[#D9A05B]/30',
+    buttonColor: 'bg-gradient-to-r from-[#D9A05B] to-[#C48C45] hover:from-[#C48C45] hover:to-[#AF7830] text-white shadow-lg shadow-[#D9A05B]/30',
     borderColor: 'border-[#A10E4D]/30',
   },
   {
@@ -35,21 +35,21 @@ const plans = [
     description: 'The ultimate VIP concierge experience.',
     features: ['Dedicated personal matchmaker', 'Hand-picked VIP introductions', 'Premium background verification badge', '24/7 priority support'],
     isPopular: false,
-    color: 'from-[#F7D88A]/30 to-[#D4A04C]/20 border border-[#D4A04C]/30',
-    buttonColor: 'bg-gradient-to-r from-[#D4A04C] to-[#C4913C] text-white hover:from-[#C4913C] hover:to-[#B3802B] shadow-lg shadow-[#D4A04C]/25',
+    color: 'from-white to-[#FDFBF7] border border-[#D9A05B]/30',
+    buttonColor: 'bg-gradient-to-r from-[#2A111A] to-[#4A0E25] text-white hover:from-[#1A0A10] hover:to-[#2A111A] shadow-lg',
   },
 ];
 
 export function RevampedMembershipCards() {
   return (
-    <section className="relative px-8 py-24 sm:px-12 lg:px-16 overflow-hidden bg-white border-b border-[#E74C7C]/10">
+    <section className="relative px-8 py-24 sm:px-12 lg:px-16 overflow-hidden bg-transparent border-b border-[#D9A05B]/20">
       <div className="mx-auto max-w-7xl relative z-10">
         
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#D4A04C]">
             Premium Matchmaking Plans
           </p>
-          <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#1A1A1A] sm:text-5xl">
+          <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#2A111A] sm:text-5xl">
             Invest in a Lifetime of Happiness.
           </h2>
           <p className="mt-6 text-lg text-[#5f5f5f]">
@@ -67,10 +67,10 @@ export function RevampedMembershipCards() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative h-full rounded-sm border p-8 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.04)] flex flex-col ${plan.isPopular ? 'lg:-mt-8 lg:mb-8 border-[#A10E4D]/20 shadow-[0_50px_120px_rgba(161,14,77,0.08)] bg-[#FFF9F5]' : 'border-[#E74C7C]/15'}`}
+                className={`relative h-full rounded-2xl border p-8 bg-gradient-to-br from-white to-[#FDFBF7] shadow-[0_40px_100px_rgba(217,160,91,0.1)] flex flex-col ${plan.isPopular ? 'lg:-mt-8 lg:mb-8 border-[#D9A05B]/40 shadow-[0_50px_120px_rgba(217,160,91,0.2)]' : 'border-[#D9A05B]/20'}`}
               >
                 {plan.isPopular && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#E74C7C] to-[#A10E4D] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#D9A05B] to-[#C48C45] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
                     Most Popular
                   </div>
                 )}
@@ -79,21 +79,21 @@ export function RevampedMembershipCards() {
                   <Icon className={`size-6 ${plan.isPopular ? 'text-[#A10E4D]' : 'text-zinc-700'}`} />
                 </div>
                 
-                <h3 className="text-3xl font-playfair font-bold text-[#1A1A1A]">{plan.name}</h3>
-                <p className="mt-2 text-sm text-[#5f5f5f] min-h-[40px]">{plan.description}</p>
+                <h3 className="text-3xl font-playfair font-bold text-[#2A111A]">{plan.name}</h3>
+                <p className="mt-2 text-sm text-[#4A0E25]/80 min-h-[40px]">{plan.description}</p>
                 
                 <div className="my-8 flex items-baseline gap-2">
-                  <span className="font-playfair text-5xl font-bold text-[#2f2f2f]">{plan.price}</span>
-                  <span className="text-sm font-medium text-[#5f5f5f]">/{plan.duration}</span>
+                  <span className="font-playfair text-5xl font-bold text-[#2A111A]">{plan.price}</span>
+                  <span className="text-sm font-medium text-[#4A0E25]/80">/{plan.duration}</span>
                 </div>
                 
                 <ul className="space-y-4 mb-10 flex-1">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
-                      <div className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-[#A10E4D]/10">
-                        <Check className="size-3 text-[#A10E4D]" />
+                      <div className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-[#D9A05B]/10">
+                        <Check className="size-3 text-[#D9A05B]" />
                       </div>
-                      <span className="text-[15px] text-[#2f2f2f] font-medium leading-tight">{feature}</span>
+                      <span className="text-[15px] text-[#2A111A] font-medium leading-tight">{feature}</span>
                     </li>
                   ))}
                 </ul>

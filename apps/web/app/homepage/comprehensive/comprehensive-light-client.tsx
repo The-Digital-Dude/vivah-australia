@@ -13,16 +13,13 @@ const BentoSuccessStoriesLight = dynamic(() => import('@/app/components/bento-su
 const CommunityStatsStripLight = dynamic(() => import('@/app/components/home/community-stats-strip-light').then(mod => mod.CommunityStatsStrip), { ssr: true });
 const TrustVerificationStripLight = dynamic(() => import('@/app/components/home/trust-verification-strip-light').then(mod => mod.TrustVerificationStrip), { ssr: true });
 const HowItWorksSectionLight = dynamic(() => import('@/app/components/home/how-it-works-section-light').then(mod => mod.HowItWorksSection), { ssr: true });
-const RevampedMembershipCardsLight = dynamic(() => import('@/app/components/revamped-membership-cards-light').then(mod => mod.RevampedMembershipCards), { ssr: true });
-const RedesignedFaqSectionLight = dynamic(() => import('@/app/components/redesigned-faq-light').then(mod => mod.RedesignedFaqSection), { ssr: true });
-
-// Removed PremiumFloatingElementsLight
+import { PremiumFloatingElements as PremiumFloatingElementsLight } from '@/app/components/premium-floating-elements-light';
 
 // This is the StoryHero adapted for our editorial comprehensive page
 function StoryHero({ data }: { data: any }) {
   return (
-    <section className="relative overflow-hidden border-b border-[#E74C7C]/10 bg-white px-8 py-20 sm:px-12 lg:px-16">
-      {/* Crisp White Background, No glowing orbs */}
+    <section className="relative overflow-hidden border-b border-[#D9A05B]/20 bg-transparent px-8 py-20 sm:px-12 lg:px-16">
+      {/* Transparent background to let Cashmere glows show through */}
 
       <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_0.92fr] lg:items-center">
         <div>
@@ -60,7 +57,7 @@ function StoryHero({ data }: { data: any }) {
         </div>
 
         <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div className="rotate-1 rounded-sm bg-white p-4 pb-20 shadow-[0_40px_100px_rgba(0,0,0,0.06)] border border-[#E74C7C]/10 transition duration-500 hover:rotate-0 hover:-translate-y-2">
+          <div className="rotate-1 rounded-2xl bg-gradient-to-br from-white to-[#FDFBF7] p-4 pb-20 shadow-[0_40px_100px_rgba(217,160,91,0.15)] border border-[#D9A05B]/30 transition duration-500 hover:rotate-0 hover:-translate-y-2">
             <div className="relative aspect-square overflow-hidden rounded-lg">
               <Image
                 src="/home/success-stories/couple-02.jpg"
@@ -71,12 +68,11 @@ function StoryHero({ data }: { data: any }) {
                 sizes="(min-width: 1024px) 40vw, 100vw"
               />
             </div>
-            <p className="absolute bottom-6 left-0 right-0 text-center font-cormorant text-2xl font-semibold italic text-[#1A1A1A]">
+            <p className="absolute bottom-6 left-0 right-0 text-center font-cormorant text-2xl font-semibold italic text-[#2A111A]">
               Neha &amp; Chirag &mdash; Melbourne
             </p>
           </div>
-          <div className="absolute -left-8 -top-8 -z-10 hidden h-48 w-40 -rotate-3 bg-[#FFF9F5] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-[#D4A04C]/15 lg:block">
-          </div>
+          <div className="absolute -left-8 -top-8 -z-10 hidden h-48 w-40 -rotate-3 rounded-xl bg-gradient-to-br from-white to-[#FDFBF7] p-2 shadow-[0_20px_50px_rgba(217,160,91,0.1)] border border-[#D9A05B]/20 lg:block">
         </div>
       </div>
     </section>
@@ -85,41 +81,43 @@ function StoryHero({ data }: { data: any }) {
 
 export function ComprehensiveLightClient({ data }: { data?: any }) {
   return (
-    <main className="min-h-screen bg-white text-[#1A1A1A] overflow-x-hidden">
+    <main className="min-h-screen bg-[#FCF8F2] text-[#2A111A] overflow-x-hidden">
       <PublicHeader />
       
-      {/* 1. Header from "story homepage" */}
-      <StoryHero data={data} />
+      <PremiumFloatingElementsLight>
+        {/* 1. Header from "story homepage" */}
+        <StoryHero data={data} />
 
-      {/* Metric Strip moved to right after the hero */}
-      <div className="bg-[#FFF9F5] py-16">
-        <CommunityStatsStripLight />
-      </div>
-
-      {/* 2. Search Section from "current homepage" */}
-      <section className="bg-white px-8 pt-16 pb-10 sm:px-12 lg:px-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-10">
-             <h2 className="font-playfair text-4xl font-bold text-[#1A1A1A]">Connect with Compatible Indian Singles Across Australia</h2>
-          </div>
-          <HeroSearchFormLight />
+        {/* Metric Strip moved to right after the hero */}
+        <div className="bg-transparent py-16">
+          <CommunityStatsStripLight />
         </div>
-      </section>
 
-      {/* 3. Success Story from "current homepage" (Bento style) */}
-      <BentoSuccessStoriesLight />
+        {/* 2. Search Section from "current homepage" */}
+        <section className="bg-transparent px-8 pt-16 pb-10 sm:px-12 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <div className="text-center mb-10">
+               <h2 className="font-playfair text-4xl font-bold text-[#2A111A]">Connect with Compatible Indian Singles Across Australia</h2>
+            </div>
+            <HeroSearchFormLight />
+          </div>
+        </section>
 
-      {/* Trust Strip */}
-      <TrustVerificationStripLight />
+        {/* 3. Success Story from "current homepage" (Bento style) */}
+        <BentoSuccessStoriesLight />
 
-      {/* 4. How Vivah Australia Works from "animated homepage" */}
-      <HowItWorksSectionLight />
+        {/* Trust Strip */}
+        <TrustVerificationStripLight />
 
-      {/* 5. Subscription/membership revamped */}
-      <RevampedMembershipCardsLight />
+        {/* 4. How Vivah Australia Works from "animated homepage" */}
+        <HowItWorksSectionLight />
 
-      {/* 6. FAQ Section redesigned */}
-      <RedesignedFaqSectionLight />
+        {/* 5. Subscription/membership revamped */}
+        <RevampedMembershipCardsLight />
+
+        {/* 6. FAQ Section redesigned */}
+        <RedesignedFaqSectionLight />
+      </PremiumFloatingElementsLight>
 
       <PublicFooter />
     </main>

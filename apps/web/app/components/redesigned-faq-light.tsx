@@ -31,7 +31,7 @@ export function RedesignedFaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="relative px-8 py-24 sm:px-12 lg:px-16 bg-[#FFF9F5]">
+    <section className="relative px-8 py-24 sm:px-12 lg:px-16 bg-transparent border-t border-[#D9A05B]/20">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-20">
           
@@ -40,17 +40,17 @@ export function RedesignedFaqSection() {
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
               Support & Information
             </p>
-            <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#1A1A1A] sm:text-5xl">
+            <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#2A111A] sm:text-5xl">
               Frequently asked questions
             </h2>
-            <p className="mt-6 text-lg leading-8 text-[#5f5f5f]">
+            <p className="mt-6 text-lg leading-8 text-[#4A0E25]/80">
               Everything you need to know about privacy, safety, and how our premium matchmaking experience works.
             </p>
             
-            <div className="mt-10 rounded-sm bg-white p-6 border border-[#E74C7C]/15 shadow-sm">
-              <h3 className="font-semibold text-[#2f2f2f]">Still have questions?</h3>
-              <p className="mt-2 text-sm text-[#5f5f5f]">Our concierge team is here to help you navigate your journey.</p>
-              <a href="/contact" className="mt-4 inline-flex items-center text-sm font-bold text-[#A10E4D] hover:underline">
+            <div className="mt-10 rounded-2xl bg-gradient-to-br from-white to-[#FDFBF7] p-6 border border-[#D9A05B]/30 shadow-[0_20px_50px_rgba(217,160,91,0.1)]">
+              <h3 className="font-semibold text-[#2A111A]">Still have questions?</h3>
+              <p className="mt-2 text-sm text-[#4A0E25]/80">Our concierge team is here to help you navigate your journey.</p>
+              <a href="/contact" className="mt-4 inline-flex items-center text-sm font-bold text-[#C48C45] hover:underline">
                 Contact Support &rarr;
               </a>
             </div>
@@ -63,17 +63,17 @@ export function RedesignedFaqSection() {
               return (
                 <div 
                   key={index} 
-                  className={`rounded-sm border transition-all duration-300 ${isOpen ? 'border-[#D4A04C]/30 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.05)]' : 'border-[#E74C7C]/15 bg-white hover:border-[#D4A04C]/40'}`}
+                  className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-[#D9A05B]/40 bg-gradient-to-br from-white to-[#FDFBF7] shadow-[0_30px_70px_rgba(217,160,91,0.15)]' : 'border-[#D9A05B]/20 bg-white/80 hover:border-[#D9A05B]/40'}`}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}
                     className="flex w-full items-center justify-between px-6 py-5 text-left"
                     aria-expanded={isOpen}
                   >
-                    <span className={`font-semibold transition-colors duration-200 ${isOpen ? 'text-[#A10E4D]' : 'text-[#2f2f2f]'}`}>
+                    <span className={`font-semibold transition-colors duration-200 ${isOpen ? 'text-[#C48C45]' : 'text-[#2A111A]'}`}>
                       {item.question}
                     </span>
-                    <span className={`ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${isOpen ? 'rotate-180 bg-[#A10E4D] text-white' : 'bg-[#A10E4D]/10 text-[#A10E4D]'}`}>
+                    <span className={`ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${isOpen ? 'rotate-180 bg-[#D9A05B] text-white shadow-md' : 'bg-[#D9A05B]/10 text-[#D9A05B]'}`}>
                       <ChevronDown className="h-4 w-4" />
                     </span>
                   </button>
@@ -87,7 +87,7 @@ export function RedesignedFaqSection() {
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="px-6 pb-6 text-base leading-relaxed text-[#5f5f5f]">
+                        <div className="px-6 pb-6 text-base leading-relaxed text-[#4A0E25]/80">
                           {item.answer}
                         </div>
                       </motion.div>
