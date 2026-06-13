@@ -75,6 +75,7 @@ function StoryHero({ data }: { data: any }) {
           <div className="absolute -left-8 -top-8 -z-10 hidden h-48 w-40 -rotate-3 rounded-xl bg-gradient-to-br from-white to-[#FDFBF7] p-2 shadow-[0_20px_50px_rgba(217,160,91,0.1)] border border-[#D9A05B]/20 lg:block">
           </div>
         </div>
+      </div>
     </section>
   );
 }
