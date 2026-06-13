@@ -176,7 +176,6 @@ const TIER_CONTENT: Record<TierKey, TierContent> = {
       { icon: <Eye className="size-4" />, label: 'Get noticed', outcome: 'Get noticed by more serious members with monthly profile boosts' },
       { icon: <Shield className="size-4" />, label: 'Privacy first', outcome: 'Stay in full control of your photo privacy and visibility' },
     ],
-    icon: Sparkles,
     ctaLabel: 'Upgrade to Premium',
     microcopy: 'Most popular with members actively looking for a partner.',
     comparison: {
