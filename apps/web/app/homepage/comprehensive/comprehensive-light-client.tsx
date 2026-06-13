@@ -13,7 +13,8 @@ const BentoSuccessStoriesLight = dynamic(() => import('@/app/components/bento-su
 const CommunityStatsStripLight = dynamic(() => import('@/app/components/home/community-stats-strip-light').then(mod => mod.CommunityStatsStrip), { ssr: true });
 const TrustVerificationStripLight = dynamic(() => import('@/app/components/home/trust-verification-strip-light').then(mod => mod.TrustVerificationStrip), { ssr: true });
 const HowItWorksSectionLight = dynamic(() => import('@/app/components/home/how-it-works-section-light').then(mod => mod.HowItWorksSection), { ssr: true });
-import { PremiumFloatingElements as PremiumFloatingElementsLight } from '@/app/components/premium-floating-elements-light';
+const RevampedMembershipCardsLight = dynamic(() => import('@/app/components/revamped-membership-cards-light').then(mod => mod.RevampedMembershipCards), { ssr: true });
+const RedesignedFaqSectionLight = dynamic(() => import('@/app/components/redesigned-faq-light').then(mod => mod.RedesignedFaqSection), { ssr: true });
 
 // This is the StoryHero adapted for our editorial comprehensive page
 function StoryHero({ data }: { data: any }) {
