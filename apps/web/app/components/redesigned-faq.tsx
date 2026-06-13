@@ -40,17 +40,17 @@ export function RedesignedFaqSection() {
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
               Support & Information
             </p>
-            <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#2f2f2f] sm:text-5xl">
+            <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-white sm:text-5xl">
               Frequently asked questions
             </h2>
-            <p className="mt-6 text-lg leading-8 text-[#5f5f5f]">
+            <p className="mt-6 text-lg leading-8 text-white/80">
               Everything you need to know about privacy, safety, and how our premium matchmaking experience works.
             </p>
             
-            <div className="mt-10 rounded-2xl bg-[#A10E4D]/5 p-6 border border-[#A10E4D]/10">
-              <h3 className="font-semibold text-[#2f2f2f]">Still have questions?</h3>
-              <p className="mt-2 text-sm text-[#5f5f5f]">Our concierge team is here to help you navigate your journey.</p>
-              <a href="/contact" className="mt-4 inline-flex items-center text-sm font-bold text-[#A10E4D] hover:underline">
+            <div className="mt-10 rounded-2xl bg-white/5 p-6 border border-white/10 backdrop-blur-md">
+              <h3 className="font-semibold text-white">Still have questions?</h3>
+              <p className="mt-2 text-sm text-white/70">Our concierge team is here to help you navigate your journey.</p>
+              <a href="/contact" className="mt-4 inline-flex items-center text-sm font-bold text-[#E74C7C] hover:underline">
                 Contact Support &rarr;
               </a>
             </div>
@@ -63,17 +63,17 @@ export function RedesignedFaqSection() {
               return (
                 <div 
                   key={index} 
-                  className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-[#A10E4D]/20 bg-white/80 shadow-[0_8px_30px_rgba(161,14,77,0.06)] backdrop-blur-md' : 'border-[#2f2f2f]/10 bg-white/40 hover:border-[#A10E4D]/30'}`}
+                  className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-[#E74C7C]/30 bg-white/10 shadow-[0_0_25px_rgba(231,76,124,0.15)] backdrop-blur-lg' : 'border-white/10 bg-white/5 hover:border-white/20 backdrop-blur-md'}`}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}
                     className="flex w-full items-center justify-between px-6 py-5 text-left"
                     aria-expanded={isOpen}
                   >
-                    <span className={`font-semibold transition-colors duration-200 ${isOpen ? 'text-[#A10E4D]' : 'text-[#2f2f2f]'}`}>
+                    <span className={`font-semibold transition-colors duration-200 ${isOpen ? 'text-[#E74C7C]' : 'text-white'}`}>
                       {item.question}
                     </span>
-                    <span className={`ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${isOpen ? 'rotate-180 bg-[#A10E4D] text-white' : 'bg-[#A10E4D]/10 text-[#A10E4D]'}`}>
+                    <span className={`ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 ${isOpen ? 'rotate-180 bg-[#E74C7C] text-white shadow-[0_0_10px_rgba(231,76,124,0.4)]' : 'bg-white/10 text-white'}`}>
                       <ChevronDown className="h-4 w-4" />
                     </span>
                   </button>
@@ -87,7 +87,7 @@ export function RedesignedFaqSection() {
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="px-6 pb-6 text-base leading-relaxed text-[#5f5f5f]">
+                        <div className="px-6 pb-6 text-base leading-relaxed text-white/70">
                           {item.answer}
                         </div>
                       </motion.div>

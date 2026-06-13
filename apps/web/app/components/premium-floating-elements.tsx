@@ -16,7 +16,7 @@ export function PremiumFloatingElements({ children }: { children: React.ReactNod
   const y3 = useTransform(scrollYProgress, [0, 1], [0, -300]);
 
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden bg-[#fff9f5]">
+    <div ref={containerRef} className="relative w-full overflow-hidden bg-transparent">
       {/* Background Aurora Orbs (Tripled Density) */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {/* Layer 1 - Original */}
@@ -130,11 +130,11 @@ export function PremiumFloatingElements({ children }: { children: React.ReactNod
 
 function FloatingCard({ icon: Icon, text, color }: { icon: any; text: string; color: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/40 bg-white/60 px-5 py-3 shadow-[0_16px_40px_rgba(0,0,0,0.06)] backdrop-blur-xl">
-      <div className={`flex size-8 items-center justify-center rounded-full bg-white shadow-sm ${color}`}>
+    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 shadow-[0_0_30px_rgba(161,14,77,0.15)] backdrop-blur-xl">
+      <div className={`flex size-8 items-center justify-center rounded-full bg-white/10 shadow-[0_0_10px_rgba(231,76,124,0.2)] ${color}`}>
         <Icon className="size-4" />
       </div>
-      <span className="font-semibold text-[#2f2f2f]">{text}</span>
+      <span className="font-semibold text-white">{text}</span>
     </div>
   );
 }

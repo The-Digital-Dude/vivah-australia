@@ -10,6 +10,7 @@ type AnimatedWordPlayProps = {
   suffix: string;
   body: string;
   align?: 'left' | 'center';
+  theme?: 'light' | 'dark';
 };
 
 export function AnimatedWordPlay({
@@ -19,6 +20,7 @@ export function AnimatedWordPlay({
   prefix,
   suffix,
   words,
+  theme = 'light',
 }: Readonly<AnimatedWordPlayProps>) {
   const shouldReduceMotion = useReducedMotion();
   const wordList = useMemo(() => (words.length ? words : ['connection']), [words]);
@@ -47,13 +49,13 @@ export function AnimatedWordPlay({
         {eyebrow}
       </p>
 
-      <h1 className="mt-4 font-playfair text-5xl font-bold leading-[0.96] text-[#2f2f2f] sm:text-6xl lg:text-7xl">
+      <h1 className={`mt-4 font-playfair text-5xl font-bold leading-[0.96] sm:text-6xl lg:text-7xl ${theme === 'dark' ? 'text-white' : 'text-[#2f2f2f]'}`}>
         <span className="block">{prefix}</span>
         <span className="mt-2 block">
           <AnimatePresence mode="wait" initial={false}>
-            <motion.span
+              <motion.span
               key={activeWord}
-              className="inline-block text-[#a10e4d]"
+              className={`inline-block ${theme === 'dark' ? 'bg-gradient-to-r from-[#D4A04C] to-[#E74C7C] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(212,160,76,0.5)]' : 'text-[#a10e4d]'}`}
               initial={shouldReduceMotion ? false : { opacity: 0, y: 20, rotateX: -90 }}
               animate={{ opacity: 1, y: 0, rotateX: 0 }}
               {...(shouldReduceMotion ? {} : { exit: { opacity: 0, y: -18, rotateX: 80 } })}
@@ -62,11 +64,11 @@ export function AnimatedWordPlay({
               {activeWord}
             </motion.span>
           </AnimatePresence>
-          <span className="text-[#2f2f2f]">{suffix}</span>
+          <span className={theme === 'dark' ? 'text-white' : 'text-[#2f2f2f]'}>{suffix}</span>
         </span>
       </h1>
 
-      <p className="mt-6 text-lg leading-8 text-[#5f5f5f]">{body}</p>
+      <p className={`mt-6 text-lg leading-8 ${theme === 'dark' ? 'text-white/80' : 'text-[#5f5f5f]'}`}>{body}</p>
     </motion.div>
   );
 }

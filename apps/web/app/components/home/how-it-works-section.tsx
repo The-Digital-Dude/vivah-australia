@@ -79,36 +79,36 @@ function FadeInAnimation({
 
 export function HowItWorksSection() {
   return (
-    <section className="bg-[#fff9f5] px-8 py-14 sm:px-12 lg:px-16">
+    <section className="bg-[#0B0407] px-8 py-14 sm:px-12 lg:px-16">
       <div className="container mx-auto">
-        <h2 className="text-center font-playfair text-3xl font-bold leading-tight text-[#2f2f2f] sm:text-4xl">
+        <h2 className="text-center font-playfair text-3xl font-bold leading-tight text-white sm:text-4xl">
           Your Journey to Forever, Simplified.
         </h2>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4 xl:gap-8">
           {steps.map(({ title, description, icon: Icon }, index) => (
             <FadeInAnimation key={title} index={index}>
-              <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-[28px] border border-[#d4a04c]/30 bg-white px-6 py-10 text-center shadow-sm hover:shadow-[0_22px_48px_rgba(161,14,77,0.06)] hover:-translate-y-1 transition duration-300">
-                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-[#a10e4d] text-sm font-bold text-white shadow-[0_8px_20px_rgba(161,14,77,0.2)]">
+              <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-md px-6 py-10 text-center shadow-sm hover:shadow-[0_0_30px_rgba(161,14,77,0.2)] hover:border-white/20 hover:-translate-y-1 transition duration-300">
+                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#D4A04C] to-[#E74C7C] text-sm font-bold text-white shadow-[0_0_15px_rgba(212,160,76,0.4)]">
                   {index + 1}
                 </span>
 
-                <div className="flex size-20 items-center justify-center rounded-full bg-[rgba(231,76,124,0.12)] text-[#a10e4d] transition duration-300 group-hover:scale-110 group-hover:bg-[rgba(231,76,124,0.18)]">
+                <div className="flex size-20 items-center justify-center rounded-full bg-white/10 text-white transition duration-300 group-hover:scale-110 group-hover:bg-white/20">
                   <Icon
-                    className="size-10 transition duration-300 group-hover:scale-110"
+                    className="size-10 transition duration-300 group-hover:scale-110 drop-shadow-md"
                     strokeWidth={1.8}
                   />
                 </div>
 
-                <h3 className="mt-6 text-lg font-bold leading-tight text-[#2f2f2f]">{title}</h3>
-                <p className="mt-3 max-w-[210px] text-sm font-medium leading-relaxed text-[#5f5f5f]">
+                <h3 className="mt-6 text-lg font-bold leading-tight text-white">{title}</h3>
+                <p className="mt-3 max-w-[210px] text-sm font-medium leading-relaxed text-white/80">
                   {description}
                 </p>
 
                 {index < steps.length - 1 ? (
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute left-[calc(100%+0.25rem)] top-1/2 hidden -translate-y-1/2 text-[#a10e4d]/40 xl:block z-10"
+                    className="pointer-events-none absolute left-[calc(100%+0.25rem)] top-1/2 hidden -translate-y-1/2 text-white/20 xl:block z-10"
                   >
                     <ChevronRight className="size-7" strokeWidth={2.5} />
                   </div>

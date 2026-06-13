@@ -28,9 +28,9 @@ const trustFeatures = [
 
 export function TrustVerificationStrip() {
   return (
-    <section className="border-y border-[#d4a04c]/18 bg-[#fff9f5] px-8 py-5 sm:px-12 lg:px-16">
+    <section className="border-y border-white/10 bg-transparent backdrop-blur-md px-8 py-5 sm:px-12 lg:px-16">
       <div className="container mx-auto">
-        <div className="grid gap-y-5 sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-[#d4a04c]/20">
+        <div className="grid gap-y-5 sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-white/10">
           {trustFeatures.map(({ label, icon: Icon }) => (
             <motion.div
               key={label}
@@ -41,10 +41,10 @@ export function TrustVerificationStrip() {
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="flex size-14 shrink-0 items-center justify-center rounded-full border border-[#d4a04c]/35 bg-white text-[#4a2418] shadow-[0_8px_22px_rgba(74,36,24,0.08)]">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white shadow-[0_0_15px_rgba(212,160,76,0.2)]">
                 <Icon className="size-7" strokeWidth={1.8} />
               </span>
-              <p className="max-w-[180px] text-sm font-bold leading-5 text-[#2f2f2f] lg:text-[15px]">
+              <p className="max-w-[180px] text-sm font-bold leading-5 text-white/90 lg:text-[15px]">
                 {label}
               </p>
             </motion.div>

@@ -28,7 +28,7 @@ const storyCards = [
 
 export function BentoSuccessStories() {
   return (
-    <section className="relative overflow-hidden bg-white py-20">
+    <section className="relative overflow-hidden bg-[#0B0407] py-20">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <div className="mb-4 flex items-center justify-center gap-3">
@@ -38,7 +38,7 @@ export function BentoSuccessStories() {
             </span>
             <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#D4A04C]" />
           </div>
-          <h2 className="font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">Marriages Made in Australia. Rooted in Tradition.</h2>
+          <h2 className="font-playfair text-4xl font-bold text-white sm:text-5xl">Marriages Made in Australia. Rooted in Tradition.</h2>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -49,7 +49,7 @@ export function BentoSuccessStories() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative h-[420px] overflow-hidden rounded-[32px] shadow-[0_24px_65px_rgba(161,14,77,0.10)] sm:h-[520px]"
+              className="group relative h-[420px] overflow-hidden rounded-[32px] border border-white/10 shadow-[0_0_40px_rgba(161,14,77,0.2)] sm:h-[520px]"
             >
               <Image
                 src={storyCards[0].imageUrl}
@@ -96,7 +96,7 @@ export function BentoSuccessStories() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative h-[248px] overflow-hidden rounded-[28px] shadow-[0_18px_50px_rgba(161,14,77,0.08)]"
+                className="group relative h-[248px] overflow-hidden rounded-[28px] border border-white/10 shadow-[0_0_30px_rgba(161,14,77,0.15)]"
               >
                 <Image
                   src={story.imageUrl}
