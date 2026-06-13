@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
@@ -47,7 +47,7 @@ export function RedesignedFaqSection() {
               Everything you need to know about privacy, safety, and how our premium matchmaking experience works.
             </p>
             
-            <div className="mt-10 rounded-2xl bg-[#A10E4D]/5 p-6 border border-[#A10E4D]/10">
+            <div className="mt-10 rounded-2xl bg-white/70 backdrop-blur-xl p-6 border border-white/60 shadow-[0_10px_30px_rgba(212,160,76,0.05)]">
               <h3 className="font-semibold text-[#2f2f2f]">Still have questions?</h3>
               <p className="mt-2 text-sm text-[#5f5f5f]">Our concierge team is here to help you navigate your journey.</p>
               <a href="/contact" className="mt-4 inline-flex items-center text-sm font-bold text-[#A10E4D] hover:underline">
@@ -63,7 +63,7 @@ export function RedesignedFaqSection() {
               return (
                 <div 
                   key={index} 
-                  className={`rounded-2xl border transition-all duration-300 ${isOpen ? 'border-[#A10E4D]/20 bg-white/80 shadow-[0_8px_30px_rgba(161,14,77,0.06)] backdrop-blur-md' : 'border-[#2f2f2f]/10 bg-white/40 hover:border-[#A10E4D]/30'}`}
+                  className={`rounded-2xl border transition-all duration-300 backdrop-blur-md ${isOpen ? 'border-white/80 bg-white/80 shadow-[0_15px_40px_rgba(212,160,76,0.08)]' : 'border-white/50 bg-white/40 hover:border-white/80'}`}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}

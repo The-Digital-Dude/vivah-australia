@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
@@ -130,7 +130,7 @@ export function PremiumFloatingElements({ children }: { children: React.ReactNod
 
 function FloatingCard({ icon: Icon, text, color }: { icon: any; text: string; color: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/40 bg-white/60 px-5 py-3 shadow-[0_16px_40px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+    <div className="flex items-center gap-3 rounded-2xl border border-white/60 bg-white/70 px-5 py-3 shadow-[0_16px_40px_rgba(161,14,77,0.08)] backdrop-blur-xl transition hover:bg-white/80">
       <div className={`flex size-8 items-center justify-center rounded-full bg-white shadow-sm ${color}`}>
         <Icon className="size-4" />
       </div>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ const storyCards = [
 
 export function BentoSuccessStories() {
   return (
-    <section className="relative overflow-hidden bg-white py-20">
+    <section className="relative z-20 overflow-hidden bg-transparent py-20">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <div className="mb-4 flex items-center justify-center gap-3">
@@ -49,7 +49,7 @@ export function BentoSuccessStories() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative h-[420px] overflow-hidden rounded-[32px] shadow-[0_24px_65px_rgba(161,14,77,0.10)] sm:h-[520px]"
+              className="group relative h-[420px] overflow-hidden rounded-[32px] border border-white/60 shadow-[0_24px_65px_rgba(161,14,77,0.15)] ring-1 ring-white/80 sm:h-[520px]"
             >
               <Image
                 src={storyCards[0].imageUrl}
@@ -96,7 +96,7 @@ export function BentoSuccessStories() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative h-[248px] overflow-hidden rounded-[28px] shadow-[0_18px_50px_rgba(161,14,77,0.08)]"
+                className="group relative h-[248px] overflow-hidden rounded-[28px] border border-white/60 shadow-[0_18px_50px_rgba(161,14,77,0.12)] ring-1 ring-white/80"
               >
                 <Image
                   src={story.imageUrl}

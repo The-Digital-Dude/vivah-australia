@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Check, Sparkles, Crown, Gem } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -12,8 +12,8 @@ const plans = [
     description: 'Perfect for exploring the community.',
     features: ['Create a verified profile', 'Browse basic matches', 'Receive interests'],
     isPopular: false,
-    color: 'from-zinc-200 to-zinc-100',
-    buttonColor: 'bg-zinc-800 hover:bg-zinc-700 text-white',
+    color: 'from-[#FFF1F5] to-white border border-[#E74C7C]/20',
+    buttonColor: 'bg-white border border-[#E74C7C]/30 text-[#A10E4D] hover:bg-[#FFF1F5]',
   },
   {
     name: 'Premium',
@@ -23,8 +23,8 @@ const plans = [
     description: 'Our most popular choice for serious commitment.',
     features: ['Unlimited direct messaging', 'View all private photos', 'Priority search ranking', 'Advanced compatibility filters'],
     isPopular: true,
-    color: 'from-[#E74C7C]/20 to-[#A10E4D]/10',
-    buttonColor: 'bg-[#A10E4D] hover:bg-[#8E0D43] text-white',
+    color: 'from-[#E74C7C]/20 to-[#A10E4D]/10 border border-[#A10E4D]/20',
+    buttonColor: 'bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] hover:from-[#8E0D43] hover:to-[#A10E4D] text-white shadow-lg shadow-[#A10E4D]/25',
     borderColor: 'border-[#A10E4D]/30',
   },
   {
@@ -35,8 +35,8 @@ const plans = [
     description: 'The ultimate VIP concierge experience.',
     features: ['Dedicated personal matchmaker', 'Hand-picked VIP introductions', 'Premium background verification badge', '24/7 priority support'],
     isPopular: false,
-    color: 'from-[#F7D88A]/30 to-[#D4A04C]/20',
-    buttonColor: 'bg-gradient-to-r from-[#D4A04C] to-[#C4913C] text-white hover:from-[#C4913C] hover:to-[#B3802B]',
+    color: 'from-[#F7D88A]/30 to-[#D4A04C]/20 border border-[#D4A04C]/30',
+    buttonColor: 'bg-gradient-to-r from-[#D4A04C] to-[#C4913C] text-white hover:from-[#C4913C] hover:to-[#B3802B] shadow-lg shadow-[#D4A04C]/25',
   },
 ];
 
@@ -67,7 +67,7 @@ export function RevampedMembershipCards() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative h-full rounded-[32px] border p-8 backdrop-blur-xl bg-white/40 shadow-[0_24px_60px_rgba(0,0,0,0.03)] flex flex-col ${plan.isPopular ? 'lg:-mt-8 lg:mb-8 border-[#A10E4D]/30 shadow-[0_30px_80px_rgba(161,14,77,0.12)] bg-gradient-to-b from-white/90 to-white/60' : 'border-white/50'}`}
+                className={`relative h-full rounded-[32px] border p-8 backdrop-blur-2xl bg-white/70 shadow-[0_24px_60px_rgba(212,160,76,0.08)] flex flex-col ${plan.isPopular ? 'lg:-mt-8 lg:mb-8 border-[#A10E4D]/30 shadow-[0_30px_80px_rgba(161,14,77,0.15)] bg-gradient-to-b from-white/95 to-white/70 ring-1 ring-[#A10E4D]/10' : 'border-white/60 ring-1 ring-white/80'}`}
               >
                 {plan.isPopular && (
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#E74C7C] to-[#A10E4D] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">

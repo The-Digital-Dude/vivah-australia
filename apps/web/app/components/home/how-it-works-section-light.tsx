@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { ChevronRight, Search, Send, ShieldCheck, UserRoundPlus } from 'lucide-react';
@@ -79,7 +79,7 @@ function FadeInAnimation({
 
 export function HowItWorksSection() {
   return (
-    <section className="bg-[#fff9f5] px-8 py-14 sm:px-12 lg:px-16">
+    <section className="relative z-20 bg-transparent px-8 py-14 sm:px-12 lg:px-16">
       <div className="container mx-auto">
         <h2 className="text-center font-playfair text-3xl font-bold leading-tight text-[#2f2f2f] sm:text-4xl">
           Your Journey to Forever, Simplified.
@@ -88,12 +88,12 @@ export function HowItWorksSection() {
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4 xl:gap-8">
           {steps.map(({ title, description, icon: Icon }, index) => (
             <FadeInAnimation key={title} index={index}>
-              <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-[28px] border border-[#d4a04c]/30 bg-white px-6 py-10 text-center shadow-sm hover:shadow-[0_22px_48px_rgba(161,14,77,0.06)] hover:-translate-y-1 transition duration-300">
-                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-[#a10e4d] text-sm font-bold text-white shadow-[0_8px_20px_rgba(161,14,77,0.2)]">
+              <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-[28px] border border-white/60 bg-white/70 backdrop-blur px-6 py-10 text-center shadow-[0_16px_45px_rgba(212,160,76,0.06)] hover:shadow-[0_22px_60px_rgba(161,14,77,0.12)] hover:-translate-y-1 transition duration-300">
+                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#D4A04C] to-[#E74C7C] text-sm font-bold text-white shadow-[0_8px_20px_rgba(212,160,76,0.25)]">
                   {index + 1}
                 </span>
 
-                <div className="flex size-20 items-center justify-center rounded-full bg-[rgba(231,76,124,0.12)] text-[#a10e4d] transition duration-300 group-hover:scale-110 group-hover:bg-[rgba(231,76,124,0.18)]">
+                <div className="flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-[#FFF1F5] to-white border border-white/80 shadow-inner text-[#a10e4d] transition duration-300 group-hover:scale-110 group-hover:shadow-md">
                   <Icon
                     className="size-10 transition duration-300 group-hover:scale-110"
                     strokeWidth={1.8}
