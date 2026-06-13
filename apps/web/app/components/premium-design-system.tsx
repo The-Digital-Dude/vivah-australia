@@ -613,6 +613,7 @@ const homeMenuLinks = [
   ['Story Home', '/homepage/story'],
   ['Slider Home', '/homepage/slider'],
   ['Animated Home', '/homepage/animated'],
+  ['Comprehensive Home', '/homepage/comprehensive'],
 ] as const;
 
 const publicLinks = [

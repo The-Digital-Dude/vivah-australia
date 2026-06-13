@@ -6,23 +6,23 @@ import type { ReactNode } from 'react';
 
 const steps = [
   {
-    title: 'Create Profile',
-    description: 'Build your profile and complete verification',
+    title: 'Create Your Profile',
+    description: 'Sign up in minutes and complete our strict verification process to join a secure community.',
     icon: UserRoundPlus,
   },
   {
-    title: 'Search & Match',
-    description: 'Find suitable matches with advanced filters',
+    title: 'Discover Matches',
+    description: 'Use advanced filters to find singles who align with your lifestyle, profession, and family background.',
     icon: Search,
   },
   {
-    title: 'Connect',
-    description: 'Express interest and start conversations',
+    title: 'Connect & Converse',
+    description: 'Express interest and start meaningful conversations with members who catch your eye.',
     icon: Send,
   },
   {
-    title: 'Build Relationship',
-    description: 'Find your life partner with trust and confidence',
+    title: 'Meet & Marry',
+    description: 'Take your connection offline, involve your families, and begin planning your beautiful future together.',
     icon: ShieldCheck,
   },
 ] as const;
@@ -82,7 +82,7 @@ export function HowItWorksSection() {
     <section className="bg-[#fff9f5] px-8 py-14 sm:px-12 lg:px-16">
       <div className="container mx-auto">
         <h2 className="text-center font-playfair text-3xl font-bold leading-tight text-[#2f2f2f] sm:text-4xl">
-          How Vivah Australia Works
+          Your Journey to Forever, Simplified.
         </h2>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4 xl:gap-8">
