@@ -31,7 +31,7 @@ export function RedesignedFaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="relative px-8 py-24 sm:px-12 lg:px-16">
+    <section className="relative px-8 py-24 sm:px-12 lg:px-16 bg-[#FFF9F5]">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-20">
           
@@ -40,14 +40,14 @@ export function RedesignedFaqSection() {
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
               Support & Information
             </p>
-            <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#2f2f2f] sm:text-5xl">
+            <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#1A1A1A] sm:text-5xl">
               Frequently asked questions
             </h2>
             <p className="mt-6 text-lg leading-8 text-[#5f5f5f]">
               Everything you need to know about privacy, safety, and how our premium matchmaking experience works.
             </p>
             
-            <div className="mt-10 rounded-2xl bg-white/70 backdrop-blur-xl p-6 border border-white/60 shadow-[0_10px_30px_rgba(212,160,76,0.05)]">
+            <div className="mt-10 rounded-sm bg-white p-6 border border-[#E74C7C]/15 shadow-sm">
               <h3 className="font-semibold text-[#2f2f2f]">Still have questions?</h3>
               <p className="mt-2 text-sm text-[#5f5f5f]">Our concierge team is here to help you navigate your journey.</p>
               <a href="/contact" className="mt-4 inline-flex items-center text-sm font-bold text-[#A10E4D] hover:underline">
@@ -63,7 +63,7 @@ export function RedesignedFaqSection() {
               return (
                 <div 
                   key={index} 
-                  className={`rounded-2xl border transition-all duration-300 backdrop-blur-md ${isOpen ? 'border-white/80 bg-white/80 shadow-[0_15px_40px_rgba(212,160,76,0.08)]' : 'border-white/50 bg-white/40 hover:border-white/80'}`}
+                  className={`rounded-sm border transition-all duration-300 ${isOpen ? 'border-[#D4A04C]/30 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.05)]' : 'border-[#E74C7C]/15 bg-white hover:border-[#D4A04C]/40'}`}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}

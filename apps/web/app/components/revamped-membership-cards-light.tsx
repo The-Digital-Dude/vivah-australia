@@ -42,14 +42,14 @@ const plans = [
 
 export function RevampedMembershipCards() {
   return (
-    <section className="relative px-8 py-24 sm:px-12 lg:px-16 overflow-hidden">
+    <section className="relative px-8 py-24 sm:px-12 lg:px-16 overflow-hidden bg-white border-b border-[#E74C7C]/10">
       <div className="mx-auto max-w-7xl relative z-10">
         
         <div className="text-center max-w-2xl mx-auto mb-16">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d4a04c]">
             Premium Matchmaking Plans
           </p>
-          <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#2f2f2f] sm:text-5xl">
+          <h2 className="mt-4 font-playfair text-4xl font-bold leading-tight text-[#1A1A1A] sm:text-5xl">
             Invest in a Lifetime of Happiness.
           </h2>
           <p className="mt-6 text-lg text-[#5f5f5f]">
@@ -67,7 +67,7 @@ export function RevampedMembershipCards() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`relative h-full rounded-[32px] border p-8 backdrop-blur-2xl bg-white/70 shadow-[0_24px_60px_rgba(212,160,76,0.08)] flex flex-col ${plan.isPopular ? 'lg:-mt-8 lg:mb-8 border-[#A10E4D]/30 shadow-[0_30px_80px_rgba(161,14,77,0.15)] bg-gradient-to-b from-white/95 to-white/70 ring-1 ring-[#A10E4D]/10' : 'border-white/60 ring-1 ring-white/80'}`}
+                className={`relative h-full rounded-sm border p-8 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.04)] flex flex-col ${plan.isPopular ? 'lg:-mt-8 lg:mb-8 border-[#A10E4D]/20 shadow-[0_50px_120px_rgba(161,14,77,0.08)] bg-[#FFF9F5]' : 'border-[#E74C7C]/15'}`}
               >
                 {plan.isPopular && (
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#E74C7C] to-[#A10E4D] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
@@ -79,7 +79,7 @@ export function RevampedMembershipCards() {
                   <Icon className={`size-6 ${plan.isPopular ? 'text-[#A10E4D]' : 'text-zinc-700'}`} />
                 </div>
                 
-                <h3 className="text-2xl font-bold text-[#2f2f2f]">{plan.name}</h3>
+                <h3 className="text-3xl font-playfair font-bold text-[#1A1A1A]">{plan.name}</h3>
                 <p className="mt-2 text-sm text-[#5f5f5f] min-h-[40px]">{plan.description}</p>
                 
                 <div className="my-8 flex items-baseline gap-2">

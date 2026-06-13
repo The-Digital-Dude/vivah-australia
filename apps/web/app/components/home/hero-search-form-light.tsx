@@ -9,7 +9,7 @@ export function HeroSearchForm() {
     <section className="relative z-10 overflow-hidden px-8 py-14 sm:px-12 lg:px-16">
       <motion.form
         action="/matches"
-        className="relative mx-auto container overflow-hidden rounded-[28px] border border-white/60 bg-white/70 px-5 py-8 backdrop-blur-2xl shadow-[0_30px_70px_rgba(212,160,76,0.1)] sm:px-8 sm:py-10"
+        className="relative mx-auto container overflow-hidden rounded-[28px] border border-[#D4A04C]/15 bg-white px-5 py-8 shadow-[0_40px_100px_rgba(0,0,0,0.06)] sm:px-8 sm:py-10"
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.35 }}
@@ -17,8 +17,8 @@ export function HeroSearchForm() {
       >
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <h2 className="font-playfair text-3xl font-bold leading-tight text-[#2f2f2f] sm:text-4xl lg:text-5xl">
-              Start with the details that <span className="bg-gradient-to-r from-[#D4A04C] to-[#E74C7C] bg-clip-text text-transparent">matter most</span>
+            <h2 className="font-playfair text-3xl font-bold leading-tight text-[#1A1A1A] sm:text-4xl lg:text-5xl">
+              Start with the details that <span className="bg-gradient-to-r from-[#A10E4D] to-[#E74C7C] bg-clip-text text-transparent">matter most</span>
             </h2>
           </div>
 
@@ -28,7 +28,7 @@ export function HeroSearchForm() {
           </p>
         </div>
 
-        <div className="relative mt-7 grid gap-4 rounded-2xl border border-white/50 bg-white/40 p-4 shadow-inner sm:p-5 lg:grid-cols-[1.4fr_0.75fr_0.75fr_1.35fr_1.35fr_auto] lg:items-end">
+        <div className="relative mt-7 grid gap-4 rounded-2xl border border-[#E74C7C]/15 bg-[#FFF9F5] p-4 shadow-inner sm:p-5 lg:grid-cols-[1.4fr_0.75fr_0.75fr_1.35fr_1.35fr_auto] lg:items-end">
           <HeroSelect label="I am looking for" name="gender">
             <option value="FEMALE">Bride</option>
             <option value="MALE">Groom</option>

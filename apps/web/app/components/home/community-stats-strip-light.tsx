@@ -15,11 +15,11 @@ export function CommunityStatsStrip() {
   return (
     <section className="relative z-20 -mt-8 px-8 sm:px-12 lg:px-16">
       <div className="container mx-auto">
-        <div className="grid overflow-hidden rounded-2xl bg-white/70 backdrop-blur-xl shadow-[0_20px_60px_rgba(231,76,124,0.1)] ring-1 ring-white/80 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid overflow-hidden rounded-2xl bg-white shadow-[0_30px_70px_rgba(0,0,0,0.05)] border border-[#E74C7C]/15 sm:grid-cols-2 lg:grid-cols-5">
           {communityStats.map(({ value, label, icon: Icon }) => (
             <motion.div
               key={`${value}-${label}`}
-              className="relative flex min-h-[92px] items-center gap-4 px-5 py-5 text-[#2f2f2f] after:absolute after:inset-y-5 after:right-0 after:hidden after:w-px after:bg-[#a10e4d]/10 last:after:hidden lg:px-6 lg:after:block"
+              className="relative flex min-h-[92px] items-center gap-4 px-5 py-5 text-[#1A1A1A] after:absolute after:inset-y-5 after:right-0 after:hidden after:w-px after:bg-[#E74C7C]/15 last:after:hidden lg:px-6 lg:after:block"
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               whileHover={{ y: -3 }}

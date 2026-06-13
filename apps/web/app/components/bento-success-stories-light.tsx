@@ -28,7 +28,7 @@ const storyCards = [
 
 export function BentoSuccessStories() {
   return (
-    <section className="relative z-20 overflow-hidden bg-transparent py-20">
+    <section className="relative z-20 overflow-hidden bg-[#FFF9F5] py-24 border-t border-b border-[#E74C7C]/10">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <div className="mb-4 flex items-center justify-center gap-3">
@@ -38,7 +38,7 @@ export function BentoSuccessStories() {
             </span>
             <span className="h-px w-10 bg-gradient-to-l from-transparent to-[#D4A04C]" />
           </div>
-          <h2 className="font-playfair text-4xl font-bold text-[#2F2F2F] sm:text-5xl">Marriages Made in Australia. Rooted in Tradition.</h2>
+          <h2 className="font-playfair text-4xl font-bold text-[#1A1A1A] sm:text-5xl">Marriages Made in Australia. Rooted in Tradition.</h2>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -49,7 +49,7 @@ export function BentoSuccessStories() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative h-[420px] overflow-hidden rounded-[32px] border border-white/60 shadow-[0_24px_65px_rgba(161,14,77,0.15)] ring-1 ring-white/80 sm:h-[520px]"
+              className="group relative h-[420px] overflow-hidden rounded-sm border-[8px] border-white bg-white shadow-[0_40px_100px_rgba(0,0,0,0.08)] sm:h-[520px]"
             >
               <Image
                 src={storyCards[0].imageUrl}
@@ -96,7 +96,7 @@ export function BentoSuccessStories() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative h-[248px] overflow-hidden rounded-[28px] border border-white/60 shadow-[0_18px_50px_rgba(161,14,77,0.12)] ring-1 ring-white/80"
+                className="group relative h-[248px] overflow-hidden rounded-sm border-[6px] border-white bg-white shadow-[0_30px_80px_rgba(0,0,0,0.06)]"
               >
                 <Image
                   src={story.imageUrl}
