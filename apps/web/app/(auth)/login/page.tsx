@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import AuthShell from '../auth-shell';
@@ -14,7 +14,7 @@ function formValue(form: FormData, key: string) {
   return typeof value === 'string' ? value : '';
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setSession } = useAuth();
@@ -168,5 +168,17 @@ export default function LoginPage() {
         </div>
       </form>
     </AuthShell>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <AuthShell title="Loading..." subtitle="Please wait...">
+        <div className="flex justify-center p-8">Loading...</div>
+      </AuthShell>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
