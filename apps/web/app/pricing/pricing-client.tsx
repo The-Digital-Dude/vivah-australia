@@ -139,7 +139,6 @@ const TIER_ORDER: TierKey[] = ['FREE', 'PREMIUM', 'GOLD', 'PLATINUM'];
 const TIER_CONTENT: Record<TierKey, TierContent> = {
   FREE: {
     tierKey: 'FREE',
-    highlight: false,
     displayName: 'Free',
     positioning: 'Begin your search',
     outcomeHeadline: 'Explore at your own pace',
