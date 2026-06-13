@@ -65,13 +65,10 @@ export default function LoginPage() {
         };
       } | undefined;
 
-      if (result.ok && data?.tokenPair?.accessToken && data.tokenPair.refreshToken) {
-        setSession({
-          accessToken: data.tokenPair.accessToken,
-          refreshToken: data.tokenPair.refreshToken,
-        });
+      if (result.ok) {
+        setSession({ user: result.data?.user as any });
         setMessage('Signed in successfully.');
-        router.push('/member');
+        router.push(searchParams.get('returnUrl') || '/member');
         router.refresh();
       } else {
         setError(result.message || 'Social login failed');
