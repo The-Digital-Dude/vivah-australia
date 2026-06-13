@@ -106,6 +106,8 @@ export function HowItWorksSection() {
                 </p>
 
                 {index < steps.length - 1 ? (
+                  <div
+                    aria-hidden="true"
                     className="pointer-events-none absolute left-[calc(100%+0.25rem)] top-1/2 hidden -translate-y-1/2 text-[#D4A04C]/30 xl:block z-10"
                   >
                     <ChevronRight className="size-7" strokeWidth={2.5} />
