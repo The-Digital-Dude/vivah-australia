@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import AuthShell from '../auth-shell';
 import FormField from '../form-field';
@@ -16,6 +16,7 @@ function formValue(form: FormData, key: string) {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setSession } = useAuth();
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -36,7 +37,7 @@ export default function LoginPage() {
 
       if (result.ok) {
         setSession({ user: result.data?.user as any });
-        toast({ title: 'Welcome back', description: 'Session started' });
+        setMessage('Welcome back');
         router.push(searchParams.get('returnUrl') || '/member');
         router.refresh();
       } else {
