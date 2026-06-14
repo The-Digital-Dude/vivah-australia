@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   AlertTriangle,
   ArrowRight,
@@ -129,6 +130,9 @@ function UsageBar({ used, limit, label }: { used: number; limit: number; label: 
 
 export default function SubscriptionPage() {
   const memberRequest = useMemberRequest();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const checkoutParam = searchParams.get('checkout');
   const [overview, setOverview] = useState<SubscriptionOverview | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -165,6 +169,19 @@ export default function SubscriptionPage() {
   useEffect(() => {
     void load();
   }, []);
+
+  useEffect(() => {
+    if (!checkoutParam) return;
+    if (checkoutParam === 'success') {
+      setMessage('Your subscription is now active. Welcome to your new plan!');
+      setMessageType('success');
+      void load();
+    } else if (checkoutParam === 'cancelled') {
+      setMessage('Payment was not completed. Your current plan has not changed.');
+      setMessageType('info');
+    }
+    router.replace('/member/subscription');
+  }, [checkoutParam, router]);
 
   async function activateBoost() {
     setBoostLoading(true);
