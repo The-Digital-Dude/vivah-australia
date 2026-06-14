@@ -904,10 +904,9 @@ export function PublicFooter() {
           <FooterList
             title="Membership"
             links={[
-              ['Plans & Pricing',  '/pricing'],
-              ['Membership',       '/membership'],
-              ['Upgrade',          '/pricing'],
-              ['FAQ',              '/faq'],
+              ['Plans & Pricing', '/pricing'],
+              ['Membership',      '/membership'],
+              ['FAQ',             '/faq'],
             ]}
           />
           <FooterList
