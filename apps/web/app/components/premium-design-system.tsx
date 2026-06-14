@@ -824,42 +824,123 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
 }
 
 export function PublicFooter() {
+  const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-white/10 bg-brand-charcoal py-16 text-white font-poppins">
-      <div className="mx-auto grid container gap-8 px-8 sm:px-12 lg:px-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
-        <div>
-          <Image src="/logo-white.png" alt="Vivah Australia" width={220} height={85} className="h-16 w-auto object-contain" />
-          <p className="mt-6 max-w-sm text-sm leading-6 text-white/65">
-            Premium matrimonial matchmaking for serious Australian singles and families.
-          </p>
+    <footer className="bg-brand-charcoal text-white font-poppins">
+      {/* Pre-footer trust strip */}
+      <div className="border-b border-white/8 bg-white/4">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 py-5">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-10">
+            {[
+              { icon: ShieldCheck, label: 'Verified community' },
+              { icon: MapPin,      label: 'Australia-wide' },
+              { icon: Star,        label: '500+ success stories' },
+              { icon: Users,       label: '10,000+ members' },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex items-center gap-2 text-xs font-semibold text-white/60">
+                <Icon className="size-3.5 text-brand-gold" />
+                {label}
+              </div>
+            ))}
+          </div>
         </div>
-        <FooterList
-          title="Explore"
-          links={[
-            ['Matches', '/matches'],
-            ['Membership', '/pricing'],
-            ['Verification', '/verification-policy'],
-          ]}
-        />
-        <FooterList
-          title="Support"
-          links={[
-            ['Help', '/help'],
-            ['Contact', '/contact'],
-            ['Safety', '/safety'],
-          ]}
-        />
-        <FooterList
-          title="Legal"
-          links={[
-            ['Privacy', '/privacy'],
-            ['Terms', '/terms'],
-            ['Refunds', '/refund-policy'],
-          ]}
-        />
       </div>
-      <div className="mx-auto mt-10 container border-t border-white/10 pt-6 text-xs text-white/50">
-        Copyright {new Date().getFullYear()} Vivah Australia. All rights reserved.
+
+      {/* Main footer grid */}
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pt-14 pb-10">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1fr_1fr]">
+
+          {/* Brand column */}
+          <div className="lg:pr-8">
+            <Image
+              src="/logo-white.png"
+              alt="Vivah Australia"
+              width={180}
+              height={70}
+              className="h-12 w-auto object-contain"
+            />
+            <p className="mt-5 text-sm leading-7 text-white/55 max-w-xs">
+              Premium Indian matrimonial matchmaking for serious Australian singles and their
+              families — built with trust, verification, and cultural understanding at its core.
+            </p>
+            <p className="mt-4 text-xs text-white/35 font-semibold uppercase tracking-widest">
+              🇦🇺 Proudly Australian
+            </p>
+
+            {/* Social icons */}
+            <div className="mt-6 flex gap-3">
+              {[
+                { label: 'Facebook',  svg: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /> },
+                { label: 'Instagram', svg: <><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></> },
+                { label: 'LinkedIn',  svg: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></> },
+              ].map(({ label, svg }) => (
+                <a
+                  key={label}
+                  href="#"
+                  aria-label={label}
+                  className="size-8 rounded-lg bg-white/8 flex items-center justify-center hover:bg-brand-gold/20 hover:text-brand-gold transition"
+                >
+                  <svg viewBox="0 0 24 24" className="size-3.5 fill-none stroke-current" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                    {svg}
+                  </svg>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Nav columns */}
+          <FooterList
+            title="Discover"
+            links={[
+              ['How It Works',     '/how-it-works'],
+              ['Success Stories',  '/success-stories'],
+              ['Community',        '/community'],
+              ['About Us',         '/about'],
+              ['Browse Profiles',  '/search'],
+            ]}
+          />
+          <FooterList
+            title="Membership"
+            links={[
+              ['Plans & Pricing',  '/pricing'],
+              ['Membership',       '/membership'],
+              ['Upgrade',          '/pricing'],
+              ['FAQ',              '/faq'],
+            ]}
+          />
+          <FooterList
+            title="Resources"
+            links={[
+              ['Blog & Advice',    '/blog'],
+              ['Help Center',      '/help'],
+              ['Safety Guidelines','/safety'],
+              ['Contact Us',       '/contact'],
+            ]}
+          />
+          <FooterList
+            title="Legal"
+            links={[
+              ['Privacy Policy',       '/privacy'],
+              ['Terms of Service',     '/terms'],
+              ['Refund Policy',        '/refund-policy'],
+              ['Community Guidelines', '/community-guidelines'],
+              ['Verification Policy',  '/verification-policy'],
+            ]}
+          />
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-12 border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/40">
+            © {year} Vivah Australia Pty Ltd. All rights reserved.
+          </p>
+          <div className="flex flex-wrap gap-4 text-xs text-white/40">
+            <Link href="/privacy"       className="hover:text-white/70 transition">Privacy</Link>
+            <Link href="/terms"         className="hover:text-white/70 transition">Terms</Link>
+            <Link href="/refund-policy" className="hover:text-white/70 transition">Refunds</Link>
+            <Link href="/contact"       className="hover:text-white/70 transition">Contact</Link>
+          </div>
+        </div>
       </div>
     </footer>
   );
@@ -871,11 +952,11 @@ function FooterList({
 }: Readonly<{ links: Array<readonly [string, string]>; title: string }>) {
   return (
     <div>
-      <h3 className="font-semibold text-white">{title}</h3>
-      <ul className="mt-4 grid gap-3 text-sm text-white/65">
+      <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-white/50 mb-4">{title}</h3>
+      <ul className="grid gap-3">
         {links.map(([label, href]) => (
-          <li key={href}>
-            <Link href={href} className="transition hover:text-[#D4A04C]">
+          <li key={`${title}-${href}`}>
+            <Link href={href} className="text-sm text-white/65 hover:text-brand-gold transition">
               {label}
             </Link>
           </li>
