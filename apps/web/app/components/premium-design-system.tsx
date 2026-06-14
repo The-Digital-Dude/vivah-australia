@@ -695,9 +695,11 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
                 <span className="transition hover:text-white">Resources</span>
                 <ChevronDown className="size-3.5 transition-transform duration-200 group-hover:rotate-180" />
                 <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                  <div className="w-48 overflow-hidden rounded-xl border border-white/10 bg-brand-charcoal p-2 shadow-2xl">
-                    <Link href="/blog" className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Blog</Link>
-                    <Link href="/help" className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Help Center</Link>
+                  <div className="w-52 overflow-hidden rounded-xl border border-white/10 bg-brand-charcoal p-2 shadow-2xl">
+                    <Link href="/blog"   className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Blog & Advice</Link>
+                    <Link href="/help"   className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Help Center</Link>
+                    <Link href="/safety" className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Safety Guidelines</Link>
+                    <Link href="/faq"    className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">FAQ</Link>
                   </div>
                 </div>
               </div>
