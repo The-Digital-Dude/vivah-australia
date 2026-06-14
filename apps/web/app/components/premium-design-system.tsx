@@ -826,9 +826,9 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
 export function PublicFooter() {
   const year = new Date().getFullYear();
   return (
-    <footer className="bg-brand-charcoal text-white font-poppins">
+    <footer className="bg-brand-maroon text-white font-poppins">
       {/* Pre-footer trust strip */}
-      <div className="border-b border-white/8 bg-white/4">
+      <div className="border-b border-white/8 bg-black/10">
         <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 py-5">
           <div className="flex flex-wrap justify-center gap-6 sm:gap-10">
             {[
