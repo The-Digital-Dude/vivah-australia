@@ -43,12 +43,12 @@ export function createApp(options: CreateAppOptions): Express {
   app.use(helmet());
   app.use(
     cors({
+      credentials: true,
       origin(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
         if (!origin || options.corsOrigins.includes(origin)) {
           callback(null, true);
           return;
         }
-
         callback(new Error('Origin is not allowed by CORS'));
       },
     }),
