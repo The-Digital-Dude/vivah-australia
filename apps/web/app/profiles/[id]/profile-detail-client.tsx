@@ -805,9 +805,9 @@ function scrollToSection(sectionId: string) {
 
 function DetailField({ label, value }: Readonly<{ label: string; value?: ReactNode }>) {
   return (
-    <div className="rounded-2xl bg-[#FFF9F5] px-4 py-3">
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">{label}</p>
-      <p className="mt-1 font-medium text-[#2F2F2F]">{value || 'Not shared'}</p>
+    <div className="rounded-2xl bg-brand-ivory px-4 py-3">
+      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-gold">{label}</p>
+      <p className="mt-1 font-medium text-brand-charcoal">{value || 'Not shared'}</p>
     </div>
   );
 }
@@ -823,8 +823,8 @@ function ToneBadge({
         'inline-flex items-center gap-1.5 rounded-full font-bold font-poppins',
         size === 'sm' && 'px-3 py-1 text-xs',
         size === 'md' && 'px-4 py-1.5 text-sm',
-        tone === 'burgundy' && 'bg-[#E74C7C]/12 text-[#A10E4D]',
-        tone === 'gold' && 'bg-[#D4A04C]/12 text-[#9A6F1E]',
+        tone === 'burgundy' && 'bg-brand-maroon/12 text-brand-maroon',
+        tone === 'gold' && 'bg-brand-gold/12 text-brand-gold',
         tone === 'emerald' && 'bg-[#1F6F4A]/10 text-[#1F6F4A]',
       )}
     >
@@ -841,7 +841,7 @@ function ProfileSurface({
     <motion.section {...fadeInUp}>
       <PremiumCard
         className={cx(
-          'rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(161,14,77,0.05)] sm:p-6',
+          'rounded-[30px] border border-brand-maroon/10 bg-white p-5 shadow-[0_18px_50px_rgba(161,14,77,0.05)] sm:p-6',
           className,
         )}
       >
@@ -853,7 +853,7 @@ function ProfileSurface({
 
 function StaticProfileLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <div className="min-h-screen bg-[#FFF9F5] text-[#2F2F2F] font-poppins">
+    <div className="min-h-screen bg-brand-ivory text-brand-charcoal font-poppins">
       <PublicHeader />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
       <PublicFooter />
@@ -908,8 +908,8 @@ function ScoreRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-bold text-[#2F2F2F] leading-none">{score}%</span>
-        {label && <span className="mt-0.5 text-[10px] font-semibold text-[#6B7280] uppercase tracking-wide">{label}</span>}
+        <span className="text-xl font-bold text-brand-charcoal leading-none">{score}%</span>
+        {label && <span className="mt-0.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{label}</span>}
       </div>
     </div>
   );
@@ -936,7 +936,7 @@ function PhotoLightbox({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="overflow-hidden bg-[#2F2F2F] p-0 text-white">
+        <DialogContent className="overflow-hidden bg-brand-charcoal p-0 text-white">
           <div className="relative aspect-[4/5] w-full bg-[#111111]">
             <Image src={imageUrl} alt={title} fill sizes="100vw" className="object-contain" />
           </div>
@@ -980,7 +980,7 @@ function GalleryExperienceSection({
               <motion.button
                 type="button"
                 onClick={() => setLightboxUrl(gallery[0]?.assetUrl ?? null)}
-                className="group relative aspect-[4/4.8] overflow-hidden rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF0F3]"
+                className="group relative aspect-[4/4.8] overflow-hidden rounded-[28px] border border-brand-maroon/10 bg-[#FFF0F3]"
                 whileHover={{ y: -3, scale: 1.01 }}
                 whileTap={{ scale: 0.985 }}
                 transition={{ duration: 0.2 }}
@@ -992,7 +992,7 @@ function GalleryExperienceSection({
                   sizes="(min-width: 1280px) 40vw, 100vw"
                   className="object-cover transition duration-500 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-[#2F2F2F]/70 to-transparent px-5 py-4 text-left text-white">
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-brand-charcoal/70 to-transparent px-5 py-4 text-left text-white">
                   <div>
                     <p className="text-sm font-semibold">Primary photo</p>
                     <p className="text-xs text-white/70">Tap to view full size</p>
@@ -1011,7 +1011,7 @@ function GalleryExperienceSection({
                       key={photo.id}
                       type="button"
                       onClick={() => setLightboxUrl(photo.assetUrl)}
-                      className="group relative aspect-[4/4.6] overflow-hidden rounded-[22px] border border-[#A10E4D]/10 bg-[#FFF0F3]"
+                      className="group relative aspect-[4/4.6] overflow-hidden rounded-[22px] border border-brand-maroon/10 bg-[#FFF0F3]"
                       whileHover={{ y: -2, scale: 1.01 }}
                       whileTap={{ scale: 0.985 }}
                       transition={{ duration: 0.18 }}
@@ -1029,11 +1029,11 @@ function GalleryExperienceSection({
               ) : null}
             </>
           ) : (
-            <div className="grid min-h-[340px] place-items-center rounded-[28px] border border-dashed border-[#D4A04C]/40 bg-[linear-gradient(135deg,#FFF9F5_0%,#FFF0F3_100%)] p-8 text-center">
+            <div className="grid min-h-[340px] place-items-center rounded-[28px] border border-dashed border-brand-gold/40 bg-[linear-gradient(135deg,#FFF9F5_0%,#FFF0F3_100%)] p-8 text-center">
               <div>
-                <ImageOff className="mx-auto size-10 text-[#D4A04C]" />
-                <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">No public gallery yet</p>
-                <p className="mt-2 max-w-md text-sm leading-6 text-[#6B7280]">
+                <ImageOff className="mx-auto size-10 text-brand-gold" />
+                <p className="mt-4 text-lg font-semibold text-brand-charcoal">No public gallery yet</p>
+                <p className="mt-2 max-w-md text-sm leading-6 text-gray-500">
                   This member has not added public gallery photos yet, but you can still review
                   their trust signals, compatibility, and request access to private photos.
                 </p>
@@ -1044,17 +1044,17 @@ function GalleryExperienceSection({
 
         <div className="grid gap-4">
           <motion.div
-            className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5"
+            className="rounded-[28px] border border-brand-maroon/10 bg-brand-ivory p-5"
             whileHover={{ y: -2 }}
             transition={{ duration: 0.18 }}
           >
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
               First impression
             </p>
-            <p className="mt-3 text-lg font-semibold text-[#2F2F2F]">
+            <p className="mt-3 text-lg font-semibold text-brand-charcoal">
               Gallery access works best once the basics already feel promising.
             </p>
-            <p className="mt-3 text-sm leading-7 text-[#6B7280]">
+            <p className="mt-3 text-sm leading-7 text-gray-500">
               Use the compatibility and trust signals above to decide whether this feels like a
               serious introduction, then request more photos if you want to go deeper.
             </p>
@@ -1192,10 +1192,10 @@ function PrivateGalleryAccessCard({
 
   if (!token) {
     return (
-      <div className="rounded-[28px] border border-dashed border-[#D4A04C]/50 bg-white p-6 text-center">
-        <Lock className="mx-auto size-8 text-[#D4A04C]" />
-        <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">Sign in for private photos</p>
-        <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+      <div className="rounded-[28px] border border-dashed border-brand-gold/50 bg-white p-6 text-center">
+        <Lock className="mx-auto size-8 text-brand-gold" />
+        <p className="mt-4 text-lg font-semibold text-brand-charcoal">Sign in for private photos</p>
+        <p className="mt-2 text-sm leading-6 text-gray-500">
           Private gallery access is only available to signed-in members so photo sharing stays in
           the member community.
         </p>
@@ -1205,8 +1205,8 @@ function PrivateGalleryAccessCard({
 
   if (loadingStatus) {
     return (
-      <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-6 text-center">
-        <p className="text-sm font-semibold text-[#6B7280]">Checking gallery access...</p>
+      <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-6 text-center">
+        <p className="text-sm font-semibold text-gray-500">Checking gallery access...</p>
       </div>
     );
   }
@@ -1222,18 +1222,18 @@ function PrivateGalleryAccessCard({
             Access granted
           </ToneBadge>
           {requestStatus.accessGrantedUntil ? (
-            <span className="text-xs font-medium text-[#6B7280]">
+            <span className="text-xs font-medium text-gray-500">
               Until {formatDate(requestStatus.accessGrantedUntil)}
             </span>
           ) : null}
         </div>
 
-        <p className="mt-4 text-sm leading-6 text-[#6B7280]">
+        <p className="mt-4 text-sm leading-6 text-gray-500">
           You can now view the private gallery that {profileName} chose to share with you.
         </p>
 
         {loadingPhotos ? (
-          <p className="mt-4 text-sm text-[#6B7280]">Loading private photos...</p>
+          <p className="mt-4 text-sm text-gray-500">Loading private photos...</p>
         ) : photos.length > 0 ? (
           <div className="mt-4 grid grid-cols-2 gap-3">
             {photos.slice(0, 4).map((photo) => (
@@ -1241,7 +1241,7 @@ function PrivateGalleryAccessCard({
                 key={photo.id}
                 type="button"
                 onClick={() => onPreviewPhoto(photo.assetUrl)}
-                className="relative overflow-hidden rounded-[20px] border border-[#A10E4D]/10"
+                className="relative overflow-hidden rounded-[20px] border border-brand-maroon/10"
                 whileHover={{ y: -2, scale: 1.01 }}
                 whileTap={{ scale: 0.985 }}
                 transition={{ duration: 0.18 }}
@@ -1258,7 +1258,7 @@ function PrivateGalleryAccessCard({
             ))}
           </div>
         ) : (
-          <div className="mt-4 rounded-2xl border border-dashed border-[#D4A04C]/40 bg-[#FFF9F5] p-4 text-sm text-[#6B7280]">
+          <div className="mt-4 rounded-2xl border border-dashed border-brand-gold/40 bg-brand-ivory p-4 text-sm text-gray-500">
             No private photos have been added yet.
           </div>
         )}
@@ -1268,14 +1268,14 @@ function PrivateGalleryAccessCard({
 
   if (status === 'PENDING') {
     return (
-      <div className="rounded-[28px] border border-[#D4A04C]/30 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
-        <Clock3 className="mx-auto size-8 text-[#D4A04C]" />
-        <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">Private photo request pending</p>
-        <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+      <div className="rounded-[28px] border border-brand-gold/30 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
+        <Clock3 className="mx-auto size-8 text-brand-gold" />
+        <p className="mt-4 text-lg font-semibold text-brand-charcoal">Private photo request pending</p>
+        <p className="mt-2 text-sm leading-6 text-gray-500">
           Your request is waiting for a response. We will surface the private gallery here if
           access is granted.
         </p>
-        {feedback ? <p className="mt-3 text-sm font-semibold text-[#A10E4D]">{feedback}</p> : null}
+        {feedback ? <p className="mt-3 text-sm font-semibold text-brand-maroon">{feedback}</p> : null}
         <div className="mt-4 flex justify-center">
           <PremiumButton variant="secondary" onClick={() => void handleWithdraw()} disabled={sending}>
             <X className="size-4" />
@@ -1287,17 +1287,17 @@ function PrivateGalleryAccessCard({
   }
 
   return (
-    <div className="rounded-[28px] border border-dashed border-[#D4A04C]/50 bg-white p-5">
+    <div className="rounded-[28px] border border-dashed border-brand-gold/50 bg-white p-5">
       <div className="text-center">
-        <Lock className="mx-auto size-8 text-[#A10E4D]/50" />
-        <p className="mt-4 text-lg font-semibold text-[#2F2F2F]">Private gallery</p>
-        <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+        <Lock className="mx-auto size-8 text-brand-maroon/50" />
+        <p className="mt-4 text-lg font-semibold text-brand-charcoal">Private gallery</p>
+        <p className="mt-2 text-sm leading-6 text-gray-500">
           Ask for access if you want to see more photos after the profile already feels promising.
         </p>
       </div>
 
       {feedback ? (
-        <p className="mt-4 rounded-2xl bg-[#FFF0F3] px-4 py-3 text-center text-sm font-semibold text-[#A10E4D]">
+        <p className="mt-4 rounded-2xl bg-[#FFF0F3] px-4 py-3 text-center text-sm font-semibold text-brand-maroon">
           {feedback}
         </p>
       ) : null}
@@ -1310,7 +1310,7 @@ function PrivateGalleryAccessCard({
             placeholder="Add a short note if you want to introduce yourself first..."
             maxLength={200}
             rows={3}
-            className="w-full rounded-2xl border border-[#A10E4D]/20 bg-[#FFF9F5] px-4 py-3 text-sm text-[#2F2F2F] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
+            className="w-full rounded-2xl border border-brand-maroon/20 bg-brand-ivory px-4 py-3 text-sm text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-4 focus:ring-[#FFF0F3]"
           />
           <div className="grid gap-2 sm:grid-cols-2">
             <PremiumButton onClick={() => void handleSendRequest()} disabled={sending} className="w-full">
@@ -1358,7 +1358,7 @@ function StarterCard({
 
   return (
     <motion.div
-      className="group relative rounded-[26px] border border-[#A10E4D]/10 bg-white p-5 cursor-pointer transition-shadow hover:shadow-[0_8px_30px_rgba(161,14,77,0.10)] hover:border-[#A10E4D]/20"
+      className="group relative rounded-[26px] border border-brand-maroon/10 bg-white p-5 cursor-pointer transition-shadow hover:shadow-[0_8px_30px_rgba(161,14,77,0.10)] hover:border-brand-maroon/20"
       whileHover={{ y: -3 }}
       transition={{ duration: 0.2 }}
       onClick={handleCopy}
@@ -1371,7 +1371,7 @@ function StarterCard({
         <button
           type="button"
           aria-label={copied ? 'Copied' : 'Copy prompt'}
-          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full p-1.5 bg-[#FFF0F3] text-[#A10E4D] hover:bg-[#A10E4D] hover:text-white"
+          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full p-1.5 bg-[#FFF0F3] text-brand-maroon hover:bg-brand-maroon hover:text-white"
           onClick={(e) => {
             e.stopPropagation();
             handleCopy();
@@ -1380,8 +1380,8 @@ function StarterCard({
           {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
         </button>
       </div>
-      <p className="mt-4 text-sm leading-7 text-[#2F2F2F]">{starter}</p>
-      <p className="mt-3 text-[11px] font-semibold text-[#D4A04C] opacity-0 group-hover:opacity-100 transition-opacity">
+      <p className="mt-4 text-sm leading-7 text-brand-charcoal">{starter}</p>
+      <p className="mt-3 text-[11px] font-semibold text-brand-gold opacity-0 group-hover:opacity-100 transition-opacity">
         ✦ Click to copy
       </p>
     </motion.div>
@@ -1393,37 +1393,37 @@ function StarterCard({
 function IntroMediaPlaceholder({ firstName, videoUrl }: Readonly<{ firstName?: string; videoUrl?: string }>) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      <div className="rounded-[26px] border border-dashed border-[#D4A04C]/40 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
-        <div className="mx-auto grid size-14 place-items-center rounded-full bg-[#D4A04C]/10">
-          <Mic className="size-6 text-[#D4A04C]" />
+      <div className="rounded-[26px] border border-dashed border-brand-gold/40 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
+        <div className="mx-auto grid size-14 place-items-center rounded-full bg-brand-gold/10">
+          <Mic className="size-6 text-brand-gold" />
         </div>
-        <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">Voice Introduction</p>
-        <p className="mt-2 text-xs leading-5 text-[#6B7280]">
+        <p className="mt-3 text-sm font-semibold text-brand-charcoal">Voice Introduction</p>
+        <p className="mt-2 text-xs leading-5 text-gray-500">
           {firstName ? `${firstName} hasn't recorded` : "Member hasn't recorded"} a voice intro yet.
         </p>
-        <span className="mt-3 inline-block rounded-full bg-[#D4A04C]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#9A6F1E]">
+        <span className="mt-3 inline-block rounded-full bg-brand-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-gold">
           Coming soon
         </span>
       </div>
       {videoUrl ? (
-        <div className="rounded-[26px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_12px_30px_rgba(161,14,77,0.05)] overflow-hidden flex flex-col items-start">
-          <p className="text-sm font-semibold text-[#2F2F2F] mb-3">Video Introduction</p>
+        <div className="rounded-[26px] border border-brand-maroon/10 bg-white p-4 shadow-[0_12px_30px_rgba(161,14,77,0.05)] overflow-hidden flex flex-col items-start">
+          <p className="text-sm font-semibold text-brand-charcoal mb-3">Video Introduction</p>
           <video
             src={videoUrl}
             controls
-            className="w-full aspect-video rounded-2xl border border-[#A10E4D]/10 bg-black"
+            className="w-full aspect-video rounded-2xl border border-brand-maroon/10 bg-black"
           />
         </div>
       ) : (
-        <div className="rounded-[26px] border border-dashed border-[#A10E4D]/20 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFFFFF_100%)] p-5 text-center">
-          <div className="mx-auto grid size-14 place-items-center rounded-full bg-[#A10E4D]/8">
-            <Video className="size-6 text-[#A10E4D]" />
+        <div className="rounded-[26px] border border-dashed border-brand-maroon/20 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFFFFF_100%)] p-5 text-center">
+          <div className="mx-auto grid size-14 place-items-center rounded-full bg-brand-maroon/8">
+            <Video className="size-6 text-brand-maroon" />
           </div>
-          <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">Video Introduction</p>
-          <p className="mt-2 text-xs leading-5 text-[#6B7280]">
+          <p className="mt-3 text-sm font-semibold text-brand-charcoal">Video Introduction</p>
+          <p className="mt-2 text-xs leading-5 text-gray-500">
             Short video intros help build confidence before reaching out.
           </p>
-          <span className="mt-3 inline-block rounded-full bg-[#A10E4D]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#A10E4D]">
+          <span className="mt-3 inline-block rounded-full bg-brand-maroon/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-maroon">
             Coming soon
           </span>
         </div>
@@ -1448,27 +1448,27 @@ function WhyThisMatchPanel({
   if (reasons.length === 0) return null;
 
   const icons = [
-    <HeartHandshake key="0" className="size-5 text-[#A10E4D]" />,
-    <Sparkles key="1" className="size-5 text-[#D4A04C]" />,
+    <HeartHandshake key="0" className="size-5 text-brand-maroon" />,
+    <Sparkles key="1" className="size-5 text-brand-gold" />,
     <CheckCircle2 key="2" className="size-5 text-[#1F6F4A]" />,
-    <Star key="3" className="size-5 text-[#A10E4D]" />,
+    <Star key="3" className="size-5 text-brand-maroon" />,
   ];
 
   return (
     <motion.div
       {...fadeInUp}
-      className="rounded-[30px] border border-[#D4A04C]/25 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF0F3_60%,#FFFFFF_100%)] p-6 sm:p-7"
+      className="rounded-[30px] border border-brand-gold/25 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF0F3_60%,#FFFFFF_100%)] p-6 sm:p-7"
     >
       <div className="flex items-start gap-4">
-        <div className="shrink-0 rounded-2xl bg-[#A10E4D]/8 p-3">
-          <Quote className="size-6 text-[#A10E4D]" />
+        <div className="shrink-0 rounded-2xl bg-brand-maroon/8 p-3">
+          <Quote className="size-6 text-brand-maroon" />
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4A04C]">Why we recommended this match</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#2F2F2F]">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">Why we recommended this match</p>
+          <h2 className="mt-2 text-2xl font-semibold text-brand-charcoal">
             {firstName ? `Why ${firstName} could be your match` : 'Why this could be your match'}
           </h2>
-          <p className="mt-2 text-sm leading-7 text-[#6B7280]">
+          <p className="mt-2 text-sm leading-7 text-gray-500">
             These signals are based on your profile, preferences, and what this member has shared.
           </p>
         </div>
@@ -1487,10 +1487,10 @@ function WhyThisMatchPanel({
             variants={staggerChild}
             className="flex items-start gap-3 rounded-[22px] bg-white/80 p-4 shadow-[0_2px_12px_rgba(161,14,77,0.06)]"
           >
-            <div className="shrink-0 rounded-xl bg-[#FFF9F5] p-2">
+            <div className="shrink-0 rounded-xl bg-brand-ivory p-2">
               {icons[i % icons.length]}
             </div>
-            <p className="text-sm font-semibold text-[#2F2F2F] leading-snug">{reason}</p>
+            <p className="text-sm font-semibold text-brand-charcoal leading-snug">{reason}</p>
           </motion.li>
         ))}
       </motion.ul>
@@ -1529,33 +1529,33 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
 
         <div className="mt-6 grid gap-5 lg:grid-cols-2">
           {hasContent ? (
-            <div className="rounded-[28px] border-l-4 border-[#A10E4D] bg-[#FFF9F5] p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+            <div className="rounded-[28px] border-l-4 border-brand-maroon bg-brand-ivory p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                 Their family story
               </p>
               {narrative && (
-                <p className="mt-4 text-base leading-8 text-[#2F2F2F] font-medium italic">
+                <p className="mt-4 text-base leading-8 text-brand-charcoal font-medium italic">
                   "{narrative}"
                 </p>
               )}
               {profile.about?.partnerExpectations && (
                 <>
-                  <p className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-[#6B7280]">In their words</p>
-                  <p className="mt-2 text-sm leading-7 text-[#2F2F2F]">
+                  <p className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">In their words</p>
+                  <p className="mt-2 text-sm leading-7 text-brand-charcoal">
                     {profile.about.partnerExpectations}
                   </p>
                 </>
               )}
             </div>
           ) : (
-            <div className="rounded-[28px] border border-dashed border-[#D4A04C]/40 bg-[#FFF9F5] p-5 text-sm leading-6 text-[#6B7280]">
+            <div className="rounded-[28px] border border-dashed border-brand-gold/40 bg-brand-ivory p-5 text-sm leading-6 text-gray-500">
               Family and future goals have not been shared in detail yet.
             </div>
           )}
 
           <div className="grid gap-4">
-            <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">Family background</p>
+            <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Family background</p>
               <div className="mt-4 grid gap-3">
                 <DetailField label="Family values" value={profile.family?.familyValues} />
                 <DetailField label="Family type" value={profile.family?.familyType} />
@@ -1566,8 +1566,8 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
 
             {/* Partner preference chips */}
             {(profile.partnerPreference?.ageMin || profile.partnerPreference?.ageMax || (profile.partnerPreference?.communities?.length ?? 0) > 0) && (
-              <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+              <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                   What they imagine
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -1826,19 +1826,19 @@ function ProfileDetailView({
 
           <motion.div
             {...fadeInUp}
-            className="rounded-[26px] border border-[#A10E4D]/10 bg-white/90 px-5 py-4 shadow-[0_14px_32px_rgba(122,31,43,0.06)] backdrop-blur"
+            className="rounded-[26px] border border-brand-maroon/10 bg-white/90 px-5 py-4 shadow-[0_14px_32px_rgba(122,31,43,0.06)] backdrop-blur"
           >
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B7280]">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
                 <a
                   href="/member/matches"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#A10E4D]/10 bg-[#FFF9F5] px-3 py-1.5 font-medium text-[#7A1E3A] transition hover:border-[#A10E4D]/20 hover:bg-white"
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-maroon/10 bg-brand-ivory px-3 py-1.5 font-medium text-brand-maroon transition hover:border-brand-maroon/20 hover:bg-white"
                 >
                   <ArrowLeft className="size-4" />
                   Back to matches
                 </a>
-                <span className="inline-flex items-center gap-2 rounded-full bg-[#FFF9F5] px-3 py-1.5 font-medium text-[#2F2F2F]">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#D4A04C]">
+                <span className="inline-flex items-center gap-2 rounded-full bg-brand-ivory px-3 py-1.5 font-medium text-brand-charcoal">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gold">
                     Profile ID
                   </span>
                   {profile.displayId}
@@ -1865,7 +1865,7 @@ function ProfileDetailView({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            <PremiumCard className="overflow-hidden rounded-[34px] border border-[#A10E4D]/10 bg-white p-0 shadow-[0_28px_80px_rgba(122,31,43,0.12)]">
+            <PremiumCard className="overflow-hidden rounded-[34px] border border-brand-maroon/10 bg-white p-0 shadow-[0_28px_80px_rgba(122,31,43,0.12)]">
               <div className="grid xl:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.1fr)]">
 
                 {/* Photo Panel */}
@@ -1916,18 +1916,18 @@ function ProfileDetailView({
                 {/* Info Panel */}
                 <div className="relative p-6 sm:p-8">
                   {/* Decorative blur orb */}
-                  <div className="absolute -right-16 top-0 h-48 w-48 rounded-full bg-[#D4A04C]/8 blur-3xl pointer-events-none" />
+                  <div className="absolute -right-16 top-0 h-48 w-48 rounded-full bg-brand-gold/8 blur-3xl pointer-events-none" />
 
                   <div className="relative">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4A04C]">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold">
                       Profile {profile.displayId}
                     </p>
 
-                    <h1 className="mt-3 font-playfair text-3xl font-semibold leading-tight text-[#2F2F2F] sm:text-4xl">
+                    <h1 className="mt-3 font-playfair text-3xl font-semibold leading-tight text-brand-charcoal sm:text-4xl">
                       {fullName}
                     </h1>
 
-                    <p className="mt-3 text-base leading-7 text-[#6B7280]">
+                    <p className="mt-3 text-base leading-7 text-gray-500">
                       {heroSummary || 'Premium matrimonial profile — Australia'}
                     </p>
 
@@ -1951,14 +1951,14 @@ function ProfileDetailView({
                         label="Match"
                       />
                       <div className="flex-1">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#D4A04C]">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gold">
                           Profile completion
                         </p>
-                        <p className="mt-1 text-2xl font-semibold text-[#2F2F2F]">
+                        <p className="mt-1 text-2xl font-semibold text-brand-charcoal">
                           {profile.completionPercentage}%
                         </p>
                         <Progress className="mt-2" value={profile.completionPercentage} />
-                        <p className="mt-1.5 text-xs text-[#6B7280]">
+                        <p className="mt-1.5 text-xs text-gray-500">
                           More complete profiles build trust faster
                         </p>
                       </div>
@@ -1967,7 +1967,7 @@ function ProfileDetailView({
                     {/* Match reason tags */}
                     {matchReasons?.length ? (
                       <div className="mt-6 grid gap-2">
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                           Why you match
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1984,12 +1984,12 @@ function ProfileDetailView({
                     {/* Personality trait pills */}
                     {personalityTraits.length > 0 && (
                       <div className="mt-5">
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">At a glance</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">At a glance</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {personalityTraits.map((trait) => (
                             <span
                               key={trait}
-                              className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF9F5] px-3 py-1.5 text-xs font-semibold text-[#2F2F2F] border border-[#A10E4D]/8"
+                              className="inline-flex items-center gap-1.5 rounded-full bg-brand-ivory px-3 py-1.5 text-xs font-semibold text-brand-charcoal border border-brand-maroon/8"
                             >
                               {trait}
                             </span>
@@ -2020,7 +2020,7 @@ function ProfileDetailView({
               }}
             >
               <motion.div whileHover={{ y: -1 }} transition={{ duration: 0.18 }}>
-                <TabsList className="w-full justify-start gap-2 overflow-x-auto rounded-[24px] border border-[#A10E4D]/10 bg-white/95 px-2 py-2 shadow-[0_14px_30px_rgba(122,31,43,0.10)] backdrop-blur">
+                <TabsList className="w-full justify-start gap-2 overflow-x-auto rounded-[24px] border border-brand-maroon/10 bg-white/95 px-2 py-2 shadow-[0_14px_30px_rgba(122,31,43,0.10)] backdrop-blur">
                   {PROFILE_SECTION_TABS.map((tab) => (
                     <TabsTrigger key={tab.key} value={tab.key}>
                       {tab.label}
@@ -2072,17 +2072,17 @@ function ProfileDetailView({
               />
 
               {/* Overall aggregate ring */}
-              <div className="mt-6 flex items-center gap-5 rounded-[24px] bg-[linear-gradient(135deg,#FFF0F3_0%,#FFF9F5_100%)] border border-[#A10E4D]/10 p-5">
+              <div className="mt-6 flex items-center gap-5 rounded-[24px] bg-[linear-gradient(135deg,#FFF0F3_0%,#FFF9F5_100%)] border border-brand-maroon/10 p-5">
                 <ScoreRing score={overallScore} size={80} strokeWidth={8} color="#A10E4D" label="Overall" />
                 <div>
-                  <p className="text-lg font-semibold text-[#2F2F2F]">
+                  <p className="text-lg font-semibold text-brand-charcoal">
                     {overallScore >= 80
                       ? 'Strong compatibility across most dimensions'
                       : overallScore >= 65
                       ? 'Good potential with some complementary differences'
                       : 'Interesting profile — some areas to explore together'}
                   </p>
-                  <p className="mt-1 text-sm text-[#6B7280]">
+                  <p className="mt-1 text-sm text-gray-500">
                     Based on {compatibilityRows.length} dimensions of your profiles
                   </p>
                 </div>
@@ -2092,7 +2092,7 @@ function ProfileDetailView({
                 {compatibilityRows.map((row) => (
                   <motion.div
                     key={row.label}
-                    className="rounded-[26px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4"
+                    className="rounded-[26px] border border-brand-maroon/10 bg-brand-ivory p-4"
                     whileHover={{ y: -2 }}
                     transition={{ duration: 0.2 }}
                   >
@@ -2110,9 +2110,9 @@ function ProfileDetailView({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           {row.icon}
-                          <p className="text-sm font-semibold text-[#2F2F2F]">{row.label}</p>
+                          <p className="text-sm font-semibold text-brand-charcoal">{row.label}</p>
                         </div>
-                        <p className="mt-1.5 text-xs leading-5 text-[#6B7280]">{row.summary}</p>
+                        <p className="mt-1.5 text-xs leading-5 text-gray-500">{row.summary}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -2139,7 +2139,7 @@ function ProfileDetailView({
                 insights.map((insight) => (
                   <motion.div
                     key={insight.title}
-                    className="rounded-[26px] border border-[#D4A04C]/25 bg-[linear-gradient(180deg,#FFF8EC_0%,#FFFFFF_100%)] p-5"
+                    className="rounded-[26px] border border-brand-gold/25 bg-[linear-gradient(180deg,#FFF8EC_0%,#FFFFFF_100%)] p-5"
                     whileHover={{ y: -3 }}
                     transition={{ duration: 0.2 }}
                   >
@@ -2147,12 +2147,12 @@ function ProfileDetailView({
                       <Sparkles className="size-3.5" />
                       Potential fit
                     </ToneBadge>
-                    <h3 className="mt-4 text-base font-semibold text-[#2F2F2F]">{insight.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[#6B7280]">{insight.body}</p>
+                    <h3 className="mt-4 text-base font-semibold text-brand-charcoal">{insight.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-500">{insight.body}</p>
                   </motion.div>
                 ))
               ) : (
-                <div className="md:col-span-2 xl:col-span-3 rounded-[26px] border border-dashed border-[#D4A04C]/50 bg-[#FFF9F5] p-6 text-sm leading-6 text-[#6B7280]">
+                <div className="md:col-span-2 xl:col-span-3 rounded-[26px] border border-dashed border-brand-gold/50 bg-brand-ivory p-6 text-sm leading-6 text-gray-500">
                   We need a little more shared profile information before we can surface stronger
                   connection insights here.
                 </div>
@@ -2171,9 +2171,9 @@ function ProfileDetailView({
 
               {/* About me pull-quote */}
               {profile.about?.aboutMe && (
-                <div className="mt-6 rounded-[28px] border-l-4 border-[#D4A04C] bg-[linear-gradient(135deg,#FFF8EC_0%,#FFFFFF_100%)] p-6">
-                  <Quote className="size-6 text-[#D4A04C] mb-3 opacity-60" />
-                  <p className="text-base leading-8 text-[#2F2F2F] font-medium italic">
+                <div className="mt-6 rounded-[28px] border-l-4 border-brand-gold bg-[linear-gradient(135deg,#FFF8EC_0%,#FFFFFF_100%)] p-6">
+                  <Quote className="size-6 text-brand-gold mb-3 opacity-60" />
+                  <p className="text-base leading-8 text-brand-charcoal font-medium italic">
                     "{profile.about.aboutMe}"
                   </p>
                 </div>
@@ -2183,8 +2183,8 @@ function ProfileDetailView({
               {interestGroups.length > 0 ? (
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {interestGroups.map((group) => (
-                    <div key={group.label} className="rounded-[24px] border border-[#A10E4D]/10 bg-white p-4">
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                    <div key={group.label} className="rounded-[24px] border border-brand-maroon/10 bg-white p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                         {group.label}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -2199,7 +2199,7 @@ function ProfileDetailView({
                   ))}
                 </div>
               ) : !(profile.about?.hobbies?.length || profile.about?.interests?.length) ? (
-                <div className="mt-6 rounded-[24px] border border-dashed border-[#D4A04C]/40 bg-[#FFF9F5] p-4 text-sm text-[#6B7280]">
+                <div className="mt-6 rounded-[24px] border border-dashed border-brand-gold/40 bg-brand-ivory p-4 text-sm text-gray-500">
                   No hobbies or interests shared yet.
                 </div>
               ) : (
@@ -2226,7 +2226,7 @@ function ProfileDetailView({
 
               {/* Audio/Video intro placeholder */}
               <div className="mt-6">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C] mb-4">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold mb-4">
                   Voice & video introduction
                 </p>
                 <IntroMediaPlaceholder {...(firstName !== undefined ? { firstName } : {})} {...(profile.videoUrl !== undefined ? { videoUrl: profile.videoUrl } : {})} />
@@ -2265,8 +2265,8 @@ function ProfileDetailView({
             <div className="mt-6 grid gap-4 lg:grid-cols-3">
               {partnerPreferenceGroups.length > 0 ? (
                 partnerPreferenceGroups.map((group) => (
-                  <div key={group.title} className="rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                  <div key={group.title} className="rounded-[28px] border border-brand-maroon/10 bg-brand-ivory p-5">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                       {group.title}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -2280,18 +2280,18 @@ function ProfileDetailView({
                   </div>
                 ))
               ) : (
-                <div className="lg:col-span-3 rounded-[28px] border border-dashed border-[#D4A04C]/50 bg-[#FFF9F5] p-5 text-sm leading-6 text-[#6B7280]">
+                <div className="lg:col-span-3 rounded-[28px] border border-dashed border-brand-gold/50 bg-brand-ivory p-5 text-sm leading-6 text-gray-500">
                   Partner expectations have not been structured in detail yet.
                 </div>
               )}
             </div>
 
             {profile.about?.partnerExpectations && (
-              <div className="mt-5 rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+              <div className="mt-5 rounded-[28px] border border-brand-maroon/10 bg-white p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                   In their own words
                 </p>
-                <p className="mt-3 text-sm leading-7 text-[#2F2F2F]">
+                <p className="mt-3 text-sm leading-7 text-brand-charcoal">
                   {profile.about.partnerExpectations}
                 </p>
               </div>
@@ -2308,10 +2308,10 @@ function ProfileDetailView({
               />
 
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <Sun className="size-4 text-[#D4A04C]" />
-                    <p className="text-sm font-semibold text-[#2F2F2F]">Lifestyle</p>
+                    <Sun className="size-4 text-brand-gold" />
+                    <p className="text-sm font-semibold text-brand-charcoal">Lifestyle</p>
                   </div>
                   <div className="grid gap-3">
                     <DetailField label="Diet" value={formatEnum(profile.lifestyle?.diet)} />
@@ -2321,10 +2321,10 @@ function ProfileDetailView({
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <GraduationCap className="size-4 text-[#D4A04C]" />
-                    <p className="text-sm font-semibold text-[#2F2F2F]">Education & career</p>
+                    <GraduationCap className="size-4 text-brand-gold" />
+                    <p className="text-sm font-semibold text-brand-charcoal">Education & career</p>
                   </div>
                   <div className="grid gap-3">
                     <DetailField label="Education" value={profile.education?.highestQualification} />
@@ -2334,10 +2334,10 @@ function ProfileDetailView({
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <Users className="size-4 text-[#D4A04C]" />
-                    <p className="text-sm font-semibold text-[#2F2F2F]">Personal details</p>
+                    <Users className="size-4 text-brand-gold" />
+                    <p className="text-sm font-semibold text-brand-charcoal">Personal details</p>
                   </div>
                   <div className="grid gap-3">
                     <DetailField label="Gender" value={formatEnum(profile.personal?.gender)} />
@@ -2350,10 +2350,10 @@ function ProfileDetailView({
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-5">
+                <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <MapPin className="size-4 text-[#D4A04C]" />
-                    <p className="text-sm font-semibold text-[#2F2F2F]">Location</p>
+                    <MapPin className="size-4 text-brand-gold" />
+                    <p className="text-sm font-semibold text-brand-charcoal">Location</p>
                   </div>
                   <div className="grid gap-3">
                     <DetailField label="City" value={profile.location?.city} />
@@ -2376,7 +2376,7 @@ function ProfileDetailView({
 
             <div className="mt-6 relative">
               {/* Vertical line */}
-              <div className="absolute left-5 top-5 bottom-5 w-px bg-[#A10E4D]/10 hidden sm:block" />
+              <div className="absolute left-5 top-5 bottom-5 w-px bg-brand-maroon/10 hidden sm:block" />
 
               <div className="grid gap-3">
                 {timeline.map((item, index) => (
@@ -2389,16 +2389,16 @@ function ProfileDetailView({
                     <div
                       className={cx(
                         'relative z-10 mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full',
-                        item.tone === 'trust' && 'bg-[#FFF0F3] text-[#A10E4D]',
+                        item.tone === 'trust' && 'bg-[#FFF0F3] text-brand-maroon',
                         item.tone === 'activity' && 'bg-[#F0FBF6] text-[#1F6F4A]',
                         item.tone === 'gallery' && 'bg-[#FFF8EC] text-[#8B6714]',
                       )}
                     >
                       <span className="text-sm font-bold">{index + 1}</span>
                     </div>
-                    <div className="flex-1 rounded-[22px] border border-[#A10E4D]/8 bg-[#FFF9F5] p-4">
-                      <p className="text-sm font-semibold text-[#2F2F2F]">{item.label}</p>
-                      <p className="mt-1.5 text-sm leading-6 text-[#6B7280]">{item.body}</p>
+                    <div className="flex-1 rounded-[22px] border border-brand-maroon/8 bg-brand-ivory p-4">
+                      <p className="text-sm font-semibold text-brand-charcoal">{item.label}</p>
+                      <p className="mt-1.5 text-sm leading-6 text-gray-500">{item.body}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -2414,58 +2414,58 @@ function ProfileDetailView({
             {/* Connect card */}
             <ProfileSurface className="p-0">
               <div className="rounded-[30px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] p-6">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                   Connect safely
                 </p>
-                <h2 className="mt-3 text-2xl font-semibold text-[#2F2F2F] font-playfair">
+                <h2 className="mt-3 text-2xl font-semibold text-brand-charcoal font-playfair">
                   {firstName ? `Is ${firstName} your match?` : 'Could this be your match?'}
                 </h2>
-                <p className="mt-3 text-sm leading-7 text-[#6B7280]">
+                <p className="mt-3 text-sm leading-7 text-gray-500">
                   Express interest, message, save, or report — all from this page.
                 </p>
 
                 {/* Trust row */}
-                <div className="mt-5 rounded-[24px] border border-[#A10E4D]/10 bg-white p-4 space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">Trust snapshot</p>
+                <div className="mt-5 rounded-[24px] border border-brand-maroon/10 bg-white p-4 space-y-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-gold">Trust snapshot</p>
                   <div className="flex items-center gap-2.5">
                     <div className="grid size-8 place-items-center rounded-full bg-[#F0FBF6]">
                       <ShieldCheck className="size-4 text-[#1F6F4A]" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#2F2F2F]">
+                      <p className="text-xs font-semibold text-brand-charcoal">
                         {profile.verification?.level?.replaceAll('_', ' ') ?? 'Verified member'}
                       </p>
-                      <p className="text-[10px] text-[#6B7280]">Identity verification</p>
+                      <p className="text-[10px] text-gray-500">Identity verification</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="grid size-8 place-items-center rounded-full bg-[#FFF8EC]">
-                      <Clock3 className="size-4 text-[#9A6F1E]" />
+                      <Clock3 className="size-4 text-brand-gold" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#2F2F2F]">{lastActiveLabel}</p>
-                      <p className="text-[10px] text-[#6B7280]">Last seen active</p>
+                      <p className="text-xs font-semibold text-brand-charcoal">{lastActiveLabel}</p>
+                      <p className="text-[10px] text-gray-500">Last seen active</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="grid size-8 place-items-center rounded-full bg-[#FFF0F3]">
-                      <Star className="size-4 text-[#A10E4D]" />
+                      <Star className="size-4 text-brand-maroon" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#2F2F2F]">{membershipLabel}</p>
-                      <p className="text-[10px] text-[#6B7280]">{profile.completionPercentage}% profile complete</p>
+                      <p className="text-xs font-semibold text-brand-charcoal">{membershipLabel}</p>
+                      <p className="text-[10px] text-gray-500">{profile.completionPercentage}% profile complete</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Overall score mini */}
-                <div className="mt-4 flex items-center gap-4 rounded-[22px] bg-[linear-gradient(135deg,#FFF0F3,#FFF9F5)] p-4 border border-[#A10E4D]/8">
+                <div className="mt-4 flex items-center gap-4 rounded-[22px] bg-[linear-gradient(135deg,#FFF0F3,#FFF9F5)] p-4 border border-brand-maroon/8">
                   <ScoreRing score={overallScore} size={56} strokeWidth={5} color="#A10E4D" />
                   <div>
-                    <p className="text-sm font-semibold text-[#2F2F2F]">
+                    <p className="text-sm font-semibold text-brand-charcoal">
                       {overallScore}% compatible
                     </p>
-                    <p className="text-xs text-[#6B7280]">Across {compatibilityRows.length} dimensions</p>
+                    <p className="text-xs text-gray-500">Across {compatibilityRows.length} dimensions</p>
                   </div>
                 </div>
 
@@ -2482,43 +2482,43 @@ function ProfileDetailView({
             {/* Quick about card */}
             {heroSummary && (
               <ProfileSurface>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">Quick details</p>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Quick details</p>
                 <div className="mt-4 grid gap-2.5">
                   {profile.personal?.age && (
-                    <div className="flex items-center gap-2.5 text-sm text-[#2F2F2F]">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-[#A10E4D]">
+                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
+                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <Heart className="size-3" />
                       </span>
                       {profile.personal.age} years old
                     </div>
                   )}
                   {profile.location?.city && (
-                    <div className="flex items-center gap-2.5 text-sm text-[#2F2F2F]">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-[#A10E4D]">
+                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
+                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <MapPin className="size-3" />
                       </span>
                       {profile.location.city}{profile.location.state ? `, ${profile.location.state}` : ''}
                     </div>
                   )}
                   {profile.employment?.occupation && (
-                    <div className="flex items-center gap-2.5 text-sm text-[#2F2F2F]">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-[#A10E4D]">
+                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
+                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <Briefcase className="size-3" />
                       </span>
                       {profile.employment.occupation}
                     </div>
                   )}
                   {profile.education?.highestQualification && (
-                    <div className="flex items-center gap-2.5 text-sm text-[#2F2F2F]">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-[#A10E4D]">
+                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
+                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <GraduationCap className="size-3" />
                       </span>
                       {profile.education.highestQualification}
                     </div>
                   )}
                   {profile.religion?.religion && (
-                    <div className="flex items-center gap-2.5 text-sm text-[#2F2F2F]">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-[#A10E4D]">
+                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
+                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <Star className="size-3" />
                       </span>
                       {profile.religion.religion}{profile.religion.community ? ` · ${profile.religion.community}` : ''}
@@ -2532,24 +2532,24 @@ function ProfileDetailView({
 
         {/* ── Mobile Sticky Action Bar ─────────────────────────────────── */}
         <div
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-[#A10E4D]/10 bg-white/95 shadow-[0_-14px_40px_rgba(122,31,43,0.12)] backdrop-blur lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-brand-maroon/10 bg-white/95 shadow-[0_-14px_40px_rgba(122,31,43,0.12)] backdrop-blur lg:hidden"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
         >
           <div className="mx-auto max-w-5xl px-4 py-3">
             {/* Mini profile info */}
             <div className="flex items-center gap-3 mb-2.5">
               {primaryPhotoUrl ? (
-                <div className="relative size-9 overflow-hidden rounded-full border-2 border-[#A10E4D]/20 shrink-0">
+                <div className="relative size-9 overflow-hidden rounded-full border-2 border-brand-maroon/20 shrink-0">
                   <Image src={primaryPhotoUrl} alt={fullName} fill className="object-cover" sizes="36px" />
                 </div>
               ) : (
-                <div className="grid size-9 shrink-0 place-items-center rounded-full bg-[#A10E4D] text-white text-sm font-bold">
+                <div className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-maroon text-white text-sm font-bold">
                   {(firstName ?? 'V').slice(0, 1)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-[#2F2F2F]">{fullName}</p>
-                <p className="text-xs text-[#6B7280]">{overallScore}% match · {lastActiveLabel}</p>
+                <p className="truncate text-sm font-semibold text-brand-charcoal">{fullName}</p>
+                <p className="text-xs text-gray-500">{overallScore}% match · {lastActiveLabel}</p>
               </div>
               <ToneBadge tone="emerald" size="sm">
                 <ShieldCheck className="size-3" />
@@ -2576,7 +2576,7 @@ function RestrictedProfilePage({ profileId }: Readonly<{ profileId: string }>) {
   return (
     <StaticProfileLayout>
       <motion.section {...fadeInUp} className="mx-auto max-w-4xl">
-        <PremiumCard className="overflow-hidden rounded-[32px] border border-[#A10E4D]/10 p-0">
+        <PremiumCard className="overflow-hidden rounded-[32px] border border-brand-maroon/10 p-0">
           <div className="grid gap-0 md:grid-cols-[0.9fr_1.1fr]">
             <div className="grid min-h-[280px] place-items-center bg-[linear-gradient(145deg,#A10E4D_0%,#6B0C32_50%,#D4A04C_100%)] p-8 text-white">
               <div className="max-w-xs text-center">
@@ -2588,13 +2588,13 @@ function RestrictedProfilePage({ profileId }: Readonly<{ profileId: string }>) {
               </div>
             </div>
             <div className="p-6 sm:p-8">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-gold">
                 Private profile
               </p>
-              <h1 className="mt-3 text-3xl font-semibold text-[#2F2F2F]">
+              <h1 className="mt-3 text-3xl font-semibold text-brand-charcoal">
                 Sign in to view this member
               </h1>
-              <p className="mt-4 text-sm leading-7 text-[#6B7280]">
+              <p className="mt-4 text-sm leading-7 text-gray-500">
                 This Vivah Australia profile is visible to signed-in members so personal details,
                 trust signals, and gallery controls stay inside the member community.
               </p>
@@ -2619,9 +2619,9 @@ function ProfileMessage({ message, title }: Readonly<{ message: string; title: s
     <StaticProfileLayout>
       <motion.section {...fadeInUp} className="mx-auto max-w-3xl">
         <PremiumCard className="rounded-[32px] p-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">Profile</p>
-          <h1 className="mt-3 text-3xl font-semibold text-[#2F2F2F]">{title}</h1>
-          <p className="mt-4 text-sm leading-7 text-[#6B7280]">{message}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-gold">Profile</p>
+          <h1 className="mt-3 text-3xl font-semibold text-brand-charcoal">{title}</h1>
+          <p className="mt-4 text-sm leading-7 text-gray-500">{message}</p>
         </PremiumCard>
       </motion.section>
     </StaticProfileLayout>
