@@ -182,7 +182,7 @@ function DesktopRail({
     <aside className="sticky top-0 flex h-screen flex-col border-r border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFFCFA_0%,#FFF7F1_100%)] px-5 py-6">
       <Link href="/" className="flex items-center gap-3 px-2">
         <Image
-          src="/logo.png"
+          src="/logo-maroon.png"
           alt="Vivah Australia Logo"
           width={150}
           height={60}

@@ -5,11 +5,13 @@ import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useState,
+  useEffect,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
   type SelectHTMLAttributes,
 } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Bell,
   CheckCircle2,
@@ -24,6 +26,8 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Star,
+  Users,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
@@ -615,14 +619,14 @@ const homeMenuLinks = [
   ['Animated Home', '/homepage/animated'],
   ['Comprehensive (Dark)', '/homepage/comprehensive'],
   ['Comprehensive (Light)', '/homepage/comprehensive-light'],
+  ['Final Homepage', '/final-homepage'],
 ] as const;
 
 const publicLinks = [
-  ['Matches', '/matches'],
-  ['Membership', '/pricing'],
-  ['Verification', '/verification-policy'],
-  ['Blog', '/blog'],
-  ['Help', '/help'],
+  ['About Us', '/about'],
+  ['Success Stories', '/success-stories'],
+  ['Membership', '/membership'],
+  ['Community', '/community'],
 ] as const;
 
 const memberLinks = [
@@ -633,19 +637,31 @@ const memberLinks = [
   ['Profile', '/member/profile'],
 ] as const;
 
-export function PublicHeader() {
+export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'dark' | 'transparent' } = {}) {
   const { clearToken, initialized, token } = useAuth();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const links = initialized && token ? memberLinks : publicLinks;
   const MotionLink = motion(Link);
 
+  useEffect(() => { setMounted(true); }, []);
+
+  let headerClass = "sticky top-0 z-50 transition-all font-poppins ";
+  if (variant === 'dark') {
+    headerClass += "bg-[#1A060B]/80 backdrop-blur-md border-b border-white/5";
+  } else if (variant === 'transparent') {
+    headerClass += "bg-transparent border-b border-white/10";
+  } else {
+    headerClass += "bg-brand-maroon/80 backdrop-blur-md border-b border-white/10";
+  }
+
   return (
-    <header className="sticky top-0 z-40 border-b border-[#A10E4D]/10 bg-[#FFF9F5]/90 backdrop-blur-xl font-poppins">
+    <header className={headerClass}>
       <div className="px-8 sm:px-12 lg:px-16">
         <div className="mx-auto flex min-h-20 container items-center justify-between gap-3 py-3 lg:h-20 lg:py-0">
           <Link href="/" className="flex shrink-0 items-center">
             <Image
-              src="/logo.png"
+              src="/logo-white.png"
               alt="Vivah Australia Logo"
               width={160}
               height={64}
@@ -654,43 +670,38 @@ export function PublicHeader() {
               priority
             />
           </Link>
-          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-[13px] font-semibold text-[#5F5F5F] lg:flex">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-[13px] font-semibold text-white/80 lg:flex">
             {!(initialized && token) && (
-              <div className="group relative">
-                <Link
-                  href="/"
-                  className="flex items-center gap-1 py-2 transition hover:text-[#A10E4D]"
-                >
-                  Home
-                  <ChevronDown className="size-3.5 transition-transform duration-200 group-hover:rotate-180" />
-                </Link>
-                <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                  <div className="w-56 overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white p-2 shadow-[0_24px_60px_rgba(47,47,47,0.14)]">
-                    {homeMenuLinks.map(([label, href]) => (
-                      <Link
-                        key={href}
-                        href={href}
-                        className="flex items-center justify-between rounded-xl px-4 py-2.5 text-[13px] font-semibold text-[#2F2F2F] transition hover:bg-[#FFF1F5] hover:text-[#A10E4D]"
-                      >
-                        {label}
-                        <ChevronRight className="size-3.5 text-[#D4A04C]" />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <Link
+                href="/"
+                className="transition hover:text-white"
+              >
+                Home
+              </Link>
             )}
             {links.map(([label, href]) => (
               <MotionLink
                 key={href}
                 href={href}
-                className="transition hover:text-[#A10E4D]"
+                className="transition hover:text-white"
                 {...{ whileHover: { y: -1 } }}
                 {...{ whileTap: { scale: 0.98 } }}
               >
                 {label}
               </MotionLink>
             ))}
+            {!(initialized && token) && (
+              <div className="group relative flex items-center gap-1 cursor-pointer">
+                <span className="transition hover:text-white">Resources</span>
+                <ChevronDown className="size-3.5 transition-transform duration-200 group-hover:rotate-180" />
+                <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                  <div className="w-48 overflow-hidden rounded-xl border border-white/10 bg-brand-charcoal p-2 shadow-2xl">
+                    <Link href="/blog" className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Blog</Link>
+                    <Link href="/help" className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Help Center</Link>
+                  </div>
+                </div>
+              </div>
+            )}
           </nav>
           <div className="hidden shrink-0 items-center gap-3 lg:flex">
             {initialized && token ? (
@@ -708,89 +719,72 @@ export function PublicHeader() {
               </>
             ) : (
               <>
-                <PremiumButton
+                <Link
                   href="/login"
-                  variant="secondary"
-                  className="min-h-11 rounded-xl border-[#A10E4D]/25 bg-white px-7 text-[#A10E4D] shadow-[0_4px_12px_rgba(161,14,77,0.08)] hover:border-[#A10E4D]/45 hover:bg-white"
+                  className="hidden sm:flex items-center justify-center rounded border border-brand-gold/50 px-6 py-2.5 text-sm font-medium text-white hover:bg-white/5 transition"
                 >
-                  Login
-                </PremiumButton>
-                <PremiumButton
+                  Sign In
+                </Link>
+                <Link
                   href="/register"
-                  variant="primary"
-                  className="min-h-11 rounded-xl px-7 shadow-[0_8px_18px_rgba(161,14,77,0.22)] hover:bg-[#8F0C44] hover:opacity-100"
+                  className="flex items-center justify-center gap-2 rounded bg-brand-gold px-6 py-2.5 text-sm font-bold text-brand-charcoal transition hover:bg-brand-gold"
                 >
-                  Register Free
-                </PremiumButton>
+                  Create Profile <Users className="size-4" />
+                </Link>
               </>
             )}
           </div>
           <button
             type="button"
             aria-label="Open menu"
-            className="rounded-full border border-[#A10E4D]/15 bg-white p-2 text-[#A10E4D] lg:hidden"
+            className="rounded-full border border-white/40 bg-white/20 p-2 text-white lg:hidden transition hover:bg-white/30"
             onClick={() => setOpen(true)}
           >
             <Menu className="size-5" />
           </button>
         </div>
       </div>
-      {open ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
+      {mounted && open ? createPortal(
+        <div className="fixed inset-0 z-[200] lg:hidden">
           <button
             aria-label="Close menu"
-            className="absolute inset-0 bg-black/35"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             type="button"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative ml-auto h-full w-80 max-w-[85vw] bg-[#FFF9F5] p-5 shadow-2xl">
-            <div className="flex items-center justify-between gap-4">
-              <Link href="/" className="flex items-center" onClick={() => setOpen(false)}>
-                <Image
-                  src="/logo.png"
-                  alt="Vivah Australia Logo"
-                  width={120}
-                  height={48}
-                  className="w-auto object-contain"
-                  style={{ width: 'auto', height: '48px' }}
-                  priority
-                />
-              </Link>
+          <aside
+            className="absolute right-0 top-0 h-full w-80 max-w-[85vw] p-6 flex flex-col border-l border-white/10 text-white"
+            style={{ backgroundColor: '#1A060B', boxShadow: '-20px 0 40px rgba(0,0,0,0.4)' }}
+          >
+            <div className="flex items-center justify-end mb-8">
               <button
                 type="button"
                 aria-label="Close menu"
-                className="rounded-full border border-[#A10E4D]/15 p-2 text-[#A10E4D]"
+                className="rounded-full border border-white/20 p-2 text-white transition hover:bg-white/10"
                 onClick={() => setOpen(false)}
               >
-                <X className="size-4" />
+                <X className="size-5" />
               </button>
             </div>
-            <nav className="mt-8 grid gap-3">
+
+            <nav className="grid gap-2 flex-1">
               {!(initialized && token) && (
-                <div className="rounded-2xl border border-[#A10E4D]/10 bg-white p-2">
-                  <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
-                    Homepages
-                  </p>
-                  {homeMenuLinks.map(([label, href]) => (
-                    <MotionLink
-                      key={href}
-                      href={href}
-                      onClick={() => setOpen(false)}
-                      className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-[#2F2F2F] hover:bg-[#FFF1F5] hover:text-[#A10E4D]"
-                      {...{ whileHover: { x: 4 } }}
-                      {...{ whileTap: { scale: 0.98 } }}
-                    >
-                      {label}
-                    </MotionLink>
-                  ))}
-                </div>
+                <MotionLink
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="rounded-2xl px-4 py-3.5 text-base font-bold text-white/90 transition hover:bg-white/10 hover:text-white"
+                  {...{ whileHover: { x: 4 } }}
+                  {...{ whileTap: { scale: 0.98 } }}
+                >
+                  Home
+                </MotionLink>
               )}
               {links.map(([label, href]) => (
                 <MotionLink
                   key={href}
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-[#2F2F2F] hover:bg-[#E74C7C]/10"
+                  className="rounded-2xl px-4 py-3.5 text-base font-bold text-white/90 transition hover:bg-white/10 hover:text-white"
                   {...{ whileHover: { x: 4 } }}
                   {...{ whileTap: { scale: 0.98 } }}
                 >
@@ -798,32 +792,32 @@ export function PublicHeader() {
                 </MotionLink>
               ))}
             </nav>
-            <div className="mt-8 grid gap-3">
+
+            <div className="mt-8 grid gap-4 pb-6">
               {initialized && token ? (
-                <PremiumButton variant="secondary" onClick={clearToken}>
+                <PremiumButton variant="primary" onClick={clearToken} className="w-full min-h-[50px]">
                   Logout
                 </PremiumButton>
               ) : (
                 <>
-                  <PremiumButton
+                  <Link
                     href="/login"
-                    variant="secondary"
-                    className="min-h-11 rounded-xl border-[#A10E4D]/25 bg-white px-7 text-[#A10E4D] shadow-[0_4px_12px_rgba(161,14,77,0.08)] hover:border-[#A10E4D]/45 hover:bg-white"
+                    className="flex items-center justify-center w-full min-h-[50px] rounded-xl border border-white/20 text-base font-bold text-white transition hover:bg-white/10"
                   >
                     Login
-                  </PremiumButton>
-                  <PremiumButton
+                  </Link>
+                  <Link
                     href="/register"
-                    variant="primary"
-                    className="min-h-11 rounded-xl px-7 shadow-[0_8px_18px_rgba(161,14,77,0.22)] hover:bg-[#8F0C44] hover:opacity-100"
+                    className="flex items-center justify-center w-full min-h-[50px] rounded-xl bg-brand-gold text-brand-charcoal text-base font-bold transition hover:bg-brand-gold/90 shadow-md"
                   >
                     Register Free
-                  </PremiumButton>
+                  </Link>
                 </>
               )}
             </div>
           </aside>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </header>
   );
@@ -831,11 +825,11 @@ export function PublicHeader() {
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-[#A10E4D]/10 bg-[#2F2F2F]  py-12 text-white  font-poppins">
+    <footer className="border-t border-white/10 bg-brand-charcoal py-16 text-white font-poppins">
       <div className="mx-auto grid container gap-8 px-8 sm:px-12 lg:px-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <Image src="/logo.png" height={100} width={100} alt="logo" />
-          <p className="mt-4 max-w-sm text-sm leading-6 text-white/65">
+          <Image src="/logo-white.png" alt="Vivah Australia" width={220} height={85} className="h-16 w-auto object-contain" />
+          <p className="mt-6 max-w-sm text-sm leading-6 text-white/65">
             Premium matrimonial matchmaking for serious Australian singles and families.
           </p>
         </div>

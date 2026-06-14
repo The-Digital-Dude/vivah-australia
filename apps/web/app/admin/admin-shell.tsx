@@ -156,7 +156,7 @@ export default function AdminShell({
           <Link href="/admin/dashboard" className="flex items-center gap-2">
             <div className="bg-white/95 rounded-xl px-3.5 py-1.5 shadow-md flex items-center justify-center">
               <Image
-                src="/logo.png"
+                src="/logo-maroon.png"
                 alt="Vivah Australia Logo"
                 width={120}
                 height={40}
