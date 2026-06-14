@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -153,10 +154,20 @@ function FilterTag({
 }
 
 export default function SearchClient() {
+  const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<Filters>(defaultFilters);
-  const [pending, setPending] = useState<Filters>(defaultFilters);
+
+  const initialFilters: Filters = {
+    gender: searchParams.get('gender') ?? '',
+    ageMin: searchParams.get('ageMin') ?? '',
+    ageMax: searchParams.get('ageMax') ?? '',
+    religion: searchParams.get('religion') ?? '',
+    city: searchParams.get('city') ?? '',
+  };
+
+  const [filters, setFilters] = useState<Filters>(initialFilters);
+  const [pending, setPending] = useState<Filters>(initialFilters);
   const [showFilters, setShowFilters] = useState(false);
 
   const fetchProfiles = useCallback(async (f: Filters) => {
@@ -182,7 +193,8 @@ export default function SearchClient() {
   }, []);
 
   useEffect(() => {
-    void fetchProfiles(defaultFilters);
+    void fetchProfiles(initialFilters);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchProfiles]);
 
   function applyFilters() {

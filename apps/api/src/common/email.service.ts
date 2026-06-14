@@ -1,20 +1,22 @@
 import { TemplateModel } from '../models/index.js';
 import { env } from '../env.js';
 import { Queue, Worker } from 'bullmq';
-import { Redis } from 'ioredis';
+import { redisClient } from './redis.js';
 
-const redisConnection = new Redis(env.REDIS_URI, {
-  maxRetriesPerRequest: null,
-});
+const redisConnection = redisClient;
 
-export const emailQueue = new Queue('emailQueue', { connection: redisConnection as any });
+export const emailQueue = redisConnection
+  ? new Queue('emailQueue', { connection: redisConnection as any })
+  : null;
 
-export const emailWorker = new Worker('emailQueue', async (job) => {
-  const emailProvider = getEmailProvider();
-  await emailProvider.sendEmail(job.data as Email);
-}, { connection: redisConnection as any });
+const emailWorker = redisConnection
+  ? new Worker('emailQueue', async (job) => {
+      const emailProvider = getEmailProvider();
+      await emailProvider.sendEmail(job.data as Email);
+    }, { connection: redisConnection as any })
+  : null;
 
-emailWorker.on('failed', (job, err) => {
+emailWorker?.on('failed', (job, err) => {
   console.error(`Email job ${job?.id} failed:`, err);
 });
 
@@ -199,13 +201,15 @@ function getEmailProvider(): EmailProvider {
 }
 
 export async function sendEmail(email: Email): Promise<void> {
-  await emailQueue.add('sendEmail', email, {
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 1000,
-    },
-  });
+  if (emailQueue) {
+    await emailQueue.add('sendEmail', email, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 1000 },
+    });
+  } else {
+    // Redis unavailable — send directly (dev fallback)
+    await getEmailProvider().sendEmail(email);
+  }
 }
 
 const DEFAULT_HTML_TEMPLATES: Record<string, string> = {

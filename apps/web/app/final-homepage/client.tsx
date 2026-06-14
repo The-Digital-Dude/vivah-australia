@@ -5,13 +5,26 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Users, ShieldCheck, MapPin, LockKeyhole, Search, Sparkles, Heart, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FinalSuccessSlider } from '@/app/components/home/final-success-slider';
 
 export default function FinalHomepageClient() {
+  const router = useRouter();
   const [lookingFor, setLookingFor] = useState('Female');
   const [ageRange, setAgeRange] = useState('22 - 40');
   const [location, setLocation] = useState('All Australia');
   const [community, setCommunity] = useState('All');
+
+  function handleSearch() {
+    const params = new URLSearchParams();
+    params.set('gender', lookingFor === 'Male' ? 'MALE' : 'FEMALE');
+    const [min, max] = ageRange.split('-').map((s) => s.trim());
+    if (min) params.set('ageMin', min);
+    if (max) params.set('ageMax', max);
+    if (location !== 'All Australia') params.set('city', location);
+    if (community !== 'All') params.set('religion', community);
+    router.push(`/search?${params.toString()}`);
+  }
 
   return (
     <div className="min-h-screen bg-brand-ivory flex flex-col font-poppins selection:bg-brand-gold/20 selection:text-brand-maroon">
@@ -178,7 +191,11 @@ export default function FinalHomepageClient() {
               </div>
 
               <div className="lg:col-span-1">
-                <button className="w-full h-[50px] inline-flex items-center justify-center gap-2 rounded bg-brand-maroon px-6 py-3.5 text-base font-bold text-white transition hover:bg-brand-maroon/90">
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="w-full h-[50px] inline-flex items-center justify-center gap-2 rounded bg-brand-maroon px-6 py-3.5 text-base font-bold text-white transition hover:bg-brand-maroon/90"
+                >
                   <Search className="size-4" /> View Matches
                 </button>
               </div>

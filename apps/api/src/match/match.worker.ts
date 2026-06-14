@@ -1,17 +1,17 @@
 import { Queue, Worker } from 'bullmq';
-import { Redis } from 'ioredis';
-import { env } from '../env.js';
 import { MatchRecommendationModel, ProfileModel } from '../models/index.js';
 import { calculateMatchScore } from './match.service.js';
 import { AccountStatus, ProfileVisibility } from '@vivah/shared';
+import { redisClient } from '../common/redis.js';
 
-const redisConnection = new Redis(env.REDIS_URI, {
-  maxRetriesPerRequest: null,
-});
+const redisConnection = redisClient;
 
-export const matchCachingQueue = new Queue('matchCachingQueue', { connection: redisConnection as any });
+export const matchCachingQueue = redisConnection
+  ? new Queue('matchCachingQueue', { connection: redisConnection as any })
+  : null;
 
-export const matchCachingWorker = new Worker('matchCachingQueue', async (job) => {
+export const matchCachingWorker = redisConnection
+  ? new Worker('matchCachingQueue', async (job) => {
   // Get all active users
   const activeProfiles = await ProfileModel.find({
     isDeleted: false,
@@ -55,8 +55,9 @@ export const matchCachingWorker = new Worker('matchCachingQueue', async (job) =>
       await MatchRecommendationModel.insertMany(topMatches);
     }
   }
-}, { connection: redisConnection as any });
+  }, { connection: redisConnection as any })
+  : null;
 
-matchCachingWorker.on('failed', (job, err) => {
+matchCachingWorker?.on('failed', (job, err) => {
   console.error(`Match caching job ${job?.id} failed:`, err);
 });

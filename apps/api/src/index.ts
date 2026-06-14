@@ -62,12 +62,14 @@ async function startServer() {
     logger.info({ url: env.API_BASE_URL, port: env.API_PORT }, 'API server started');
   });
 
-  // Schedule match caching
-  await matchCachingQueue.add('precalculate-matches', {}, {
-    repeat: {
-      pattern: '0 2 * * *' // Nightly at 2:00 AM
-    }
-  });
+  // Schedule nightly match pre-caching (skipped if Redis unavailable)
+  if (matchCachingQueue) {
+    await matchCachingQueue.add('precalculate-matches', {}, {
+      repeat: { pattern: '0 2 * * *' },
+    });
+  } else {
+    logger.warn('Redis not available — match pre-caching disabled');
+  }
 }
 
 try {

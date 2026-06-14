@@ -1,6 +1,6 @@
 import express, { type Router, type Response } from 'express';
 import { asyncHandler } from '../common/async-handler.js';
-import { requireAuth } from '../auth/require-auth.js';
+import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { initiateLivenessCheck, processKycWebhook } from './kyc.service.js';
 
