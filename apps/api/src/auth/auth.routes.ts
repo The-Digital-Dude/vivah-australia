@@ -257,20 +257,5 @@ export function createAuthRouter(config: AuthConfig): Router {
     }),
   );
 
-  router.post(
-    '/oauth/facebook',
-    authRateLimit,
-    asyncHandler(async (request: Request, response: Response) => {
-      const { token } = request.body as Record<string, unknown>;
-      if (typeof token !== 'string' || !token) {
-        throw new HttpError(400, 'Token is required');
-      }
-      const profile = await verifyFacebookToken(token);
-      const result = await loginOrRegisterOAuth('facebook', profile, config);
-      setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
-      response.status(200).json({ user: result.user });
-    }),
-  );
-
   return router;
 }
