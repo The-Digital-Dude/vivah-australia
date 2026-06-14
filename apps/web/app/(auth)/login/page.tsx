@@ -106,12 +106,12 @@ function LoginContent() {
           />
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label htmlFor="password" className="text-sm font-bold text-[#2F2F2F]">
+              <label htmlFor="password" className="text-sm font-bold text-brand-charcoal">
                 Password
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs font-semibold text-[#A10E4D] hover:text-[#890B40]"
+                className="text-xs font-semibold text-brand-maroon hover:text-[#890B40]"
               >
                 Forgot your password?
               </Link>
@@ -122,7 +122,7 @@ function LoginContent() {
               type="password"
               autoComplete="current-password"
               required
-              className="h-12 w-full rounded-2xl border border-[#A10E4D]/20 bg-white px-4 text-[#2F2F2F] placeholder-[#6B7280] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3] text-sm"
+              className="h-12 w-full rounded-2xl border border-[#A10E4D]/20 bg-white px-4 text-brand-charcoal placeholder-[#6B7280] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3] text-sm"
               placeholder="••••••••"
             />
           </div>
@@ -134,10 +134,10 @@ function LoginContent() {
 
         <div className="relative my-2">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-[#A10E4D]/10"></div>
+            <div className="w-full border-t border-brand-maroon/10"></div>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[#FFF9F5] px-2 text-[#5F5F5F] font-semibold">Or continue with</span>
+            <span className="bg-brand-ivory px-2 text-[#5F5F5F] font-semibold">Or continue with</span>
           </div>
         </div>
 
@@ -145,14 +145,14 @@ function LoginContent() {
           <button
             type="button"
             onClick={() => void handleOAuth('google')}
-            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/10 bg-white px-4 text-sm font-semibold text-[#2F2F2F] hover:bg-[#FFF0F3] transition"
+            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-brand-maroon/10 bg-white px-4 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
           >
             Google
           </button>
           <button
             type="button"
             onClick={() => void handleOAuth('facebook')}
-            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/10 bg-white px-4 text-sm font-semibold text-[#2F2F2F] hover:bg-[#FFF0F3] transition"
+            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-brand-maroon/10 bg-white px-4 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
           >
             Facebook
           </button>
@@ -161,7 +161,7 @@ function LoginContent() {
         <div className="text-center mt-4">
           <p className="text-sm text-[#6B7280]">
             Don't have an account?{' '}
-            <Link href="/register" className="font-bold text-[#A10E4D] hover:text-[#890B40]">
+            <Link href="/register" className="font-bold text-brand-maroon hover:text-[#890B40]">
               Create free profile
             </Link>
           </p>

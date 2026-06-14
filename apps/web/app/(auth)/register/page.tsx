@@ -157,7 +157,7 @@ export default function RegisterPage() {
       title="Create your free matrimonial profile"
       subtitle="Start your journey to find culturally aligned matrimonial matches in Australia."
     >
-      <div className="mb-5 flex gap-2 rounded-2xl bg-[#FFF0F3]/70 p-1">
+      <div className="mb-5 flex gap-2 rounded-2xl bg-brand-maroon/8 p-1">
         {([
           ['email', 'Email signup'],
           ['mobile', 'Mobile signup'],
@@ -174,7 +174,7 @@ export default function RegisterPage() {
               }
             }}
             className={`flex-1 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-              mode === value ? 'bg-[#A10E4D] text-white' : 'text-[#A10E4D] hover:bg-white/70'
+              mode === value ? 'bg-brand-maroon text-white' : 'text-brand-maroon hover:bg-white/70'
             }`}
           >
             {label}
@@ -205,31 +205,31 @@ export default function RegisterPage() {
           </div>
 
           <div className="grid gap-3">
-            <label className="flex items-start gap-3 text-xs leading-relaxed text-[#6B7280] select-none cursor-pointer">
+            <label className="flex items-start gap-3 text-xs leading-relaxed text-gray-500 select-none cursor-pointer">
               <input
                 name="termsAccepted"
                 type="checkbox"
                 required
-                className="mt-0.5 size-4 accent-[#A10E4D] rounded border-[#A10E4D]/20"
+                className="mt-0.5 size-4 accent-brand-maroon rounded border-brand-maroon/20"
               />
               <span>
                 I accept the{' '}
-                <Link href="/terms" className="font-bold text-[#A10E4D] hover:underline">
+                <Link href="/terms" className="font-bold text-brand-maroon hover:underline">
                   Terms of Use
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" className="font-bold text-[#A10E4D] hover:underline">
+                <Link href="/privacy" className="font-bold text-brand-maroon hover:underline">
                   Privacy Policy
                 </Link>
                 .
               </span>
             </label>
 
-            <label className="flex items-start gap-3 text-xs leading-relaxed text-[#6B7280] select-none cursor-pointer">
+            <label className="flex items-start gap-3 text-xs leading-relaxed text-gray-500 select-none cursor-pointer">
               <input
                 name="marketingConsent"
                 type="checkbox"
-                className="mt-0.5 size-4 accent-[#A10E4D] rounded border-[#A10E4D]/20"
+                className="mt-0.5 size-4 accent-brand-maroon rounded border-brand-maroon/20"
               />
               <span>Send me product updates, premium discounts, and matchmaking tips.</span>
             </label>
@@ -240,9 +240,9 @@ export default function RegisterPage() {
           </div>
 
           <div className="text-center mt-4">
-            <p className="text-sm text-[#6B7280]">
+            <p className="text-sm text-gray-500">
               Already registered?{' '}
-              <Link href="/login" className="font-bold text-[#A10E4D] hover:text-[#890B40]">
+              <Link href="/login" className="font-bold text-brand-maroon hover:text-[#890B40]">
                 Sign in
               </Link>
             </p>
@@ -270,37 +270,37 @@ export default function RegisterPage() {
             <FormField label="Password" name="password" type="password" autoComplete="new-password" />
           </div>
 
-          <div className="rounded-2xl bg-[#FFF9F5] p-4 text-sm leading-6 text-[#6B7280]">
+          <div className="rounded-2xl bg-brand-ivory p-4 text-sm leading-6 text-gray-500">
             We&apos;ll send a one-time verification code to your mobile after signup so you can
             activate your account immediately.
           </div>
 
           <div className="grid gap-3">
-            <label className="flex items-start gap-3 text-xs leading-relaxed text-[#6B7280] select-none cursor-pointer">
+            <label className="flex items-start gap-3 text-xs leading-relaxed text-gray-500 select-none cursor-pointer">
               <input
                 name="termsAccepted"
                 type="checkbox"
                 required
-                className="mt-0.5 size-4 accent-[#A10E4D] rounded border-[#A10E4D]/20"
+                className="mt-0.5 size-4 accent-brand-maroon rounded border-brand-maroon/20"
               />
               <span>
                 I accept the{' '}
-                <Link href="/terms" className="font-bold text-[#A10E4D] hover:underline">
+                <Link href="/terms" className="font-bold text-brand-maroon hover:underline">
                   Terms of Use
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" className="font-bold text-[#A10E4D] hover:underline">
+                <Link href="/privacy" className="font-bold text-brand-maroon hover:underline">
                   Privacy Policy
                 </Link>
                 .
               </span>
             </label>
 
-            <label className="flex items-start gap-3 text-xs leading-relaxed text-[#6B7280] select-none cursor-pointer">
+            <label className="flex items-start gap-3 text-xs leading-relaxed text-gray-500 select-none cursor-pointer">
               <input
                 name="marketingConsent"
                 type="checkbox"
-                className="mt-0.5 size-4 accent-[#A10E4D] rounded border-[#A10E4D]/20"
+                className="mt-0.5 size-4 accent-brand-maroon rounded border-brand-maroon/20"
               />
               <span>Send me product updates, premium discounts, and matchmaking tips.</span>
             </label>
@@ -323,13 +323,13 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <div className="rounded-2xl bg-[#FFF9F5] p-4 text-sm leading-6 text-[#6B7280]">
-            Enter the 6-digit code sent to <span className="font-semibold text-[#2F2F2F]">{registeredMobile}</span>.
+          <div className="rounded-2xl bg-brand-ivory p-4 text-sm leading-6 text-gray-500">
+            Enter the 6-digit code sent to <span className="font-semibold text-brand-charcoal">{registeredMobile}</span>.
           </div>
 
           <OtpInput disabled={pending} name="code" onChange={setOtpCode} value={otpCode} />
 
-          <div className="grid gap-2 rounded-2xl border border-[#D4A04C]/30 bg-[#FFF8E6] p-4 text-sm text-[#A10E4D]">
+          <div className="grid gap-2 rounded-2xl border border-brand-gold/30 bg-brand-gold/10 p-4 text-sm text-brand-maroon">
             <p className="font-semibold">Quick next step</p>
             <p>
               This code expires shortly for your safety. If it doesn&apos;t arrive, you can resend it
@@ -343,7 +343,7 @@ export default function RegisterPage() {
               type="button"
               onClick={() => void resendMobileOtp()}
               disabled={pending || resendCountdown > 0}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#A10E4D]/20 bg-white px-5 py-2.5 text-sm font-semibold text-[#A10E4D] transition hover:bg-[#FFF0F3] disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-brand-maroon/20 bg-white px-5 py-2.5 text-sm font-semibold text-brand-maroon transition hover:bg-brand-maroon/5 disabled:opacity-60"
             >
               {resendCountdown > 0 ? `Resend in ${resendCountdown}s` : 'Resend Code'}
             </button>
@@ -357,7 +357,7 @@ export default function RegisterPage() {
               setError(null);
               setSuccess(null);
             }}
-            className="text-sm font-semibold text-[#A10E4D] hover:text-[#890B40]"
+            className="text-sm font-semibold text-brand-maroon hover:text-[#890B40]"
           >
             Use a different mobile number
           </button>
