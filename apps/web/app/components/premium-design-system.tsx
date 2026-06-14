@@ -670,7 +670,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
               priority
             />
           </Link>
-          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-[13px] font-semibold text-white/80 lg:flex">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-sm font-semibold text-white/80 lg:flex">
             {!(initialized && token) && (
               <Link
                 href="/"

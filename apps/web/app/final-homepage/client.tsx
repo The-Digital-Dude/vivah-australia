@@ -40,7 +40,7 @@ export default function FinalHomepageClient() {
           <div className="container relative z-10 mx-auto px-6 sm:px-8 lg:px-12">
             <div className="max-w-2xl">
               {/* Eyebrow */}
-              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-brand-gold mb-4 sm:mb-6 flex items-center gap-2">
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-4 sm:mb-6 flex items-center gap-2">
                 Australia&apos;s Premium Indian Matrimonial Platform
               </p>
 
@@ -67,13 +67,13 @@ export default function FinalHomepageClient() {
               <div className="flex flex-col sm:flex-row gap-4 mb-14">
                 <Link
                   href="/register"
-                  className="inline-flex items-center justify-center gap-2 rounded bg-brand-gold px-8 py-4 text-sm font-bold text-brand-charcoal transition hover:bg-brand-gold w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-2 rounded bg-brand-gold px-8 py-4 text-base font-bold text-brand-charcoal transition hover:bg-brand-gold w-full sm:w-auto"
                 >
                   Create Your Profile <ArrowRight className="size-4" />
                 </Link>
                 <Link
                   href="/matches"
-                  className="inline-flex items-center justify-center gap-2 rounded border border-white/40 bg-transparent px-8 py-4 text-sm font-bold text-white transition hover:bg-white/10 w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-2 rounded border border-white/40 bg-transparent px-8 py-4 text-base font-bold text-white transition hover:bg-white/10 w-full sm:w-auto"
                 >
                   Browse Members <ArrowRight className="size-4" />
                 </Link>
@@ -84,29 +84,29 @@ export default function FinalHomepageClient() {
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 text-brand-gold"><Users className="size-5 sm:size-6" /></div>
                   <div>
-                    <p className="text-white font-bold text-sm sm:text-base">10,000+</p>
-                    <p className="text-white/60 text-xs sm:text-sm">Members</p>
+                    <p className="text-white font-bold text-base sm:text-lg">10,000+</p>
+                    <p className="text-white/60 text-sm">Members</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 text-brand-gold"><ShieldCheck className="size-5 sm:size-6" /></div>
                   <div>
-                    <p className="text-white font-bold text-sm sm:text-base">5,000+</p>
-                    <p className="text-white/60 text-xs sm:text-sm">Verified Profiles</p>
+                    <p className="text-white font-bold text-base sm:text-lg">5,000+</p>
+                    <p className="text-white/60 text-sm">Verified Profiles</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 text-brand-gold"><MapPin className="size-5 sm:size-6" /></div>
                   <div>
-                    <p className="text-white font-bold text-sm sm:text-base">Australia Wide</p>
-                    <p className="text-white/60 text-xs sm:text-sm">Across All States</p>
+                    <p className="text-white font-bold text-base sm:text-lg">Australia Wide</p>
+                    <p className="text-white/60 text-sm">Across All States</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 text-brand-gold"><LockKeyhole className="size-5 sm:size-6" /></div>
                   <div>
-                    <p className="text-white font-bold text-sm sm:text-base">100%</p>
-                    <p className="text-white/60 text-xs sm:text-sm">Private & Secure</p>
+                    <p className="text-white font-bold text-base sm:text-lg">100%</p>
+                    <p className="text-white/60 text-sm">Private & Secure</p>
                   </div>
                 </div>
               </div>
@@ -125,9 +125,9 @@ export default function FinalHomepageClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
               
               <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-xs font-medium text-gray-500">I&apos;m Looking For</label>
+                <label className="text-sm font-medium text-gray-500">I&apos;m Looking For</label>
                 <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-sm font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
+                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
                   value={lookingFor}
                   onChange={(e) => setLookingFor(e.target.value)}
                 >
@@ -137,9 +137,9 @@ export default function FinalHomepageClient() {
               </div>
 
               <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-xs font-medium text-gray-500">Age</label>
+                <label className="text-sm font-medium text-gray-500">Age</label>
                 <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-sm font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
+                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
                   value={ageRange}
                   onChange={(e) => setAgeRange(e.target.value)}
                 >
@@ -150,9 +150,9 @@ export default function FinalHomepageClient() {
               </div>
 
               <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-xs font-medium text-gray-500">Location</label>
+                <label className="text-sm font-medium text-gray-500">Location</label>
                 <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-sm font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
+                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 >
@@ -164,9 +164,9 @@ export default function FinalHomepageClient() {
               </div>
 
               <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-xs font-medium text-gray-500">Community</label>
+                <label className="text-sm font-medium text-gray-500">Community</label>
                 <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-sm font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
+                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
                   value={community}
                   onChange={(e) => setCommunity(e.target.value)}
                 >
@@ -178,7 +178,7 @@ export default function FinalHomepageClient() {
               </div>
 
               <div className="lg:col-span-1">
-                <button className="w-full h-[50px] inline-flex items-center justify-center gap-2 rounded bg-brand-maroon px-6 py-3.5 text-sm font-bold text-white transition hover:bg-brand-maroon/90">
+                <button className="w-full h-[50px] inline-flex items-center justify-center gap-2 rounded bg-brand-maroon px-6 py-3.5 text-base font-bold text-white transition hover:bg-brand-maroon/90">
                   <Search className="size-4" /> View Matches
                 </button>
               </div>
@@ -191,7 +191,7 @@ export default function FinalHomepageClient() {
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-brand-ivory">
           <div className="max-w-6xl mx-auto text-center">
             {/* Eyebrow */}
-            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
+            <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
               United by Culture. Connected by Values.
             </p>
             {/* Heading */}
@@ -300,25 +300,25 @@ export default function FinalHomepageClient() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div className="flex items-center justify-center gap-2 bg-gray-50 rounded-xl py-2.5 px-2 border border-gray-100">
                     <Heart className="size-3.5 text-brand-gold" />
-                    <div className="text-[10px] leading-tight text-gray-600">
+                    <div className="text-xs leading-tight text-gray-600">
                       <span className="block font-bold">Values</span> Aligned
                     </div>
                   </div>
                   <div className="flex items-center justify-center gap-2 bg-gray-50 rounded-xl py-2.5 px-2 border border-gray-100">
                     <Sparkles className="size-3.5 text-brand-gold" />
-                    <div className="text-[10px] leading-tight text-gray-600">
+                    <div className="text-xs leading-tight text-gray-600">
                       <span className="block font-bold">Lifestyle</span> Compatible
                     </div>
                   </div>
                   <div className="flex items-center justify-center gap-2 bg-gray-50 rounded-xl py-2.5 px-2 border border-gray-100">
                     <MapPin className="size-3.5 text-brand-gold" />
-                    <div className="text-[10px] leading-tight text-gray-600">
+                    <div className="text-xs leading-tight text-gray-600">
                       <span className="block font-bold">Goals</span> Similar
                     </div>
                   </div>
                   <div className="flex items-center justify-center gap-2 bg-gray-50 rounded-xl py-2.5 px-2 border border-gray-100">
                     <Users className="size-3.5 text-brand-gold" />
-                    <div className="text-[10px] leading-tight text-gray-600">
+                    <div className="text-xs leading-tight text-gray-600">
                       <span className="block font-bold">Culture</span> Connected
                     </div>
                   </div>
@@ -329,7 +329,7 @@ export default function FinalHomepageClient() {
 
             {/* Right: Text & Features */}
             <div>
-              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
                 Smart Matchmaking
               </p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-brand-charcoal mb-10">
@@ -350,8 +350,8 @@ export default function FinalHomepageClient() {
                       <item.icon className="size-4" strokeWidth={2} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-brand-charcoal mb-1">{item.title}</h4>
-                      <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                      <h4 className="font-bold text-base text-brand-charcoal mb-1">{item.title}</h4>
+                      <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -372,18 +372,18 @@ export default function FinalHomepageClient() {
           <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-12 items-center">
             {/* Left: Text */}
             <div>
-              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-brand-gold mb-3">
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-3">
                 Australia Wide Community
               </p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-white mb-4 leading-tight">
                 Connecting Hearts<br />Across Australia
               </h2>
-              <p className="text-white/60 text-sm leading-relaxed mb-8">
+              <p className="text-white/60 text-base leading-relaxed mb-8">
                 No matter where you are, find meaningful connections in your city and beyond.
               </p>
               <Link
                 href="/matches"
-                className="inline-flex items-center justify-center gap-2 rounded border border-brand-gold/50 px-6 py-3 text-sm font-bold text-brand-gold transition hover:bg-brand-gold/10"
+                className="inline-flex items-center justify-center gap-2 rounded border border-brand-gold/50 px-6 py-3 text-base font-bold text-brand-gold transition hover:bg-brand-gold/10"
               >
                 Explore Members <ArrowRight className="size-4" />
               </Link>
@@ -437,7 +437,7 @@ export default function FinalHomepageClient() {
           <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.5fr_1fr] gap-12 items-center relative z-10">
             {/* Left: Icons & Text */}
             <div>
-              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-brand-gold mb-3 drop-shadow-[0_0_8px_rgba(212,160,76,0.4)]">
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-3 drop-shadow-[0_0_8px_rgba(212,160,76,0.4)]">
                 Trust Comes First
               </p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-white mb-12 drop-shadow-lg">
@@ -456,7 +456,7 @@ export default function FinalHomepageClient() {
                     <div className="size-14 rounded-xl border border-brand-gold/40 bg-white/10 flex items-center justify-center text-brand-gold shadow-[0_0_25px_rgba(212,160,76,0.2)] backdrop-blur-md transition hover:scale-105 hover:shadow-[0_0_35px_rgba(212,160,76,0.3)]">
                       <item.icon className="size-6 drop-shadow-[0_0_10px_rgba(212,160,76,0.8)]" strokeWidth={1.5} />
                     </div>
-                    <p className="text-white/90 text-xs font-bold whitespace-pre-line leading-tight drop-shadow-md">
+                    <p className="text-white/90 text-xs sm:text-sm font-bold whitespace-pre-line leading-tight drop-shadow-md">
                       {item.label}
                     </p>
                   </div>
@@ -474,7 +474,7 @@ export default function FinalHomepageClient() {
                   </div>
                 </div>
               </div>
-              <p className="text-white/80 text-sm leading-relaxed max-w-xs">
+              <p className="text-white/80 text-base leading-relaxed max-w-xs">
                 Multiple verification layers to ensure a safe and trustworthy environment for everyone.
               </p>
             </div>
@@ -489,7 +489,7 @@ export default function FinalHomepageClient() {
           <div className="max-w-[1400px] mx-auto">
             {/* Header */}
             <div className="flex items-center gap-3 mb-12">
-              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon">
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon">
                 Choose Your Membership <ArrowRight className="inline-block size-3.5 ml-1" />
               </p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-playfair font-bold text-brand-charcoal">
@@ -506,14 +506,14 @@ export default function FinalHomepageClient() {
                 <div className="text-4xl font-bold text-brand-charcoal mb-8 font-playfair">FREE</div>
                 <ul className="space-y-4 mb-10 w-full text-left">
                   {['Create Profile', 'Browse Members', 'Express Interest'].map((feat, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm text-gray-700 font-medium">
+                    <li key={i} className="flex items-center gap-3 text-base text-gray-700 font-medium">
                       <span className="text-brand-maroon"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg></span>
                       {feat}
                     </li>
                   ))}
                 </ul>
                 <div className="mt-auto w-full">
-                  <button className="w-full rounded-xl border border-brand-maroon py-3.5 text-sm font-bold text-brand-maroon transition hover:bg-brand-maroon/5">
+                  <button className="w-full rounded-xl border border-brand-maroon py-3.5 text-base font-bold text-brand-maroon transition hover:bg-brand-maroon/5">
                     Get Started <ArrowRight className="inline-block size-4 ml-1" />
                   </button>
                 </div>
@@ -533,14 +533,14 @@ export default function FinalHomepageClient() {
                 </div>
                 <ul className="space-y-4 mb-10 mt-7 w-full text-left">
                   {['Unlimited Messaging', 'Advanced Search Filters', 'See Who Viewed You', 'Priority Profile Listing'].map((feat, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm text-gray-700 font-medium">
+                    <li key={i} className="flex items-center gap-3 text-base text-gray-700 font-medium">
                       <span className="text-brand-gold"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg></span>
                       {feat}
                     </li>
                   ))}
                 </ul>
                 <div className="mt-auto w-full">
-                  <button className="w-full rounded-xl bg-brand-gold py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-gold">
+                  <button className="w-full rounded-xl bg-brand-gold py-3.5 text-base font-bold text-white shadow-md transition hover:bg-brand-gold">
                     Upgrade Now <ArrowRight className="inline-block size-4 ml-1" />
                   </button>
                 </div>
@@ -554,14 +554,14 @@ export default function FinalHomepageClient() {
                 </div>
                 <ul className="space-y-4 mb-10 mt-7 w-full text-left">
                   {['Everything in Premium', 'Dedicated Matchmaking', 'Priority Support', 'Verified Badge'].map((feat, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm text-gray-700 font-medium">
+                    <li key={i} className="flex items-center gap-3 text-base text-gray-700 font-medium">
                       <span className="text-brand-maroon"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg></span>
                       {feat}
                     </li>
                   ))}
                 </ul>
                 <div className="mt-auto w-full">
-                  <button className="w-full rounded-xl border border-brand-maroon py-3.5 text-sm font-bold text-brand-maroon transition hover:bg-brand-maroon/5">
+                  <button className="w-full rounded-xl border border-brand-maroon py-3.5 text-base font-bold text-brand-maroon transition hover:bg-brand-maroon/5">
                     Go Elite <ArrowRight className="inline-block size-4 ml-1" />
                   </button>
                 </div>
@@ -574,8 +574,8 @@ export default function FinalHomepageClient() {
                     <ShieldCheck className="size-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-brand-charcoal text-sm mb-1">100% Secure Payments</h4>
-                    <p className="text-gray-500 text-xs leading-relaxed">Your transactions are safe and encrypted.</p>
+                    <h4 className="font-bold text-brand-charcoal text-base mb-1">100% Secure Payments</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed">Your transactions are safe and encrypted.</p>
                   </div>
                 </div>
 
@@ -584,8 +584,8 @@ export default function FinalHomepageClient() {
                     <LockKeyhole className="size-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-brand-charcoal text-sm mb-1">Privacy Protected</h4>
-                    <p className="text-gray-500 text-xs leading-relaxed">Your data is always confidential.</p>
+                    <h4 className="font-bold text-brand-charcoal text-base mb-1">Privacy Protected</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed">Your data is always confidential.</p>
                   </div>
                 </div>
 
@@ -594,8 +594,8 @@ export default function FinalHomepageClient() {
                     <Users className="size-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-brand-charcoal text-sm mb-1">Dedicated Support</h4>
-                    <p className="text-gray-500 text-xs leading-relaxed">We&apos;re here to help you every step of the way.</p>
+                    <h4 className="font-bold text-brand-charcoal text-base mb-1">Dedicated Support</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed">We&apos;re here to help you every step of the way.</p>
                   </div>
                 </div>
               </div>
@@ -630,7 +630,7 @@ export default function FinalHomepageClient() {
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-white mb-6">
                   Vivah Australia App<br />Coming Soon
                 </h2>
-                <p className="text-white/70 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0">
+                <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-md mx-auto lg:mx-0">
                   Stay connected on the go. Find matches, start conversations and never miss an opportunity.
                 </p>
               </div>
@@ -655,7 +655,7 @@ export default function FinalHomepageClient() {
                   <button className="bg-black border border-white/20 rounded-xl px-4 py-2.5 flex items-center gap-3 hover:bg-black/80 transition">
                     <svg className="size-6 text-white fill-current" viewBox="0 0 24 24"><path d="M16.365 14.123c-.021-2.613 2.138-3.882 2.235-3.94-.122-1.785-1.36-3.415-3.187-3.666-1.54-.265-3.003.805-3.795.805-.793 0-2.002-.916-3.292-.89-1.683.023-3.238.98-4.103 2.502-1.748 3.036-.445 7.534 1.258 10.02.836 1.218 1.83 2.576 3.125 2.527 1.256-.052 1.73-.814 3.25-.814 1.517 0 1.95.814 3.254.787 1.336-.023 2.181-1.22 3.008-2.43 1.054-1.547 1.488-3.045 1.509-3.122-.03-.016-2.22-.857-2.242-3.78v-.001zM15.485 5.894c.691-.84 1.157-2.008 1.03-3.171-1.004.04-2.215.666-2.928 1.503-.568.665-1.127 1.85-.98 2.998 1.118.087 2.185-.49 2.878-1.33z"/></svg>
                     <div className="text-left leading-none">
-                      <p className="text-[10px] text-white/70">Coming Soon to</p>
+                      <p className="text-xs text-white/70">Coming Soon to</p>
                       <p className="text-sm font-bold text-white">App Store</p>
                     </div>
                   </button>
@@ -664,7 +664,7 @@ export default function FinalHomepageClient() {
                   <button className="bg-black border border-white/20 rounded-xl px-4 py-2.5 flex items-center gap-3 hover:bg-black/80 transition">
                     <svg className="size-6 text-white fill-current" viewBox="0 0 24 24"><path d="M3.609 1.814L13.792 12 3.61 22.186c-.165-.154-.27-.373-.27-.618v-19.14c0-.244.105-.463.27-.614zM14.62 12.828l3.195 3.195-12.012 6.89c-.276.158-.616.143-.878-.04l9.695-9.695v-.35zM15.42 12l2.678-2.678 4.298 2.464c.594.34.594 1.113 0 1.453l-4.298 2.464L15.42 12zM14.62 11.172L4.925 1.477c.262-.183.602-.198.878-.04l12.012 6.89-3.195 3.195v-.35z"/></svg>
                     <div className="text-left leading-none">
-                      <p className="text-[10px] text-white/70">Coming Soon to</p>
+                      <p className="text-xs text-white/70">Coming Soon to</p>
                       <p className="text-sm font-bold text-white">Google Play</p>
                     </div>
                   </button>
@@ -691,7 +691,7 @@ export default function FinalHomepageClient() {
                 <h4 className="text-white font-bold text-sm mb-4">Quick Links</h4>
                 <ul className="space-y-3">
                   {['Home', 'About Us', 'Success Stories', 'Membership'].map((link) => (
-                    <li key={link}><Link href="#" className="text-white/60 text-xs hover:text-brand-gold transition">{link}</Link></li>
+                    <li key={link}><Link href="#" className="text-white/60 text-sm hover:text-brand-gold transition">{link}</Link></li>
                   ))}
                 </ul>
               </div>
@@ -701,7 +701,7 @@ export default function FinalHomepageClient() {
                 <h4 className="text-white font-bold text-sm mb-4">Resources</h4>
                 <ul className="space-y-3">
                   {['Blog', 'Help Centre', 'Safety Tips', 'Sitemap'].map((link) => (
-                    <li key={link}><Link href="#" className="text-white/60 text-xs hover:text-brand-gold transition">{link}</Link></li>
+                    <li key={link}><Link href="#" className="text-white/60 text-sm hover:text-brand-gold transition">{link}</Link></li>
                   ))}
                 </ul>
               </div>
@@ -711,7 +711,7 @@ export default function FinalHomepageClient() {
                 <h4 className="text-white font-bold text-sm mb-4">Legal</h4>
                 <ul className="space-y-3">
                   {['Privacy Policy', 'Terms & Conditions', 'Refund Policy', 'Disclaimer'].map((link) => (
-                    <li key={link}><Link href="#" className="text-white/60 text-xs hover:text-brand-gold transition">{link}</Link></li>
+                    <li key={link}><Link href="#" className="text-white/60 text-sm hover:text-brand-gold transition">{link}</Link></li>
                   ))}
                 </ul>
               </div>
@@ -722,15 +722,15 @@ export default function FinalHomepageClient() {
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
                     <div className="mt-0.5 text-white/40"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
-                    <span className="text-white/60 text-xs">hello@vivahaustralia.com.au</span>
+                    <span className="text-white/60 text-sm">hello@vivahaustralia.com.au</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="mt-0.5 text-white/40"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg></div>
-                    <span className="text-white/60 text-xs">1300 848 243</span>
+                    <span className="text-white/60 text-sm">1300 848 243</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="mt-0.5 text-white/40"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
-                    <span className="text-white/60 text-xs">Sydney, NSW, Australia</span>
+                    <span className="text-white/60 text-sm">Sydney, NSW, Australia</span>
                   </li>
                 </ul>
               </div>

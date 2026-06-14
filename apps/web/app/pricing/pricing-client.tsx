@@ -60,25 +60,11 @@ type ComparisonRowKey =
   | 'verificationSupport'
   | 'dedicatedProfileReview'
   | 'supportPriority';
-type RecommendationPace = 'CASUAL' | 'ACTIVE';
-type RecommendationAnswerKey =
-  | 'searchPace'
-  | 'wantsVisibility'
-  | 'wantsPrioritySupport'
-  | 'needsAdvancedFilters';
-
 interface BillingOptionMeta {
   value: BillingOption;
   label: string;
   months: number;
   badge?: string;
-}
-
-interface RecommendationAnswers {
-  searchPace: RecommendationPace;
-  wantsVisibility: boolean;
-  wantsPrioritySupport: boolean;
-  needsAdvancedFilters: boolean;
 }
 
 interface ComparisonRow {
@@ -99,7 +85,6 @@ interface TierContent {
   ctaLabel: string;
   microcopy: string;
   comparison: Record<ComparisonRowKey, ComparisonValue>;
-  recommendationLabel: string;
   color: 'free' | 'premium' | 'gold' | 'platinum';
 }
 
@@ -115,7 +100,6 @@ interface DisplayPlan extends Plan {
   ctaLabel: string;
   microcopy: string;
   comparison: Record<ComparisonRowKey, ComparisonValue>;
-  recommendationLabel: string;
   isAvailableForBilling: boolean;
   availabilityNote?: string;
   savingsLabel?: string;
@@ -161,7 +145,6 @@ const TIER_CONTENT: Record<TierKey, TierContent> = {
       dedicatedProfileReview: false,
       supportPriority: 'Standard support',
     },
-    recommendationLabel: 'A calm way to start before investing in premium tools.',
     color: 'free',
   },
   PREMIUM: {
@@ -189,7 +172,6 @@ const TIER_CONTENT: Record<TierKey, TierContent> = {
       dedicatedProfileReview: false,
       supportPriority: 'Member care',
     },
-    recommendationLabel: 'Start meaningful conversations with serious verified members.',
     color: 'premium',
   },
   GOLD: {
@@ -217,7 +199,6 @@ const TIER_CONTENT: Record<TierKey, TierContent> = {
       dedicatedProfileReview: false,
       supportPriority: 'Priority care',
     },
-    recommendationLabel: 'Get noticed by more serious members and build momentum faster.',
     color: 'gold',
   },
   PLATINUM: {
@@ -245,7 +226,6 @@ const TIER_CONTENT: Record<TierKey, TierContent> = {
       dedicatedProfileReview: true,
       supportPriority: 'Front-of-queue',
     },
-    recommendationLabel: 'The highest-visibility path to meaningful introductions.',
     color: 'platinum',
   },
 };
@@ -368,48 +348,6 @@ const FAQ_ITEMS = [
   },
 ] as const;
 
-const RECOMMENDATION_QUESTIONS = [
-  {
-    key: 'searchPace',
-    prompt: 'How actively are you searching?',
-    options: [
-      { label: '🌙 Just exploring for now', value: 'CASUAL' as const },
-      { label: '🔥 Actively looking for a partner', value: 'ACTIVE' as const },
-    ],
-  },
-  {
-    key: 'wantsVisibility',
-    prompt: 'Do you want more profiles to see you?',
-    options: [
-      { label: '✨ Yes, I want to be seen first', value: true },
-      { label: '👁️ I\'ll reach out myself', value: false },
-    ],
-  },
-  {
-    key: 'wantsPrioritySupport',
-    prompt: 'Would dedicated support help you?',
-    options: [
-      { label: '🤝 Yes, I\'d like guidance', value: true },
-      { label: '👌 I prefer to search independently', value: false },
-    ],
-  },
-  {
-    key: 'needsAdvancedFilters',
-    prompt: 'Do you need specific match criteria?',
-    options: [
-      { label: '🎯 Yes, filters are important to me', value: true },
-      { label: '🌊 I\'m open to broader matches', value: false },
-    ],
-  },
-] as const;
-
-const DEFAULT_RECOMMENDATION_ANSWERS: RecommendationAnswers = {
-  searchPace: 'ACTIVE',
-  wantsVisibility: true,
-  wantsPrioritySupport: false,
-  needsAdvancedFilters: true,
-};
-
 // ─── Utility Functions ────────────────────────────────────────────────────────
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -460,36 +398,6 @@ function computeSavingsLabel(
   if (savings <= 0) return option === 'ANNUAL' ? 'Best value' : undefined;
   const percent = Math.round((savings / baseline) * 100);
   return `Save ${percent}%`;
-}
-
-function scoreTier(tierKey: Exclude<TierKey, 'FREE'>, answers: RecommendationAnswers) {
-  let score = tierKey === 'PREMIUM' ? 2 : tierKey === 'GOLD' ? 3 : 4;
-  if (answers.searchPace === 'CASUAL') {
-    score += tierKey === 'PREMIUM' ? 3 : tierKey === 'GOLD' ? 1 : 0;
-  } else {
-    score += tierKey === 'GOLD' ? 3 : tierKey === 'PLATINUM' ? 2 : 1;
-  }
-  if (answers.wantsVisibility) {
-    score += tierKey === 'PLATINUM' ? 4 : tierKey === 'GOLD' ? 3 : 1;
-  } else {
-    score += tierKey === 'PREMIUM' ? 2 : 0;
-  }
-  if (answers.wantsPrioritySupport) {
-    score += tierKey === 'PLATINUM' ? 4 : tierKey === 'GOLD' ? 2 : 0;
-  } else {
-    score += tierKey === 'PREMIUM' ? 1 : 0;
-  }
-  if (answers.needsAdvancedFilters) {
-    score += tierKey === 'PREMIUM' ? 2 : tierKey === 'GOLD' ? 2 : 1;
-  }
-  return score;
-}
-
-function getRecommendedTier(answers: RecommendationAnswers): Exclude<TierKey, 'FREE'> {
-  const candidates: Array<Exclude<TierKey, 'FREE'>> = ['PREMIUM', 'GOLD', 'PLATINUM'];
-  return candidates.reduce((best, candidate) =>
-    scoreTier(candidate, answers) > scoreTier(best, answers) ? candidate : best,
-  );
 }
 
 // ─── Small UI Components ──────────────────────────────────────────────────────
@@ -823,8 +731,6 @@ export default function PricingClient() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<DisplayPlan | null>(null);
   const [selectedBilling, setSelectedBilling] = useState<BillingOption>('MONTHLY');
-  const [manualSelectedTier, setManualSelectedTier] = useState<Exclude<TierKey, 'FREE'> | null>(null);
-  const [recommendationAnswers, setRecommendationAnswers] = useState<RecommendationAnswers>(DEFAULT_RECOMMENDATION_ANSWERS);
   const [openComparisonRow, setOpenComparisonRow] = useState<ComparisonRowKey>('monthlyInterests');
   const trustStripRef = useRef<HTMLDivElement>(null);
   const [trustStripSeen, setTrustStripSeen] = useState(false);
@@ -867,10 +773,7 @@ export default function PricingClient() {
       .catch(() => setPlans([]));
   }, []);
 
-  const recommendedTier = useMemo(
-    () => getRecommendedTier(recommendationAnswers),
-    [recommendationAnswers],
-  );
+  const recommendedTier: Exclude<TierKey, 'FREE'> = 'GOLD';
 
   const displayPlans = useMemo(() => {
     const plansByTier = new Map<TierKey, Partial<Record<BillingOption, Plan>>>();
@@ -903,7 +806,6 @@ export default function PricingClient() {
           ctaLabel: content.ctaLabel,
           microcopy: content.microcopy,
           comparison: content.comparison,
-          recommendationLabel: content.recommendationLabel,
           isAvailableForBilling: true,
           color: content.color,
         };
@@ -932,7 +834,6 @@ export default function PricingClient() {
           ctaLabel: content.ctaLabel,
           microcopy: content.microcopy,
           comparison: content.comparison,
-          recommendationLabel: content.recommendationLabel,
           isAvailableForBilling: false,
           availabilityNote: `${BILLING_OPTION_MAP[selectedBilling].label} billing for ${content.displayName} is coming soon.`,
           color: content.color,
@@ -954,7 +855,6 @@ export default function PricingClient() {
         ctaLabel: content.ctaLabel,
         microcopy: content.microcopy,
         comparison: content.comparison,
-        recommendationLabel: content.recommendationLabel,
         isAvailableForBilling: true,
         color: content.color,
         ...(savingsLabel ? { savingsLabel } : {}),
@@ -963,28 +863,11 @@ export default function PricingClient() {
     });
   }, [plans, selectedBilling]);
 
-  const effectiveTier = manualSelectedTier ?? recommendedTier;
+  const effectiveTier = recommendedTier;
   const effectivePlan = displayPlans.find((plan) => plan.tierKey === effectiveTier) ?? null;
-
-  function handleRecommendationAnswer<Key extends RecommendationAnswerKey>(
-    key: Key,
-    value: RecommendationAnswers[Key],
-  ) {
-    setRecommendationAnswers((current) => ({ ...current, [key]: value }));
-    track('membership_recommendation_answered', { question: key, answer: String(value) });
-  }
-
-  function highlightRecommendedPlan() {
-    setManualSelectedTier(null);
-    document.getElementById(`membership-plan-${recommendedTier}`)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    });
-  }
 
   function openPaidPlan(plan: DisplayPlan) {
     if (plan.tierKey === 'FREE' || !plan.isAvailableForBilling) return;
-    setManualSelectedTier(plan.tierKey);
     setSelectedPlan(plan);
     track('membership_checkout_started', {
       tier: plan.tierKey,
@@ -998,47 +881,30 @@ export default function PricingClient() {
       <PublicHeader />
 
       {/* ── Section 1: Hero ───────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-[#A10E4D]/10">
-        {/* Background */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(212,160,76,0.18),transparent_38%),radial-gradient(ellipse_at_top_right,rgba(161,14,77,0.14),transparent_35%),linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)]" />
+      <section className="relative bg-brand-maroon pt-24 pb-36 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,160,76,0.15),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,0,0,0.3),transparent_60%)]" />
 
-        {/* Decorative orbs */}
-        <div className="pointer-events-none absolute -left-32 -top-32 size-80 rounded-full bg-[#D4A04C]/8 blur-3xl" />
-        <div className="pointer-events-none absolute -right-32 top-0 size-96 rounded-full bg-[#A10E4D]/6 blur-3xl" />
-
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-24">
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-12 px-6 sm:px-8 lg:grid-cols-[1fr_1fr] lg:items-center lg:px-12 lg:gap-16">
+          {/* Left: copy */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-            className="max-w-3xl"
           >
-            <Badge variant="outline" className="mb-4">
-              <Sparkles className="size-3 text-[#D4A04C]" />
-              Australia&apos;s Trusted Indian Matrimonial Platform
-            </Badge>
-
-            <h1 className="font-playfair text-4xl font-bold leading-tight text-[#A10E4D] sm:text-5xl lg:text-6xl">
+            <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-4">
+              Choose Your Plan
+            </p>
+            <h1 className="font-playfair text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl mb-6">
               Find Your Life Partner{' '}
-              <span className="relative">
-                Faster
-                <svg
-                  className="absolute -bottom-2 left-0 w-full"
-                  viewBox="0 0 200 8"
-                  fill="none"
-                  preserveAspectRatio="none"
-                >
-                  <path d="M0 6 Q100 0 200 6" stroke="#D4A04C" strokeWidth="3" fill="none" strokeLinecap="round" />
-                </svg>
-              </span>
+              <span className="text-brand-gold">Faster</span>
             </h1>
-
-            <p className="mt-6 max-w-xl text-lg leading-8 text-[#5E6470]">
+            <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-xl mb-8">
               Join thousands of Australians using Vivah to build meaningful relationships with
-              serious, verified members — faster than ever before.
+              serious, verified members — on a plan that fits your pace.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <PremiumButton href="#membership-plans" variant="gold" className="min-w-[200px] h-13 text-base">
                 Upgrade Membership
                 <ArrowRight className="size-4" />
@@ -1048,8 +914,7 @@ export default function PricingClient() {
               </PremiumButton>
             </div>
 
-            {/* Trust indicators */}
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3">
               {[
                 { icon: ShieldCheck, label: 'Verified community' },
                 { icon: Lock, label: 'Secure checkout' },
@@ -1058,16 +923,16 @@ export default function PricingClient() {
               ].map(({ icon: Icon, label }) => (
                 <div
                   key={label}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#A10E4D]/12 bg-white/90 px-4 py-2 text-sm font-semibold text-[#2F2F2F] shadow-sm"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
                 >
-                  <Icon className="size-3.5 text-[#D4A04C]" />
+                  <Icon className="size-3.5 text-brand-gold" />
                   {label}
                 </div>
               ))}
             </div>
           </motion.div>
 
-          {/* Hero visual cluster */}
+          {/* Right: visual cluster */}
           <motion.div
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
@@ -1076,82 +941,66 @@ export default function PricingClient() {
           >
             <LossAversionBanner viewCount={12} />
 
-            <div className="relative overflow-hidden rounded-[34px] border border-[#D4A04C]/25 bg-[linear-gradient(135deg,#FFF7F2_0%,#FFF1F4_48%,#FFF8EC_100%)] p-4 shadow-[0_24px_60px_rgba(122,31,43,0.14)]">
-              <div className="grid gap-4 md:grid-cols-[1.08fr_0.92fr]">
-                <div className="relative min-h-[340px] overflow-hidden rounded-[28px] bg-[#F8E8DE]">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/15 bg-white/8 p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}>
+              <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+                {/* Couple image */}
+                <div className="relative min-h-[300px] overflow-hidden rounded-[22px]">
                   <Image
-                    src="/success-stories/couple-melbourne.jpg"
-                    alt="Vivah Australia premium couple membership experience"
+                    src="/home/success-stories/couple-03.jpg"
+                    alt="Vivah Australia premium couple membership"
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 420px"
+                    sizes="(max-width: 768px) 100vw, 380px"
                     priority
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(47,47,47,0.04)_0%,rgba(47,47,47,0.34)_100%)]" />
-                  <div className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1.5 text-xs font-semibold text-[#A10E4D] shadow-sm">
-                    Best value for serious members
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="absolute left-4 top-4 rounded-full bg-brand-gold px-3 py-1.5 text-xs font-bold text-brand-charcoal shadow-sm">
+                    Most Popular: Gold Plan
                   </div>
-                  <div className="absolute inset-x-4 bottom-4 rounded-[22px] border border-white/30 bg-white/16 p-4 text-white backdrop-blur-md">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/80">
-                      Premium confidence
-                    </p>
-                    <p className="mt-2 font-playfair text-2xl font-semibold leading-tight">
-                      Better visibility, safer conversations, and more serious introductions
+                  <div className="absolute inset-x-4 bottom-4 rounded-[18px] border border-white/20 bg-white/10 p-4 text-white backdrop-blur-md">
+                    <p className="text-xs font-bold uppercase tracking-widest text-white/70 mb-1">Premium confidence</p>
+                    <p className="font-playfair text-lg font-semibold leading-snug">
+                      Better visibility, safer conversations, more serious introductions
                     </p>
                   </div>
                 </div>
 
-                <div className="grid gap-4">
-                  <div className="rounded-[28px] border border-[#A10E4D]/10 bg-white/92 p-5 backdrop-blur">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#D4A04C]">
-                      Why members upgrade
-                    </p>
-                    <div className="mt-4 grid gap-3">
+                {/* Info cards */}
+                <div className="grid gap-4 content-start">
+                  <div className="rounded-[22px] border border-white/15 bg-white/10 p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-3">Why members upgrade</p>
+                    <div className="grid gap-2.5">
                       {[
-                        { icon: MessageCircle, title: 'Connect directly with verified members', body: 'Move from browsing to real conversations with people ready to engage.' },
-                        { icon: TrendingUp, title: 'Reach more compatible matches', body: 'Use sharper filters and stronger discovery placement to save time.' },
-                        { icon: Star, title: 'Get noticed faster', body: 'Priority discovery keeps your profile visible during high-intent browsing windows.' },
+                        { icon: MessageCircle, title: 'Direct messaging' },
+                        { icon: TrendingUp, title: 'More match reach' },
+                        { icon: Star, title: 'Priority discovery' },
                       ].map((item) => (
-                        <div key={item.title} className="flex items-start gap-3 rounded-2xl bg-[#FFF9F5] p-4">
-                          <div className="mt-0.5 grid size-8 place-items-center rounded-full bg-[#A10E4D]/10 text-[#A10E4D]">
-                            <item.icon className="size-4" />
+                        <div key={item.title} className="flex items-center gap-3">
+                          <div className="size-7 shrink-0 grid place-items-center rounded-full bg-brand-gold/20 text-brand-gold">
+                            <item.icon className="size-3.5" />
                           </div>
-                          <div>
-                            <p className="text-sm font-bold text-[#2F2F2F]">{item.title}</p>
-                            <p className="mt-1 text-xs leading-5 text-[#6B7280]">{item.body}</p>
-                          </div>
+                          <p className="text-sm font-semibold text-white">{item.title}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-[28px] border border-[#D4A04C]/20 bg-white/92 p-5 backdrop-blur">
-                    <div className="flex items-center gap-3">
-                      <div className="grid size-11 place-items-center rounded-full bg-[#FFF8EC] text-[#D4A04C]">
-                        <ShieldCheck className="size-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-[#2F2F2F]">Trusted by serious members across Australia</p>
-                        <p className="mt-1 text-xs text-[#6B7280]">Secure billing, privacy-first controls, and verified profile signals.</p>
-                      </div>
+                  <div className="rounded-[22px] border border-brand-gold/25 bg-brand-gold/10 p-4">
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <ShieldCheck className="size-5 text-brand-gold" />
+                      <p className="text-sm font-bold text-white">10,000+ members trust Vivah</p>
                     </div>
-                    <div className="mt-4 flex -space-x-2">
+                    <div className="flex -space-x-2">
                       {[
                         '/home/success-stories/couple-01.jpg',
                         '/home/success-stories/couple-05.jpg',
                         '/home/success-stories/couple-06.jpg',
                       ].map((src, index) => (
-                        <div key={src} className="relative size-11 overflow-hidden rounded-full border-2 border-white shadow-sm">
-                          <Image
-                            src={src}
-                            alt={`Vivah Australia member couple ${index + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="44px"
-                          />
+                        <div key={src} className="relative size-10 overflow-hidden rounded-full border-2 border-brand-maroon shadow-sm">
+                          <Image src={src} alt={`Member couple ${index + 1}`} fill className="object-cover" sizes="40px" />
                         </div>
                       ))}
-                      <div className="flex size-11 items-center justify-center rounded-full border-2 border-white bg-[#FFF0F3] text-xs font-bold text-[#A10E4D] shadow-sm">
+                      <div className="flex size-10 items-center justify-center rounded-full border-2 border-brand-maroon bg-brand-gold text-xs font-bold text-brand-charcoal shadow-sm">
                         +50k
                       </div>
                     </div>
@@ -1160,6 +1009,13 @@ export default function PricingClient() {
               </div>
             </div>
           </motion.div>
+        </div>
+
+        {/* Wave divider */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z" fill="#FFF9F5" />
+          </svg>
         </div>
       </section>
 
@@ -1408,73 +1264,6 @@ export default function PricingClient() {
             </AnimatePresence>
           </div>
 
-          {/* Recommendation helper */}
-          <div className="mt-10 rounded-[28px] border border-[#D4A04C]/25 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-6">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="max-w-lg">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4A04C]">Not sure which plan?</p>
-                <h3 className="mt-2 text-xl font-bold text-[#2F2F2F]">
-                  Answer 4 quick questions — we&apos;ll recommend the right plan for you
-                </h3>
-                <p className="mt-1.5 text-sm text-[#6B7280]">
-                  This stays entirely on your device. We just highlight the best plan based on your goals.
-                </p>
-              </div>
-
-              <div className="rounded-[22px] border border-[#D4A04C]/30 bg-white px-5 py-4 lg:min-w-[240px]">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">Our recommendation</p>
-                <p className="mt-2 text-2xl font-bold text-[#A10E4D]">
-                  {TIER_CONTENT[recommendedTier].displayName}
-                </p>
-                <p className="mt-1.5 text-sm leading-5 text-[#6B7280]">
-                  {TIER_CONTENT[recommendedTier].recommendationLabel}
-                </p>
-                <button
-                  type="button"
-                  onClick={highlightRecommendedPlan}
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[#A10E4D] hover:text-[#5F1621]"
-                >
-                  View this plan
-                  <ArrowRight className="size-3.5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {RECOMMENDATION_QUESTIONS.map((question) => (
-                <motion.div
-                  key={question.key}
-                  className="rounded-2xl bg-white p-5 border border-[#A10E4D]/8"
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <p className="text-sm font-semibold text-[#2F2F2F]">{question.prompt}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {question.options.map((option) => {
-                      const isSelected = recommendationAnswers[question.key] === option.value;
-                      return (
-                        <motion.button
-                          key={`${question.key}-${String(option.value)}`}
-                          type="button"
-                          onClick={() => handleRecommendationAnswer(question.key, option.value)}
-                          className={cx(
-                            'rounded-full border px-4 py-2 text-sm font-semibold transition duration-200',
-                            isSelected
-                              ? 'border-[#A10E4D] bg-[#A10E4D] text-white shadow-sm'
-                              : 'border-[#A10E4D]/12 bg-[#FFF9F5] text-[#A10E4D] hover:bg-[#FFF7EA]',
-                          )}
-                          whileHover={{ y: -1 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          {option.label}
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
         </section>
 
         {/* ── Section 5b: Comparison Table ──────────────────────────────── */}
@@ -1488,7 +1277,7 @@ export default function PricingClient() {
               Every plan, every outcome — side by side
             </h2>
             <p className="mt-2 text-sm leading-7 text-[#5E6470]">
-              See exactly what you get with each tier. The recommended column is highlighted.
+              See exactly what you get with each tier. The Gold column is highlighted as our most popular plan.
             </p>
           </div>
 
