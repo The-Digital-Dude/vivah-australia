@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isMemberRoute = pathname.startsWith('/member');
@@ -26,7 +26,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Allow access if token exists (actual validation happens on the API side)
   return NextResponse.next();
 }
 

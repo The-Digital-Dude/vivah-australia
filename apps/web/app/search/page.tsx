@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import SearchClient from './search-client';
 
@@ -14,5 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default function SearchPage() {
-  return <SearchClient />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#FFF9F5]" />}>
+      <SearchClient />
+    </Suspense>
+  );
 }

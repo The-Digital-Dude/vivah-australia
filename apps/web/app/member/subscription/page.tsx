@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   AlertTriangle,
@@ -127,7 +127,7 @@ function UsageBar({ used, limit, label }: { used: number; limit: number; label: 
   );
 }
 
-export default function SubscriptionPage() {
+function SubscriptionPageContent() {
   const memberRequest = useMemberRequest();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -599,5 +599,20 @@ export default function SubscriptionPage() {
         </div>
       )}
     </MemberShell>
+  );
+}
+
+export default function SubscriptionPage() {
+  return (
+    <Suspense fallback={
+      <MemberShell title="Membership" subtitle="Manage your plan, usage, boosts, and billing history.">
+        <div className="grid gap-4 animate-pulse">
+          <div className="h-40 rounded-2xl bg-[#f0ebe2]" />
+          <div className="h-32 rounded-2xl bg-[#f0ebe2]" />
+        </div>
+      </MemberShell>
+    }>
+      <SubscriptionPageContent />
+    </Suspense>
   );
 }
