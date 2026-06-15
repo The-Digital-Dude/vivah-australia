@@ -31,9 +31,22 @@ export default function FinalHomepageClient() {
 
       <main className="flex-1">
         {/* HERO SECTION */}
-        <section className="relative pt-[120px] pb-32 lg:pb-48 xl:pb-56 overflow-hidden">
-          {/* Background Image & Overlay */}
-          <div className="absolute inset-0 z-0">
+        <section className="relative pb-32 lg:pb-48 xl:pb-56 overflow-hidden bg-[#2B0A12] sm:bg-transparent">
+          
+          {/* Mobile Image */}
+          <div className="relative w-full aspect-[4/3] sm:hidden">
+            <Image
+              src="/home/hero-bg-attached.jpg"
+              alt="Vivah Australia Couple"
+              fill
+              priority
+              className="object-cover object-top"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2B0A12]/30 to-[#2B0A12]" />
+          </div>
+
+          {/* Desktop Background Image & Overlay */}
+          <div className="hidden sm:block absolute inset-0 z-0">
             <Image
               src="/home/hero-bg-attached.jpg"
               alt="Vivah Australia Couple"
@@ -44,12 +57,10 @@ export default function FinalHomepageClient() {
             {/* Deep maroon gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-[#2B0A12] from-10% via-[#4A0A1F]/70 via-35% to-transparent to-55%" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 from-0% to-transparent to-40%" />
-            
-            {/* Dotted heart background decorative (we can use an SVG or similar, but for now just the ambient overlay) */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,160,76,0.15),transparent_60%)]" />
           </div>
 
-          <div className="container relative z-10 mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="container relative z-10 mx-auto px-6 sm:px-8 lg:px-12 pt-8 sm:pt-[120px]">
             <div className="max-w-2xl">
               {/* Eyebrow */}
               <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-4 sm:mb-6 flex items-center gap-2">
