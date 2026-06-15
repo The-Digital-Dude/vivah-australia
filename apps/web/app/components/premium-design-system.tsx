@@ -863,11 +863,11 @@ export function PublicFooter() {
               height={70}
               className="h-12 w-auto object-contain"
             />
-            <p className="mt-5 text-sm leading-7 text-white/55 max-w-xs">
+            <p className="mt-5 text-sm leading-7 text-white/90 max-w-xs font-medium">
               Premium Indian matrimonial matchmaking for serious Australian singles and their
               families — built with trust, verification, and cultural understanding at its core.
             </p>
-            <p className="mt-4 text-xs text-white/35 font-semibold uppercase tracking-widest">
+            <p className="mt-4 text-sm text-white/90 font-bold uppercase tracking-widest">
               🇦🇺 Proudly Australian
             </p>
 
@@ -933,19 +933,13 @@ export function PublicFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">
+        <div className="mt-12 border-t border-white/20 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-white/70">
             © {year} Vivah Australia Pty Ltd. All rights reserved.
           </p>
-          <p className="text-xs text-white/40 flex items-center gap-1.5">
-            Made with ❤️ by <a href="https://rokoautomations.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">RokoAutomations</a>
+          <p className="text-sm text-white/90 font-medium flex items-center gap-1.5">
+            Made with ❤️ by <a href="https://rokoautomations.com/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-gold transition-colors font-bold">RokoAutomations</a>
           </p>
-          <div className="flex flex-wrap gap-4 text-xs text-white/40">
-            <Link href="/privacy"       className="hover:text-white/70 transition">Privacy</Link>
-            <Link href="/terms"         className="hover:text-white/70 transition">Terms</Link>
-            <Link href="/refund-policy" className="hover:text-white/70 transition">Refunds</Link>
-            <Link href="/contact"       className="hover:text-white/70 transition">Contact</Link>
-          </div>
         </div>
       </div>
     </footer>
@@ -958,11 +952,11 @@ function FooterList({
 }: Readonly<{ links: Array<readonly [string, string]>; title: string }>) {
   return (
     <div>
-      <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-white/50 mb-4">{title}</h3>
+      <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-white/90 mb-4">{title}</h3>
       <ul className="grid gap-3">
         {links.map(([label, href]) => (
           <li key={`${title}-${href}`}>
-            <Link href={href} className="text-sm text-white/65 hover:text-brand-gold transition">
+            <Link href={href} className="text-sm text-white/80 hover:text-white transition font-medium">
               {label}
             </Link>
           </li>
