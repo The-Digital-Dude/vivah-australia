@@ -27,7 +27,7 @@ export default function FinalHomepageClient() {
   }
   return (
     <div className="min-h-screen bg-brand-ivory flex flex-col font-poppins selection:bg-brand-gold/20 selection:text-brand-maroon">
-      <PublicHeader variant="dark" />
+      <PublicHeader variant="white" />
 
       <main className="flex-1">
         {/* HERO SECTION */}

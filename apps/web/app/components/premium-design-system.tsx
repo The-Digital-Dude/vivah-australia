@@ -639,7 +639,7 @@ const memberLinks = [
   ['Profile', '/member/profile'],
 ] as const;
 
-export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'dark' | 'transparent' } = {}) {
+export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'dark' | 'transparent' | 'full-maroon' | 'white' } = {}) {
   const { clearToken, initialized, token } = useAuth();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -653,9 +653,15 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
     headerClass += "bg-[#1A060B]/80 backdrop-blur-md border-b border-white/5";
   } else if (variant === 'transparent') {
     headerClass += "bg-transparent border-b border-white/10";
+  } else if (variant === 'full-maroon') {
+    headerClass += "bg-brand-maroon border-b border-white/10 shadow-md";
+  } else if (variant === 'white') {
+    headerClass += "bg-white border-b border-gray-100 shadow-sm";
   } else {
     headerClass += "bg-brand-maroon/80 backdrop-blur-md border-b border-white/10";
   }
+
+  const isLight = variant === 'white';
 
   return (
     <header className={headerClass}>
@@ -663,7 +669,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
         <div className="mx-auto flex min-h-20 container items-center justify-between gap-3 py-3 lg:h-20 lg:py-0">
           <Link href="/" className="flex shrink-0 items-center">
             <Image
-              src="/logo-white.png"
+              src={isLight ? "/logo-color.png" : "/logo-white.png"}
               alt="Vivah Australia Logo"
               width={160}
               height={64}
@@ -672,11 +678,11 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
               priority
             />
           </Link>
-          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-sm font-semibold text-white/80 lg:flex">
+          <nav className={cx("hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-sm font-semibold lg:flex", isLight ? "text-gray-600" : "text-white/80")}>
             {!(initialized && token) && (
               <Link
                 href="/"
-                className="transition hover:text-white"
+                className={cx("transition", isLight ? "hover:text-brand-maroon" : "hover:text-white")}
               >
                 Home
               </Link>
@@ -685,7 +691,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
               <MotionLink
                 key={href}
                 href={href}
-                className="transition hover:text-white"
+                className={cx("transition", isLight ? "hover:text-brand-maroon" : "hover:text-white")}
                 {...{ whileHover: { y: -1 } }}
                 {...{ whileTap: { scale: 0.98 } }}
               >
@@ -694,7 +700,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
             ))}
             {!(initialized && token) && (
               <div className="group relative flex items-center gap-1 cursor-pointer">
-                <span className="transition hover:text-white">Resources</span>
+                <span className={cx("transition", isLight ? "hover:text-brand-maroon" : "hover:text-white")}>Resources</span>
                 <ChevronDown className="size-3.5 transition-transform duration-200 group-hover:rotate-180" />
                 <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
                   <div className="w-52 overflow-hidden rounded-xl border border-white/10 bg-brand-charcoal p-2 shadow-2xl">
@@ -725,7 +731,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
               <>
                 <Link
                   href="/login"
-                  className="hidden sm:flex items-center justify-center rounded border border-brand-gold/50 px-6 py-2.5 text-sm font-medium text-white hover:bg-white/5 transition"
+                  className={cx("hidden sm:flex items-center justify-center rounded border px-6 py-2.5 text-sm font-medium transition", isLight ? "border-brand-maroon/20 text-brand-maroon hover:bg-brand-maroon/5" : "border-brand-gold/50 text-white hover:bg-white/5")}
                 >
                   Sign In
                 </Link>
@@ -741,7 +747,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
           <button
             type="button"
             aria-label="Open menu"
-            className="rounded-full border border-white/40 bg-white/20 p-2 text-white lg:hidden transition hover:bg-white/30"
+            className={cx("rounded-full border p-2 lg:hidden transition", isLight ? "border-gray-200 bg-white text-brand-charcoal hover:bg-gray-50" : "border-white/40 bg-white/20 text-white hover:bg-white/30")}
             onClick={() => setOpen(true)}
           >
             <Menu className="size-5" />
