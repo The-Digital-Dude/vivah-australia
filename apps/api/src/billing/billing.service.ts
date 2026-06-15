@@ -178,9 +178,18 @@ export async function createCheckoutSession(userId: Types.ObjectId, input: Check
     sessionParams.discounts = [{ coupon: coupon.stripeCouponId }];
   }
 
-  const session = await stripe.checkout.sessions.create(sessionParams);
-
-  return { checkoutUrl: session.url, sessionId: session.id };
+  try {
+    const session = await stripe.checkout.sessions.create(sessionParams);
+    return { checkoutUrl: session.url, sessionId: session.id };
+  } catch (error: any) {
+    if (error.type === 'StripeInvalidRequestError' || error.rawType === 'invalid_request_error') {
+      throw new HttpError(
+        400,
+        `Stripe Configuration Error: The price ID '${plan.stripePriceId}' was not found in your Stripe account. Please create this product in your Stripe dashboard and update the Plan, or remove your STRIPE_SECRET_KEY to use the mock checkout.`
+      );
+    }
+    throw error;
+  }
 }
 
 export async function createBillingPortalSession(userId: Types.ObjectId) {
