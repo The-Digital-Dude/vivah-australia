@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
@@ -17,19 +18,15 @@ import {
   Lock,
   MapPin,
   MessageSquareText,
-  Mic,
   Send,
   ShieldCheck,
   Sparkles,
   Star,
   Sun,
-  Video,
   X,
   Users,
   BookOpen,
   Briefcase,
-  Copy,
-  Check,
   Quote,
 } from 'lucide-react';
 import {
@@ -42,13 +39,10 @@ import { Progress } from '@/app/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
   LoadingState,
-  MatchScoreBadge,
   PremiumButton,
   PremiumCard,
   PublicFooter,
   PublicHeader,
-  SectionHeader,
-  VerificationBadge,
 } from '@/app/components';
 import { useAuth } from '@/app/auth-context';
 import ProfileActions from '../../member/profile-actions';
@@ -108,14 +102,16 @@ interface ProfileDetail {
   family?: {
     familyValues?: string;
     familyType?: string;
-    fatherOccupation?: string;
-    motherOccupation?: string;
+    fatherDetails?: string;
+    motherDetails?: string;
+    siblingDetails?: string;
   };
   lifestyle?: {
-    diet?: string;
-    smoking?: string;
-    drinking?: string;
-    livingArrangement?: string;
+    dietaryPreferences?: string;
+    smokingHabits?: string;
+    drinkingHabits?: string;
+    fitnessInterests?: string[];
+    religiousPractices?: string;
   };
   about?: {
     aboutMe?: string;
@@ -142,6 +138,9 @@ interface ProfileDetail {
 }
 
 interface ViewerProfile {
+  _id?: string;
+  displayId?: string;
+  slug?: string;
   personal?: {
     firstName?: string;
     age?: number;
@@ -170,10 +169,9 @@ interface ViewerProfile {
     familyType?: string;
   };
   lifestyle?: {
-    diet?: string;
-    smoking?: string;
-    drinking?: string;
-    livingArrangement?: string;
+    dietaryPreferences?: string;
+    smokingHabits?: string;
+    drinkingHabits?: string;
   };
   partnerPreference?: {
     ageMin?: number;
@@ -223,23 +221,11 @@ type CompatibilityRow = {
   icon: ReactNode;
 };
 
-type InsightCard = {
-  title: string;
-  body: string;
-};
-
-type TimelineItem = {
-  label: string;
-  body: string;
-  tone: 'trust' | 'activity' | 'gallery';
-};
-
-type MobileTabKey = 'overview' | 'photos' | 'compatibility' | 'about' | 'family' | 'lifestyle';
+type MobileTabKey = 'overview' | 'photos' | 'about' | 'family' | 'lifestyle';
 
 const MOBILE_SECTION_TABS: Array<{ key: MobileTabKey; label: string; sectionId: string }> = [
   { key: 'overview', label: 'Overview', sectionId: 'profile-overview' },
   { key: 'photos', label: 'Photos', sectionId: 'profile-photos' },
-  { key: 'compatibility', label: 'Match', sectionId: 'profile-compatibility' },
   { key: 'about', label: 'About', sectionId: 'profile-about' },
   { key: 'family', label: 'Family', sectionId: 'profile-family' },
   { key: 'lifestyle', label: 'Life', sectionId: 'profile-lifestyle' },
@@ -247,7 +233,6 @@ const MOBILE_SECTION_TABS: Array<{ key: MobileTabKey; label: string; sectionId: 
 
 const PROFILE_SECTION_TABS: Array<{ key: MobileTabKey; label: string; sectionId: string }> = [
   { key: 'overview', label: 'Overview', sectionId: 'profile-overview' },
-  { key: 'compatibility', label: 'Compatibility', sectionId: 'profile-compatibility' },
   { key: 'photos', label: 'Photos & gallery', sectionId: 'profile-photos' },
   { key: 'about', label: 'About', sectionId: 'profile-about' },
   { key: 'family', label: 'Family', sectionId: 'profile-family' },
@@ -260,16 +245,6 @@ const fadeInUp = {
   viewport: { once: true, amount: 0.15 },
   transition: { duration: 0.45, ease: 'easeOut' },
 } as const;
-
-const staggerContainer = {
-  initial: {},
-  animate: { transition: { staggerChildren: 0.07 } },
-};
-
-const staggerChild = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
-};
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
@@ -469,17 +444,17 @@ function buildCompatibilityRows(
   ]);
 
   const lifestyleScore = averageScore([
-    matchValue(viewerProfile.lifestyle?.diet, profile.lifestyle?.diet, {
+    matchValue(viewerProfile.lifestyle?.dietaryPreferences, profile.lifestyle?.dietaryPreferences, {
       exact: 92,
       mismatch: 54,
       fallback: 72,
     }),
-    matchValue(viewerProfile.lifestyle?.smoking, profile.lifestyle?.smoking, {
+    matchValue(viewerProfile.lifestyle?.smokingHabits, profile.lifestyle?.smokingHabits, {
       exact: 96,
       mismatch: 48,
       fallback: 74,
     }),
-    matchValue(viewerProfile.lifestyle?.drinking, profile.lifestyle?.drinking, {
+    matchValue(viewerProfile.lifestyle?.drinkingHabits, profile.lifestyle?.drinkingHabits, {
       exact: 94,
       mismatch: 52,
       fallback: 72,
@@ -532,209 +507,19 @@ function buildCompatibilityRows(
   ];
 }
 
-function buildCompatibilityInsights(
-  viewerProfile: ViewerProfile | null,
-  profile: ProfileDetail,
-): InsightCard[] {
-  const insights: InsightCard[] = [];
-
-  if (
-    viewerProfile?.education?.highestQualification &&
-    profile.education?.highestQualification &&
-    normalize(viewerProfile.education.highestQualification) ===
-      normalize(profile.education.highestQualification)
-  ) {
-    insights.push({
-      title: 'Similar educational background',
-      body: `You both describe your education as ${profile.education.highestQualification}, which can make life stage and ambition easier to read quickly.`,
-    });
-  }
-
-  if (
-    viewerProfile?.location?.city &&
-    profile.location?.city &&
-    normalize(viewerProfile.location.city) === normalize(profile.location.city)
-  ) {
-    insights.push({
-      title: 'Shared local rhythm',
-      body: `You are both connected to ${profile.location.city}, which can make introductions, meetings, and family coordination simpler.`,
-    });
-  }
-
-  if (
-    viewerProfile?.religion?.community &&
-    profile.religion?.community &&
-    normalize(viewerProfile.religion.community) === normalize(profile.religion.community)
-  ) {
-    insights.push({
-      title: 'Community familiarity',
-      body: `You both reference ${profile.religion.community}, which can create immediate cultural familiarity without forcing every preference to be identical.`,
-    });
-  }
-
-  if (
-    viewerProfile?.family?.familyValues &&
-    profile.family?.familyValues &&
-    normalize(viewerProfile.family.familyValues) === normalize(profile.family.familyValues)
-  ) {
-    insights.push({
-      title: 'Aligned family values',
-      body: `You both describe your family values as ${profile.family.familyValues}, which often shapes comfort, priorities, and long-term expectations.`,
-    });
-  }
-
-  if (
-    viewerProfile?.lifestyle?.smoking &&
-    profile.lifestyle?.smoking &&
-    normalize(viewerProfile.lifestyle.smoking) === normalize(profile.lifestyle.smoking)
-  ) {
-    insights.push({
-      title: 'Compatible lifestyle expectations',
-      body: 'Daily lifestyle choices appear to be easier to align, which helps early conversations feel more grounded and practical.',
-    });
-  }
-
-  if (profile.verification?.level || profile.completionPercentage >= 80) {
-    insights.push({
-      title: 'Serious profile signals',
-      body: 'This profile is relatively complete and carries trust signals that suggest thoughtful participation rather than casual browsing.',
-    });
-  }
-
-  if (profile.about?.partnerExpectations) {
-    insights.push({
-      title: 'Clear long-term intention',
-      body: 'They have shared partner expectations, which usually means they are thinking carefully about long-term compatibility and not just surface matching.',
-    });
-  }
-
-  return insights.slice(0, 5);
-}
-
-function buildConversationStarters(profile: ProfileDetail): string[] {
-  const starters: string[] = [];
-  const hobbies = profile.about?.hobbies?.filter(Boolean) ?? [];
-  const interests = profile.about?.interests?.filter(Boolean) ?? [];
-
-  if (hobbies.length > 0) {
-    starters.push(`Ask what they enjoy most about ${hobbies[0]} and how it fits into their weekly routine.`);
-  }
-
-  if (interests.length > 0) {
-    starters.push(`Start with ${interests[0]} and ask how that interest became important to them.`);
-  }
-
-  if (profile.employment?.occupation) {
-    starters.push(`Ask them what they enjoy most about working as a ${profile.employment.occupation}.`);
-  }
-
-  if (profile.location?.city) {
-    starters.push(`Ask what they love most about living in ${profile.location.city} and whether they imagine building long-term life there.`);
-  }
-
-  if (profile.family?.familyValues) {
-    starters.push(`Ask what ${profile.family.familyValues.toLowerCase()} family values look like in everyday life for them.`);
-  }
-
-  if (profile.religion?.motherTongue || profile.religion?.community) {
-    starters.push(`Ask about the traditions, language, or family customs they most want to carry forward into married life.`);
-  }
-
-  if (profile.about?.partnerExpectations) {
-    starters.push('Ask which qualities matter most to them once conversations move beyond first impressions.');
-  }
-
-  return Array.from(new Set(starters)).slice(0, 5);
-}
-
-function buildTimeline(profile: ProfileDetail): TimelineItem[] {
-  const items: TimelineItem[] = [];
-
-  if (profile.createdAt) {
-    items.push({
-      label: 'Joined Vivah',
-      body: `Profile joined the community on ${formatDate(profile.createdAt)}.`,
-      tone: 'activity',
-    });
-  }
-
-  if (profile.verification?.level) {
-    items.push({
-      label: 'Verification added',
-      body: `${profile.verification.level.replaceAll('_', ' ')} trust status is visible on this profile.`,
-      tone: 'trust',
-    });
-  }
-
-  if ((profile.publicGallery?.length ?? 0) > 0) {
-    items.push({
-      label: 'Added public photos',
-      body: `${profile.publicGallery?.length} approved photo${profile.publicGallery?.length === 1 ? '' : 's'} help the profile feel more current and personal.`,
-      tone: 'gallery',
-    });
-  }
-
-  if (profile.updatedAt) {
-    items.push({
-      label: 'Recently active',
-      body: `Profile activity was refreshed around ${formatRelativeDate(profile.updatedAt)}.`,
-      tone: 'activity',
-    });
-  }
-
-  items.push({
-    label: 'Completed profile',
-    body: `${profile.completionPercentage}% of the profile has been filled out, giving you a clearer sense of who this person is.`,
-    tone: 'trust',
-  });
-
-  return items.slice(0, 5);
-}
-
-function buildPartnerPreferenceGroups(profile: ProfileDetail) {
-  return [
-    {
-      title: 'Looking for',
-      chips: [
-        profile.partnerPreference?.ageMin || profile.partnerPreference?.ageMax
-          ? `Age ${profile.partnerPreference?.ageMin ?? 'Any'}–${profile.partnerPreference?.ageMax ?? 'Any'}`
-          : undefined,
-        ...(profile.partnerPreference?.communities ?? []).slice(0, 2).map((item) => `${item} community`),
-        ...(profile.partnerPreference?.religions ?? []).slice(0, 2).map((item) => `${item} faith background`),
-      ].filter((value): value is string => Boolean(value)),
-    },
-    {
-      title: 'Lifestyle fit',
-      chips: [
-        profile.lifestyle?.smoking ? `${formatEnum(profile.lifestyle.smoking)} smoking preference` : undefined,
-        profile.lifestyle?.drinking ? `${formatEnum(profile.lifestyle.drinking)} drinking preference` : undefined,
-        profile.lifestyle?.diet ? `${formatEnum(profile.lifestyle.diet)} lifestyle` : undefined,
-      ].filter((value): value is string => Boolean(value)),
-    },
-    {
-      title: 'Practical preferences',
-      chips: [
-        ...(profile.partnerPreference?.cities ?? []).slice(0, 2).map((item) => `Open to ${item}`),
-        ...(profile.partnerPreference?.countries ?? []).slice(0, 2).map((item) => `${item} based`),
-        ...(profile.partnerPreference?.educationLevels ?? []).slice(0, 2).map((item) => `${item} educated`),
-      ].filter((value): value is string => Boolean(value)),
-    },
-  ].filter((group) => group.chips.length > 0);
-}
-
 function buildPersonalityTraits(profile: ProfileDetail): string[] {
   const traits: string[] = [];
 
-  const diet = profile.lifestyle?.diet?.toLowerCase();
+  const diet = profile.lifestyle?.dietaryPreferences?.toLowerCase();
   if (diet === 'vegetarian') traits.push('🌿 Vegetarian');
   else if (diet === 'vegan') traits.push('🥗 Vegan');
   else if (diet) traits.push(`🍽️ ${formatEnum(diet)}`);
 
-  const smoking = profile.lifestyle?.smoking?.toLowerCase();
+  const smoking = profile.lifestyle?.smokingHabits?.toLowerCase();
   if (smoking === 'non_smoker' || smoking === 'non-smoker' || smoking === 'never') traits.push('🚭 Non-smoker');
   else if (smoking === 'smoker') traits.push('🚬 Smoker');
 
-  const drinking = profile.lifestyle?.drinking?.toLowerCase();
+  const drinking = profile.lifestyle?.drinkingHabits?.toLowerCase();
   if (drinking === 'non_drinker' || drinking === 'never' || drinking === 'no') traits.push('🍵 Non-drinker');
 
   const familyValues = profile.family?.familyValues?.toLowerCase();
@@ -805,9 +590,9 @@ function scrollToSection(sectionId: string) {
 
 function DetailField({ label, value }: Readonly<{ label: string; value?: ReactNode }>) {
   return (
-    <div className="rounded-2xl bg-brand-ivory px-4 py-3">
+    <div className="rounded-lg bg-brand-ivory px-3 py-2">
       <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-gold">{label}</p>
-      <p className="mt-1 font-medium text-brand-charcoal">{value || 'Not shared'}</p>
+      <p className="mt-0.5 text-sm font-medium text-brand-charcoal">{value || 'Not shared'}</p>
     </div>
   );
 }
@@ -967,11 +752,7 @@ function GalleryExperienceSection({
 
   return (
     <ProfileSurface className="overflow-hidden">
-      <SectionHeader
-        eyebrow="Gallery"
-        title="See the person before the biodata"
-        subtitle="Photos help you build attraction and emotional context before you decide whether to reach out."
-      />
+      <h2 className="text-sm font-bold text-brand-charcoal">Gallery</h2>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="grid gap-4">
@@ -1341,160 +1122,19 @@ function PrivateGalleryAccessCard({
   );
 }
 
-// ─── Conversation Starter Card ───────────────────────────────────────────────
-
-function StarterCard({
-  starter,
-  index,
-}: Readonly<{ starter: string; index: number }>) {
-  const [copied, setCopied] = useState(false);
-
-  function handleCopy() {
-    void navigator.clipboard.writeText(starter).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
-
-  return (
-    <motion.div
-      className="group relative rounded-[26px] border border-brand-maroon/10 bg-white p-5 cursor-pointer transition-shadow hover:shadow-[0_8px_30px_rgba(161,14,77,0.10)] hover:border-brand-maroon/20"
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.2 }}
-      onClick={handleCopy}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <ToneBadge tone="burgundy">
-          <MessageSquareText className="size-3.5" />
-          Prompt {index + 1}
-        </ToneBadge>
-        <button
-          type="button"
-          aria-label={copied ? 'Copied' : 'Copy prompt'}
-          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full p-1.5 bg-[#FFF0F3] text-brand-maroon hover:bg-brand-maroon hover:text-white"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleCopy();
-          }}
-        >
-          {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-        </button>
-      </div>
-      <p className="mt-4 text-sm leading-7 text-brand-charcoal">{starter}</p>
-      <p className="mt-3 text-[11px] font-semibold text-brand-gold opacity-0 group-hover:opacity-100 transition-opacity">
-        ✦ Click to copy
-      </p>
-    </motion.div>
-  );
-}
-
 // ─── Audio/Video Intro Placeholder ──────────────────────────────────────────
 
-function IntroMediaPlaceholder({ firstName, videoUrl }: Readonly<{ firstName?: string; videoUrl?: string }>) {
+function IntroMediaPlaceholder({ videoUrl }: Readonly<{ firstName?: string; videoUrl?: string }>) {
+  if (!videoUrl) return null;
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <div className="rounded-[26px] border border-dashed border-brand-gold/40 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
-        <div className="mx-auto grid size-14 place-items-center rounded-full bg-brand-gold/10">
-          <Mic className="size-6 text-brand-gold" />
-        </div>
-        <p className="mt-3 text-sm font-semibold text-brand-charcoal">Voice Introduction</p>
-        <p className="mt-2 text-xs leading-5 text-gray-500">
-          {firstName ? `${firstName} hasn't recorded` : "Member hasn't recorded"} a voice intro yet.
-        </p>
-        <span className="mt-3 inline-block rounded-full bg-brand-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-gold">
-          Coming soon
-        </span>
-      </div>
-      {videoUrl ? (
-        <div className="rounded-[26px] border border-brand-maroon/10 bg-white p-4 shadow-[0_12px_30px_rgba(161,14,77,0.05)] overflow-hidden flex flex-col items-start">
-          <p className="text-sm font-semibold text-brand-charcoal mb-3">Video Introduction</p>
-          <video
-            src={videoUrl}
-            controls
-            className="w-full aspect-video rounded-2xl border border-brand-maroon/10 bg-black"
-          />
-        </div>
-      ) : (
-        <div className="rounded-[26px] border border-dashed border-brand-maroon/20 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFFFFF_100%)] p-5 text-center">
-          <div className="mx-auto grid size-14 place-items-center rounded-full bg-brand-maroon/8">
-            <Video className="size-6 text-brand-maroon" />
-          </div>
-          <p className="mt-3 text-sm font-semibold text-brand-charcoal">Video Introduction</p>
-          <p className="mt-2 text-xs leading-5 text-gray-500">
-            Short video intros help build confidence before reaching out.
-          </p>
-          <span className="mt-3 inline-block rounded-full bg-brand-maroon/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-maroon">
-            Coming soon
-          </span>
-        </div>
-      )}
+    <div className="rounded-[26px] border border-brand-maroon/10 bg-white p-4 shadow-[0_12px_30px_rgba(161,14,77,0.05)] overflow-hidden flex flex-col items-start">
+      <p className="text-sm font-semibold text-brand-charcoal mb-3">Video Introduction</p>
+      <video
+        src={videoUrl}
+        controls
+        className="w-full aspect-video rounded-2xl border border-brand-maroon/10 bg-black"
+      />
     </div>
-  );
-}
-
-// ─── Why This Match Section ──────────────────────────────────────────────────
-
-function WhyThisMatchPanel({
-  matchReasons,
-  insights,
-  firstName,
-}: Readonly<{
-  matchReasons?: string[];
-  insights: InsightCard[];
-  firstName?: string;
-}>) {
-  const reasons = matchReasons && matchReasons.length > 0 ? matchReasons : insights.slice(0, 3).map((i) => i.title);
-
-  if (reasons.length === 0) return null;
-
-  const icons = [
-    <HeartHandshake key="0" className="size-5 text-brand-maroon" />,
-    <Sparkles key="1" className="size-5 text-brand-gold" />,
-    <CheckCircle2 key="2" className="size-5 text-[#1F6F4A]" />,
-    <Star key="3" className="size-5 text-brand-maroon" />,
-  ];
-
-  return (
-    <motion.div
-      {...fadeInUp}
-      className="rounded-[30px] border border-brand-gold/25 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF0F3_60%,#FFFFFF_100%)] p-6 sm:p-7"
-    >
-      <div className="flex items-start gap-4">
-        <div className="shrink-0 rounded-2xl bg-brand-maroon/8 p-3">
-          <Quote className="size-6 text-brand-maroon" />
-        </div>
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">Why we recommended this match</p>
-          <h2 className="mt-2 text-2xl font-semibold text-brand-charcoal">
-            {firstName ? `Why ${firstName} could be your match` : 'Why this could be your match'}
-          </h2>
-          <p className="mt-2 text-sm leading-7 text-gray-500">
-            These signals are based on your profile, preferences, and what this member has shared.
-          </p>
-        </div>
-      </div>
-
-      <motion.ul
-        className="mt-6 grid gap-3 sm:grid-cols-3"
-        variants={staggerContainer}
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true }}
-      >
-        {reasons.slice(0, 3).map((reason, i) => (
-          <motion.li
-            key={reason}
-            variants={staggerChild}
-            className="flex items-start gap-3 rounded-[22px] bg-white/80 p-4 shadow-[0_2px_12px_rgba(161,14,77,0.06)]"
-          >
-            <div className="shrink-0 rounded-xl bg-brand-ivory p-2">
-              {icons[i % icons.length]}
-            </div>
-            <p className="text-sm font-semibold text-brand-charcoal leading-snug">{reason}</p>
-          </motion.li>
-        ))}
-      </motion.ul>
-    </motion.div>
   );
 }
 
@@ -1521,11 +1161,7 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
   return (
     <ProfileSurface>
       <div id="profile-family" className="scroll-mt-36">
-        <SectionHeader
-          eyebrow="Family & future"
-          title="The life they are building"
-          subtitle="Understanding someone's family background and long-term vision helps you imagine the life you could build together."
-        />
+        <h2 className="text-sm font-bold text-brand-charcoal">Family &amp; future</h2>
 
         <div className="mt-6 grid gap-5 lg:grid-cols-2">
           {hasContent ? (
@@ -1559,8 +1195,15 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
               <div className="mt-4 grid gap-3">
                 <DetailField label="Family values" value={profile.family?.familyValues} />
                 <DetailField label="Family type" value={profile.family?.familyType} />
-                <DetailField label="Father's occupation" value={profile.family?.fatherOccupation} />
-                <DetailField label="Mother's occupation" value={profile.family?.motherOccupation} />
+                {profile.family?.fatherDetails && (
+                  <DetailField label="Father's background" value={profile.family.fatherDetails} />
+                )}
+                {profile.family?.motherDetails && (
+                  <DetailField label="Mother's background" value={profile.family.motherDetails} />
+                )}
+                {profile.family?.siblingDetails && (
+                  <DetailField label="Siblings" value={profile.family.siblingDetails} />
+                )}
               </div>
             </div>
 
@@ -1620,12 +1263,14 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
     let active = true;
 
     async function fetchJson<T>(path: string, accessToken: string | null) {
+      const isCookieBased = accessToken === 'cookie-based';
       const response = await fetch(`${apiBaseUrl}${path}`, {
         cache: 'no-store',
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+        credentials: 'include',
+        headers: (accessToken && !isCookieBased) ? { Authorization: `Bearer ${accessToken}` } : {},
       });
 
-      if (response.status === 401 && accessToken) {
+      if (response.status === 401 && accessToken && !isCookieBased) {
         const refreshedToken = await refreshAccessToken();
         if (refreshedToken) {
           return fetchJson<T>(path, refreshedToken);
@@ -1751,6 +1396,14 @@ function ProfileDetailView({
   isPremiumProfile?: boolean | undefined;
 }>) {
   const actionProfileId = profile._id ?? profileId;
+  const isSelfView = !!(
+    viewerProfile &&
+    (
+      (viewerProfile._id && viewerProfile._id === profile._id) ||
+      (viewerProfile.displayId && viewerProfile.displayId === profile.displayId) ||
+      (viewerProfile.slug && viewerProfile.slug === profileId)
+    )
+  );
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTabKey>('overview');
 
   const fullName =
@@ -1770,17 +1423,9 @@ function ProfileDetailView({
     () => buildCompatibilityRows(viewerProfile, profile, matchScore),
     [viewerProfile, profile, matchScore],
   );
-  const insights = useMemo(
-    () => buildCompatibilityInsights(viewerProfile, profile),
-    [viewerProfile, profile],
-  );
-  const starters = useMemo(() => buildConversationStarters(profile), [profile]);
-  const timeline = useMemo(() => buildTimeline(profile), [profile]);
-  const partnerPreferenceGroups = useMemo(() => buildPartnerPreferenceGroups(profile), [profile]);
   const personalityTraits = useMemo(() => buildPersonalityTraits(profile), [profile]);
   const interestGroups = useMemo(() => buildInterestGroups(profile), [profile]);
   const primaryPhotoUrl = profile.photoUrl ?? profile.publicGallery?.[0]?.assetUrl ?? null;
-  const lastActiveLabel = formatRelativeDate(profile.updatedAt);
   const membershipLabel = isPremiumProfile ? 'Premium member' : 'Vivah member';
   const overallScore = typeof matchScore === 'number' ? matchScore : Math.round(
     compatibilityRows.reduce((s, r) => s + r.score, 0) / compatibilityRows.length
@@ -1821,7 +1466,7 @@ function ProfileDetailView({
 
   return (
     <StaticProfileLayout>
-      <article className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+      <article className="grid gap-6 pb-28 lg:pb-0 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
         <div className="grid gap-6">
 
           <motion.div
@@ -1845,18 +1490,15 @@ function ProfileDetailView({
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <ToneBadge tone="emerald">
-                  <ShieldCheck className="size-3.5" />
-                  Trust score {overallScore}/100
-                </ToneBadge>
-                <ToneBadge tone="gold">
-                  <Clock3 className="size-3.5" />
-                  {lastActiveLabel}
-                </ToneBadge>
-              </div>
             </div>
           </motion.div>
+
+          {isSelfView && (
+            <div className="flex items-center justify-between rounded-xl border border-[#A10E4D]/20 bg-[#FFF0F3] px-4 py-2.5">
+              <p className="text-xs font-semibold text-[#A10E4D]">This is how your profile appears to others</p>
+              <Link href="/member/profile/edit" className="text-xs font-bold text-[#A10E4D] underline">Edit profile</Link>
+            </div>
+          )}
 
           {/* ── Section 1: Cinematic Hero ────────────────────────────────── */}
           <motion.section
@@ -1869,7 +1511,7 @@ function ProfileDetailView({
               <div className="grid xl:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.1fr)]">
 
                 {/* Photo Panel */}
-                <div className="relative min-h-[440px] overflow-hidden bg-[linear-gradient(145deg,#A10E4D_0%,#6B0C32_45%,#D4A04C_100%)]">
+                <div className="relative min-h-[320px] overflow-hidden bg-[linear-gradient(145deg,#A10E4D_0%,#6B0C32_45%,#D4A04C_100%)]">
                   {primaryPhotoUrl ? (
                     <Image
                       src={primaryPhotoUrl}
@@ -1931,16 +1573,6 @@ function ProfileDetailView({
                       {heroSummary || 'Premium matrimonial profile — Australia'}
                     </p>
 
-                    {/* Quick trust row */}
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      <VerificationBadge level={profile.verification?.level} />
-                      {typeof matchScore === 'number' ? <MatchScoreBadge score={matchScore} /> : null}
-                      <ToneBadge tone="burgundy">
-                        <Clock3 className="size-3.5" />
-                        {lastActiveLabel}
-                      </ToneBadge>
-                    </div>
-
                     {/* Match score ring + completion */}
                     <div className="mt-6 flex items-center gap-6">
                       <ScoreRing
@@ -1971,7 +1603,7 @@ function ProfileDetailView({
                           Why you match
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {matchReasons.slice(0, 4).map((reason) => (
+                          {matchReasons.slice(0, 3).map((reason) => (
                             <ToneBadge key={reason} tone="emerald">
                               <HeartHandshake className="size-3.5" />
                               {reason}
@@ -1986,7 +1618,7 @@ function ProfileDetailView({
                       <div className="mt-5">
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">At a glance</p>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {personalityTraits.map((trait) => (
+                          {personalityTraits.slice(0, 3).map((trait) => (
                             <span
                               key={trait}
                               className="inline-flex items-center gap-1.5 rounded-full bg-brand-ivory px-3 py-1.5 text-xs font-semibold text-brand-charcoal border border-brand-maroon/8"
@@ -1999,9 +1631,16 @@ function ProfileDetailView({
                     )}
 
                     {/* Hero CTAs */}
-                    <div className="mt-6 hidden sm:flex flex-wrap gap-3">
-                      <ProfileActions profileId={actionProfileId} compact />
-                    </div>
+                    {isSelfView && (
+                      <div className="mt-6 hidden sm:flex flex-wrap gap-3">
+                        <Link
+                          href="/member/profile/edit"
+                          className="inline-flex items-center gap-2 rounded-full bg-[#A10E4D] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#890B40]"
+                        >
+                          Edit your profile
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2055,119 +1694,15 @@ function ProfileDetailView({
             </Tabs>
           </div>
 
-          {/* ── Section 2: Why This Match ────────────────────────────────── */}
-          <WhyThisMatchPanel
-            insights={insights}
-            {...(matchReasons !== undefined ? { matchReasons } : {})}
-            {...(firstName !== undefined ? { firstName } : {})}
-          />
-
-          {/* ── Section 3: Compatibility Dashboard ──────────────────────── */}
-          <ProfileSurface className="overflow-hidden">
-            <div id="profile-compatibility" className="scroll-mt-36">
-              <SectionHeader
-                eyebrow="Compatibility overview"
-                title="See the match beyond a single score"
-                subtitle="These signals combine lifestyle, values, education, career, location, and community fit using the information both profiles have shared."
-              />
-
-              {/* Overall aggregate ring */}
-              <div className="mt-6 flex items-center gap-5 rounded-[24px] bg-[linear-gradient(135deg,#FFF0F3_0%,#FFF9F5_100%)] border border-brand-maroon/10 p-5">
-                <ScoreRing score={overallScore} size={80} strokeWidth={8} color="#A10E4D" label="Overall" />
-                <div>
-                  <p className="text-lg font-semibold text-brand-charcoal">
-                    {overallScore >= 80
-                      ? 'Strong compatibility across most dimensions'
-                      : overallScore >= 65
-                      ? 'Good potential with some complementary differences'
-                      : 'Interesting profile — some areas to explore together'}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Based on {compatibilityRows.length} dimensions of your profiles
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                {compatibilityRows.map((row) => (
-                  <motion.div
-                    key={row.label}
-                    className="rounded-[26px] border border-brand-maroon/10 bg-brand-ivory p-4"
-                    whileHover={{ y: -2 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Mini score ring */}
-                      <ScoreRing
-                        score={row.score}
-                        size={52}
-                        strokeWidth={5}
-                        color={
-                          row.accent === 'burgundy' ? '#A10E4D' :
-                          row.accent === 'gold' ? '#D4A04C' : '#1F6F4A'
-                        }
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          {row.icon}
-                          <p className="text-sm font-semibold text-brand-charcoal">{row.label}</p>
-                        </div>
-                        <p className="mt-1.5 text-xs leading-5 text-gray-500">{row.summary}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </ProfileSurface>
-
-          {/* ── Section 4: Gallery ───────────────────────────────────────── */}
+          {/* ── Section 2: Gallery ───────────────────────────────────────── */}
           <div id="profile-photos" className="scroll-mt-36">
             <GalleryExperienceSection profile={profile} profileId={actionProfileId} token={token} />
           </div>
 
-          {/* ── Section 5: Why You May Connect (Insights) ───────────────── */}
-          <ProfileSurface>
-            <SectionHeader
-              eyebrow="Connection insights"
-              title="The emotional reasons this introduction may feel natural"
-              subtitle="These insight cards focus on what could help the conversation move from polite interest to genuine curiosity."
-            />
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {insights.length > 0 ? (
-                insights.map((insight) => (
-                  <motion.div
-                    key={insight.title}
-                    className="rounded-[26px] border border-brand-gold/25 bg-[linear-gradient(180deg,#FFF8EC_0%,#FFFFFF_100%)] p-5"
-                    whileHover={{ y: -3 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ToneBadge tone="gold">
-                      <Sparkles className="size-3.5" />
-                      Potential fit
-                    </ToneBadge>
-                    <h3 className="mt-4 text-base font-semibold text-brand-charcoal">{insight.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-gray-500">{insight.body}</p>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="md:col-span-2 xl:col-span-3 rounded-[26px] border border-dashed border-brand-gold/50 bg-brand-ivory p-6 text-sm leading-6 text-gray-500">
-                  We need a little more shared profile information before we can surface stronger
-                  connection insights here.
-                </div>
-              )}
-            </div>
-          </ProfileSurface>
-
-          {/* ── Section 6: About & Personality ──────────────────────────── */}
+          {/* ── Section 4: About & Personality ──────────────────────────── */}
           <ProfileSurface>
             <div id="profile-about" className="scroll-mt-36">
-              <SectionHeader
-                eyebrow="About"
-                title="Get a clearer sense of who they are"
-                subtitle="Personality, lifestyle, and intentions should feel easier to grasp before you dive into structured biodata."
-              />
+              <h2 className="text-sm font-bold text-brand-charcoal">About</h2>
 
               {/* About me pull-quote */}
               {profile.about?.aboutMe && (
@@ -2224,88 +1759,25 @@ function ProfileDetailView({
                 <DetailField label="Based in" value={profile.location?.city ?? profile.location?.state} />
               </div>
 
-              {/* Audio/Video intro placeholder */}
-              <div className="mt-6">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold mb-4">
-                  Voice & video introduction
-                </p>
-                <IntroMediaPlaceholder {...(firstName !== undefined ? { firstName } : {})} {...(profile.videoUrl !== undefined ? { videoUrl: profile.videoUrl } : {})} />
-              </div>
-            </div>
-          </ProfileSurface>
-
-          {/* ── Section 7: Conversation Starters ────────────────────────── */}
-          {starters.length > 0 && (
-            <ProfileSurface>
-              <SectionHeader
-                eyebrow="Conversation starters"
-                title="If you want to message, start somewhere human"
-                subtitle="These prompts are generated from real profile details to make the first message feel more thoughtful and less generic. Click any card to copy."
-              />
-
-              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {starters.map((starter, index) => (
-                  <StarterCard key={starter} starter={starter} index={index} />
-                ))}
-              </div>
-            </ProfileSurface>
-          )}
-
-          {/* ── Section 8: Family & Future Goals ────────────────────────── */}
-          <FamilyFutureSection profile={profile} />
-
-          {/* ── Section 9: Partner Preferences ─────────────────────────── */}
-          <ProfileSurface>
-            <SectionHeader
-              eyebrow="Partner expectations"
-              title="What they are hoping to build"
-              subtitle="This section turns abstract preference text into clearer, easier-to-scan signals."
-            />
-
-            <div className="mt-6 grid gap-4 lg:grid-cols-3">
-              {partnerPreferenceGroups.length > 0 ? (
-                partnerPreferenceGroups.map((group) => (
-                  <div key={group.title} className="rounded-[28px] border border-brand-maroon/10 bg-brand-ivory p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
-                      {group.title}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {group.chips.map((chip) => (
-                        <ToneBadge key={chip} tone="burgundy">
-                          <Heart className="size-3.5" />
-                          {chip}
-                        </ToneBadge>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="lg:col-span-3 rounded-[28px] border border-dashed border-brand-gold/50 bg-brand-ivory p-5 text-sm leading-6 text-gray-500">
-                  Partner expectations have not been structured in detail yet.
+              {/* Video intro — only if recorded */}
+              {profile.videoUrl && (
+                <div className="mt-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold mb-4">
+                    Video introduction
+                  </p>
+                  <IntroMediaPlaceholder videoUrl={profile.videoUrl} />
                 </div>
               )}
             </div>
-
-            {profile.about?.partnerExpectations && (
-              <div className="mt-5 rounded-[28px] border border-brand-maroon/10 bg-white p-5">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
-                  In their own words
-                </p>
-                <p className="mt-3 text-sm leading-7 text-brand-charcoal">
-                  {profile.about.partnerExpectations}
-                </p>
-              </div>
-            )}
           </ProfileSurface>
 
-          {/* ── Section 10: Lifestyle & Education Biodata ───────────────── */}
+          {/* ── Section 5: Family & Future Goals ────────────────────────── */}
+          <FamilyFutureSection profile={profile} />
+
+          {/* ── Section 6: Lifestyle & Education Biodata ───────────────── */}
           <ProfileSurface>
             <div id="profile-lifestyle" className="scroll-mt-36">
-              <SectionHeader
-                eyebrow="Lifestyle & background"
-                title="The details that complete the picture"
-                subtitle="Once the emotional and compatibility layers feel strong, these details help you decide whether the profile fits your longer-term reality."
-              />
+              <h2 className="text-sm font-bold text-brand-charcoal">Lifestyle &amp; background</h2>
 
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
@@ -2314,10 +1786,12 @@ function ProfileDetailView({
                     <p className="text-sm font-semibold text-brand-charcoal">Lifestyle</p>
                   </div>
                   <div className="grid gap-3">
-                    <DetailField label="Diet" value={formatEnum(profile.lifestyle?.diet)} />
-                    <DetailField label="Smoking" value={formatEnum(profile.lifestyle?.smoking)} />
-                    <DetailField label="Drinking" value={formatEnum(profile.lifestyle?.drinking)} />
-                    <DetailField label="Living arrangement" value={formatEnum(profile.lifestyle?.livingArrangement)} />
+                    <DetailField label="Diet" value={formatEnum(profile.lifestyle?.dietaryPreferences)} />
+                    <DetailField label="Smoking" value={formatEnum(profile.lifestyle?.smokingHabits)} />
+                    <DetailField label="Drinking" value={formatEnum(profile.lifestyle?.drinkingHabits)} />
+                    {profile.lifestyle?.religiousPractices && (
+                      <DetailField label="Religious practices" value={formatEnum(profile.lifestyle.religiousPractices)} />
+                    )}
                   </div>
                 </div>
 
@@ -2366,167 +1840,103 @@ function ProfileDetailView({
             </div>
           </ProfileSurface>
 
-          {/* ── Section 11: Profile Activity Timeline ───────────────────── */}
-          <ProfileSurface>
-            <SectionHeader
-              eyebrow="Profile activity"
-              title="Signals that make the profile feel alive"
-              subtitle="Activity and trust events help you judge whether this introduction feels current, thoughtful, and serious."
-            />
-
-            <div className="mt-6 relative">
-              {/* Vertical line */}
-              <div className="absolute left-5 top-5 bottom-5 w-px bg-brand-maroon/10 hidden sm:block" />
-
-              <div className="grid gap-3">
-                {timeline.map((item, index) => (
-                  <motion.div
-                    key={item.label}
-                    className="flex items-start gap-4"
-                    whileHover={{ x: 2 }}
-                    transition={{ duration: 0.18 }}
-                  >
-                    <div
-                      className={cx(
-                        'relative z-10 mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full',
-                        item.tone === 'trust' && 'bg-[#FFF0F3] text-brand-maroon',
-                        item.tone === 'activity' && 'bg-[#F0FBF6] text-[#1F6F4A]',
-                        item.tone === 'gallery' && 'bg-[#FFF8EC] text-[#8B6714]',
-                      )}
-                    >
-                      <span className="text-sm font-bold">{index + 1}</span>
-                    </div>
-                    <div className="flex-1 rounded-[22px] border border-brand-maroon/8 bg-brand-ivory p-4">
-                      <p className="text-sm font-semibold text-brand-charcoal">{item.label}</p>
-                      <p className="mt-1.5 text-sm leading-6 text-gray-500">{item.body}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </ProfileSurface>
         </div>
 
         {/* ── Sidebar (desktop) ────────────────────────────────────────── */}
         <aside className="hidden lg:block">
-          <div className="sticky top-28 grid gap-4">
-
-            {/* Connect card */}
+          <div
+            className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pb-4"
+            style={{ scrollbarWidth: 'none' }}
+          >
             <ProfileSurface className="p-0">
-              <div className="rounded-[30px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] p-6">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
-                  Connect safely
-                </p>
-                <h2 className="mt-3 text-2xl font-semibold text-brand-charcoal font-playfair">
-                  {firstName ? `Is ${firstName} your match?` : 'Could this be your match?'}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-gray-500">
-                  Express interest, message, save, or report — all from this page.
-                </p>
+              <div className="rounded-[30px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] p-5 space-y-4">
 
-                {/* Trust row */}
-                <div className="mt-5 rounded-[24px] border border-brand-maroon/10 bg-white p-4 space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-gold">Trust snapshot</p>
-                  <div className="flex items-center gap-2.5">
-                    <div className="grid size-8 place-items-center rounded-full bg-[#F0FBF6]">
-                      <ShieldCheck className="size-4 text-[#1F6F4A]" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-brand-charcoal">
-                        {profile.verification?.level?.replaceAll('_', ' ') ?? 'Verified member'}
-                      </p>
-                      <p className="text-[10px] text-gray-500">Identity verification</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <div className="grid size-8 place-items-center rounded-full bg-[#FFF8EC]">
-                      <Clock3 className="size-4 text-brand-gold" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-brand-charcoal">{lastActiveLabel}</p>
-                      <p className="text-[10px] text-gray-500">Last seen active</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <div className="grid size-8 place-items-center rounded-full bg-[#FFF0F3]">
-                      <Star className="size-4 text-brand-maroon" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-brand-charcoal">{membershipLabel}</p>
-                      <p className="text-[10px] text-gray-500">{profile.completionPercentage}% profile complete</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Overall score mini */}
-                <div className="mt-4 flex items-center gap-4 rounded-[22px] bg-[linear-gradient(135deg,#FFF0F3,#FFF9F5)] p-4 border border-brand-maroon/8">
-                  <ScoreRing score={overallScore} size={56} strokeWidth={5} color="#A10E4D" />
+                {/* Self-view banner */}
+                {isSelfView && (
                   <div>
-                    <p className="text-sm font-semibold text-brand-charcoal">
-                      {overallScore}% compatible
-                    </p>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Your public profile</p>
+                    <p className="mt-1.5 text-sm text-gray-500">Keep your profile complete to attract better matches.</p>
+                  </div>
+                )}
+
+                {/* Compatibility score */}
+                <div className="flex items-center gap-3 rounded-2xl bg-[linear-gradient(135deg,#FFF0F3,#FFF9F5)] border border-brand-maroon/8 px-4 py-3">
+                  <ScoreRing score={overallScore} size={48} strokeWidth={4} color="#A10E4D" />
+                  <div>
+                    <p className="text-sm font-semibold text-brand-charcoal">{overallScore}% compatible</p>
                     <p className="text-xs text-gray-500">Across {compatibilityRows.length} dimensions</p>
                   </div>
                 </div>
 
-                <div className="mt-5 space-y-3">
-                  <ProfileActions profileId={actionProfileId} />
-                  <PremiumButton href="/member/messages" variant="secondary" className="w-full">
-                    <MessageSquareText className="size-4" />
-                    Send a message
-                  </PremiumButton>
-                </div>
-              </div>
-            </ProfileSurface>
-
-            {/* Quick about card */}
-            {heroSummary && (
-              <ProfileSurface>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Quick details</p>
-                <div className="mt-4 grid gap-2.5">
+                {/* Quick details — 2-col chip grid */}
+                <div className="border-t border-brand-maroon/8 pt-3 grid grid-cols-2 gap-x-3 gap-y-2.5">
                   {profile.personal?.age && (
-                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
-                        <Heart className="size-3" />
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
+                        <Heart className="size-2.5" />
                       </span>
-                      {profile.personal.age} years old
+                      <span className="text-xs text-brand-charcoal truncate">{profile.personal.age} yrs old</span>
                     </div>
                   )}
                   {profile.location?.city && (
-                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
-                        <MapPin className="size-3" />
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
+                        <MapPin className="size-2.5" />
                       </span>
-                      {profile.location.city}{profile.location.state ? `, ${profile.location.state}` : ''}
+                      <span className="text-xs text-brand-charcoal truncate">
+                        {profile.location.city}{profile.location.state ? `, ${profile.location.state}` : ''}
+                      </span>
                     </div>
                   )}
                   {profile.employment?.occupation && (
-                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
-                        <Briefcase className="size-3" />
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
+                        <Briefcase className="size-2.5" />
                       </span>
-                      {profile.employment.occupation}
+                      <span className="text-xs text-brand-charcoal truncate">{profile.employment.occupation}</span>
                     </div>
                   )}
                   {profile.education?.highestQualification && (
-                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
-                        <GraduationCap className="size-3" />
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
+                        <GraduationCap className="size-2.5" />
                       </span>
-                      {profile.education.highestQualification}
+                      <span className="text-xs text-brand-charcoal truncate">{profile.education.highestQualification}</span>
                     </div>
                   )}
                   {profile.religion?.religion && (
-                    <div className="flex items-center gap-2.5 text-sm text-brand-charcoal">
-                      <span className="grid size-6 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
-                        <Star className="size-3" />
+                    <div className="flex items-center gap-2 min-w-0 col-span-2">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
+                        <Star className="size-2.5" />
                       </span>
-                      {profile.religion.religion}{profile.religion.community ? ` · ${profile.religion.community}` : ''}
+                      <span className="text-xs text-brand-charcoal truncate">
+                        {profile.religion.religion}{profile.religion.community ? ` · ${profile.religion.community}` : ''}
+                      </span>
                     </div>
                   )}
                 </div>
-              </ProfileSurface>
-            )}
+
+                {/* Actions */}
+                <div className="border-t border-brand-maroon/8 pt-3 space-y-2">
+                  {isSelfView ? (
+                    <Link
+                      href="/member/profile/edit"
+                      className="flex w-full items-center justify-center gap-2 rounded-full bg-[#A10E4D] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#890B40]"
+                    >
+                      Edit your profile
+                    </Link>
+                  ) : (
+                    <>
+                      <ProfileActions profileId={actionProfileId} stacked />
+                      <PremiumButton href="/member/messages" variant="secondary" className="w-full">
+                        <MessageSquareText className="size-4" />
+                        Send a message
+                      </PremiumButton>
+                    </>
+                  )}
+                </div>
+              </div>
+            </ProfileSurface>
           </div>
         </aside>
 
@@ -2535,33 +1945,40 @@ function ProfileDetailView({
           className="fixed inset-x-0 bottom-0 z-30 border-t border-brand-maroon/10 bg-white/95 shadow-[0_-14px_40px_rgba(122,31,43,0.12)] backdrop-blur lg:hidden"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
         >
-          <div className="mx-auto max-w-5xl px-4 py-3">
+          <div className="mx-auto max-w-5xl px-4 py-2">
             {/* Mini profile info */}
-            <div className="flex items-center gap-3 mb-2.5">
+            <div className="flex items-center gap-3 mb-2">
               {primaryPhotoUrl ? (
-                <div className="relative size-9 overflow-hidden rounded-full border-2 border-brand-maroon/20 shrink-0">
-                  <Image src={primaryPhotoUrl} alt={fullName} fill className="object-cover" sizes="36px" />
+                <div className="relative size-8 overflow-hidden rounded-full border-2 border-brand-maroon/20 shrink-0">
+                  <Image src={primaryPhotoUrl} alt={fullName} fill className="object-cover" sizes="32px" />
                 </div>
               ) : (
-                <div className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-maroon text-white text-sm font-bold">
+                <div className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-maroon text-white text-sm font-bold">
                   {(firstName ?? 'V').slice(0, 1)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-brand-charcoal">{fullName}</p>
-                <p className="text-xs text-gray-500">{overallScore}% match · {lastActiveLabel}</p>
+                <p className="text-xs text-gray-500">{overallScore}% match</p>
               </div>
-              <ToneBadge tone="emerald" size="sm">
-                <ShieldCheck className="size-3" />
-                Verified
-              </ToneBadge>
             </div>
             <div className="grid gap-2">
-              <ProfileActions profileId={actionProfileId} compact />
-              <PremiumButton href="/member/messages" variant="secondary" className="w-full">
-                <MessageSquareText className="size-4" />
-                Message
-              </PremiumButton>
+              {isSelfView ? (
+                <Link
+                  href="/member/profile/edit"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[#A10E4D] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#890B40]"
+                >
+                  Edit your profile
+                </Link>
+              ) : (
+                <>
+                  <ProfileActions profileId={actionProfileId} compact />
+                  <PremiumButton href="/member/messages" variant="secondary" className="w-full">
+                    <MessageSquareText className="size-4" />
+                    Message
+                  </PremiumButton>
+                </>
+              )}
             </div>
           </div>
         </div>

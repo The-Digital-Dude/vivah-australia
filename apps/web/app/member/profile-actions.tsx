@@ -6,18 +6,34 @@ import { AlertTriangle, Ban, CheckCircle2, Flag, Heart, Send, ShieldAlert, X } f
 import { reportCreateSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 
+interface InteractionStatus {
+  interestStatus: 'PENDING' | 'ACCEPTED' | 'DECLINED' | null;
+  interestId: string | null;
+  isFavourited: boolean;
+  isHidden: boolean;
+}
+
 export default function ProfileActions({
   profileId,
   compact = false,
+  stacked = false,
   onProfileHidden,
-}: Readonly<{ profileId: string; compact?: boolean; onProfileHidden?: () => void }>) {
+}: Readonly<{ profileId: string; compact?: boolean; stacked?: boolean; onProfileHidden?: () => void }>) {
   const memberRequest = useMemberRequest();
-  const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' } | null>(
-    null,
-  );
+  const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
+  const [status, setStatus] = useState<InteractionStatus | null>(null);
+
+  useEffect(() => {
+    if (!profileId) return;
+    void memberRequest(`/api/me/interaction-status/${profileId}`).then((result) => {
+      if (result.ok) {
+        setStatus(result.data as InteractionStatus);
+      }
+    });
+  }, [profileId]);
 
   useEffect(() => {
     if (!feedback) return;
@@ -25,21 +41,39 @@ export default function ProfileActions({
     return () => window.clearTimeout(timeout);
   }, [feedback]);
 
-  async function action(label: string, path: string, body?: Record<string, unknown>) {
+  async function action(label: string, path: string, body?: Record<string, unknown>, method: 'POST' | 'DELETE' = 'POST') {
     setPending(label);
     setFeedback(null);
     const result = await memberRequest(path, {
-      method: 'POST',
+      method,
       ...(body ? { body } : {}),
     });
     setPending(null);
     setFeedback({ message: result.message, tone: result.ok ? 'success' : 'error' });
-    return result.ok;
+    return result;
+  }
+
+  async function sendInterest() {
+    const result = await action('interest', '/api/interests', { profileId });
+    if (result.ok) {
+      setStatus((prev) => prev ? { ...prev, interestStatus: 'PENDING', interestId: (result.data as { interest?: { id?: string } })?.interest?.id ?? null } : prev);
+    }
+  }
+
+  async function toggleFavourite() {
+    if (status?.isFavourited) {
+      const result = await action('favourite', `/api/me/favourites/${profileId}`, undefined, 'DELETE');
+      if (result.ok) setStatus((prev) => prev ? { ...prev, isFavourited: false } : prev);
+    } else {
+      const result = await action('favourite', '/api/me/favourites', { profileId });
+      if (result.ok) setStatus((prev) => prev ? { ...prev, isFavourited: true } : prev);
+    }
   }
 
   async function hide() {
-    const ok = await action('hide', '/api/me/hidden-profiles', { profileId });
-    if (ok) {
+    const result = await action('hide', '/api/me/hidden-profiles', { profileId });
+    if (result.ok) {
+      setStatus((prev) => prev ? { ...prev, isHidden: true } : prev);
       onProfileHidden?.();
     }
   }
@@ -57,37 +91,52 @@ export default function ProfileActions({
       return;
     }
 
-    const ok = await action('report', '/api/reports', parsed.data);
-    if (ok) {
+    const result = await action('report', '/api/reports', parsed.data);
+    if (result.ok) {
       setReportOpen(false);
     }
   }
 
   async function block() {
-    const ok = await action('block', '/api/me/blocks', { profileId });
-    if (ok) {
+    const result = await action('block', '/api/me/blocks', { profileId });
+    if (result.ok) {
       setBlockOpen(false);
     }
   }
 
+  const interestSent = status?.interestStatus === 'PENDING';
+  const interestAccepted = status?.interestStatus === 'ACCEPTED';
+  const isFavourited = status?.isFavourited ?? false;
+
   return (
     <div className="grid gap-2">
       <div className="grid gap-2">
-        <div className={compact ? 'flex flex-wrap gap-2' : 'grid grid-cols-2 gap-2'}>
+        <div className={compact ? 'flex flex-wrap gap-2' : stacked ? 'grid gap-2' : 'grid grid-cols-2 gap-2'}>
           <ActionButton
-            label={pending === 'interest' ? 'Sending' : 'Interest'}
+            label={
+              pending === 'interest' ? 'Sending…'
+              : interestAccepted ? 'Accepted'
+              : interestSent ? 'Interest Sent'
+              : 'Interest'
+            }
             icon={<Send className="size-3.5" />}
-            onClick={() => void action('interest', '/api/interests', { profileId })}
+            onClick={() => void sendInterest()}
+            disabled={interestSent || interestAccepted}
+            active={interestAccepted}
+            fullWidth={stacked}
           />
           <ActionButton
-            label={pending === 'favourite' ? 'Saving' : 'Save'}
-            icon={<Heart className="size-3.5" />}
-            onClick={() => void action('favourite', '/api/me/favourites', { profileId })}
+            label={pending === 'favourite' ? (isFavourited ? 'Removing…' : 'Saving…') : isFavourited ? 'Saved' : 'Save'}
+            icon={<Heart className={`size-3.5 ${isFavourited ? 'fill-current' : ''}`} />}
+            onClick={() => void toggleFavourite()}
+            active={isFavourited}
+            fullWidth={stacked}
           />
           <ActionButton
-            label={pending === 'hide' ? 'Hiding' : 'Ignore'}
+            label={pending === 'hide' ? 'Hiding…' : 'Ignore'}
             icon={<X className="size-3.5" />}
             onClick={() => void hide()}
+            fullWidth={stacked}
           />
         </div>
 
@@ -143,7 +192,7 @@ export default function ProfileActions({
         <ConfirmModal
           title="Block this member?"
           body="They will disappear from search and recommendations, and pending interests between you will be withdrawn."
-          confirmLabel={pending === 'block' ? 'Blocking' : 'Block member'}
+          confirmLabel={pending === 'block' ? 'Blocking…' : 'Block member'}
           onClose={() => setBlockOpen(false)}
           onConfirm={() => void block()}
         />
@@ -157,19 +206,28 @@ function ActionButton({
   icon,
   onClick,
   variant = 'default',
+  disabled = false,
+  active = false,
+  fullWidth = false,
 }: Readonly<{
   label: string;
   icon: ReactNode;
   onClick: () => void;
   variant?: 'default' | 'safety';
+  disabled?: boolean;
+  active?: boolean;
+  fullWidth?: boolean;
 }>) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition ${
+      disabled={disabled}
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${fullWidth ? 'w-full' : ''} ${
         variant === 'safety'
           ? 'border-[#D4A04C]/35 bg-white text-[#7A1E3A] hover:bg-[#FFF4D9]'
+          : active
+          ? 'border-[#A10E4D] bg-[#A10E4D] text-white'
           : 'border-[#F0D6DA] bg-white text-[#7A1E3A] hover:bg-[#FFF8F1]'
       }`}
     >

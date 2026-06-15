@@ -15,6 +15,7 @@ import {
   addFavourite,
   blockProfile,
   createReport,
+  getInteractionStatus,
   hideProfile,
   listBlocks,
   listHiddenProfiles,
@@ -59,6 +60,17 @@ function requireAdmin(request: AuthenticatedRequest) {
 
 export function createInteractionsRouter(config: AuthConfig): Router {
   const router = Router();
+
+  router.get(
+    '/me/interaction-status/:profileId',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const profileId = request.params.profileId ?? '';
+      const status = await getInteractionStatus(auth.userId, profileId);
+      response.status(200).json(status);
+    }),
+  );
 
   router.get(
     '/me/interests',

@@ -170,7 +170,7 @@ export function SectionHeader({
   align?: 'left' | 'center';
   eyebrow?: string;
   subtitle?: string | undefined;
-  title: string;
+  title?: string;
 }>) {
   const shouldReduceMotion = useReducedMotion();
   return (
@@ -188,9 +188,11 @@ export function SectionHeader({
         {eyebrow ? (
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">{eyebrow}</p>
         ) : null}
-        <h2 className="mt-2 text-2xl font-bold text-[#2F2F2F] md:text-3xl font-cormorant">
-          {title}
-        </h2>
+        {title ? (
+          <h2 className="mt-2 text-2xl font-bold text-[#2F2F2F] md:text-3xl font-cormorant">
+            {title}
+          </h2>
+        ) : null}
         {subtitle ? (
           <p className="mt-3 text-sm leading-6 text-[#5F5F5F] font-poppins">{subtitle}</p>
         ) : null}

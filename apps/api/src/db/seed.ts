@@ -541,6 +541,8 @@ function profilePayload(member: DemoMember, userId: ObjectId) {
     userId,
     displayId: member.displayId,
     slug: member.slug,
+    userStatus: member.status,
+    userIsDeleted: false,
     completionPercentage: member.approvalStatus === ProfileApprovalStatus.APPROVED ? 95 : 78,
     personal: {
       firstName: member.firstName,

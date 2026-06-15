@@ -159,18 +159,14 @@ export function createProfileRouter(config: AuthConfig): Router {
   router.get(
     '/profiles/:id',
     asyncHandler(async (request: AuthenticatedRequest, response) => {
-      const header = request.header('authorization');
       let viewerId = request.auth?.userId;
 
-      if (!viewerId && header?.startsWith('Bearer ')) {
-        await new Promise<void>((resolve, reject) => {
+      if (!viewerId) {
+        await new Promise<void>((resolve) => {
           requireAuth(config)(request, response, (error?: unknown) => {
-            if (error) {
-              reject(error instanceof Error ? error : new Error('Authentication failed'));
-              return;
+            if (!error) {
+              viewerId = request.auth?.userId;
             }
-
-            viewerId = request.auth?.userId;
             resolve();
           });
         });

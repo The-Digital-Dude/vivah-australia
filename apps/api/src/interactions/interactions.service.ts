@@ -316,6 +316,28 @@ export async function removeFavourite(userId: Types.ObjectId, profileId: string)
   await ProfileModel.updateOne({ _id: profileId }, { $inc: { 'stats.favouritesCount': -1 } });
 }
 
+export async function getInteractionStatus(userId: Types.ObjectId, profileId: string) {
+  assertObjectId(profileId, 'Profile not found');
+
+  const profile = await ProfileModel.findOne({ _id: profileId, isDeleted: false });
+  if (!profile) {
+    return { interestStatus: null, interestId: null, isFavourited: false, isHidden: false };
+  }
+
+  const [interest, favourite, hidden] = await Promise.all([
+    InterestModel.findOne({ senderId: userId, receiverId: profile.userId, isDeleted: false }),
+    FavouriteModel.findOne({ userId, profileId: profile._id, isDeleted: false }),
+    HiddenProfileModel.findOne({ userId, profileId: profile._id, isDeleted: false }),
+  ]);
+
+  return {
+    interestStatus: interest?.status ?? null,
+    interestId: interest ? String(interest._id) : null,
+    isFavourited: Boolean(favourite),
+    isHidden: Boolean(hidden),
+  };
+}
+
 export async function listFavourites(userId: Types.ObjectId) {
   const favourites = await FavouriteModel.find({ userId, isDeleted: false }).sort({
     createdAt: -1,
