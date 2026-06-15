@@ -805,7 +805,7 @@ function ContentManager({
                   name="readTimeMinutes"
                   value={editor.readTimeMinutes || 3}
                   onChange={(e) => setEditor((current) => ({ ...current, readTimeMinutes: parseInt(e.target.value) || 3 }))}
-                  className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                  className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                 />
               </div>
             </>
@@ -1095,7 +1095,7 @@ function SectionManager({
               name="sortOrder"
               value={editor.sortOrder}
               onChange={(e) => setEditor((current) => ({ ...current, sortOrder: parseInt(e.target.value) || 0 }))}
-              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+              className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             />
           </div>
           <div className="grid gap-1.5 text-xs font-bold text-neutral-850">
@@ -1103,7 +1103,7 @@ function SectionManager({
             <select
               value={editor.status}
               onChange={(e) => setEditor((current) => ({ ...current, status: e.target.value as 'DRAFT' | 'PUBLISHED' }))}
-              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+              className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             >
               <option value="DRAFT">Draft</option>
               <option value="PUBLISHED">Published</option>
@@ -1291,7 +1291,7 @@ function FaqManager({
             value={editor.question}
             onChange={(e) => setEditor((current) => ({ ...current, question: e.target.value }))}
             placeholder="e.g. How does verification work?"
-            className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+            className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
           />
         </div>
 
@@ -1308,7 +1308,7 @@ function FaqManager({
             <select
               value={editor.category}
               onChange={(e) => setEditor((current) => ({ ...current, category: e.target.value as Faq['category'] }))}
-              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+              className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             >
               <option value="GENERAL">General</option>
               <option value="MEMBERSHIP">Membership</option>
@@ -1324,7 +1324,7 @@ function FaqManager({
               name="displayOrder"
               value={editor.displayOrder}
               onChange={(e) => setEditor((current) => ({ ...current, displayOrder: parseInt(e.target.value) || 0 }))}
-              className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+              className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             />
           </div>
         </div>
@@ -1591,7 +1591,7 @@ function Field({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#A10E4D] transition"
+        className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#A10E4D] transition"
       />
     </div>
   );

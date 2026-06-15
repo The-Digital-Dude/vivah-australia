@@ -19,7 +19,6 @@ import {
   PremiumButton,
   PremiumCard,
   ProfileMatchCard,
-  SectionHeader,
 } from '@/app/components';
 import { csvList, optionalNumber, optionalString, useMemberRequest } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
@@ -689,147 +688,90 @@ export default function MatchDiscovery() {
   }
 
   return (
-    <div className="grid gap-6 sm:gap-8">
-      <section className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
-        <div className="grid gap-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
-                Discover matches
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#2F2F2F] sm:text-3xl">
-                Search with clarity, then go deeper only when needed
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-[#6B7280]">
-                We&apos;ve moved discovery controls to the top so you can browse matches without a
-                second sidebar competing for attention.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <PremiumButton
-                onClick={() => setDrawerOpen(true)}
-                variant="secondary"
-                className="min-h-11 w-full sm:w-auto"
-              >
-                <SlidersHorizontal className="size-4" />
-                Advanced filters
-                {activeFilterCount > 0 ? (
-                  <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white">
-                    {activeFilterCount}
-                  </span>
-                ) : null}
-              </PremiumButton>
-              {!isDefaultQuery(currentQuery) ? (
-                <PremiumButton
-                  onClick={() => void clearFilters()}
-                  variant="ghost"
-                  className="min-h-11 w-full sm:w-auto"
-                >
-                  Clear filters
-                </PremiumButton>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="grid gap-4 rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4 lg:grid-cols-[1.1fr_0.9fr_auto] lg:items-end">
-            <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
-              City or suburb
-              <input
-                value={quickCity}
-                onChange={(event) => setQuickCity(event.target.value)}
-                placeholder="Melbourne, Parramatta"
-                className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
-              />
-            </label>
-            <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
-              Sort
-              <select
-                value={quickSort}
-                onChange={(event) => setQuickSort(event.target.value)}
-                className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 text-sm outline-none transition duration-200 focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
-              >
-                {['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED'].map((option) => (
-                  <option key={option} value={option}>
-                    {option.replaceAll('_', ' ')}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <PremiumButton
-              onClick={() =>
-                void applyQuickFilter({
-                  ...defaultFilters,
-                  sort: quickSort,
-                  ...(quickCity.trim() ? { city: [quickCity.trim()] } : {}),
-                })
-              }
-              className="w-full lg:w-auto"
+    <div className="grid gap-4">
+      <section className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
+        <div className="grid gap-3">
+          {/* Quick search row */}
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+            <input
+              value={quickCity}
+              onChange={(event) => setQuickCity(event.target.value)}
+              placeholder="City or suburb…"
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-[#FFF9F5] px-4 text-sm outline-none focus:border-[#A10E4D]"
+            />
+            <select
+              value={quickSort}
+              onChange={(event) => setQuickSort(event.target.value)}
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-[#FFF9F5] px-4 text-sm outline-none focus:border-[#A10E4D]"
             >
-              <Search className="size-4" />
-              Refresh results
-            </PremiumButton>
+              {['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED'].map((option) => (
+                <option key={option} value={option}>{option.replaceAll('_', ' ')}</option>
+              ))}
+            </select>
+            <div className="flex gap-2">
+              <PremiumButton
+                onClick={() => void applyQuickFilter({ ...defaultFilters, sort: quickSort, ...(quickCity.trim() ? { city: [quickCity.trim()] } : {}) })}
+                className="h-10 px-4 text-sm"
+              >
+                <Search className="size-4" />
+                Search
+              </PremiumButton>
+              <PremiumButton onClick={() => setDrawerOpen(true)} variant="secondary" className="h-10 px-3">
+                <SlidersHorizontal className="size-4" />
+                {activeFilterCount > 0 && <span className="rounded-full bg-[#A10E4D] px-1.5 py-0.5 text-[10px] font-bold text-white">{activeFilterCount}</span>}
+              </PremiumButton>
+            </div>
           </div>
 
-          <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          {/* Quick filter chips */}
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
             {quickFilterDefinitions.map((filter) => (
-              <button
-                key={filter.label}
-                type="button"
-                onClick={() => void applyQuickFilter({ ...defaultFilters, ...filter.apply() })}
-                className="snap-start rounded-full border border-[#A10E4D]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#A10E4D] transition hover:bg-[#FFF0F3]"
-              >
+              <button key={filter.label} type="button" onClick={() => void applyQuickFilter({ ...defaultFilters, ...filter.apply() })}
+                className="shrink-0 rounded-xl border border-[#A10E4D]/10 bg-[#FFF9F5] px-3 py-1.5 text-xs font-semibold text-[#A10E4D] transition hover:bg-[#FFF0F3]">
                 {filter.label}
               </button>
             ))}
-            <button
-              type="button"
-              onClick={() => void applyPreset('nearby')}
-              className="snap-start rounded-full border border-[#A10E4D]/10 bg-white px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#A10E4D] transition hover:bg-[#FFF0F3]"
-            >
+            <button type="button" onClick={() => void applyPreset('nearby')}
+              className="shrink-0 rounded-xl border border-[#A10E4D]/10 bg-[#FFF9F5] px-3 py-1.5 text-xs font-semibold text-[#A10E4D] transition hover:bg-[#FFF0F3]">
               Near you
             </button>
+            {!isDefaultQuery(currentQuery) && (
+              <button type="button" onClick={() => void clearFilters()}
+                className="shrink-0 rounded-xl border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100">
+                Clear
+              </button>
+            )}
           </div>
 
-          {visibleQueryChips.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
+          {visibleQueryChips.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
               {visibleQueryChips.map((chip) => (
-                <span
-                  key={`${chip.key}-${chip.label}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#D4A04C]/30 bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#A10E4D]"
-                >
+                <span key={`${chip.key}-${chip.label}`} className="inline-flex items-center rounded-lg border border-[#D4A04C]/30 bg-[#FFF8EC] px-2.5 py-1 text-xs font-semibold text-[#A10E4D]">
                   {chip.label}
                 </span>
               ))}
             </div>
-          ) : null}
+          )}
         </div>
       </section>
 
-      <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto border-b border-[#A10E4D]/10 px-1 pb-1 scrollbar-none">
+      {/* Tab bar */}
+      <div className="flex gap-1 overflow-x-auto scrollbar-none">
         {[
           { key: 'recommended', label: 'Recommended', icon: Sparkles },
-          { key: 'active', label: 'Recently Active', icon: Clock3 },
+          { key: 'active', label: 'Active', icon: Clock3 },
           { key: 'verified', label: 'Verified', icon: ShieldCheck },
-          { key: 'newest', label: 'New Members', icon: UserPlus },
-          { key: 'nearby', label: 'Near You', icon: MapPin },
-          { key: 'saved', label: 'Saved Searches', icon: Bookmark },
+          { key: 'newest', label: 'New', icon: UserPlus },
+          { key: 'nearby', label: 'Near you', icon: MapPin },
+          { key: 'saved', label: 'Saved', icon: Bookmark },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
           return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => void applyPreset(tab.key as DiscoveryTab)}
-              className={cx(
-                'inline-flex snap-start items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
-                isActive
-                  ? 'bg-[#A10E4D] text-white'
-                  : 'text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]',
-              )}
-            >
-              <Icon className="size-4" />
+            <button key={tab.key} type="button" onClick={() => void applyPreset(tab.key as DiscoveryTab)}
+              className={cx('inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition',
+                isActive ? 'bg-[#A10E4D] text-white' : 'text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]')}>
+              <Icon className="size-3.5" />
               {tab.label}
             </button>
           );
@@ -843,37 +785,13 @@ export default function MatchDiscovery() {
       ) : null}
 
       {(activeTab === 'search' || activeTab === 'active' || activeTab === 'verified' || activeTab === 'newest' || activeTab === 'nearby') && (
-        <section className="grid gap-6">
-          <SectionHeader
-            eyebrow="Discovery results"
-            title={
-              activeTab === 'active'
-                ? 'Recently active members'
-                : activeTab === 'verified'
-                  ? 'Verified members'
-                  : activeTab === 'newest'
-                    ? 'New members'
-                    : activeTab === 'nearby'
-                      ? 'Members near you'
-                      : 'Search results'
-            }
-            subtitle={
-              activeTab === 'nearby'
-                ? 'Profiles closer to your current city and state, when that information is available.'
-                : 'A calmer browsing grid with quick actions and less card congestion.'
-            }
-          />
+        <section>
           {renderSearchResultsGrid()}
         </section>
       )}
 
       {activeTab === 'recommended' && (
-        <section className="grid gap-6">
-          <SectionHeader
-            eyebrow="Recommended"
-            title="Profiles worth your attention today"
-            subtitle="These recommendations use your profile details and partner preferences to surface stronger fits first."
-          />
+        <section>
 
           {loading ? (
             <MatchGridSkeleton />
@@ -898,12 +816,7 @@ export default function MatchDiscovery() {
       )}
 
       {activeTab === 'saved' && (
-        <section className="grid gap-6">
-          <SectionHeader
-            eyebrow="Saved searches"
-            title="Reuse your favourite discovery setups"
-            subtitle="Save filter combinations for the kinds of introductions you want to revisit quickly."
-          />
+        <section className="grid gap-4">
 
           <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
             <aside className="h-fit">

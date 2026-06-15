@@ -7,7 +7,6 @@ import {
   EmptyState,
   PremiumButton,
   PremiumCard,
-  SectionHeader,
   VerificationBadge,
 } from '@/app/components';
 import { useMemberRequest } from '@/lib/member-api';
@@ -18,7 +17,6 @@ import {
   Eye,
   Heart,
   Loader2,
-  ShieldCheck,
   Star,
 } from 'lucide-react';
 
@@ -106,6 +104,17 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
 
+function Avatar({ name }: { name: string | null | undefined }) {
+  const initial = (name ?? 'V').slice(0, 1).toUpperCase();
+  return (
+    <div
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FFF0F3_0%,#FFDCE8_100%)] text-sm font-bold text-[#A10E4D]"
+    >
+      {initial}
+    </div>
+  );
+}
+
 function formatRelative(dateString: string) {
   const diff = Date.now() - new Date(dateString).getTime();
   const mins = Math.max(1, Math.floor(diff / 60000));
@@ -121,27 +130,35 @@ function InterestPreview({
 }: Readonly<{ item: InterestItem; mode: 'received' | 'sent' }>) {
   const profile = mode === 'received' ? item.sender : item.receiver;
   const href = profile?.id ? `/profiles/${profile.id}` : '/member/matches';
+  const statusColors: Record<string, string> = {
+    ACCEPTED: 'bg-[#E8F7EF] text-[#1F6F4A]',
+    PENDING: 'bg-[#FFF0F3] text-[#A10E4D]',
+    REJECTED: 'bg-[#FEF2F2] text-red-700',
+  };
 
   return (
     <Link
       href={href}
-      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="flex flex-col rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-[#2F2F2F]">
-            {profile?.firstName ?? 'Vivah member'}
-            {profile?.age ? `, ${profile.age}` : ''}
-          </p>
-          <p className="mt-1 text-sm text-[#6B7280]">
+      <div className="flex items-start gap-3">
+        <Avatar name={profile?.firstName} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="truncate text-sm font-semibold text-[#2F2F2F]">
+              {profile?.firstName ?? 'Vivah member'}
+              {profile?.age ? `, ${profile.age}` : ''}
+            </p>
+            <span className={cx('shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em]', statusColors[item.status] ?? 'bg-[#FFF0F3] text-[#A10E4D]')}>
+              {item.status.toLowerCase()}
+            </span>
+          </div>
+          <p className="mt-0.5 truncate text-xs text-[#6B7280]">
             {[profile?.city, profile?.occupation].filter(Boolean).join(' • ') || 'Australia'}
           </p>
         </div>
-        <span className="rounded-full bg-[#FFF0F3] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
-          {item.status}
-        </span>
       </div>
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between border-t border-[#A10E4D]/6 pt-3">
         <VerificationBadge level={profile?.verificationLevel} />
         <span className="text-xs font-medium text-[#6B7280]">{formatRelative(item.createdAt)}</span>
       </div>
@@ -153,22 +170,24 @@ function FavouritePreview({ item }: Readonly<{ item: FavouriteItem }>) {
   return (
     <Link
       href={`/profiles/${item.profile.id}`}
-      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="flex flex-col rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-[#2F2F2F]">
-            {item.profile.firstName ?? 'Vivah member'}
-            {item.profile.age ? `, ${item.profile.age}` : ''}
-          </p>
-          <p className="mt-1 text-sm text-[#6B7280]">
-            {[item.profile.city, item.profile.occupation].filter(Boolean).join(' • ') ||
-              'Australia'}
+      <div className="flex items-start gap-3">
+        <Avatar name={item.profile.firstName} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="truncate text-sm font-semibold text-[#2F2F2F]">
+              {item.profile.firstName ?? 'Vivah member'}
+              {item.profile.age ? `, ${item.profile.age}` : ''}
+            </p>
+            <Heart className="size-4 shrink-0 text-[#A10E4D]" />
+          </div>
+          <p className="mt-0.5 truncate text-xs text-[#6B7280]">
+            {[item.profile.city, item.profile.occupation].filter(Boolean).join(' • ') || 'Australia'}
           </p>
         </div>
-        <Heart className="size-4 text-[#A10E4D]" />
       </div>
-      <div className="mt-3">
+      <div className="mt-3 border-t border-[#A10E4D]/6 pt-3">
         <VerificationBadge level={item.profile.verificationLevel} />
       </div>
     </Link>
@@ -180,22 +199,24 @@ function RecentlyViewedPreview({ item }: Readonly<{ item: RecentlyViewedItem }>)
   return (
     <Link
       href={`/profiles/${profile._id}`}
-      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="flex flex-col rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-[#2F2F2F]">
-            {profile.personal?.firstName ?? profile.displayId}
-            {profile.personal?.age ? `, ${profile.personal.age}` : ''}
-          </p>
-          <p className="mt-1 text-sm text-[#6B7280]">
-            {[profile.location?.city, profile.location?.state].filter(Boolean).join(', ') ||
-              'Australia'}
+      <div className="flex items-start gap-3">
+        <Avatar name={profile.personal?.firstName} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="truncate text-sm font-semibold text-[#2F2F2F]">
+              {profile.personal?.firstName ?? profile.displayId}
+              {profile.personal?.age ? `, ${profile.personal.age}` : ''}
+            </p>
+            <Clock3 className="size-4 shrink-0 text-[#A10E4D]" />
+          </div>
+          <p className="mt-0.5 truncate text-xs text-[#6B7280]">
+            {[profile.location?.city, profile.location?.state].filter(Boolean).join(', ') || 'Australia'}
           </p>
         </div>
-        <Clock3 className="size-4 text-[#A10E4D]" />
       </div>
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between border-t border-[#A10E4D]/6 pt-3">
         <VerificationBadge level={profile.verification?.level ?? 'Verified'} />
         <span className="text-xs font-medium text-[#6B7280]">{formatRelative(item.viewedAt)}</span>
       </div>
@@ -211,18 +232,18 @@ function ViewerPreview({
     return (
       <Link
         href="/member/subscription"
-        className="rounded-3xl border border-[#D4A04C]/30 bg-[#FFF8EC] p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+        className="flex flex-col rounded-3xl border border-[#D4A04C]/30 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFFFFF_100%)] p-4 transition hover:-translate-y-0.5 hover:shadow-md"
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D4A04C]/30 bg-[#FFF8EC]">
+            <Eye className="size-4 text-[#D4A04C]" />
+          </div>
           <div>
             <p className="text-sm font-semibold text-[#2F2F2F]">Premium viewer insight</p>
-            <p className="mt-1 text-sm text-[#6B7280]">
-              Upgrade to reveal who viewed your profile.
-            </p>
+            <p className="mt-0.5 text-xs text-[#6B7280]">Upgrade to reveal who viewed your profile.</p>
           </div>
-          <Eye className="size-4 text-[#D4A04C]" />
         </div>
-        <p className="mt-3 text-xs font-medium text-[#A10E4D]">
+        <p className="mt-3 border-t border-[#D4A04C]/15 pt-3 text-xs font-medium text-[#A10E4D]">
           Viewed {formatRelative(entry.viewedAt)}
         </p>
       </Link>
@@ -233,22 +254,24 @@ function ViewerPreview({
   return (
     <Link
       href={`/profiles/${viewer.id}`}
-      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className="flex flex-col rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-[#2F2F2F]">
-            {viewer.firstName ?? viewer.displayId}
-            {viewer.age ? `, ${viewer.age}` : ''}
-          </p>
-          <p className="mt-1 text-sm text-[#6B7280]">
-            {[viewer.city ?? viewer.state, viewer.occupation].filter(Boolean).join(' • ') ||
-              'Australia'}
+      <div className="flex items-start gap-3">
+        <Avatar name={viewer.firstName ?? undefined} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="truncate text-sm font-semibold text-[#2F2F2F]">
+              {viewer.firstName ?? viewer.displayId}
+              {viewer.age ? `, ${viewer.age}` : ''}
+            </p>
+            <Eye className={cx('size-4 shrink-0', isPaid ? 'text-[#A10E4D]' : 'text-[#D4A04C]')} />
+          </div>
+          <p className="mt-0.5 truncate text-xs text-[#6B7280]">
+            {[viewer.city ?? viewer.state, viewer.occupation].filter(Boolean).join(' • ') || 'Australia'}
           </p>
         </div>
-        <Eye className={cx('size-4', isPaid ? 'text-[#A10E4D]' : 'text-[#D4A04C]')} />
       </div>
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between border-t border-[#A10E4D]/6 pt-3">
         <VerificationBadge level={viewer.verificationLevel} />
         <span className="text-xs font-medium text-[#6B7280]">{formatRelative(entry.viewedAt)}</span>
       </div>
@@ -257,19 +280,31 @@ function ViewerPreview({
 }
 
 function NotificationPreview({ item }: Readonly<{ item: NotificationItem }>) {
+  const isUnread = !item.readAt;
   return (
     <Link
       href="/member/notifications"
-      className="rounded-3xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+      className={cx(
+        'flex flex-col rounded-3xl border p-4 transition hover:-translate-y-0.5 hover:shadow-md',
+        isUnread ? 'border-[#A10E4D]/20 bg-[#FFF9F5]' : 'border-[#A10E4D]/10 bg-white'
+      )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-[#2F2F2F]">{item.title}</p>
-          {item.body ? <p className="mt-1 text-sm text-[#6B7280]">{item.body}</p> : null}
+      <div className="flex items-start gap-3">
+        <div className={cx(
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+          isUnread ? 'bg-[#FFF0F3]' : 'bg-[#FFF8EC]'
+        )}>
+          {isUnread ? <Bell className="size-4 text-[#A10E4D]" /> : <Star className="size-4 text-[#D4A04C]" />}
         </div>
-        {!item.readAt ? <Bell className="size-4 text-[#A10E4D]" /> : <Star className="size-4 text-[#D4A04C]" />}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-semibold text-[#2F2F2F] line-clamp-1">{item.title}</p>
+            {isUnread && <span className="h-2 w-2 shrink-0 rounded-full bg-[#A10E4D] mt-1" />}
+          </div>
+          {item.body ? <p className="mt-0.5 text-xs leading-5 text-[#6B7280] line-clamp-2">{item.body}</p> : null}
+        </div>
       </div>
-      <p className="mt-3 text-xs font-medium text-[#6B7280]">{formatRelative(item.createdAt)}</p>
+      <p className="mt-3 border-t border-[#A10E4D]/6 pt-3 text-xs font-medium text-[#6B7280]">{formatRelative(item.createdAt)}</p>
     </Link>
   );
 }
@@ -359,37 +394,6 @@ export default function ActivityHubPage() {
     [favourites.length, notifications, profileViewers?.total, receivedInterests.length, recentlyViewed.length, sentInterests.length],
   );
 
-  const summaryCards = [
-    {
-      label: 'Received interests',
-      value: receivedInterests.length,
-      body: 'People who have already shown direct interest in your profile.',
-      icon: Heart,
-      href: '/member/interests',
-    },
-    {
-      label: 'Favourites',
-      value: favourites.length,
-      body: 'Profiles you may want to revisit before the momentum cools.',
-      icon: Star,
-      href: '/member/favourites',
-    },
-    {
-      label: 'Viewed me',
-      value: profileViewers?.total ?? 0,
-      body: 'Profile attention is one of the clearest signals of discovery momentum.',
-      icon: Eye,
-      href: '/member/profile-viewers',
-    },
-    {
-      label: 'Unread notifications',
-      value: notifications.filter((item) => !item.readAt).length,
-      body: 'System, interest, and billing updates waiting for your attention.',
-      icon: Bell,
-      href: '/member/notifications',
-    },
-  ];
-
   const activeItems = (() => {
     switch (activeTab) {
       case 'received':
@@ -440,135 +444,60 @@ export default function ActivityHubPage() {
   return (
     <MemberShell
       title="Activity"
-      subtitle="A calmer view of your interest flow, saved profiles, profile attention, and important updates."
+      subtitle="Interests, favourites, viewers, and notifications."
     >
-      <div className="grid gap-6 sm:gap-8">
+      <div className="grid gap-4">
         {message ? (
           <p className="rounded-2xl border border-[#A10E4D]/10 bg-[#FFF8F1] p-4 text-sm font-semibold text-[#A10E4D]">
             {message}
           </p>
         ) : null}
 
-        <section className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {summaryCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Link key={card.label} href={card.href} className="group">
-                <PremiumCard className="h-full rounded-[28px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(122,31,43,0.12)]">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-                        {card.label}
-                      </p>
-                      <p className="mt-3 text-3xl font-bold text-[#2F2F2F]">{card.value}</p>
-                    </div>
-                    <div className="rounded-2xl bg-[#FFF0F3] p-3 text-[#A10E4D]">
-                      <Icon className="size-5" />
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm leading-6 text-[#6B7280]">{card.body}</p>
-                </PremiumCard>
-              </Link>
-            );
-          })}
-        </section>
-
-        <section className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
-          <SectionHeader
-            eyebrow="Activity hub"
-            title="Switch between the moments that matter most"
-            subtitle="Use one place to review interest responses, revisit saved profiles, check who viewed you, and stay on top of notifications."
-          />
-
-          <div className="-mx-1 mt-6 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 scrollbar-none">
+        <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
+          {/* Tab bar */}
+          <div className="-mx-1 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-1 pb-1 scrollbar-none">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={cx(
-                  'inline-flex snap-start items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 text-sm font-semibold transition',
+                  'inline-flex snap-start items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-semibold transition',
                   activeTab === tab.key
                     ? 'bg-[#A10E4D] text-white'
                     : 'text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]',
                 )}
               >
                 {tab.label}
-                <span
-                  className={cx(
-                    'rounded-full px-2 py-0.5 text-[10px] font-bold',
-                    activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-[#FFF0F3] text-[#A10E4D]',
-                  )}
-                >
-                  {tab.count}
-                </span>
+                {tab.count > 0 && (
+                  <span className={cx('rounded-full px-1.5 py-0.5 text-[10px] font-bold', activeTab === tab.key ? 'bg-white/20 text-white' : 'bg-[#FFF0F3] text-[#A10E4D]')}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
 
-          <div className="mt-6 rounded-[28px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4 sm:p-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-                  Current view
-                </p>
-                <h3 className="mt-2 text-xl font-semibold text-[#2F2F2F]">
-                  {activeTabMeta?.label ?? 'Activity'}
-                </h3>
-              </div>
-              {activeTabMeta ? (
-                <PremiumButton href={activeTabMeta.href} variant="secondary" className="w-full sm:w-auto">
-                  Open full page
-                  <ChevronRight className="size-4" />
-                </PremiumButton>
-              ) : null}
+          {/* View-all link */}
+          {activeTabMeta && (
+            <div className="mt-3 flex items-center justify-end">
+              <PremiumButton href={activeTabMeta.href} variant="secondary" className="text-xs h-8 px-3">
+                Open full page <ChevronRight className="size-3.5" />
+              </PremiumButton>
             </div>
+          )}
 
-            <div className="mt-5">
-              {activeItems.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{activeItems}</div>
-              ) : (
-                <EmptyState title="Nothing here yet">
-                  This section will fill as you send interests, save favourites, get profile views,
-                  and receive important account updates.
-                </EmptyState>
-              )}
-            </div>
+          {/* Content */}
+          <div className="mt-4">
+            {activeItems.length > 0 ? (
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{activeItems}</div>
+            ) : (
+              <EmptyState title="Nothing here yet">
+                This section will fill as you interact with other profiles.
+              </EmptyState>
+            )}
           </div>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
-            <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-[#FFF0F3] p-3 text-[#A10E4D]">
-                <ShieldCheck className="size-5" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#2F2F2F]">Keep the right pace</h3>
-                <p className="mt-2 text-sm leading-7 text-[#6B7280]">
-                  Activity works best when you revisit warm signals quickly. Replying to interests,
-                  reviewing profile viewers, and revisiting favourites early usually leads to better
-                  conversations.
-                </p>
-              </div>
-            </div>
-          </PremiumCard>
-
-          <PremiumCard className="rounded-[30px] border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)] sm:p-6">
-            <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-[#FFF0F3] p-3 text-[#A10E4D]">
-                <Clock3 className="size-5" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#2F2F2F]">Stay relationship-focused</h3>
-                <p className="mt-2 text-sm leading-7 text-[#6B7280]">
-                  This hub is here to reduce route-hopping. Use it as your daily check-in point,
-                  then move into the full page only when you need to go deeper.
-                </p>
-              </div>
-            </div>
-          </PremiumCard>
-        </section>
+        </PremiumCard>
       </div>
     </MemberShell>
   );

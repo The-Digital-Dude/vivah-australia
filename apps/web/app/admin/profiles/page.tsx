@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import { AdminStatusBadge } from '../components/admin-status-badge';
-import { AlertCircle, ShieldAlert, Check, X, ClipboardSignature, Eye, ShieldCheck } from 'lucide-react';
+import { AlertCircle, Check, X, ClipboardSignature, Eye, ShieldCheck } from 'lucide-react';
 
 interface ProfileItem {
   _id: string;
@@ -298,7 +298,7 @@ export default function AdminProfilesPage() {
                     className="mt-1 h-3.5 w-3.5 rounded text-[#A10E4D] focus:ring-[#A10E4D]/20 cursor-pointer"
                   />
                   <label htmlFor="confirm-prof-app" className="text-xs text-neutral-600 font-semibold cursor-pointer select-none">
-                    I confirm that I have reviewed the profile fields comparison, verified compliance, and authorize publishing this member to public search discovery indexes.
+                    I confirm I have reviewed this profile and authorize publishing it to search.
                   </label>
                 </div>
               ) : (
@@ -327,14 +327,6 @@ export default function AdminProfilesPage() {
                   className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[60px]"
                 />
               </div>
-            </div>
-
-            {/* Compliance warning footer */}
-            <div className="mt-4 flex gap-2.5 items-start bg-amber-50/50 border border-amber-250 p-3 rounded-xl">
-              <ShieldAlert className="h-4.5 w-4.5 text-amber-700 shrink-0 mt-0.5" />
-              <p className="text-[10px] text-amber-805 leading-relaxed">
-                <strong>Accountability Notice:</strong> Approving or requesting edits modifies system database indices instantly. Actions will be logged under your operator signature.
-              </p>
             </div>
 
             <div className="mt-6 flex items-center justify-end gap-2">

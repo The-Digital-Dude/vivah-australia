@@ -154,18 +154,16 @@ export default function AdminShell({
         {/* Branding header */}
         <div className="flex h-20 items-center px-6 border-b border-white/5 bg-[#181824]/50">
           <Link href="/admin/dashboard" className="flex items-center gap-2">
-            <div className="bg-white/95 rounded-xl px-3.5 py-1.5 shadow-md flex items-center justify-center">
-              <Image
-                src="/logo-maroon.png"
-                alt="Vivah Australia Logo"
-                width={120}
-                height={40}
-                className="w-auto object-contain animate-fade-in"
-                style={{ width: 'auto', height: '36px' }}
-                priority
-              />
-            </div>
-            <span className="text-[10px] font-bold text-[#D4A04C] tracking-[0.2em] uppercase pl-1.5 shrink-0">OPS</span>
+            <Image
+              src="/logo-white.png"
+              alt="Vivah Australia Logo"
+              width={120}
+              height={40}
+              className="w-auto object-contain"
+              style={{ width: 'auto', height: '32px' }}
+              priority
+            />
+            <span className="text-[10px] font-bold text-[#D4A04C] tracking-[0.2em] uppercase shrink-0">OPS</span>
           </Link>
         </div>
 
@@ -377,7 +375,7 @@ export default function AdminShell({
                       <p className="font-extrabold text-neutral-800">Role</p>
                       <p className="text-neutral-500">System Administrator</p>
                     </div>
-                    <Link href="/admin/moderation" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition">
+                    <Link href="/admin/settings" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition">
                       <Settings className="h-4 w-4 text-neutral-500" />
                       <span>Settings</span>
                     </Link>
@@ -396,16 +394,13 @@ export default function AdminShell({
           </header>
 
           {/* PAGE BODY */}
-          <main className="flex-1 overflow-y-auto px-6 py-8">
-            <div className="mx-auto max-w-6xl space-y-6">
+          <main className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="mx-auto max-w-6xl space-y-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#A10E4D]">
-                  Operations Command Center
-                </p>
-                <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-neutral-900">{title}</h1>
-                {subtitle && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500">{subtitle}</p>}
+                <h1 className="text-xl font-bold tracking-tight text-neutral-900">{title}</h1>
+                {subtitle && <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>}
               </div>
-              <div className="mt-6">{children}</div>
+              {children}
             </div>
           </main>
         </div>

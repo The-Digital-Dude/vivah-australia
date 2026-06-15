@@ -4,12 +4,11 @@ import { useEffect, useState, useMemo } from 'react';
 import {
   Bell,
   Check,
+  CheckCircle2,
   CreditCard,
   Heart,
   ShieldCheck,
   Trash,
-  CheckCircle2,
-  Clock,
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { useMemberRequest } from '@/lib/member-api';
@@ -113,94 +112,48 @@ export default function MemberNotificationsPage() {
 
   return (
     <MemberShell
-      title="Notifications Center"
-      subtitle="Track your account activities, matrimonial match requests, trust verifications, and boosts."
+      title="Notifications"
+      subtitle="Interests, verification, and billing updates."
     >
-      <div className="grid gap-6">
-        {/* ─── Header controls & Tabs ────────────────────────────────────────── */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#A10E4D]/10 pb-px">
-          {/* Notification Inbox Tabs */}
-          <div className="flex overflow-x-auto gap-2 scrollbar-none">
-            <button
-              onClick={() => setFilterTab('ALL')}
-              className={cx(
-                'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-                filterTab === 'ALL'
-                  ? 'border-[#A10E4D] text-[#A10E4D]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
-              )}
-            >
-              📥 All Updates
-              {unreadCounts.ALL > 0 && (
-                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
-                  {unreadCounts.ALL}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setFilterTab('MATCH')}
-              className={cx(
-                'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-                filterTab === 'MATCH'
-                  ? 'border-[#A10E4D] text-[#A10E4D]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
-              )}
-            >
-              💖 Matches & Interests
-              {unreadCounts.MATCH > 0 && (
-                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
-                  {unreadCounts.MATCH}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setFilterTab('VERIFICATION')}
-              className={cx(
-                'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-                filterTab === 'VERIFICATION'
-                  ? 'border-[#A10E4D] text-[#A10E4D]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
-              )}
-            >
-              🛡️ Verification & Security
-              {unreadCounts.VERIFICATION > 0 && (
-                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
-                  {unreadCounts.VERIFICATION}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setFilterTab('BILLING')}
-              className={cx(
-                'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition whitespace-nowrap',
-                filterTab === 'BILLING'
-                  ? 'border-[#A10E4D] text-[#A10E4D]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#2F2F2F]',
-              )}
-            >
-              💳 Billing & Boosts
-              {unreadCounts.BILLING > 0 && (
-                <span className="rounded-full bg-[#A10E4D] px-2 py-0.5 text-[10px] font-bold text-white ml-1.5">
-                  {unreadCounts.BILLING}
-                </span>
-              )}
-            </button>
+      <div className="grid gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex overflow-x-auto gap-1 scrollbar-none">
+            {([
+              { key: 'ALL', label: 'All', icon: Bell },
+              { key: 'MATCH', label: 'Matches', icon: Heart },
+              { key: 'VERIFICATION', label: 'Verification', icon: ShieldCheck },
+              { key: 'BILLING', label: 'Billing', icon: CreditCard },
+            ] as const).map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                onClick={() => setFilterTab(key)}
+                className={cx(
+                  'flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition whitespace-nowrap',
+                  filterTab === key
+                    ? 'bg-[#A10E4D] text-white'
+                    : 'text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]',
+                )}
+              >
+                <Icon className="size-3.5" />
+                {label}
+                {unreadCounts[key] > 0 && (
+                  <span className={cx('rounded-full px-1.5 py-0.5 text-[10px] font-bold', filterTab === key ? 'bg-white/20 text-white' : 'bg-[#FFF0F3] text-[#A10E4D]')}>
+                    {unreadCounts[key]}
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
 
-          <div className="shrink-0 pb-2 sm:pb-0">
-            <PremiumButton
-              onClick={() => void markAllRead()}
-              variant="secondary"
-              className="h-9 px-4 text-xs"
-              disabled={unreadCounts.ALL === 0}
-            >
-              <CheckCircle2 className="size-4" />
-              Mark all read
-            </PremiumButton>
-          </div>
+          <PremiumButton
+            onClick={() => void markAllRead()}
+            variant="secondary"
+            className="h-8 px-3 text-xs"
+            disabled={unreadCounts.ALL === 0}
+          >
+            <CheckCircle2 className="size-3.5" />
+            Mark all read
+          </PremiumButton>
         </div>
 
         {message ? (
@@ -216,8 +169,7 @@ export default function MemberNotificationsPage() {
           </p>
         ) : null}
 
-        {/* ─── Notification Feed ──────────────────────────────────────────────── */}
-        <div className="space-y-4">
+        <div className="grid gap-2">
           {filteredNotifications.length === 0 ? (
             <PremiumCard className="p-8 text-center border-dashed text-[#6B7280]">
               <Bell className="mx-auto size-8 text-[#6B7280]/40 mb-2" />
@@ -235,27 +187,27 @@ export default function MemberNotificationsPage() {
                 const category = (() => {
                   if (matchTypes.some((t) => type.includes(t))) {
                     return {
-                      icon: <Heart className="size-5 text-rose-700" />,
+                      icon: <Heart className="size-4 text-rose-700" />,
                       bg: 'bg-rose-50',
                       label: 'Matrimonial Match',
                     };
                   }
                   if (verificationTypes.some((t) => type.includes(t))) {
                     return {
-                      icon: <ShieldCheck className="size-5 text-emerald-700" />,
+                      icon: <ShieldCheck className="size-4 text-emerald-700" />,
                       bg: 'bg-emerald-50',
                       label: 'Account Verification',
                     };
                   }
                   if (billingTypes.some((t) => type.includes(t))) {
                     return {
-                      icon: <CreditCard className="size-5 text-violet-700" />,
+                      icon: <CreditCard className="size-4 text-violet-700" />,
                       bg: 'bg-violet-50',
                       label: 'Payments & Subscriptions',
                     };
                   }
                   return {
-                    icon: <Bell className="size-5 text-amber-700" />,
+                    icon: <Bell className="size-4 text-amber-700" />,
                     bg: 'bg-amber-50',
                     label: 'System Notification',
                   };
@@ -265,66 +217,38 @@ export default function MemberNotificationsPage() {
                   <article
                     key={n._id}
                     className={cx(
-                      'rounded-3xl border p-5 flex gap-4 transition hover:-translate-y-0.5 shadow-sm',
+                      'rounded-2xl border px-4 py-3 flex gap-3 transition',
                       isUnread
-                        ? 'border-[#A10E4D]/15 bg-[#FFF0F3]/25 border-l-4 border-l-[#A10E4D]'
-                        : 'border-[#A10E4D]/5 bg-white',
+                        ? 'border-[#A10E4D]/15 bg-[#FFF9F5] border-l-4 border-l-[#A10E4D]'
+                        : 'border-[#A10E4D]/8 bg-white',
                     )}
                   >
-                    <div
-                      className={cx(
-                        'grid size-10 place-items-center rounded-2xl shrink-0',
-                        category.bg,
-                      )}
-                    >
+                    <div className={cx('grid size-8 shrink-0 place-items-center rounded-xl mt-0.5', category.bg)}>
                       {category.icon}
                     </div>
 
-                    <div className="min-w-0 flex-1 grid gap-1">
-                      <div className="flex flex-wrap items-baseline gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">
-                          {category.label}
-                        </span>
-                        {isUnread && (
-                          <span className="inline-flex size-2 rounded-full bg-[#A10E4D]" />
-                        )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start gap-2">
+                        <h3 className="flex-1 text-sm font-semibold text-[#2F2F2F] leading-snug">
+                          {n.title}
+                          {isUnread && <span className="ml-1.5 inline-flex size-1.5 rounded-full bg-[#A10E4D] align-middle" />}
+                        </h3>
                       </div>
-
-                      <h3 className="font-semibold text-sm text-[#2F2F2F] leading-snug">
-                        {n.title}
-                      </h3>
-                      {n.body && (
-                        <p className="text-xs leading-relaxed text-[#6B7280] mt-0.5">{n.body}</p>
-                      )}
-
-                      <span className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
-                        <Clock className="size-3" />
-                        {new Date(n.createdAt).toLocaleString(undefined, {
-                          dateStyle: 'medium',
-                          timeStyle: 'short',
-                        })}
-                      </span>
+                      {n.body && <p className="mt-0.5 text-xs leading-5 text-[#6B7280] line-clamp-2">{n.body}</p>}
+                      <p className="mt-1 text-[10px] text-[#6B7280]">
+                        {new Date(n.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                      </p>
                     </div>
 
-                    <div className="flex flex-col gap-2 justify-center sm:flex-row sm:items-center shrink-0 ml-2">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       {isUnread && (
-                        <PremiumButton
-                          onClick={() => void markRead(n._id)}
-                          className="size-8 rounded-full p-0 flex items-center justify-center shrink-0 min-h-0"
-                          variant="secondary"
-                          aria-label="Mark as read"
-                        >
-                          <Check className="size-4" />
-                        </PremiumButton>
+                        <button onClick={() => void markRead(n._id)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#A10E4D]/20 text-[#A10E4D] transition hover:bg-[#FFF0F3]" aria-label="Mark as read">
+                          <Check className="size-3.5" />
+                        </button>
                       )}
-                      <PremiumButton
-                        onClick={() => void remove(n._id)}
-                        className="size-8 rounded-full p-0 flex items-center justify-center shrink-0 min-h-0 bg-[#FFF0F3] text-[#A10E4D] border-none hover:bg-red-100"
-                        variant="danger"
-                        aria-label="Delete"
-                      >
-                        <Trash className="size-4" />
-                      </PremiumButton>
+                      <button onClick={() => void remove(n._id)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-100 text-red-500 transition hover:bg-red-50" aria-label="Delete">
+                        <Trash className="size-3.5" />
+                      </button>
                     </div>
                   </article>
                 );

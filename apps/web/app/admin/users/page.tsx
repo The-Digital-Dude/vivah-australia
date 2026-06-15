@@ -212,12 +212,12 @@ export default function AdminUsersPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search name, email, or display ID"
-          className="h-11 rounded-xl border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-400 outline-none focus:border-[#A10E4D]"
+          className="h-9 rounded-lg border border-neutral-250 bg-white px-4 text-sm placeholder-neutral-400 outline-none focus:border-[#A10E4D]"
         />
         <select
           value={role}
           onChange={(event) => setRole(event.target.value)}
-          className="h-11 rounded-xl border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
+          className="h-9 rounded-lg border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
         >
           <option value="">All Roles</option>
           {roles.map((item) => (
@@ -229,7 +229,7 @@ export default function AdminUsersPage() {
         <select
           value={verificationLevel}
           onChange={(event) => setVerificationLevel(event.target.value)}
-          className="h-11 rounded-xl border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
+          className="h-9 rounded-lg border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
         >
           <option value="">All Verification Levels</option>
           {verificationLevels.map((item) => (
@@ -241,7 +241,7 @@ export default function AdminUsersPage() {
         <select
           value={status}
           onChange={(event) => setStatus(event.target.value)}
-          className="h-11 rounded-xl border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
+          className="h-9 rounded-lg border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
         >
           <option value="">All Account Statuses</option>
           {statuses.map((item) => (
@@ -250,7 +250,7 @@ export default function AdminUsersPage() {
             </option>
           ))}
         </select>
-        <button className="h-11 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-6 text-sm font-bold text-white shadow-sm transition">
+        <button className="h-9 rounded-lg bg-[#A10E4D] hover:bg-[#890B40] px-6 text-sm font-bold text-white shadow-sm transition">
           Search
         </button>
       </form>

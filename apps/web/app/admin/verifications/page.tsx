@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
-import { FileCheck, Sparkles, AlertCircle, Eye, Check, X, ShieldAlert, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { FileCheck, Sparkles, AlertCircle, Eye, Check, X, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { AdminStatusBadge } from '../components/admin-status-badge';
 
 interface VerificationItem {
@@ -411,14 +411,6 @@ export default function AdminVerificationsPage() {
                   className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[60px]"
                 />
               </div>
-            </div>
-
-            {/* Compliance warning footer */}
-            <div className="mt-4 flex gap-2.5 items-start bg-amber-50/50 border border-amber-250 p-3 rounded-xl">
-              <ShieldAlert className="h-4.5 w-4.5 text-amber-700 shrink-0 mt-0.5" />
-              <p className="text-[10px] text-amber-800 leading-relaxed">
-                <strong>Compliance Operator Warning:</strong> Decisions modify profile trust levels in real-time. Actions will be attributed to your audit signature.
-              </p>
             </div>
 
             <div className="mt-6 flex items-center justify-end gap-2">

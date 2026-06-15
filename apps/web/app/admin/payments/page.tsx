@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { couponInputSchema } from '@vivah/shared';
-import { CreditCard, Receipt, RotateCcw, Ticket, Users, ShieldAlert, AlertCircle, Sparkles } from 'lucide-react';
+import { CreditCard, Receipt, RotateCcw, Ticket, Users, AlertCircle, Sparkles } from 'lucide-react';
 import AdminShell from '../admin-shell';
 import {
   formString,
@@ -369,7 +369,7 @@ export default function AdminPaymentsPage() {
                 <span>Mark Active Instantly</span>
               </label>
 
-              <button className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] text-sm font-bold text-white shadow-sm transition">
+              <button className="flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] text-sm font-bold text-white shadow-sm transition">
                 <Sparkles className="h-4 w-4 text-[#D4A04C]" />
                 <span>Generate Coupon</span>
               </button>
@@ -432,14 +432,9 @@ export default function AdminPaymentsPage() {
               Are you sure you want to refund payment: <strong className="text-[#A10E4D] font-mono">{confirmRefundId.slice(-12).toUpperCase()}</strong>?
             </p>
 
-            <div className="mt-4 flex gap-2.5 items-start bg-amber-50 border border-amber-200 p-3 rounded-xl">
-              <ShieldAlert className="h-4.5 w-4.5 text-amber-700 shrink-0 mt-0.5" />
-              <p className="text-[10px] text-amber-800 leading-relaxed">
-                <strong>Destructive Action Warning:</strong> Issuing refunds interacts directly with Stripe. This operation cannot be undone and will revoke the user's premium entitlements immediately.
-              </p>
-            </div>
+            <p className="mt-3 text-xs text-neutral-500">This cannot be undone and will revoke the user&apos;s premium access immediately.</p>
 
-            <div className="mt-6 flex items-center justify-end gap-2">
+            <div className="mt-4 flex items-center justify-end gap-2">
               <button
                 onClick={() => setConfirmRefundId(null)}
                 className="rounded-xl border border-neutral-250 px-4 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-50"
@@ -463,4 +458,4 @@ export default function AdminPaymentsPage() {
 }
 
 const inputClass =
-  'mt-1.5 h-11 w-full rounded-xl border border-neutral-250 bg-white px-4 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#A10E4D] transition';
+  'mt-1.5 h-9 w-full rounded-xl border border-neutral-250 bg-white px-4 text-xs font-semibold text-neutral-700 placeholder-neutral-400 outline-none focus:border-[#A10E4D] transition';

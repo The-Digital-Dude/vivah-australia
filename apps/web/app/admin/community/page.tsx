@@ -73,18 +73,18 @@ export default function AdminCommunityPage() {
         onSubmit={(event) => void createRoom(event)}
         className="mb-5 grid gap-3 rounded-lg border border-[#7A1E3A]/10 bg-[#FFF8F1] p-4 md:grid-cols-[160px_1fr_1fr_auto]"
       >
-        <input name="slug" placeholder="slug" className="h-11 rounded-md border px-3 text-sm" />
+        <input name="slug" placeholder="slug" className="h-9 rounded-md border px-3 text-sm" />
         <input
           name="name"
           placeholder="Room name"
-          className="h-11 rounded-md border px-3 text-sm"
+          className="h-9 rounded-md border px-3 text-sm"
         />
         <input
           name="description"
           placeholder="Description"
-          className="h-11 rounded-md border px-3 text-sm"
+          className="h-9 rounded-md border px-3 text-sm"
         />
-        <button className="h-11 rounded-md bg-[#7A1E3A] px-4 text-sm font-semibold text-white">
+        <button className="h-9 rounded-md bg-[#7A1E3A] px-4 text-sm font-semibold text-white">
           Create
         </button>
       </form>

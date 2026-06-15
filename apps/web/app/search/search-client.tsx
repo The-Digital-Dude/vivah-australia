@@ -347,7 +347,7 @@ export default function SearchClient() {
               Create a free verified profile today and connect with compatible matches across Australia.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <PremiumButton href="/register" size="lg">
+              <PremiumButton href="/register">
                 Create Free Profile
               </PremiumButton>
               <Link

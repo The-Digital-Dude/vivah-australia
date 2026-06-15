@@ -177,160 +177,99 @@ export default function MediaManager() {
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-5">
       <form
-        className="grid gap-5 rounded-[32px] border border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFF9F5_0%,#FFFFFF_100%)] p-6 shadow-[0_18px_45px_rgba(122,31,43,0.06)]"
+        className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4"
         onSubmit={(event) => void upload(event)}
       >
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
-            Photo manager
-          </p>
-          <h2 className="mt-3 font-playfair text-3xl font-semibold text-[#2F2F2F]">
-            Curate the images members remember
-          </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6B7280]">
-            Upload public, private, and profile photos while keeping approval status, primary
-            images, and visibility choices easy to manage.
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <label className="grid gap-2 text-sm font-semibold text-[#232323]">
+        <p className="mb-4 text-sm font-bold text-[#2F2F2F]">Upload photo or video</p>
+        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
+          <label className="grid gap-1.5 text-xs font-semibold text-[#6B7280]">
             Gallery
             <select
               name="category"
-              className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 outline-none focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-[#FFF9F5] px-3 text-sm text-[#2F2F2F] outline-none focus:border-[#A10E4D]"
             >
               <option value="PROFILE_PHOTO">Profile photo</option>
               <option value="PUBLIC_GALLERY">Public gallery</option>
               <option value="PRIVATE_GALLERY">Private gallery</option>
-              <option value="VIDEO_INTRO">Video introduction</option>
+              <option value="VIDEO_INTRO">Video intro</option>
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-[#232323]">
+          <label className="grid gap-1.5 text-xs font-semibold text-[#6B7280]">
             Visibility
             <select
               name="visibility"
-              className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 outline-none focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-[#FFF9F5] px-3 text-sm text-[#2F2F2F] outline-none focus:border-[#A10E4D]"
             >
               <option value="PUBLIC">Public</option>
               <option value="MATCHES_ONLY">Matches only</option>
               <option value="PRIVATE">Private</option>
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-semibold text-[#232323]">
-            Media file
+          <label className="grid gap-1.5 text-xs font-semibold text-[#6B7280]">
+            File
             <input
               name="file"
               type="file"
               accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/ogg,video/quicktime"
               required
-              className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-white px-4 py-3 text-sm"
+              className="h-10 rounded-xl border border-[#A10E4D]/15 bg-[#FFF9F5] px-3 py-2 text-sm"
             />
           </label>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-          <div className="rounded-[26px] border-2 border-dashed border-[#A10E4D]/14 bg-white/80 p-5">
-            <p className="text-sm font-semibold text-[#2F2F2F]">Upload guidance</p>
-            <ul className="mt-3 grid gap-2 text-sm leading-6 text-[#6B7280]">
-              <li>Use bright, recent solo photos for your main profile image.</li>
-              <li>Keep private images for deeper trust once a conversation becomes serious.</li>
-              <li>Uploads still require moderation approval before they become publicly visible.</li>
-            </ul>
-          </div>
-          <div className="rounded-[26px] border border-[#D4A04C]/20 bg-[#FFF8EC] p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#B7832E]">
-              Visibility note
-            </p>
-            <p className="mt-3 text-sm leading-6 text-[#6B7280]">
-              Public images improve discovery, private images support trust after interest is
-              exchanged, and your primary photo becomes the first impression used across the app.
-            </p>
+          <div className="flex items-end">
+            <button
+              className="h-10 rounded-xl bg-[#A10E4D] px-4 text-sm font-bold text-white disabled:opacity-60 whitespace-nowrap"
+              disabled={pending}
+            >
+              {pending ? 'Uploading…' : 'Upload'}
+            </button>
           </div>
         </div>
-
-        <button
-          className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#A10E4D] px-5 text-sm font-bold text-white shadow-[0_18px_35px_rgba(161,14,77,0.18)] disabled:opacity-60 sm:w-auto"
-          disabled={pending}
-        >
-          {pending ? 'Preparing upload...' : 'Upload for review'}
-        </button>
+        <p className="mt-2 text-xs text-[#6B7280]">Uploads require moderation approval before becoming visible.</p>
       </form>
 
       {message ? (
-        <p className="rounded-[24px] border border-[#A10E4D]/10 bg-[#FFF9F5] p-4 text-sm text-[#7A1E3A]">
+        <p className="rounded-2xl border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3 text-sm text-[#7A1E3A]">
           {message}
         </p>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {media.map((item) => (
           <article
             key={item.id}
-            className="rounded-[28px] border border-[#A10E4D]/10 bg-white p-4 shadow-[0_18px_45px_rgba(122,31,43,0.05)]"
+            className="rounded-2xl border border-[#A10E4D]/10 bg-white overflow-hidden"
           >
-            <div className="aspect-[4/3] overflow-hidden rounded-[22px] bg-neutral-100 flex items-center justify-center">
+            <div className="aspect-[4/3] bg-neutral-100 flex items-center justify-center">
               {item.mediaType === 'VIDEO' || item.category === 'VIDEO_INTRO' ? (
-                <video
-                  src={item.assetUrl}
-                  controls
-                  className="size-full object-cover"
-                />
+                <video src={item.assetUrl} controls className="size-full object-cover" />
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={item.assetUrl}
-                  alt={item.originalFilename}
-                  className="size-full object-cover"
-                />
+                <img src={item.assetUrl} alt={item.originalFilename} className="size-full object-cover" />
               )}
             </div>
-            <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wide">
-              <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-[#7A1E3A]">
-                {item.category}
-              </span>
-              <span className="rounded-full bg-neutral-100 px-3 py-1 text-neutral-600">
-                {item.visibility}
-              </span>
-              <span className="rounded-full bg-neutral-100 px-3 py-1 text-neutral-600">
-                {item.approvalStatus}
-              </span>
-              {item.isPrimary ? (
-                <span className="rounded-full bg-[#FFF1D2] px-3 py-1 text-[#7A1E3A]">Primary</span>
-              ) : null}
-            </div>
-            {item.moderationReason ? (
-              <p className="mt-3 rounded-[18px] bg-red-50 px-3 py-2 text-sm text-red-700">
-                {item.moderationReason}
-              </p>
-            ) : null}
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <button
-                className="rounded-2xl border border-[#A10E4D]/15 px-3 py-2.5 text-sm font-semibold text-[#2F2F2F]"
-                onClick={() => void updateMedia(item, item.visibility, true)}
-              >
-                Make primary
-              </button>
-              <button
-                className="rounded-2xl border border-[#A10E4D]/15 px-3 py-2.5 text-sm font-semibold text-[#2F2F2F]"
-                onClick={() =>
-                  void updateMedia(
-                    item,
-                    item.visibility === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE',
-                    item.isPrimary,
-                  )
-                }
-              >
-                Toggle privacy
-              </button>
-              <button
-                className="rounded-2xl bg-[#A10E4D] px-3 py-2.5 text-sm font-semibold text-white"
-                onClick={() => void getAccess(item)}
-              >
-                Signed access
-              </button>
+            <div className="p-3">
+              <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-wide">
+                <span className="rounded-full bg-[#FFF0F3] px-2 py-0.5 text-[#7A1E3A]">{item.category.replaceAll('_', ' ')}</span>
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-600">{item.visibility}</span>
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-600">{item.approvalStatus}</span>
+                {item.isPrimary && <span className="rounded-full bg-[#FFF1D2] px-2 py-0.5 text-[#7A1E3A]">Primary</span>}
+              </div>
+              {item.moderationReason && (
+                <p className="mt-2 rounded-xl bg-red-50 px-3 py-1.5 text-xs text-red-700">{item.moderationReason}</p>
+              )}
+              <div className="mt-2 flex gap-1.5">
+                <button className="flex-1 rounded-xl border border-[#A10E4D]/15 py-2 text-xs font-semibold text-[#2F2F2F] transition hover:bg-[#FFF9F5]" onClick={() => void updateMedia(item, item.visibility, true)}>
+                  Set primary
+                </button>
+                <button className="flex-1 rounded-xl border border-[#A10E4D]/15 py-2 text-xs font-semibold text-[#2F2F2F] transition hover:bg-[#FFF9F5]" onClick={() => void updateMedia(item, item.visibility === 'PRIVATE' ? 'PUBLIC' : 'PRIVATE', item.isPrimary)}>
+                  Toggle privacy
+                </button>
+                <button className="rounded-xl bg-[#A10E4D] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#890B40]" onClick={() => void getAccess(item)}>
+                  Access
+                </button>
+              </div>
             </div>
           </article>
         ))}

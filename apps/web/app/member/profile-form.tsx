@@ -13,7 +13,6 @@ import {
   ImagePlus,
   Loader2,
   ShieldCheck,
-  Eye,
 } from 'lucide-react';
 import { profileDraftSchema, mediaSignUploadSchema } from '@vivah/shared';
 import { useMemberRequest } from '@/lib/member-api';
@@ -37,85 +36,6 @@ const STEPS = [
   { id: 8, label: 'Photos', shortLabel: '8' },
   { id: 9, label: 'Partner Preferences', shortLabel: '9' },
   { id: 10, label: 'Verification', shortLabel: '10' },
-] as const;
-
-const STEP_META = [
-  {
-    eyebrow: 'Step 1',
-    title: 'Start with the basics',
-    description:
-      'Your name, marital status, and date of birth create the foundation for every future introduction.',
-    highlight: 'A complete first step helps your profile feel real and trustworthy immediately.',
-  },
-  {
-    eyebrow: 'Step 2',
-    title: 'Set your Australian location',
-    description:
-      'Location matters for practical family conversations, visa context, and discovery relevance.',
-    highlight: 'Members often respond faster when city and residency details feel clear and current.',
-  },
-  {
-    eyebrow: 'Step 3',
-    title: 'Share religion and community background',
-    description:
-      'These details help families and serious members understand cultural alignment early.',
-    highlight: 'Thoughtful background detail improves compatibility quality without making the profile feel rigid.',
-  },
-  {
-    eyebrow: 'Step 4',
-    title: 'Add education and career context',
-    description:
-      'Give your profile substance with clear academic and professional details.',
-    highlight: 'Well-structured career information often increases trust and conversation quality.',
-  },
-  {
-    eyebrow: 'Step 5',
-    title: 'Introduce your family values',
-    description:
-      'Family context helps people understand your support system and the kind of life you come from.',
-    highlight: 'This section is especially valuable for respectful, family-involved matchmaking journeys.',
-  },
-  {
-    eyebrow: 'Step 6',
-    title: 'Describe your lifestyle honestly',
-    description:
-      'Daily habits and preferences shape long-term compatibility more than polished headlines do.',
-    highlight: 'Small details here prevent mismatched expectations later.',
-  },
-  {
-    eyebrow: 'Step 7',
-    title: 'Tell your story well',
-    description:
-      'Your words are often the difference between a profile that is skimmed and one that earns a reply.',
-    highlight: 'Warm, specific writing usually performs better than generic self-descriptions.',
-  },
-  {
-    eyebrow: 'Step 8',
-    title: 'Build a strong photo gallery',
-    description:
-      'Clear, recent, confident photos increase profile trust and help members feel comfortable replying.',
-    highlight: 'Profiles with a good primary photo are discovered and opened far more often.',
-  },
-  {
-    eyebrow: 'Step 9',
-    title: 'Define partner preferences',
-    description:
-      'Set expectations with enough clarity to guide discovery, without making the search feel too narrow.',
-    highlight: 'Balanced preferences usually create better match quality and healthier response rates.',
-  },
-  {
-    eyebrow: 'Step 10',
-    title: 'Review and move into trust',
-    description:
-      'Finish strong, submit your profile for approval, and continue into the verification path that builds confidence.',
-    highlight: 'Submission plus verification is what turns a draft into a serious matchmaking profile.',
-  },
-] as const;
-
-const ONBOARDING_PROMISES = [
-  'Every step saves back to your draft profile.',
-  'You can return later and edit any completed section.',
-  'Verification is optional now but strongly improves trust.',
 ] as const;
 
 // ─── Draft state shape ────────────────────────────────────────────────────────
@@ -562,11 +482,10 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cx(
-          'h-12 rounded-2xl border bg-[#FFF9F5]/50 px-4 text-sm outline-none transition duration-200 focus:bg-white',
-          'focus:ring-4 focus:ring-[#FFF0F3]',
+          'h-9 w-full rounded-md border bg-[#F9FAFB] px-3 text-sm text-[#2F2F2F] outline-none transition focus:bg-white',
           error
-            ? 'border-red-400 focus:border-red-500'
-            : 'border-[#A10E4D]/15 focus:border-[#A10E4D]',
+            ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-300'
+            : 'border-[#D1D5DB] focus:border-[#A10E4D] focus:ring-1 focus:ring-[#A10E4D]/20',
         )}
       />
       {hint ? <span className="text-xs font-normal text-[#6B7280]">{hint}</span> : null}
@@ -602,11 +521,10 @@ function SelectField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cx(
-          'h-12 rounded-2xl border bg-[#FFF9F5]/50 px-4 text-sm outline-none transition duration-200 focus:bg-white',
-          'focus:ring-4 focus:ring-[#FFF0F3]',
+          'h-9 w-full rounded-md border bg-[#F9FAFB] px-3 text-sm text-[#2F2F2F] outline-none transition focus:bg-white',
           error
-            ? 'border-red-400 focus:border-red-500'
-            : 'border-[#A10E4D]/15 focus:border-[#A10E4D]',
+            ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-300'
+            : 'border-[#D1D5DB] focus:border-[#A10E4D] focus:ring-1 focus:ring-[#A10E4D]/20',
         )}
       >
         <option value="">Select</option>
@@ -653,11 +571,10 @@ function TextAreaField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cx(
-          'rounded-2xl border bg-[#FFF9F5]/50 px-4 py-3 text-sm outline-none transition duration-200 focus:bg-white',
-          'focus:ring-4 focus:ring-[#FFF0F3]',
+          'w-full rounded-md border bg-[#F9FAFB] px-3 py-2 text-sm text-[#2F2F2F] outline-none transition resize-none focus:bg-white',
           error
-            ? 'border-red-400 focus:border-red-500'
-            : 'border-[#A10E4D]/15 focus:border-[#A10E4D]',
+            ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-300'
+            : 'border-[#D1D5DB] focus:border-[#A10E4D] focus:ring-1 focus:ring-[#A10E4D]/20',
         )}
       />
       {hint ? <span className="text-xs font-normal text-[#6B7280]">{hint}</span> : null}
@@ -682,13 +599,9 @@ function StepBasicDetails({
 }) {
   const p = draft.personal;
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-3">
       <SectionTitle icon="👤" title="Basic Details" />
-      <p className="text-sm leading-6 text-[#6B7280]">
-        Start with the essentials. You can add more personal detail after your core profile is in
-        place.
-      </p>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field
           label="First name"
           value={p.firstName}
@@ -702,7 +615,7 @@ function StepBasicDetails({
           error={errors.lastName}
         />
       </div>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <SelectField
           label="Gender"
           value={p.gender}
@@ -736,12 +649,12 @@ function StepBasicDetails({
           { value: 'ANNULLED', label: 'Annulled' },
         ]}
       />
-      <details className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
-          Add optional personal details now
+      <details className="border-t border-[#E5E7EB] pt-3">
+        <summary className="cursor-pointer select-none text-xs font-semibold text-[#A10E4D] outline-none">
+          + Optional details (height, weight, children)
         </summary>
-        <div className="mt-4 grid gap-5">
-          <div className="grid gap-5 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             <Field
               label="Height (cm)"
               optional
@@ -796,12 +709,9 @@ function StepLocation({
 }) {
   const l = draft.location;
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-3">
       <SectionTitle icon="📍" title="Location & Residency" />
-      <p className="text-sm leading-6 text-[#6B7280]">
-        Your main location is enough to keep moving. Residency detail can be added now or later.
-      </p>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field
           label="Country"
           value={l.country}
@@ -825,7 +735,7 @@ function StepLocation({
         <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
           Add suburb and residency details
         </summary>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <Field
             label="Suburb"
             optional
@@ -867,12 +777,9 @@ function StepReligion({
 }) {
   const r = draft.religion;
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-3">
       <SectionTitle icon="🕌" title="Religion & Community" />
-      <p className="text-sm leading-6 text-[#6B7280]">
-        Share only what helps introductions feel aligned. This can stay light and still be useful.
-      </p>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field
           label="Religion"
           optional
@@ -894,8 +801,8 @@ function StepReligion({
         <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
           Add language, caste, or sub-community details
         </summary>
-        <div className="mt-4 grid gap-5">
-          <div className="grid gap-5 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field
               label="Caste"
               optional
@@ -912,7 +819,7 @@ function StepReligion({
               error={errors.subCaste}
             />
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field
               label="Mother tongue"
               optional
@@ -952,18 +859,14 @@ function StepEducation({
   const ed = draft.education;
   const em = draft.employment;
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-3">
       <SectionTitle icon="🎓" title="Education & Career" />
-      <p className="text-sm leading-6 text-[#6B7280]">
-        Keep this practical: the basics first, deeper academic and income context only if you want
-        to add it now.
-      </p>
 
       <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
         <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Education Details
         </p>
-        <div className="grid gap-5">
+        <div className="grid gap-3">
           <Field
             label="Highest qualification"
             optional
@@ -976,7 +879,7 @@ function StepEducation({
             <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
               Add institution and certification details
             </summary>
-            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Field
                 label="Institution name"
                 optional
@@ -1012,8 +915,8 @@ function StepEducation({
         <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Employment details
         </p>
-        <div className="grid gap-5">
-          <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field
               label="Occupation"
               optional
@@ -1035,8 +938,8 @@ function StepEducation({
             <summary className="cursor-pointer text-sm font-semibold text-[#A10E4D] outline-none">
               Add employer and income details
             </summary>
-            <div className="mt-4 grid gap-5">
-              <div className="grid gap-5 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <SelectField
                   label="Employment status"
                   optional
@@ -1060,7 +963,7 @@ function StepEducation({
                   error={errors.highestQualification}
                 />
               </div>
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <Field
                   label="Annual income (AUD)"
                   optional
@@ -1103,7 +1006,7 @@ function StepFamily({
 }) {
   const f = draft.family;
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-3">
       <SectionTitle icon="👨‍👩‍👧‍👦" title="Family Background" />
       <TextAreaField
         label="Father's details"
@@ -1132,7 +1035,7 @@ function StepFamily({
         onChange={(v) => onChange({ siblingDetails: v })}
         error={errors.siblingDetails}
       />
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field
           label="Family values"
           optional
@@ -1172,9 +1075,9 @@ function StepLifestyle({
     { value: 'REGULARLY', label: 'Regularly' },
   ];
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-3">
       <SectionTitle icon="🌿" title="Lifestyle & Habits" />
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <SelectField
           label="Smoking habits"
           optional
@@ -1242,7 +1145,7 @@ function StepAbout({
 }) {
   const a = draft.about;
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-3">
       <SectionTitle icon="✍️" title="About Me & Expectations" />
       <TextAreaField
         label="About me"
@@ -1261,7 +1164,7 @@ function StepAbout({
         onChange={(v) => onChange({ personalGoals: v })}
         error={errors.personalGoals}
       />
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field
           label="Hobbies"
           optional
@@ -1411,7 +1314,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-3">
       <SectionTitle icon="📸" title="Profile Gallery" />
 
       {/* Upload zone */}
@@ -1554,14 +1457,14 @@ function StepPartnerPrefs({
 }) {
   const pp = draft.partnerPreference;
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-3">
       <SectionTitle icon="💑" title="Partner Preferences" />
 
       <div className="grid gap-4 bg-[#FFF9F5] p-4 rounded-2xl border border-[#A10E4D]/5">
         <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Age & Height expectations
         </p>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field
             label="Min age preference"
             optional
@@ -1581,7 +1484,7 @@ function StepPartnerPrefs({
             error={errors.ageMax}
           />
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field
             label="Min height (cm)"
             optional
@@ -1607,7 +1510,7 @@ function StepPartnerPrefs({
         <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Background & Language expectations
         </p>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field
             label="Preferred religions"
             optional
@@ -1627,7 +1530,7 @@ function StepPartnerPrefs({
             error={errors.communities}
           />
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field
             label="Preferred castes"
             optional
@@ -1653,7 +1556,7 @@ function StepPartnerPrefs({
         <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Location expectations
         </p>
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-3">
           <Field
             label="Preferred countries"
             optional
@@ -1688,7 +1591,7 @@ function StepPartnerPrefs({
         <p className="text-xs font-bold uppercase tracking-widest text-[#A10E4D]">
           Education & Career expectations
         </p>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field
             label="Preferred education levels"
             optional
@@ -1708,7 +1611,7 @@ function StepPartnerPrefs({
             error={errors.occupations}
           />
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field
             label="Min annual income (AUD)"
             optional
@@ -1746,15 +1649,19 @@ function StepPartnerPrefs({
 // Step 10: Verification
 function StepVerification({
   onSubmit,
+  onSaveDraft,
   pending,
+  savingDraft,
   submitMsg,
 }: {
   onSubmit: () => void;
+  onSaveDraft: () => void;
   pending: boolean;
+  savingDraft: boolean;
   submitMsg: string | null;
 }) {
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-3">
       <SectionTitle icon="✅" title="Review & Submit Profile" />
 
       <div className="rounded-3xl border border-[#D4A04C]/30 bg-[#FFFDF0] p-6 shadow-sm">
@@ -1783,19 +1690,31 @@ function StepVerification({
           ))}
         </ul>
 
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={pending}
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-[#D4A04C] px-6 py-2.5 text-xs font-bold text-[#2F2F2F] shadow-lg shadow-[#D4A04C]/20 hover:bg-[#c9a126] transition disabled:opacity-50"
-        >
-          {pending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <ShieldCheck className="size-4 shrink-0" />
-          )}
-          {pending ? 'Submitting draft...' : 'Submit Matrimonial Profile'}
-        </button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <button
+            type="button"
+            onClick={onSaveDraft}
+            disabled={savingDraft || pending}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-6 py-2.5 text-xs font-bold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition disabled:opacity-50"
+          >
+            {savingDraft ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+            {savingDraft ? 'Saving draft...' : 'Save As Draft'}
+          </button>
+
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={pending || savingDraft}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#D4A04C] px-6 py-2.5 text-xs font-bold text-[#2F2F2F] shadow-lg shadow-[#D4A04C]/20 hover:bg-[#c9a126] transition disabled:opacity-50"
+          >
+            {pending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <ShieldCheck className="size-4 shrink-0" />
+            )}
+            {pending ? 'Submitting for approval...' : 'Submit For Approval'}
+          </button>
+        </div>
       </div>
 
       <div className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5]/20 p-5 shadow-sm">
@@ -1827,19 +1746,13 @@ function StepVerification({
 
 function SectionTitle({ icon, title }: { icon: string; title: string }) {
   return (
-    <div className="mb-2 flex items-center gap-3 border-b border-[#A10E4D]/5 pb-3">
-      <span className="text-2xl shrink-0">{icon}</span>
+    <div className="mb-1 flex items-center gap-3 border-b border-[#A10E4D]/8 pb-3">
+      <span className="text-xl leading-none" aria-hidden="true">
+        {icon}
+      </span>
       <h2 className="text-base font-bold text-[#2F2F2F]">{title}</h2>
     </div>
   );
-}
-
-function journeyCompletionCount(step: number, mode: 'onboarding' | 'edit') {
-  if (mode === 'edit') {
-    return STEPS.length;
-  }
-
-  return Math.max(0, step);
 }
 
 // ─── Main wizard component ────────────────────────────────────────────────────
@@ -2035,9 +1948,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
 
   const progress = ((step + 1) / STEPS.length) * 100;
   const isLastStep = step === STEPS.length - 1;
-  const currentStepMeta = STEP_META[step] ?? STEP_META[0];
-  const completedSteps = journeyCompletionCount(step, mode);
-  const remainingSteps = Math.max(0, STEPS.length - (step + 1));
 
   if (loading) {
     return (
@@ -2051,7 +1961,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   }
 
   return (
-    <div className="relative grid gap-6">
+    <div className="relative grid gap-3">
       {/* Toast */}
       {toast ? (
         <div
@@ -2065,56 +1975,21 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
         </div>
       ) : null}
 
-      <div className="rounded-[36px] border border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFFCFA_0%,#FFF6F1_100%)] p-5 shadow-[0_24px_70px_rgba(122,31,43,0.08)] sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
-              {mode === 'onboarding' ? 'Create your profile' : 'Edit your profile'}
-            </p>
-            <h1 className="mt-3 font-playfair text-3xl font-bold leading-tight text-[#2F2F2F] sm:text-4xl">
-              {currentStepMeta.title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5F5F5F] sm:text-base">
-              {currentStepMeta.description}
-            </p>
-            <p className="mt-3 rounded-2xl border border-[#D4A04C]/20 bg-white/80 px-4 py-3 text-sm font-medium text-[#7D6551]">
-              {currentStepMeta.highlight}
-            </p>
+      <div className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-[#F3DFE8]">
+            <div
+              className="h-full rounded-full bg-[#A10E4D] transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
           </div>
-
-          <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[360px]">
-            <div className="rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-                Progress
-              </p>
-              <p className="mt-2 text-2xl font-bold text-[#A10E4D]">{Math.round(progress)}%</p>
-              <p className="mt-1 text-xs text-[#6B7280]">Currently on step {step + 1} of {STEPS.length}</p>
-            </div>
-            <div className="rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-                Completed
-              </p>
-              <p className="mt-2 text-2xl font-bold text-[#2F2F2F]">{completedSteps}</p>
-              <p className="mt-1 text-xs text-[#6B7280]">sections ready</p>
-            </div>
-            <div className="rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-                Remaining
-              </p>
-              <p className="mt-2 text-2xl font-bold text-[#2F2F2F]">{remainingSteps}</p>
-              <p className="mt-1 text-xs text-[#6B7280]">before review</p>
-            </div>
-          </div>
+          <span className="shrink-0 text-xs font-semibold text-[#6B7280]">
+            {step + 1} / {STEPS.length}
+          </span>
+          <span className="sr-only">Step {step + 1} of {STEPS.length}</span>
         </div>
 
-        <div className="mt-6 h-2 overflow-hidden rounded-full bg-[#F3DFE8]">
-          <div
-            className="h-full rounded-full bg-[linear-gradient(90deg,#A10E4D_0%,#D4A04C_100%)] transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        <div className="mt-6 flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 scrollbar-none 2xl:flex-wrap 2xl:overflow-visible">
           {STEPS.map((s, i) => {
             const done = i < step;
             const active = i === step;
@@ -2128,39 +2003,32 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                   }
                 }}
                 className={cx(
-                  'flex min-w-[170px] shrink-0 items-center gap-3 rounded-[22px] border px-4 py-3 text-left transition-all duration-200',
+                  'inline-flex shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all duration-200 whitespace-nowrap sm:text-sm',
                   active
-                    ? 'border-[#A10E4D] bg-white text-[#A10E4D] shadow-[0_18px_36px_rgba(161,14,77,0.10)]'
+                    ? 'border-[#A10E4D] bg-white text-[#A10E4D] shadow-sm'
                     : done
                       ? 'border-green-200 bg-white text-green-700 hover:bg-green-50'
                       : 'border-[#A10E4D]/10 bg-white/90 text-[#6B7280] hover:bg-white',
                   mode === 'edit' || i <= step || done ? 'cursor-pointer' : 'cursor-not-allowed opacity-60',
                 )}
               >
-                <span
-                  className={cx(
-                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold',
-                    active && 'bg-[#FFF0F3] text-[#A10E4D]',
-                    done && 'bg-[#E8F7EF] text-green-700',
-                    !active && !done && 'bg-[#FFF9F5] text-[#6B7280]',
-                  )}
-                >
-                  {done ? <Check className="size-4" /> : s.shortLabel}
+                <span className={cx(
+                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                  active && 'bg-[#FFF0F3] text-[#A10E4D]',
+                  done && 'bg-[#E8F7EF] text-green-700',
+                  !active && !done && 'bg-[#FFF9F5] text-[#6B7280]',
+                )}>
+                  {done ? <Check className="size-3" /> : s.shortLabel}
                 </span>
-                <span className="min-w-0">
-                  <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-                    Step {s.id}
-                  </span>
-                  <span className="mt-1 block text-sm font-semibold text-current">{s.label}</span>
-                </span>
+                {s.label}
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-6 shadow-[0_18px_50px_rgba(122,31,43,0.06)] md:p-8">
+      <div className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
+        <div className="mb-4">
           {step === 0 && <StepBasicDetails draft={draft} onChange={patchPersonal} errors={errors} />}
           {step === 1 && <StepLocation draft={draft} onChange={patchLocation} errors={errors} />}
           {step === 2 && <StepReligion draft={draft} onChange={patchReligion} errors={errors} />}
@@ -2181,122 +2049,16 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
           )}
           {step === 9 && (
             <StepVerification
+              onSaveDraft={() => void saveDraft()}
               onSubmit={() => void handleSubmit()}
               pending={submitting}
+              savingDraft={saving}
               submitMsg={submitMsg}
             />
           )}
         </div>
 
-        <div className="grid gap-6">
-          <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.06)]">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-              Your onboarding promise
-            </p>
-            <div className="mt-5 grid gap-3">
-              {ONBOARDING_PROMISES.map((item) => (
-                <div key={item} className="flex items-start gap-3 rounded-2xl bg-[#FFF9F5] px-4 py-4">
-                  <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#A10E4D]">
-                    <Check className="size-3.5" />
-                  </span>
-                  <p className="text-sm leading-6 text-[#5F5F5F]">{item}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-[#D4A04C]/20 bg-[linear-gradient(180deg,#FFF9EE_0%,#FFFFFF_100%)] p-5 shadow-[0_18px_50px_rgba(122,31,43,0.05)]">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-              Trust and visibility
-            </p>
-            <h3 className="mt-3 text-lg font-semibold text-[#2F2F2F]">
-              Verified profiles stand out faster
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[#6B7280]">
-              Clear photos, completed basics, and trust checks usually make the strongest first impression.
-            </p>
-            <div className="mt-5 grid gap-3">
-              {[
-                'Better response confidence',
-                'Higher search trust signals',
-                'Smoother family introductions',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-sm text-[#5F5F5F]">
-                  <ShieldCheck className="size-4 text-[#A10E4D]" />
-                  {item}
-                </div>
-              ))}
-            </div>
-            <Link
-              href="/member/verification"
-              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]"
-            >
-              Visit verification centre
-              <ChevronRight className="size-4" />
-            </Link>
-          </div>
-
-          {profileId ? (
-            <div className="rounded-3xl border border-[#A10E4D]/10 bg-white p-5 shadow-[0_18px_50px_rgba(122,31,43,0.05)]">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#D4A04C]">
-                Review in public view
-              </p>
-              <p className="mt-3 text-sm leading-6 text-[#6B7280]">
-                Preview how your profile presents to other members while you continue refining it.
-              </p>
-              <Link
-                href={`/profiles/${profileId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#A10E4D] hover:bg-[#FFF0F3] transition shadow-sm"
-              >
-                <Eye className="size-4" />
-                Preview Profile
-              </Link>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Sticky Navigation Footer Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#A10E4D]/10 pt-5 mt-4">
-        <div className="flex items-center gap-3">
-          <div className="relative size-12 flex items-center justify-center shrink-0">
-            <svg className="size-12 transform -rotate-90">
-              <circle
-                cx="24"
-                cy="24"
-                r="20"
-                className="stroke-[#FFF0F3]"
-                strokeWidth="4"
-                fill="transparent"
-              />
-              <circle
-                cx="24"
-                cy="24"
-                r="20"
-                className="stroke-[#A10E4D] transition-all duration-300"
-                strokeWidth="4"
-                fill="transparent"
-                strokeDasharray={2 * Math.PI * 20}
-                strokeDashoffset={2 * Math.PI * 20 - (progress / 100) * 2 * Math.PI * 20}
-              />
-            </svg>
-            <span className="absolute text-[10px] font-bold text-[#A10E4D]">
-              {Math.round(progress)}%
-            </span>
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
-              Progress
-            </p>
-            <p className="text-xs font-bold text-[#A10E4D]">
-              Step {step + 1} of {STEPS.length}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end gap-2 border-t border-[#E5E7EB] pt-3">
           {step > 0 && (
             <button
               type="button"
@@ -2304,7 +2066,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
                 setErrors({});
                 setStep((s) => s - 1);
               }}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-5 py-2 text-sm font-semibold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#A10E4D]/20 bg-white px-4 text-sm font-semibold text-[#A10E4D] hover:bg-[#FFF0F3] transition"
             >
               <ChevronLeft className="size-4" />
               Back
@@ -2316,7 +2078,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
               type="button"
               onClick={() => void saveDraft()}
               disabled={saving}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#A10E4D]/20 bg-white px-5 py-2 text-sm font-semibold text-[#A10E4D] shadow-sm hover:bg-[#FFF0F3] transition disabled:opacity-50"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#A10E4D]/20 bg-white px-4 text-sm font-semibold text-[#A10E4D] hover:bg-[#FFF0F3] transition disabled:opacity-50"
             >
               {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
               Save draft
@@ -2328,30 +2090,15 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
               type="button"
               onClick={() => void handleSaveAndContinue()}
               disabled={saving}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#A10E4D] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#A10E4D]/15 hover:bg-[#890B40] transition disabled:opacity-50"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#A10E4D] px-5 text-sm font-semibold text-white hover:bg-[#890B40] transition disabled:opacity-50"
             >
               {saving ? <Loader2 className="size-4 animate-spin" /> : null}
               {saving ? 'Saving...' : 'Save & continue'}
               {!saving && <ChevronRight className="size-4" />}
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void saveDraft()}
-              disabled={saving}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#D4A04C] px-6 py-2.5 text-sm font-bold text-[#2F2F2F] shadow-lg shadow-[#D4A04C]/20 hover:bg-[#c9a126] transition disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-              {saving ? 'Saving...' : 'Save Complete Profile'}
-            </button>
-          )}
+          ) : null}
         </div>
       </div>
-
-      {/* Bottom tip */}
-      <p className="text-center text-[10px] text-[#6B7280] font-semibold leading-relaxed mt-2 bg-[#FFF9F5] py-2 rounded-xl border border-[#A10E4D]/5 max-w-sm mx-auto w-full">
-        Your partial progress is saved securely. You can return and modify any step later.
-      </p>
     </div>
   );
 }

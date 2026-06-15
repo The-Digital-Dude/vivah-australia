@@ -313,7 +313,7 @@ export default function TemplateManagerPage() {
                   <span className="uppercase tracking-wider text-neutral-400">Apply System Preset</span>
                   <select
                     onChange={(e) => handlePresetSelect(e.target.value)}
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none"
                   >
                     <option value="">-- Select Preset Type --</option>
                     {TEMPLATE_PRESETS.map(p => (
@@ -331,7 +331,7 @@ export default function TemplateManagerPage() {
                     onChange={(e) => setEditor(prev => ({ ...prev, key: e.target.value }))}
                     disabled={!!selectedId}
                     placeholder="e.g. WELCOME_SMS"
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none disabled:bg-neutral-50 disabled:text-neutral-400"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none disabled:bg-neutral-50 disabled:text-neutral-400"
                   />
                 </div>
                 <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
@@ -340,7 +340,7 @@ export default function TemplateManagerPage() {
                     value={editor.type}
                     onChange={(e) => setEditor(prev => ({ ...prev, type: e.target.value as Template['type'] }))}
                     disabled={!!selectedId}
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none disabled:bg-neutral-50"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none disabled:bg-neutral-50"
                   >
                     <option value="EMAIL">Email Address</option>
                     <option value="SMS">SMS Notification</option>
@@ -356,7 +356,7 @@ export default function TemplateManagerPage() {
                     value={editor.subject || ''}
                     onChange={(e) => setEditor(prev => ({ ...prev, subject: e.target.value }))}
                     placeholder="Enter email subject line..."
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
                   />
                 </div>
               )}

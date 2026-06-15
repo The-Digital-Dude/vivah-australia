@@ -317,7 +317,7 @@ export default function HomepageBuilderPage() {
                     value={editorState.title || ''}
                     onChange={(e) => setEditorState(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="Enter section headline..."
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                   />
                 </div>
                 <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
@@ -326,7 +326,7 @@ export default function HomepageBuilderPage() {
                     value={editorState.subtitle || ''}
                     onChange={(e) => setEditorState(prev => ({ ...prev, subtitle: e.target.value }))}
                     placeholder="Enter section description..."
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                   />
                 </div>
               </div>
@@ -354,7 +354,7 @@ export default function HomepageBuilderPage() {
                     value={editorState.imageUrl || ''}
                     onChange={(e) => setEditorState(prev => ({ ...prev, imageUrl: e.target.value }))}
                     placeholder="https://..."
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                   />
                 </div>
                 <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
@@ -363,7 +363,7 @@ export default function HomepageBuilderPage() {
                     value={editorState.ctaLabel || ''}
                     onChange={(e) => setEditorState(prev => ({ ...prev, ctaLabel: e.target.value }))}
                     placeholder="e.g. Register Now"
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                   />
                 </div>
                 <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
@@ -372,7 +372,7 @@ export default function HomepageBuilderPage() {
                     value={editorState.ctaHref || ''}
                     onChange={(e) => setEditorState(prev => ({ ...prev, ctaHref: e.target.value }))}
                     placeholder="e.g. /register"
-                    className="h-11 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                   />
                 </div>
               </div>

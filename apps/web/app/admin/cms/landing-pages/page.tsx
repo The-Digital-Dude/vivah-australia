@@ -301,19 +301,19 @@ export default function LandingPagesPage() {
                       onChange={e => handleTitleChange(e.target.value)}
                       placeholder="e.g. Sikh Matrimony in Sydney"
                       required
-                      className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                      className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                     />
                   </div>
                   <div className="grid gap-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">URL Slug *</label>
                     <div className="flex items-center">
-                      <span className="flex h-11 items-center rounded-l-xl border border-r-0 border-neutral-200 bg-neutral-50 px-3 text-xs font-bold text-neutral-400">/matrimony/</span>
+                      <span className="flex h-9 items-center rounded-l-xl border border-r-0 border-neutral-200 bg-neutral-50 px-3 text-xs font-bold text-neutral-400">/matrimony/</span>
                       <input
                         value={editor.slug}
                         onChange={e => setEditor(prev => ({ ...prev, slug: toSlug(e.target.value) }))}
                         placeholder="sikh-matrimony-sydney"
                         required
-                        className="h-11 flex-1 rounded-r-xl border border-neutral-200 bg-white px-3 text-sm font-mono font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                        className="h-9 flex-1 rounded-r-xl border border-neutral-200 bg-white px-3 text-sm font-mono font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                       />
                     </div>
                   </div>
@@ -328,7 +328,7 @@ export default function LandingPagesPage() {
                       <select
                         value={editor.city ?? ''}
                         onChange={e => setEditor(prev => ({ ...prev, city: e.target.value }))}
-                        className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
+                        className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
                       >
                         <option value="">Any city</option>
                         {AUSTRALIAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -339,7 +339,7 @@ export default function LandingPagesPage() {
                       <select
                         value={editor.religion ?? ''}
                         onChange={e => setEditor(prev => ({ ...prev, religion: e.target.value }))}
-                        className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
+                        className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
                       >
                         <option value="">Any religion</option>
                         {RELIGIONS.map(r => <option key={r} value={r}>{r}</option>)}
@@ -357,7 +357,7 @@ export default function LandingPagesPage() {
                       value={editor.heroHeadline ?? ''}
                       onChange={e => setEditor(prev => ({ ...prev, heroHeadline: e.target.value }))}
                       placeholder="e.g. Find Your Sikh Life Partner in Sydney"
-                      className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                      className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                     />
                   </div>
                   <div className="grid gap-1.5">
@@ -366,7 +366,7 @@ export default function LandingPagesPage() {
                       value={editor.heroSubheadline ?? ''}
                       onChange={e => setEditor(prev => ({ ...prev, heroSubheadline: e.target.value }))}
                       placeholder="e.g. Join thousands of Sikh singles in Sydney using Vivah Australia"
-                      className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                      className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                     />
                   </div>
                 </div>

@@ -78,65 +78,54 @@ export default function InterestsManager() {
         <p className="rounded-md bg-[#FFF8F1] p-3 text-sm text-[#7A1E3A]">{message}</p>
       ) : null}
 
-      <div className="grid gap-3">
+      <div className="grid gap-2">
         {items.map((item) => {
           const profile = box === 'received' ? item.sender : item.receiver;
+          const statusColors: Record<string, string> = {
+            ACCEPTED: 'bg-[#E8F7EF] text-[#1F6F4A]',
+            PENDING: 'bg-[#FFF0F3] text-[#A10E4D]',
+            REJECTED: 'bg-[#FEF2F2] text-red-700',
+          };
           return (
-            <article
-              key={item.id}
-              className="grid gap-4 rounded-lg border border-[#F0D6DA] bg-white p-4 shadow-sm md:grid-cols-[1fr_auto]"
-            >
-              <Link
-                href={profile?.id ? `/profiles/${profile.id}` : '/member/matches'}
-                className="block rounded-2xl p-1 transition hover:bg-[#FFF8F1]"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-lg font-semibold text-[#232323]">
-                    {profile?.firstName ?? 'Vivah member'}, {profile?.age ?? 'age hidden'}
-                  </h3>
-                  <span className="rounded-full bg-[#FDECEF] px-2.5 py-1 text-xs font-bold text-[#7A1E3A]">
-                    {item.status}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-[#5E6470]">
-                  {[profile?.city, profile?.occupation, profile?.verificationLevel]
-                    .filter(Boolean)
-                    .join(' • ')}
-                </p>
+            <article key={item.id} className="flex items-center gap-3 rounded-2xl border border-[#F0D6DA] bg-white px-4 py-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-sm font-bold text-[#A10E4D]">
+                {(profile?.firstName ?? 'V').slice(0, 1)}
+              </div>
+              <Link href={profile?.id ? `/profiles/${profile.id}` : '/member/matches'} className="min-w-0 flex-1 transition hover:opacity-80">
+                <span className="text-sm font-semibold text-[#232323]">
+                  {profile?.firstName ?? 'Vivah member'}{profile?.age ? `, ${profile.age}` : ''}
+                </span>
+                <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColors[item.status] ?? 'bg-[#FFF0F3] text-[#A10E4D]'}`}>
+                  {item.status.toLowerCase()}
+                </span>
               </Link>
-              <div className="flex flex-wrap items-center gap-2">
-                {box === 'received' && item.status === 'PENDING' ? (
+              <div className="flex shrink-0 items-center gap-1.5">
+                {box === 'received' && item.status === 'PENDING' && (
                   <>
-                    <Button
-                      label="Accept"
-                      icon={<Check className="size-4" />}
-                      onClick={() => void update(item.id, 'ACCEPT')}
-                    />
-                    <Button
-                      label="Reject"
-                      icon={<X className="size-4" />}
-                      onClick={() => void update(item.id, 'REJECT')}
-                    />
+                    <button type="button" onClick={() => void update(item.id, 'ACCEPT')} className="flex h-8 items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100">
+                      <Check className="size-3.5" /> Accept
+                    </button>
+                    <button type="button" onClick={() => void update(item.id, 'REJECT')} className="flex h-8 items-center gap-1 rounded-xl border border-red-100 px-2.5 text-xs font-semibold text-red-600 transition hover:bg-red-50">
+                      <X className="size-3.5" /> Reject
+                    </button>
                   </>
-                ) : null}
-                {box === 'sent' && item.status === 'PENDING' ? (
-                  <Button
-                    label="Withdraw"
-                    icon={<RotateCcw className="size-4" />}
-                    onClick={() => void update(item.id, 'WITHDRAW')}
-                  />
-                ) : null}
+                )}
+                {box === 'sent' && item.status === 'PENDING' && (
+                  <button type="button" onClick={() => void update(item.id, 'WITHDRAW')} className="flex h-8 items-center gap-1 rounded-xl border border-[#F0D6DA] px-2.5 text-xs font-semibold text-[#7A1E3A] transition hover:bg-[#FFF8F1]">
+                    <RotateCcw className="size-3.5" /> Withdraw
+                  </button>
+                )}
               </div>
             </article>
           );
         })}
       </div>
 
-      {items.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-[#D6A84F] bg-white p-6 text-center text-sm text-[#5E6470]">
+      {items.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-[#D6A84F] bg-white p-6 text-center text-sm text-[#5E6470]">
           No {box} interests yet.
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

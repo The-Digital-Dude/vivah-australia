@@ -111,6 +111,14 @@ function formatMessageDate(value: string) {
   });
 }
 
+function getUserIdFromToken(t: string | null): string | null {
+  if (!t || t === 'cookie-based') return null;
+  try {
+    const payload = JSON.parse(atob(t.split('.')[1] ?? '')) as { sub?: string; userId?: string };
+    return payload.sub ?? payload.userId ?? null;
+  } catch { return null; }
+}
+
 export default function MessagesClient() {
   const { token } = useAuth();
   const memberRequest = useMemberRequest();
@@ -125,6 +133,7 @@ export default function MessagesClient() {
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
 
   const selectedProfileId = selected?.otherProfile?.id;
+  const currentUserId = useMemo(() => getUserIdFromToken(token), [token]);
 
   async function loadConversations() {
     const result = await memberRequest('/api/me/conversations');
@@ -227,7 +236,8 @@ export default function MessagesClient() {
       return;
     }
 
-    const form = new FormData(event.currentTarget);
+    const formEl = event.currentTarget;
+    const form = new FormData(formEl);
     const bodyVal = form.get('body');
     const payload = {
       body:
@@ -247,24 +257,15 @@ export default function MessagesClient() {
     });
     setMessage(result.message);
     if (result.ok) {
-      event.currentTarget.reset();
+      formEl.reset();
       setPendingAttachments([]);
       await loadMessages(selected.id);
       socketRef.current?.emit('message:read', { conversationId: selected.id });
     }
   }
 
-  async function uploadAttachment(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function uploadAttachment(file: File) {
     if (!selected) {
-      return;
-    }
-
-    const form = new FormData(event.currentTarget);
-    const file = form.get('attachmentFile');
-
-    if (!(file instanceof File)) {
-      setMessage('Choose a file to attach.');
       return;
     }
 
@@ -352,7 +353,6 @@ export default function MessagesClient() {
     ]);
     setMessage('Attachment uploaded securely and ready to send.');
     setUploadingAttachment(false);
-    event.currentTarget.reset();
   }
 
   function removePendingAttachment(id: string) {
@@ -444,18 +444,23 @@ export default function MessagesClient() {
                       : 'border-[#F0D6DA] bg-white hover:border-[#A10E4D]/12 hover:bg-[#FFF9F5]',
                   )}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-[#232323]">{name}</p>
-                      <p className="mt-1 text-sm text-[#5E6470]">{meta}</p>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FFF0F3_0%,#FFDCE8_100%)] text-sm font-bold text-[#A10E4D]">
+                      {name.slice(0, 1)}
                     </div>
-                    <span className="text-xs font-medium text-[#8B8B8B]">
-                      {formatRelativeTime(conversation.lastMessageAt)}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex items-center gap-2 text-xs text-[#6B7280]">
-                    <Circle className="size-2.5 fill-[#1F6F4A] text-[#1F6F4A]" />
-                    Available for respectful conversation
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-semibold text-[#232323] truncate">{name}</p>
+                        <span className="shrink-0 text-xs font-medium text-[#8B8B8B]">
+                          {formatRelativeTime(conversation.lastMessageAt)}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-sm text-[#5E6470] truncate">{meta || 'Australia'}</p>
+                      <div className="mt-2 flex items-center gap-1.5 text-xs text-[#6B7280]">
+                        <Circle className="size-2 fill-[#1F6F4A] text-[#1F6F4A]" />
+                        Active
+                      </div>
+                    </div>
                   </div>
                 </button>
               );
@@ -526,11 +531,24 @@ export default function MessagesClient() {
             ref={messageListRef}
             className="grid max-h-[620px] gap-4 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] px-5 py-5 sm:px-6"
           >
-            {messages.map((item) => (
-              <div key={item.id} className="flex justify-start">
-                <article className="max-w-[85%] rounded-[24px] border border-[#F0D6DA] bg-white px-4 py-3 shadow-sm">
+            {messages.map((item) => {
+              const isMine = currentUserId != null && item.senderId === currentUserId;
+              const otherInitial = (selected?.otherProfile?.firstName ?? 'V').slice(0, 1);
+              return (
+                <div key={item.id} className={cx('flex items-end gap-2', isMine ? 'justify-end' : 'justify-start')}>
+                  {!isMine && (
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-xs font-bold text-[#A10E4D]">
+                      {otherInitial}
+                    </div>
+                  )}
+                  <article className={cx(
+                    'max-w-[75%] px-4 py-3 shadow-sm',
+                    isMine
+                      ? 'rounded-[20px] rounded-br-md bg-[linear-gradient(135deg,#A10E4D_0%,#7A0A3C_100%)] text-white'
+                      : 'rounded-[20px] rounded-bl-md border border-[#F0D6DA] bg-white text-[#232323]',
+                  )}>
                     {item.body ? (
-                      <p className="text-sm leading-7 text-[#232323]">{item.body}</p>
+                      <p className={cx('text-sm leading-7', isMine ? 'text-white' : 'text-[#232323]')}>{item.body}</p>
                     ) : null}
 
                     {item.attachments.length > 0 ? (
@@ -541,7 +559,10 @@ export default function MessagesClient() {
                             href={attachment.assetUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-2xl border border-[#F0D6DA] bg-[#FFF9F5] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
+                            className={cx(
+                              'inline-flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold',
+                              isMine ? 'bg-white/20 text-white' : 'border border-[#F0D6DA] bg-[#FFF9F5] text-[#7A1E3A]'
+                            )}
                           >
                             {attachment.attachmentType === 'DOCUMENT' ? (
                               <FileText className="size-3.5" />
@@ -554,21 +575,27 @@ export default function MessagesClient() {
                       </div>
                     ) : null}
 
-                    <div className="mt-3 flex items-center justify-between gap-3 text-xs text-[#7B7280]">
-                      <span>
-                        {formatMessageDate(item.createdAt)} · {formatMessageTime(item.createdAt)}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => void deleteMessage(item.id)}
-                        className="font-semibold text-[#A10E4D]"
-                      >
-                        Delete
-                      </button>
+                    <div className={cx('mt-2 flex items-center gap-3 text-[10px]', isMine ? 'justify-end text-white/60' : 'justify-between text-[#9B9AA0]')}>
+                      <span>{formatMessageTime(item.createdAt)}</span>
+                      {!isMine && (
+                        <button
+                          type="button"
+                          onClick={() => void deleteMessage(item.id)}
+                          className="font-semibold text-[#A10E4D]"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
-                </article>
-              </div>
-            ))}
+                  </article>
+                  {isMine && (
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF8EC] text-xs font-bold text-[#D4A04C]">
+                      Me
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
             {selected && messages.length === 0 ? (
               <div className="rounded-[26px] border border-dashed border-[#D6A84F] bg-[#FFF9F5] p-6 text-center">
@@ -584,80 +611,81 @@ export default function MessagesClient() {
           </div>
 
           {selected ? (
-            <div className="grid gap-4 border-t border-[#F0D6DA] bg-white px-5 py-5 sm:px-6">
-              <form className="grid gap-3" onSubmit={(event) => void sendMessage(event)}>
-                <textarea
-                  name="body"
-                  rows={4}
-                  onFocus={() =>
-                    socketRef.current?.emit('typing', { conversationId: selected.id, typing: true })
-                  }
-                  onBlur={() =>
-                    socketRef.current?.emit('typing', { conversationId: selected.id, typing: false })
-                  }
-                  placeholder="Write a thoughtful, respectful message"
-                  className="rounded-[24px] border border-[#E8D5D8] bg-[#FFF9F5] px-4 py-3 outline-none transition focus:border-[#7A1E3A] focus:ring-4 focus:ring-[#FDECEF]"
-                />
-
-                {pendingAttachments.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {pendingAttachments.map((attachment) => (
-                      <div
-                        key={attachment.id}
-                        className="inline-flex items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-[#FFF8F1] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
-                      >
-                        {attachment.attachmentType === 'DOCUMENT' ? (
-                          <FileText className="size-3.5" />
-                        ) : (
-                          <ImageIcon className="size-3.5" />
-                        )}
-                        {attachment.fileName}
-                        <button type="button" onClick={() => removePendingAttachment(attachment.id)}>
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <PremiumButton type="submit">
-                    <Send className="size-4" />
-                    Send message
-                  </PremiumButton>
-                  <span className="text-xs text-[#6B7280]">
-                    Your conversations are end-to-end secure inside the Vivah member experience.
+            <div className="border-t border-[#F0D6DA] bg-white px-5 py-4 sm:px-6">
+              {typing ? (
+                <p className="mb-2 flex items-center gap-2 text-xs text-[#6B7280]">
+                  <span className="flex gap-0.5">
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]" style={{ animationDelay: '0ms' }} />
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]" style={{ animationDelay: '150ms' }} />
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]" style={{ animationDelay: '300ms' }} />
                   </span>
+                  {typing}
+                </p>
+              ) : null}
+
+              {pendingAttachments.length > 0 ? (
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {pendingAttachments.map((attachment) => (
+                    <div
+                      key={attachment.id}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-[#FFF8F1] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
+                    >
+                      {attachment.attachmentType === 'DOCUMENT' ? (
+                        <FileText className="size-3.5" />
+                      ) : (
+                        <ImageIcon className="size-3.5" />
+                      )}
+                      {attachment.fileName}
+                      <button type="button" onClick={() => removePendingAttachment(attachment.id)} className="ml-1 text-[#A10E4D] hover:opacity-70">✕</button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              <form className="flex items-end gap-3" onSubmit={(event) => void sendMessage(event)}>
+                <div className="flex-1">
+                  <textarea
+                    name="body"
+                    rows={2}
+                    onFocus={() =>
+                      socketRef.current?.emit('typing', { conversationId: selected.id, typing: true })
+                    }
+                    onBlur={() =>
+                      socketRef.current?.emit('typing', { conversationId: selected.id, typing: false })
+                    }
+                    placeholder="Write a thoughtful, respectful message…"
+                    className="w-full resize-none rounded-[20px] border border-[#E8D5D8] bg-[#FFF9F5] px-4 py-3 text-sm outline-none transition focus:border-[#A10E4D] focus:bg-white focus:ring-4 focus:ring-[#FFF0F3]"
+                  />
+                </div>
+                <div className="flex shrink-0 flex-col gap-2">
+                  <button
+                    type="submit"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A10E4D] text-white shadow-[0_8px_20px_rgba(161,14,77,0.25)] transition hover:bg-[#890B40] active:scale-95"
+                  >
+                    <Send className="size-4" />
+                  </button>
+                  <label className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[#F0D6DA] bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3]">
+                    <Paperclip className="size-4" />
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) void uploadAttachment(file);
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
                 </div>
               </form>
 
-              <form
-                className="grid gap-3 rounded-[26px] border border-[#F0D6DA] bg-[linear-gradient(180deg,#FFF8F1_0%,#FFFFFF_100%)] p-4"
-                onSubmit={(event) => void uploadAttachment(event)}
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#7A1E3A]">
-                  <Paperclip className="size-4" />
-                  Secure attachment upload
-                </div>
-                <input
-                  name="attachmentFile"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  className="block w-full text-sm text-[#232323]"
-                />
-                <button
-                  type="submit"
-                  disabled={uploadingAttachment}
-                  className="inline-flex min-h-11 w-fit items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-white px-4 text-sm font-semibold text-[#7A1E3A] disabled:opacity-60"
-                >
-                  {uploadingAttachment ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Upload className="size-4" />
-                  )}
-                  {uploadingAttachment ? 'Uploading...' : 'Upload attachment'}
-                </button>
-              </form>
+              {uploadingAttachment ? (
+                <p className="mt-2 flex items-center gap-2 text-xs text-[#6B7280]">
+                  <Loader2 className="size-3 animate-spin" />
+                  Uploading securely…
+                </p>
+              ) : null}
             </div>
           ) : null}
 

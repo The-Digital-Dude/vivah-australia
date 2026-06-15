@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, type ReactNode } from 'react';
-import { AlertTriangle, BadgeCheck, FileWarning, ImageIcon, UserCheck, ArrowUpRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { AlertTriangle, ArrowUpRight } from 'lucide-react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import { AdminStatusBadge } from '../components/admin-status-badge';
@@ -75,40 +76,7 @@ export default function AdminModerationPage() {
         </div>
       )}
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-        <Metric
-          icon={<UserCheck className="h-4 w-4" />}
-          label="Pending Profiles"
-          value={dashboard?.counts.pendingProfiles ?? 0}
-          href="/admin/profiles"
-        />
-        <Metric
-          icon={<BadgeCheck className="h-4 w-4" />}
-          label="Verifications"
-          value={dashboard?.counts.pendingVerifications ?? 0}
-          href="/admin/verifications"
-        />
-        <Metric
-          icon={<AlertTriangle className="h-4 w-4" />}
-          label="Open Reports"
-          value={dashboard?.counts.openReports ?? 0}
-          href="/admin/reports"
-        />
-        <Metric
-          icon={<FileWarning className="h-4 w-4" />}
-          label="Assigned"
-          value={dashboard?.counts.assignedReports ?? 0}
-          href="/admin/reports"
-        />
-        <Metric
-          icon={<ImageIcon className="h-4 w-4" />}
-          label="Pending Media"
-          value={dashboard?.counts.pendingMedia ?? 0}
-          href="/admin/media"
-        />
-      </div>
-
-      <div className="mt-8 grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-6 xl:grid-cols-3">
         <Queue title="Profiles" href="/admin/profiles">
           {dashboard?.queues.profiles.map((profile) => (
             <Link
@@ -164,23 +132,11 @@ export default function AdminModerationPage() {
               </div>
               <p className="line-clamp-2 text-xs text-neutral-500">{report.reason}</p>
               <div className="flex flex-wrap gap-1.5 pt-1">
-                <ModerationButton
-                  label="Warn"
-                  onClick={() => void applyAction(report._id, 'WARN')}
-                />
-                <ModerationButton
-                  label="Suspend"
-                  onClick={() => void applyAction(report._id, 'SUSPEND')}
-                />
-                <ModerationButton label="Ban" onClick={() => void applyAction(report._id, 'BAN')} />
-                <ModerationButton
-                  label="Remove"
-                  onClick={() => void applyAction(report._id, 'REMOVE_CONTENT')}
-                />
-                <ModerationButton
-                  label="Dismiss"
-                  onClick={() => void applyAction(report._id, 'DISMISS')}
-                />
+                <ModerationButton label="Warn" action="WARN" onClick={() => void applyAction(report._id, 'WARN')} />
+                <ModerationButton label="Suspend" action="SUSPEND" onClick={() => void applyAction(report._id, 'SUSPEND')} />
+                <ModerationButton label="Ban" action="BAN" onClick={() => void applyAction(report._id, 'BAN')} />
+                <ModerationButton label="Remove" action="REMOVE_CONTENT" onClick={() => void applyAction(report._id, 'REMOVE_CONTENT')} />
+                <ModerationButton label="Dismiss" action="DISMISS" onClick={() => void applyAction(report._id, 'DISMISS')} />
               </div>
             </article>
           ))}
@@ -193,39 +149,29 @@ export default function AdminModerationPage() {
   );
 }
 
-function ModerationButton({ label, onClick }: Readonly<{ label: string; onClick: () => void }>) {
+const DESTRUCTIVE_ACTIONS = new Set(['BAN', 'REMOVE_CONTENT']);
+
+function ModerationButton({
+  label,
+  action,
+  onClick,
+}: Readonly<{ label: string; action: 'WARN' | 'SUSPEND' | 'BAN' | 'REMOVE_CONTENT' | 'DISMISS'; onClick: () => void }>) {
+  const isDestructive = DESTRUCTIVE_ACTIONS.has(action);
+  const isDismiss = action === 'DISMISS';
   return (
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg border border-neutral-250 bg-white hover:bg-neutral-50 px-2 py-1 text-[10px] font-bold text-neutral-700 shadow-sm transition"
+      className={
+        isDestructive
+          ? 'h-7 rounded-lg bg-rose-600 px-2.5 text-[10px] font-bold text-white transition hover:bg-rose-700'
+          : isDismiss
+            ? 'h-7 rounded-lg border border-neutral-200 bg-white px-2.5 text-[10px] font-bold text-neutral-500 transition hover:bg-neutral-50'
+            : 'h-7 rounded-lg bg-[#A10E4D] px-2.5 text-[10px] font-bold text-white transition hover:bg-[#890B40]'
+      }
     >
       {label}
     </button>
-  );
-}
-
-function Metric({
-  href,
-  icon,
-  label,
-  value,
-}: Readonly<{ href: string; icon: ReactNode; label: string; value: number }>) {
-  return (
-    <Link
-      href={href}
-      className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm hover:shadow transition block"
-    >
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 truncate">{label}</span>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-50 border border-neutral-100 text-neutral-500">
-          {icon}
-        </div>
-      </div>
-      <div className="mt-4">
-        <span className="text-2xl font-extrabold tracking-tight text-neutral-900">{value}</span>
-      </div>
-    </Link>
   );
 }
 

@@ -8,7 +8,6 @@ import {
   CreditCard,
   FileText,
   Rocket,
-  ShieldCheck,
   Sparkles,
   X,
 } from 'lucide-react';
@@ -426,20 +425,7 @@ export default function SubscriptionPage() {
               id="available-plans"
               className="rounded-2xl border border-[#e1d8c8] bg-white p-6 shadow-sm scroll-mt-24"
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-[#8b5e1b]">
-                    Available plans
-                  </p>
-                  <h3 className="mt-1 text-lg font-semibold text-[#241c15]">
-                    Choose the membership pace that fits your search
-                  </h3>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6f665b]">
-                    Member upgrade prompts now bring you here directly so you can review plans,
-                    compare intent, and move into secure checkout without leaving your dashboard.
-                  </p>
-                </div>
-              </div>
+              <p className="mb-4 text-sm font-bold text-[#241c15]">Available plans</p>
 
               <div className="mt-5 grid gap-4 lg:grid-cols-3">
                 {availablePlans.length === 0 ? (
@@ -556,106 +542,59 @@ export default function SubscriptionPage() {
               </section>
             )}
 
-            {/* Payment history */}
-            <section className="rounded-2xl border border-[#e1d8c8] bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-[#8b5e1b]" />
-                <h3 className="text-lg font-semibold text-[#241c15]">Payment history</h3>
-              </div>
-              <div className="mt-5">
+            {/* Payment history (collapsed by default) */}
+            <details className="group rounded-2xl border border-[#e1d8c8] bg-white shadow-sm">
+              <summary className="flex cursor-pointer items-center gap-2 px-5 py-4 text-sm font-semibold text-[#241c15] [&::-webkit-details-marker]:hidden">
+                <FileText className="h-4 w-4 text-[#8b5e1b]" />
+                Payment history
+                {payments.length > 0 && <span className="ml-auto rounded-full bg-[#f0ebe2] px-2 py-0.5 text-xs font-semibold text-[#6f665b]">{payments.length}</span>}
+              </summary>
+              <div className="border-t border-[#f0ebe2] px-5 pb-4">
                 {payments.length === 0 ? (
-                  <p className="py-6 text-center text-sm text-[#6f665b]">No payments yet.</p>
+                  <p className="py-4 text-sm text-[#6f665b]">No payments yet.</p>
                 ) : (
                   <div className="divide-y divide-[#f0ebe2]">
                     {payments.map((payment) => (
-                      <div
-                        key={payment.id}
-                        className="flex flex-wrap items-center justify-between gap-2 py-3.5"
-                      >
+                      <div key={payment.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                         <div>
-                          <p className="text-sm font-semibold text-[#241c15]">
-                            {payment.description ?? 'Subscription payment'}
-                          </p>
-                          <p className="text-xs text-[#6f665b]">
-                            {new Date(payment.createdAt).toLocaleDateString('en-AU', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </p>
+                          <p className="text-sm font-semibold text-[#241c15]">{payment.description ?? 'Subscription payment'}</p>
+                          <p className="text-xs text-[#6f665b]">{new Date(payment.createdAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${PAYMENT_STATUS_STYLES[payment.status] ?? 'text-[#6f665b] bg-[#f5f0e8]'}`}
-                          >
+                        <div className="flex items-center gap-2">
+                          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${PAYMENT_STATUS_STYLES[payment.status] ?? 'text-[#6f665b] bg-[#f5f0e8]'}`}>
                             {payment.status.charAt(0) + payment.status.slice(1).toLowerCase().replace('_', ' ')}
                           </span>
-                          <span className="text-sm font-bold text-[#241c15]">
-                            {formatMoney(payment.amountCents, payment.currency)}
-                          </span>
+                          <span className="text-sm font-bold text-[#241c15]">{formatMoney(payment.amountCents, payment.currency)}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            </section>
+            </details>
           </div>
 
-          {/* Right: Boost + trust strip */}
-          <div className="flex flex-col gap-6">
-            <aside className="rounded-2xl border border-[#e1d8c8] bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdf7ec]">
-                  <Rocket className="h-5 w-5 text-[#8b5e1b]" />
-                </div>
-                <h3 className="text-base font-semibold text-[#241c15]">Profile boost</h3>
+          {/* Right: Boost */}
+          <div className="flex flex-col gap-4 self-start">
+            <aside className="rounded-2xl border border-[#e1d8c8] bg-white p-5 shadow-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <Rocket className="h-4 w-4 text-[#8b5e1b]" />
+                <h3 className="text-sm font-semibold text-[#241c15]">Profile boost</h3>
               </div>
-              <p className="mt-3 text-sm leading-6 text-[#6f665b]">
-                Activate a boost to lift your profile in discovery for the next 24 hours.
-                Boosts reset each billing period.
-              </p>
               {isFree ? (
-                <div className="mt-4 rounded-xl bg-[#f8f5ef] px-4 py-3 text-sm text-[#6f665b]">
-                  <p>Upgrade to a paid plan to unlock profile boosts.</p>
-                  <button
-                    type="button"
-                    onClick={scrollToPlans}
-                    className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#A10E4D]"
-                  >
-                    Review member plans
-                    <ArrowRight className="h-4 w-4" />
+                <div className="rounded-xl bg-[#f8f5ef] px-4 py-3 text-sm text-[#6f665b]">
+                  Upgrade to unlock boosts.
+                  <button type="button" onClick={scrollToPlans} className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-[#A10E4D]">
+                    View plans <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => void activateBoost()}
-                  disabled={boostLoading}
-                  className="mt-5 w-full rounded-xl bg-[#241c15] px-4 py-3 text-sm font-semibold text-white hover:bg-[#3a2c20] transition disabled:opacity-60"
-                >
-                  {boostLoading ? 'Activating…' : 'Activate boost'}
+                <button type="button" onClick={() => void activateBoost()} disabled={boostLoading}
+                  className="w-full rounded-xl bg-[#241c15] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#3a2c20] transition disabled:opacity-60">
+                  {boostLoading ? 'Activating…' : 'Activate 24h boost'}
                 </button>
               )}
             </aside>
-
-            <div className="rounded-2xl border border-[#e1d8c8] bg-[#faf7f2] p-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#8b5e1b]">
-                Membership promises
-              </p>
-              <ul className="mt-4 space-y-3">
-                {[
-                  { icon: ShieldCheck, text: 'Cancel anytime from this page' },
-                  { icon: CreditCard, text: 'Secure checkout via Stripe' },
-                  { icon: FileText, text: 'Refunds reviewed within 5 days' },
-                ].map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-center gap-3 text-sm text-[#6f665b]">
-                    <Icon className="h-4 w-4 flex-shrink-0 text-[#8b5e1b]" />
-                    {text}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
         </div>
       )}

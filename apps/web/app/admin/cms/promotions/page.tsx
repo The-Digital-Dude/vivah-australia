@@ -279,7 +279,7 @@ export default function PromotionsPage() {
                     placeholder="e.g. VIVAH20"
                     required
                     disabled={!!selectedId}
-                    className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 pr-10 font-mono text-base font-extrabold tracking-widest text-neutral-900 outline-none focus:border-[#A10E4D] disabled:bg-neutral-50 disabled:text-neutral-400 transition"
+                    className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 pr-10 font-mono text-base font-extrabold tracking-widest text-neutral-900 outline-none focus:border-[#A10E4D] disabled:bg-neutral-50 disabled:text-neutral-400 transition"
                   />
                   {editor.code && (
                     <button
@@ -300,7 +300,7 @@ export default function PromotionsPage() {
                   onChange={e => setEditor(prev => ({ ...prev, label: e.target.value }))}
                   placeholder="e.g. Launch Month Promo"
                   required
-                  className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                  className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                 />
               </div>
             </div>
@@ -316,7 +316,7 @@ export default function PromotionsPage() {
                     max={100}
                     value={editor.discountPercent}
                     onChange={e => setEditor(prev => ({ ...prev, discountPercent: Number(e.target.value) }))}
-                    className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 pr-8 text-xl font-extrabold text-[#A10E4D] outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 pr-8 text-xl font-extrabold text-[#A10E4D] outline-none focus:border-[#A10E4D] transition"
                   />
                   <Percent className="absolute right-3 top-3.5 size-4 text-neutral-400" />
                 </div>
@@ -327,7 +327,7 @@ export default function PromotionsPage() {
                   type="datetime-local"
                   value={editor.expiresAt ?? ''}
                   onChange={e => setEditor(prev => ({ ...prev, expiresAt: e.target.value }))}
-                  className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                  className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                 />
               </div>
               <div className="grid gap-1.5">
@@ -338,7 +338,7 @@ export default function PromotionsPage() {
                   value={editor.maxUses === '' ? '' : editor.maxUses}
                   onChange={e => setEditor(prev => ({ ...prev, maxUses: e.target.value ? Number(e.target.value) : '' }))}
                   placeholder="Unlimited"
-                  className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition placeholder:text-neutral-300"
+                  className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition placeholder:text-neutral-300"
                 />
               </div>
             </div>

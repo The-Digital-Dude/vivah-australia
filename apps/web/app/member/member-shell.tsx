@@ -22,7 +22,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
-import { PublicHeader, SectionHeader } from '@/app/components';
+import { PublicHeader } from '@/app/components';
 import { useMemberRequest } from '@/lib/member-api';
 
 interface ShellProfileData {
@@ -182,7 +182,7 @@ function DesktopRail({
     <aside className="sticky top-0 flex h-screen flex-col border-r border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFFCFA_0%,#FFF7F1_100%)] px-5 py-6">
       <Link href="/" className="flex items-center gap-3 px-2">
         <Image
-          src="/logo-maroon.png"
+          src="/logo.png"
           alt="Vivah Australia Logo"
           width={150}
           height={60}
@@ -237,40 +237,13 @@ function DesktopRail({
         ))}
       </nav>
 
-      <div className="mt-6 rounded-[28px] border border-[#D4A04C]/25 bg-[linear-gradient(180deg,#FFF7EC_0%,#FFFFFF_100%)] p-5 shadow-[0_18px_45px_rgba(161,14,77,0.06)]">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFF1D2] text-[#B78A39]">
-            <Crown className="size-5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[#2F2F2F]">Upgrade to Premium</p>
-            <p className="text-xs leading-5 text-[#6B7280]">
-              Unlock contacts, visibility, and stronger trust signals.
-            </p>
-          </div>
-        </div>
-        <Link
-          href="/member/subscription"
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#A10E4D] px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(161,14,77,0.18)]"
-        >
-          Upgrade now
-          <ChevronRight className="size-4" />
-        </Link>
-      </div>
-
-      <div className="mt-4 rounded-[24px] border border-[#A10E4D]/10 bg-white px-4 py-4 text-sm text-[#5F5F5F] shadow-sm">
-        <p className="font-semibold text-[#2F2F2F]">Welcome back, {firstName}</p>
-        <p className="mt-1 text-xs leading-5 text-[#6B7280]">
-          Keep your profile warm with quick replies, strong photos, and steady trust completion.
-        </p>
-      </div>
     </aside>
   );
 }
 
 export default function MemberShell({
   title,
-  subtitle,
+  subtitle: _subtitle,
   children,
 }: Readonly<{ title: string; subtitle: string; children: ReactNode }>) {
   const pathname = usePathname();
@@ -357,26 +330,11 @@ export default function MemberShell({
                         <Menu className="h-5 w-5" />
                       </button>
 
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4A04C]">
-                          Member dashboard
-                        </p>
-                        <h2 className="mt-1 text-lg font-semibold text-[#2F2F2F]">
-                          Welcome back, {firstName}
-                        </h2>
-                      </div>
+                      <h2 className="text-lg font-semibold text-[#2F2F2F]">{title}</h2>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Link
-                        href="/member/subscription"
-                        className="hidden items-center gap-2 rounded-full border border-[#A10E4D]/15 bg-white px-5 py-3 text-sm font-semibold text-[#A10E4D] transition hover:bg-[#FFF0F3] lg:inline-flex"
-                      >
-                        <Crown className="size-4 text-[#D4A04C]" />
-                        Upgrade Membership
-                      </Link>
-
-                      <Link
+<Link
                         href="/member/notifications"
                         className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#A10E4D]/15 bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3] sm:h-11 sm:w-11"
                         aria-label="Notifications"
@@ -389,39 +347,16 @@ export default function MemberShell({
                         ) : null}
                       </Link>
 
-                      <div className="hidden items-center gap-3 rounded-full border border-[#A10E4D]/15 bg-white px-3 py-2 lg:inline-flex">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#A10E4D] text-sm font-bold text-white">
-                          {profileInitial}
-                        </span>
-                        <span className="pr-1">
-                          <span className="block text-sm font-semibold text-[#2F2F2F]">{firstName}</span>
-                          <span className="block text-xs text-[#6B7280]">Hi, {firstName}</span>
-                        </span>
-                      </div>
+                      <Link
+                        href="/member/profile/edit"
+                        className="hidden h-10 w-10 items-center justify-center rounded-full bg-[#A10E4D] text-sm font-bold text-white lg:flex"
+                        aria-label="Edit profile"
+                      >
+                        {profileInitial}
+                      </Link>
                     </div>
                   </div>
 
-                  <div className="hidden items-center gap-2 overflow-x-auto lg:flex">
-                    {visiblePrimary.map((item) => {
-                      const active = pathMatches(pathname, item.matches);
-                      const Icon = item.icon;
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={cx(
-                            'inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition whitespace-nowrap',
-                            active
-                              ? 'border-[#A10E4D] bg-[#FFF0F3] text-[#A10E4D] shadow-sm'
-                              : 'border-[#A10E4D]/10 bg-white text-[#6B7280] hover:bg-[#FFF0F3] hover:text-[#A10E4D]',
-                          )}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {item.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
                 </div>
               </div>
 
@@ -443,9 +378,6 @@ export default function MemberShell({
                           Member menu
                         </p>
                         <h3 className="mt-1 text-lg font-semibold text-[#2F2F2F]">{firstName}</h3>
-                        <p className="mt-1 text-sm text-[#6B7280]">
-                          Move between matches, activity, membership, and profile tools.
-                        </p>
                       </div>
                       <button
                         aria-label="Close member menu"
@@ -511,8 +443,7 @@ export default function MemberShell({
               ) : null}
 
               <section className="px-4 py-5 sm:px-6 sm:py-6">
-                <SectionHeader eyebrow="Member" title={title} subtitle={subtitle} />
-                <div className="mt-5 sm:mt-6">{children}</div>
+                {children}
               </section>
             </div>
           </main>

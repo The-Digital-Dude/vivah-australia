@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { 
-  Globe, 
-  HelpCircle, 
-  Share2, 
-  ShieldAlert, 
-  Sliders, 
-  Home, 
-  Save, 
-  Search
-} from 'lucide-react';
+import { Globe, HelpCircle, Share2, Sliders, Home, Save, Search } from 'lucide-react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 
@@ -163,18 +154,6 @@ export default function SettingsManagerPage() {
             <span>{message}</span>
           </div>
         )}
-
-        {/* Audit Disclaimer Card */}
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3.5 items-start">
-          <ShieldAlert className="size-5 text-amber-700 shrink-0 mt-0.5" />
-          <div>
-            <h4 className="text-xs font-bold text-amber-900">Security & Compliance Notice</h4>
-            <p className="text-[10px] text-amber-800 mt-1 leading-relaxed">
-              You are altering global config settings. All modifications, toggles, and updates are logged in the 
-              system audit database with your administrator account signature for compliance reviews.
-            </p>
-          </div>
-        </div>
 
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
           {/* CATEGORIES SIDEBAR */}

@@ -282,7 +282,7 @@ export default function CampaignsPage() {
                     placeholder="e.g. launch-promo-june"
                     required
                     disabled={!!selectedId}
-                    className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 font-mono text-sm font-bold text-neutral-700 outline-none focus:border-[#A10E4D] disabled:bg-neutral-50 disabled:text-neutral-400 transition"
+                    className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 font-mono text-sm font-bold text-neutral-700 outline-none focus:border-[#A10E4D] disabled:bg-neutral-50 disabled:text-neutral-400 transition"
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -319,7 +319,7 @@ export default function CampaignsPage() {
                   onChange={e => setEditor(prev => ({ ...prev, message: e.target.value }))}
                   placeholder="e.g. 🎉 Launch Special — 20% off all Gold plans this week!"
                   required
-                  className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                  className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                 />
                 <div className="flex justify-end">
                   <span className={`text-[10px] font-bold ${editor.message.length > 500 ? 'text-rose-600' : 'text-neutral-400'}`}>
@@ -336,7 +336,7 @@ export default function CampaignsPage() {
                     value={editor.ctaLabel ?? ''}
                     onChange={e => setEditor(prev => ({ ...prev, ctaLabel: e.target.value }))}
                     placeholder="e.g. Upgrade Now"
-                    className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                   />
                 </div>
                 <div className="grid gap-1.5">
@@ -345,7 +345,7 @@ export default function CampaignsPage() {
                     value={editor.ctaHref ?? ''}
                     onChange={e => setEditor(prev => ({ ...prev, ctaHref: e.target.value }))}
                     placeholder="e.g. /membership"
-                    className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
+                    className="h-9 w-full rounded-xl border border-neutral-200 bg-white px-3.5 text-sm font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                   />
                 </div>
               </div>

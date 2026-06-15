@@ -103,7 +103,7 @@ export default function AdminAuditLogsPage() {
       accessor: (log) => (
         <button
           onClick={() => setSelectedLog(log)}
-          className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-neutral-250 px-2.5 text-xs font-bold text-neutral-700 hover:bg-neutral-50 bg-white transition shadow-sm"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-200 px-3 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 bg-white transition"
           type="button"
         >
           <Eye className="h-3.5 w-3.5 text-neutral-500" />
@@ -129,7 +129,7 @@ export default function AdminAuditLogsPage() {
             value={action}
             onChange={(event) => setAction(event.target.value)}
             placeholder="Filter by action type (e.g. UPDATE_STATUS, APPROVE_MEDIA)"
-            className="h-11 w-full rounded-xl border border-neutral-250 bg-neutral-50 px-4 text-xs placeholder-neutral-400 outline-none focus:border-[#A10E4D] focus:bg-white transition"
+            className="h-9 w-full rounded-xl border border-neutral-250 bg-neutral-50 px-4 text-xs placeholder-neutral-400 outline-none focus:border-[#A10E4D] focus:bg-white transition"
           />
         </div>
         <div className="relative">
@@ -137,10 +137,10 @@ export default function AdminAuditLogsPage() {
             value={entityType}
             onChange={(event) => setEntityType(event.target.value)}
             placeholder="Entity target (e.g. User, Page)"
-            className="h-11 w-full rounded-xl border border-neutral-250 bg-neutral-50 px-4 text-xs placeholder-neutral-400 outline-none focus:border-[#A10E4D] focus:bg-white transition"
+            className="h-9 w-full rounded-xl border border-neutral-250 bg-neutral-50 px-4 text-xs placeholder-neutral-400 outline-none focus:border-[#A10E4D] focus:bg-white transition"
           />
         </div>
-        <button className="h-11 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-6 text-xs font-bold text-white shadow-md transition-all flex items-center justify-center gap-2">
+        <button className="h-9 rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-6 text-xs font-bold text-white shadow-md transition-all flex items-center justify-center gap-2">
           <Filter className="h-4 w-4" />
           <span>Apply Filter</span>
         </button>
