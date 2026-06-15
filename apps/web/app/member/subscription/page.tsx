@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { useMemberRequest } from '@/lib/member-api';
+import { useAuth } from '@/app/auth-context';
 import UpgradeModal from '../upgrade-modal';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -129,6 +130,7 @@ function UsageBar({ used, limit, label }: { used: number; limit: number; label: 
 
 function SubscriptionPageContent() {
   const memberRequest = useMemberRequest();
+  const { initialized } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const checkoutParam = searchParams.get('checkout');
@@ -166,21 +168,37 @@ function SubscriptionPageContent() {
   }
 
   useEffect(() => {
-    void load();
-  }, []);
+    if (initialized) {
+      void load();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized]);
 
   useEffect(() => {
-    if (!checkoutParam) return;
-    if (checkoutParam === 'success') {
-      setMessage('Your subscription is now active. Welcome to your new plan!');
-      setMessageType('success');
-      void load();
-    } else if (checkoutParam === 'cancelled') {
-      setMessage('Payment was not completed. Your current plan has not changed.');
-      setMessageType('info');
+    if (!initialized || !checkoutParam) return;
+    
+    async function handleCheckoutResult() {
+      if (checkoutParam === 'success') {
+        const sessionId = searchParams.get('session_id');
+        if (sessionId) {
+          await memberRequest('/api/me/subscription/verify', {
+            method: 'POST',
+            body: { sessionId },
+          });
+        }
+        setMessage('Your subscription is now active. Welcome to your new plan!');
+        setMessageType('success');
+        await load();
+      } else if (checkoutParam === 'cancelled') {
+        setMessage('Payment was not completed. Your current plan has not changed.');
+        setMessageType('info');
+      }
+      router.replace('/member/subscription');
     }
-    router.replace('/member/subscription');
-  }, [checkoutParam, router]);
+
+    void handleCheckoutResult();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutParam, initialized]);
 
   async function activateBoost() {
     setBoostLoading(true);

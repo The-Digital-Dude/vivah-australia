@@ -31,7 +31,9 @@ import {
   listSubscriptions,
   updatePlan,
   upsertPlan,
+  upsertPlan,
   createPaymentIntent,
+  verifyCheckoutSession,
 } from './billing.service.js';
 import { createPayPalOrder, capturePayPalOrder } from './paypal.service.js';
 
@@ -84,6 +86,20 @@ export function createBillingRouter(config: AuthConfig): Router {
       const auth = requireRequestAuth(request);
       const input = checkoutSessionSchema.parse(request.body);
       response.status(201).json(await createCheckoutSession(auth.userId, input));
+    }),
+  );
+
+  router.post(
+    '/me/subscription/verify',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const { sessionId } = request.body as { sessionId: string };
+      if (!sessionId) {
+        throw new HttpError(400, 'Session ID is required');
+      }
+      const verified = await verifyCheckoutSession(auth.userId, sessionId);
+      response.status(200).json({ verified });
     }),
   );
 

@@ -179,64 +179,64 @@ function DesktopRail({
   unreadCount: number;
 }>) {
   return (
-    <aside className="sticky top-0 flex h-screen flex-col border-r border-[#A10E4D]/10 bg-[linear-gradient(180deg,#FFFCFA_0%,#FFF7F1_100%)] px-5 py-6">
-      <Link href="/" className="flex items-center gap-3 px-2">
+    <aside className="sticky top-0 flex h-screen max-h-[100dvh] flex-col bg-[#7A0B3A] px-5 py-6 overflow-hidden text-white shadow-xl">
+      <Link href="/" className="flex shrink-0 items-center gap-3 px-2">
         <Image
-          src="/logo.png"
+          src="/logo-white.png"
           alt="Vivah Australia Logo"
-          width={150}
+          width={180}
           height={60}
-          className="w-auto object-contain"
-          style={{ width: 'auto', height: '48px' }}
+          className="h-10 w-auto object-contain"
           priority
         />
       </Link>
 
-      <nav className="mt-8 flex-1 space-y-7 overflow-y-auto pr-1">
-        {navGroups.map((group) => (
-          <div key={group.title}>
-            <p className="px-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#B78A39]">
-              {group.title}
-            </p>
-            <div className="mt-3 space-y-1.5">
-              {group.items.map((item) => {
-                const active = pathMatches(pathname, item.matches);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cx(
-                      'flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-semibold transition',
-                      active
-                        ? 'bg-[#FFF0F3] text-[#A10E4D] shadow-[0_12px_28px_rgba(161,14,77,0.08)]'
-                        : 'text-[#5F5F5F] hover:bg-white hover:text-[#A10E4D]',
-                    )}
-                  >
-                    <span className="flex items-center gap-3">
-                      <span
-                        className={cx(
-                          'flex h-9 w-9 items-center justify-center rounded-2xl',
-                          active ? 'bg-white text-[#A10E4D]' : 'bg-[#FFF6F3] text-[#A10E4D]',
-                        )}
-                      >
-                        <Icon className="size-4" />
+      <div className="mt-8 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+        <nav className="space-y-7 pb-8">
+          {navGroups.map((group) => (
+            <div key={group.title}>
+              <p className="px-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#D4A04C]">
+                {group.title}
+              </p>
+              <div className="mt-3 space-y-1.5">
+                {group.items.map((item) => {
+                  const active = pathMatches(pathname, item.matches);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cx(
+                        'flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-semibold transition',
+                        active
+                          ? 'bg-white/15 text-white shadow-[0_4px_12px_rgba(0,0,0,0.1)]'
+                          : 'text-white/70 hover:bg-white/10 hover:text-white',
+                      )}
+                    >
+                      <span className="flex items-center gap-3">
+                        <span
+                          className={cx(
+                            'flex h-9 w-9 items-center justify-center rounded-2xl',
+                            active ? 'bg-white text-[#7A0B3A]' : 'bg-white/10 text-white/80',
+                          )}
+                        >
+                          <Icon className="size-4" />
+                        </span>
+                        {item.label}
                       </span>
-                      {item.label}
-                    </span>
-                    {item.badge === 'notifications' && unreadCount > 0 ? (
-                      <span className="rounded-full bg-[#A10E4D] px-2 py-1 text-[10px] font-bold text-white">
-                        {unreadCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
+                      {item.badge === 'notifications' && unreadCount > 0 ? (
+                        <span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold text-[#7A0B3A]">
+                          {unreadCount}
+                        </span>
+                      ) : null}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </nav>
-
+          ))}
+        </nav>
+      </div>
     </aside>
   );
 }

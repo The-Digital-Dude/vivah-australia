@@ -166,7 +166,7 @@ export async function createCheckoutSession(userId: Types.ObjectId, input: Check
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: 'subscription',
     line_items: [{ price: plan.stripePriceId, quantity: 1 }],
-    success_url: `${env.WEB_BASE_URL}/member/subscription?checkout=success`,
+    success_url: `${env.WEB_BASE_URL}/member/subscription?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${env.WEB_BASE_URL}/pricing?checkout=cancelled`,
     metadata: {
       userId: String(userId),
@@ -387,7 +387,15 @@ export async function incrementUsage(userId: Types.ObjectId, key: string, amount
 
 export async function requireEntitlement(userId: Types.ObjectId, key: string, amount = 1) {
   const overview = await getSubscriptionOverview(userId);
-  const limit = Number(overview.plan?.limits?.[key] ?? 0);
+  let limit = Number(overview.plan?.limits?.[key] ?? 0);
+  
+  if (limit === 0 && key === 'profileBoostsMonthly' && overview.plan?.limits?.['profileBoosts'] !== undefined) {
+    limit = Number(overview.plan.limits['profileBoosts']);
+  }
+  if (limit === 0 && key === 'monthlyInterests' && overview.plan?.limits?.['interestsPerMonth'] !== undefined) {
+    limit = Number(overview.plan.limits['interestsPerMonth']);
+  }
+
   if (limit === -1) {
     return overview;
   }
@@ -668,4 +676,85 @@ export async function createPaymentIntent(userId: Types.ObjectId, amountCents: n
     amountCents,
     currency,
   };
+}
+
+export async function verifyCheckoutSession(userId: Types.ObjectId, sessionId: string) {
+  if (!stripe) return false;
+
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  if (session.payment_status !== 'paid' && session.status !== 'complete') {
+    return false;
+  }
+
+  const metadata = session.metadata;
+  if (!metadata || metadata.userId !== String(userId)) {
+    return false;
+  }
+
+  const existingSubscription = await SubscriptionModel.findOne({
+    providerSubscriptionId: typeof session.subscription === 'string' ? session.subscription : session.subscription?.id
+  });
+
+  if (existingSubscription) {
+    return true; // Already verified by webhook
+  }
+
+  const plan = await PlanModel.findById(metadata.planId);
+  if (!plan) return false;
+
+  await SubscriptionModel.updateMany(
+    { userId, status: SubscriptionStatus.ACTIVE },
+    { $set: { status: SubscriptionStatus.CANCELED } }
+  );
+
+  let currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  let providerSubscriptionId;
+  if (session.subscription) {
+    providerSubscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
+    try {
+      const sub = await stripe.subscriptions.retrieve(providerSubscriptionId);
+      if (sub && typeof sub.current_period_end === 'number') {
+        currentPeriodEnd = new Date(sub.current_period_end * 1000);
+      }
+    } catch (err) {
+      console.warn('Could not retrieve subscription details for current_period_end fallback', err);
+    }
+  }
+
+  const newSub = new SubscriptionModel({
+    userId,
+    planId: plan._id,
+    status: SubscriptionStatus.ACTIVE,
+    startsAt: new Date(),
+    currentPeriodEnd,
+    cancelAtPeriodEnd: false,
+    provider: 'stripe',
+    ...(session.customer ? { providerCustomerId: typeof session.customer === 'string' ? session.customer : session.customer.id } : {}),
+    ...(providerSubscriptionId ? { providerSubscriptionId } : {})
+  });
+  await newSub.save();
+
+  const providerPaymentId = typeof session.payment_intent === 'string' 
+    ? session.payment_intent 
+    : session.payment_intent?.id || session.id;
+
+  const existingPayment = await PaymentModel.findOne({ providerPaymentId });
+  if (!existingPayment) {
+    const payment = new PaymentModel({
+      userId,
+      planId: plan._id,
+      amountCents: session.amount_total || plan.priceCents,
+      currency: (session.currency || plan.currency).toUpperCase(),
+      status: PaymentStatus.SUCCEEDED,
+      provider: 'stripe',
+      providerPaymentId,
+      providerCustomerId: typeof session.customer === 'string' ? session.customer : session.customer?.id,
+      providerSubscriptionId,
+      description: `${plan.name} checkout (verified)`,
+      ...(metadata.couponId ? { couponId: metadata.couponId } : {})
+    });
+    await payment.save();
+  }
+
+  return true;
 }
