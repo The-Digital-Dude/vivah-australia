@@ -8,11 +8,11 @@ import { ChevronLeft, ChevronRight, Heart, ArrowRight } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const successStories = [
-  { name: 'Rahul & Priya', location: 'Melbourne, VIC', quote: 'Thanks to Vivah Australia, we found each other and built a beautiful life together.', img: '/home/success-stories/couple-05.jpg' },
-  { name: 'Amit & Neha', location: 'Sydney, NSW', quote: 'We connected, we understood and the rest is our forever story.', img: '/home/success-stories/couple-06.jpg' },
-  { name: 'Karan & Simran', location: 'Brisbane, QLD', quote: 'Vivah Australia made our journey so smooth and meaningful.', img: '/home/success-stories/couple-02.jpg' },
-  { name: 'Dev & Isha', location: 'Perth, WA', quote: 'A platform that truly understands Indian culture and values.', img: '/home/success-stories/couple-03.jpg' },
-  { name: 'Varun & Aditi', location: 'Adelaide, SA', quote: 'From the first chat to our wedding day, an incredible experience.', img: '/home/success-stories/couple-04.jpg' },
+  { name: 'Rahul & Priya', location: 'Melbourne, VIC', quote: 'Thanks to Vivah Australia, we found each other and built a beautiful life together.', img: '/home/success-stories/couple-05-v2.png' },
+  { name: 'Amit & Neha', location: 'Sydney, NSW', quote: 'We connected, we understood and the rest is our forever story.', img: '/home/success-stories/couple-06-v2.png' },
+  { name: 'Karan & Simran', location: 'Brisbane, QLD', quote: 'Vivah Australia made our journey so smooth and meaningful.', img: '/home/success-stories/couple-02-v2.png' },
+  { name: 'Dev & Isha', location: 'Perth, WA', quote: 'A platform that truly understands Indian culture and values.', img: '/home/success-stories/couple-03-v2.png' },
+  { name: 'Varun & Aditi', location: 'Adelaide, SA', quote: 'From the first chat to our wedding day, an incredible experience.', img: '/home/success-stories/couple-04-v2.png' },
 ];
 
 export function FinalSuccessSlider({ isDark = false }: { isDark?: boolean }) {

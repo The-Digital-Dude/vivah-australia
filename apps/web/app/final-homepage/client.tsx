@@ -36,7 +36,7 @@ export default function FinalHomepageClient() {
           {/* Background Image & Overlay */}
           <div className="absolute inset-0 z-0">
             <Image
-              src="/home/hero-couple-rings.jpg"
+              src="/home/hero-bg-attached.jpg"
               alt="Vivah Australia Couple"
               fill
               priority
@@ -288,7 +288,7 @@ export default function FinalHomepageClient() {
 
                   {/* Profile 1 */}
                   <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden">
-                    <Image src="/home/success-stories/couple-02.jpg" alt="Ananya" fill className="object-cover" />
+                    <Image src="/home/match-ananya.png" alt="Ananya" fill className="object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-4 left-4">
                       <p className="text-white font-bold text-lg">Ananya, 29</p>
@@ -301,7 +301,7 @@ export default function FinalHomepageClient() {
 
                   {/* Profile 2 */}
                   <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden">
-                    <Image src="/home/success-stories/couple-04.jpg" alt="Rohan" fill className="object-cover" />
+                    <Image src="/home/match-rohan.png" alt="Rohan" fill className="object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-4 left-4">
                       <p className="text-white font-bold text-lg">Rohan, 31</p>
