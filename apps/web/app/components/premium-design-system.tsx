@@ -666,14 +666,14 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
   return (
     <header className={headerClass}>
       <div className="px-8 sm:px-12 lg:px-16">
-        <div className="mx-auto flex min-h-[48px] container items-center justify-between gap-3 py-2 lg:h-[66px] lg:py-0">
+        <div className="mx-auto flex min-h-[54px] container items-center justify-between gap-3 py-2 lg:h-[72px] lg:py-0">
           <Link href="/" className="flex shrink-0 items-center">
             <Image
               src={isLight ? "/logo-color.png" : "/logo-white.png"}
               alt="Vivah Australia Logo"
               width={320}
               height={100}
-              className="h-14 sm:h-[64px] lg:h-[80px] w-auto object-contain origin-left"
+              className="h-[73px] sm:h-[81px] lg:h-[97px] w-auto object-contain origin-left"
               priority
             />
           </Link>
