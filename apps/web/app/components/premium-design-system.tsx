@@ -937,6 +937,9 @@ export function PublicFooter() {
           <p className="text-xs text-white/40">
             © {year} Vivah Australia Pty Ltd. All rights reserved.
           </p>
+          <p className="text-xs text-white/40 flex items-center gap-1.5">
+            Made with ❤️ by <a href="https://rokoautomations.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">RokoAutomations</a>
+          </p>
           <div className="flex flex-wrap gap-4 text-xs text-white/40">
             <Link href="/privacy"       className="hover:text-white/70 transition">Privacy</Link>
             <Link href="/terms"         className="hover:text-white/70 transition">Terms</Link>

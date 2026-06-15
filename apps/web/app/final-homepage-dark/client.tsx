@@ -766,7 +766,7 @@ export default function FinalHomepageClient() {
                 © {new Date().getFullYear()} Vivah Australia. All rights reserved.
               </p>
               <p className="text-white/40 text-sm flex items-center gap-1.5">
-                Made with <Heart className="size-3 text-brand-maroon fill-brand-maroon" /> for meaningful connections.
+                Made with ❤️ by <a href="https://rokoautomations.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">RokoAutomations</a>
               </p>
             </div>
           </div>
