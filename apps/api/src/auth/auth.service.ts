@@ -151,7 +151,7 @@ export async function registerWithEmail(
     emailVerified: false,
     mobileVerified: false,
     failedLoginAttempts: 0,
-    refreshTokenVersion: 0,
+    activeSessions: [],
     termsAcceptedAt: now,
     privacyAcceptedAt: now,
     marketingConsent: input.marketingConsent,
@@ -214,7 +214,7 @@ export async function registerWithMobile(
     emailVerified: false,
     mobileVerified: false,
     failedLoginAttempts: 0,
-    refreshTokenVersion: 0,
+    activeSessions: [],
     termsAcceptedAt: now,
     privacyAcceptedAt: now,
     marketingConsent: input.marketingConsent,
@@ -338,6 +338,8 @@ export async function loginWithEmail(input: LoginInput, config: AuthConfig): Pro
   user.failedLoginAttempts = 0;
   user.set('lockUntil', undefined);
   user.lastLoginAt = new Date();
+  const sessionId = createOpaqueToken();
+  user.activeSessions.push(sessionId);
   await user.save();
 
   return {
@@ -345,7 +347,7 @@ export async function loginWithEmail(input: LoginInput, config: AuthConfig): Pro
     ...createTokenPair(config, {
       id: user.id,
       role: user.role,
-      refreshTokenVersion: user.refreshTokenVersion,
+      sessionId,
     }),
   };
 }
@@ -378,12 +380,16 @@ export async function verifyMobileRegistration(
     await user.save();
   }
 
+  const sessionId = createOpaqueToken();
+  user.activeSessions.push(sessionId);
+  await user.save();
+
   return {
     user: publicUser(user),
     ...createTokenPair(config, {
       id: user.id,
       role: user.role,
-      refreshTokenVersion: user.refreshTokenVersion,
+      sessionId,
     }),
   };
 }
@@ -397,13 +403,21 @@ export async function refreshSession(
 
   if (
     user.status !== AccountStatus.ACTIVE ||
-    user.refreshTokenVersion !== payload.version ||
     user.isDeleted
   ) {
     throw new HttpError(401, 'Invalid refresh token');
   }
 
-  user.refreshTokenVersion += 1;
+  if (!user.activeSessions.includes(payload.sessionId)) {
+    // Suspected token theft or already logged out
+    user.activeSessions = [];
+    await user.save();
+    throw new HttpError(401, 'Invalid refresh token');
+  }
+
+  user.activeSessions = user.activeSessions.filter(id => id !== payload.sessionId);
+  const newSessionId = createOpaqueToken();
+  user.activeSessions.push(newSessionId);
   await user.save();
 
   return {
@@ -411,7 +425,7 @@ export async function refreshSession(
     ...createTokenPair(config, {
       id: user.id,
       role: user.role,
-      refreshTokenVersion: user.refreshTokenVersion,
+      sessionId: newSessionId,
     }),
   };
 }
@@ -419,8 +433,8 @@ export async function refreshSession(
 export async function logout(refreshToken: string, config: AuthConfig): Promise<void> {
   const payload = verifyRefreshToken(config, refreshToken);
   await UserModel.updateOne(
-    { _id: payload.sub, refreshTokenVersion: payload.version },
-    { $inc: { refreshTokenVersion: 1 } },
+    { _id: payload.sub },
+    { $pull: { activeSessions: payload.sessionId } },
   );
 }
 
@@ -479,9 +493,9 @@ export async function resetPassword(token: string, password: string): Promise<vo
         passwordHash,
         passwordChangedAt: new Date(),
         failedLoginAttempts: 0,
+        activeSessions: [],
       },
       $unset: { lockUntil: '' },
-      $inc: { refreshTokenVersion: 1 },
     },
   );
 
@@ -507,6 +521,6 @@ export async function changePassword(
 
   user.passwordHash = await bcrypt.hash(input.newPassword, PASSWORD_HASH_ROUNDS);
   user.passwordChangedAt = new Date();
-  user.refreshTokenVersion += 1;
+  user.activeSessions = [];
   await user.save();
 }

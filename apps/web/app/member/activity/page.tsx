@@ -320,6 +320,11 @@ export default function ActivityHubPage() {
   const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedItem[]>([]);
   const [profileViewers, setProfileViewers] = useState<ProfileViewersResponse | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [visibleCount, setVisibleCount] = useState(6);
+
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [activeTab]);
 
   useEffect(() => {
     void (async () => {
@@ -397,18 +402,18 @@ export default function ActivityHubPage() {
   const activeItems = (() => {
     switch (activeTab) {
       case 'received':
-        return receivedInterests.slice(0, 6).map((item) => <InterestPreview key={item.id} item={item} mode="received" />);
+        return receivedInterests.slice(0, visibleCount).map((item) => <InterestPreview key={item.id} item={item} mode="received" />);
       case 'sent':
-        return sentInterests.slice(0, 6).map((item) => <InterestPreview key={item.id} item={item} mode="sent" />);
+        return sentInterests.slice(0, visibleCount).map((item) => <InterestPreview key={item.id} item={item} mode="sent" />);
       case 'favourites':
-        return favourites.slice(0, 6).map((item) => <FavouritePreview key={item.id} item={item} />);
+        return favourites.slice(0, visibleCount).map((item) => <FavouritePreview key={item.id} item={item} />);
       case 'recentlyViewed':
         return recentlyViewed
-          .slice(0, 6)
+          .slice(0, visibleCount)
           .map((item) => <RecentlyViewedPreview key={`${item.profile._id}-${item.viewedAt}`} item={item} />);
       case 'viewedMe':
         return (profileViewers?.viewers ?? [])
-          .slice(0, 6)
+          .slice(0, visibleCount)
           .map((entry, index) => (
             <ViewerPreview
               key={`${entry.viewer?.id ?? 'blurred'}-${index}`}
@@ -418,7 +423,7 @@ export default function ActivityHubPage() {
           ));
       case 'notifications':
         return notifications
-          .slice(0, 6)
+          .slice(0, visibleCount)
           .map((item) => <NotificationPreview key={item._id} item={item} />);
       default:
         return [];
@@ -495,6 +500,18 @@ export default function ActivityHubPage() {
               <EmptyState title="Nothing here yet">
                 This section will fill as you interact with other profiles.
               </EmptyState>
+            )}
+            
+            {activeTabMeta && activeItems.length < activeTabMeta.count && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + 6)}
+                  className="rounded-xl border border-[#A10E4D]/20 bg-[#FFF0F3] px-6 py-2 text-sm font-semibold text-[#A10E4D] hover:bg-[#A10E4D] hover:text-white transition"
+                >
+                  Load More
+                </button>
+              </div>
             )}
           </div>
         </PremiumCard>

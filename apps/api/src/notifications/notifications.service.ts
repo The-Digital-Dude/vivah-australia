@@ -117,6 +117,16 @@ function createOtp(mobile: string) {
 }
 
 export async function requestMobileOtp(userId: Types.ObjectId, mobile: string) {
+  const recentOtp = await MobileOtpModel.findOne({
+    userId,
+    mobile,
+    createdAt: { $gte: new Date(Date.now() - 60 * 1000) },
+  });
+
+  if (recentOtp) {
+    throw new HttpError(429, 'Please wait 60 seconds before requesting a new code');
+  }
+
   const code = createOtp(mobile);
   await MobileOtpModel.updateMany(
     { userId, mobile, usedAt: { $exists: false }, isDeleted: false },

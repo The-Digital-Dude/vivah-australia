@@ -13,7 +13,7 @@ interface AccessPayload extends JwtPayload {
 
 interface RefreshPayload extends JwtPayload {
   sub: string;
-  version: number;
+  sessionId: string;
   type: 'refresh';
 }
 
@@ -39,7 +39,7 @@ export function hashToken(token: string): string {
 
 export function createTokenPair(
   config: AuthConfig,
-  user: { id: string; role: UserRole; refreshTokenVersion: number },
+  user: { id: string; role: UserRole; sessionId: string },
 ): TokenPair {
   return {
     accessToken: signJwt(
@@ -48,7 +48,7 @@ export function createTokenPair(
       config.accessExpiresIn,
     ),
     refreshToken: signJwt(
-      { sub: user.id, version: user.refreshTokenVersion, type: 'refresh' },
+      { sub: user.id, sessionId: user.sessionId, type: 'refresh' },
       config.refreshSecret,
       config.refreshExpiresIn,
     ),
@@ -90,7 +90,7 @@ export function verifyRefreshToken(config: AuthConfig, token: string): RefreshPa
     typeof payload !== 'object' ||
     payload.type !== 'refresh' ||
     typeof payload.sub !== 'string' ||
-    typeof payload.version !== 'number' ||
+    typeof payload.sessionId !== 'string' ||
     !Types.ObjectId.isValid(payload.sub)
   ) {
     throw new HttpError(401, 'Invalid refresh token');

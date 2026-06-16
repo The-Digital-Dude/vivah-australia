@@ -36,9 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedToken = localStorage.getItem('auth_token');
     const storedRefreshToken = localStorage.getItem('refresh_token');
+    const storedRole = localStorage.getItem('user_role');
     if (storedToken) {
       setTokenState(storedToken);
-      setUserRole(roleFromToken(storedToken));
+      if (storedToken === 'cookie-based' && storedRole) {
+        setUserRole(storedRole);
+      } else {
+        setUserRole(roleFromToken(storedToken));
+      }
     }
     if (storedRefreshToken) {
       setRefreshTokenState(storedRefreshToken);
@@ -60,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken('cookie-based');
     if (data.user) {
       setUserRole(data.user.role);
+      localStorage.setItem('user_role', data.user.role);
     }
   };
 
@@ -69,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserRole(null);
     localStorage.removeItem('auth_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_role');
   }, []);
 
   const refreshAccessToken = useCallback(async () => {
@@ -98,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokenState('cookie-based');
     setUserRole(data.user.role);
     localStorage.setItem('auth_token', 'cookie-based');
+    localStorage.setItem('user_role', data.user.role);
     return 'cookie-based';
   }, [clearToken]);
 

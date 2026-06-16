@@ -639,9 +639,9 @@ function ProfileSurface({
 function StaticProfileLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div className="min-h-screen bg-brand-ivory text-brand-charcoal font-poppins">
-      <PublicHeader />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
-      <PublicFooter />
+      <div className="print:hidden"><PublicHeader /></div>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 print:p-0 print:m-0">{children}</main>
+      <div className="print:hidden"><PublicFooter /></div>
     </div>
   );
 }
@@ -1644,23 +1644,29 @@ function ProfileDetailView({
                     )}
 
                     {/* Hero CTAs */}
-                    {isSelfView && (
-                      <div className="mt-6 hidden sm:flex flex-wrap gap-3">
+                    <div className="mt-6 hidden sm:flex flex-wrap gap-3 print:hidden">
+                      {isSelfView && (
                         <Link
                           href="/member/profile/edit"
                           className="inline-flex items-center gap-2 rounded-full bg-[#A10E4D] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#890B40]"
                         >
                           Edit your profile
                         </Link>
-                      </div>
-                    )}
+                      )}
+                      <button
+                        onClick={() => window.print()}
+                        className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/20 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/30"
+                      >
+                        <Camera className="size-4" /> Download Biodata
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </PremiumCard>
           </motion.section>
 
-          <div className="sticky top-20 z-20 hidden md:block">
+          <div className="sticky top-20 z-20 hidden md:block print:hidden">
             <Tabs
               value={activeMobileTab}
               onValueChange={(value) => {
@@ -1684,7 +1690,7 @@ function ProfileDetailView({
           </div>
 
           {/* ── Mobile Sticky Tabs ───────────────────────────────────────── */}
-          <div className="sticky top-20 z-20 -mx-4 px-4 md:hidden">
+          <div className="sticky top-20 z-20 -mx-4 px-4 md:hidden print:hidden">
             <Tabs
               value={activeMobileTab}
               onValueChange={(value) => {

@@ -13,27 +13,41 @@ export const matchCachingQueue = redisConnection
 
 export const matchCachingWorker = redisConnection
   ? new Worker('matchCachingQueue', async (job) => {
-  // Get all active users
-  const activeProfiles = await ProfileModel.find({
+  // Base query for active profiles
+  const baseQuery = {
     isDeleted: false,
     userIsDeleted: false,
     userStatus: AccountStatus.ACTIVE,
     'visibility.status': { $in: [ProfileVisibility.PUBLIC, ProfileVisibility.MEMBERS_ONLY] },
-  });
+  };
 
-  const batchSize = 100;
+  const cursor = ProfileModel.find(baseQuery).cursor();
 
-  for (const viewer of activeProfiles) {
+  for await (const viewer of cursor) {
     const scoredMatches = [];
     
     // Determine the base filter for candidates
     const viewerPreference = viewer.partnerPreference ?? {};
     const genderFilter = viewer.personal.gender === 'MALE' ? 'FEMALE' : viewer.personal.gender === 'FEMALE' ? 'MALE' : undefined;
 
-    for (const candidate of activeProfiles) {
-      if (String(viewer._id) === String(candidate._id)) continue;
-      if (genderFilter && candidate.personal.gender !== genderFilter) continue;
-      
+    const candidateQuery: any = { ...baseQuery, _id: { $ne: viewer._id } };
+    if (genderFilter) {
+      candidateQuery['personal.gender'] = genderFilter;
+    }
+    
+    if (viewerPreference.ageMin !== undefined || viewerPreference.ageMax !== undefined) {
+      candidateQuery['personal.age'] = {
+        ...(viewerPreference.ageMin !== undefined ? { $gte: viewerPreference.ageMin } : {}),
+        ...(viewerPreference.ageMax !== undefined ? { $lte: viewerPreference.ageMax } : {}),
+      };
+    }
+
+    // Pull candidates to score, max 1000 to prevent memory blowup per viewer
+    const candidates = await ProfileModel.find(candidateQuery)
+      .sort({ 'stats.lastActiveAt': -1 })
+      .limit(1000);
+
+    for (const candidate of candidates) {
       const { score, reasons } = calculateMatchScore(viewer, candidate);
       
       if (score > 0) {
@@ -50,10 +64,16 @@ export const matchCachingWorker = redisConnection
     scoredMatches.sort((a, b) => b.score - a.score);
     const topMatches = scoredMatches.slice(0, 50); // Store top 50 recommendations
 
-    // Replace the old recommendations with the new ones for this user
-    await MatchRecommendationModel.deleteMany({ userId: viewer.userId });
     if (topMatches.length > 0) {
-      await MatchRecommendationModel.insertMany(topMatches);
+      const bulkOps = [
+        { deleteMany: { filter: { userId: viewer.userId } } },
+        ...topMatches.map((match) => ({
+          insertOne: { document: match },
+        })),
+      ];
+      await MatchRecommendationModel.bulkWrite(bulkOps);
+    } else {
+      await MatchRecommendationModel.deleteMany({ userId: viewer.userId });
     }
   }
   }, { connection: redisConnection as any })

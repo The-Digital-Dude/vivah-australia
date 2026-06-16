@@ -587,7 +587,29 @@ function TextAreaField({
 
 type StepErrors = Record<string, string>;
 
-// Step 1: Basic Details
+function calculateDraftCompletion(draft: ProfileDraft): { percentage: number; missing: string[] } {
+  const fields = [
+    { key: draft.personal.firstName, label: 'First name' },
+    { key: draft.personal.lastName, label: 'Last name' },
+    { key: draft.personal.gender, label: 'Gender' },
+    { key: draft.personal.dateOfBirth, label: 'Date of birth' },
+    { key: draft.personal.maritalStatus, label: 'Marital status' },
+    { key: draft.location.country, label: 'Country' },
+    { key: draft.location.city, label: 'City' },
+    { key: draft.religion.religion, label: 'Religion' },
+    { key: draft.religion.community, label: 'Community' },
+    { key: draft.education.highestQualification, label: 'Highest qualification' },
+    { key: draft.employment.occupation, label: 'Occupation' },
+    { key: draft.about.aboutMe, label: 'About me' },
+    { key: draft.about.partnerExpectations, label: 'Partner expectations' },
+  ];
+  const completed = fields.filter((f) => f.key && f.key.trim() !== '');
+  const missing = fields.filter((f) => !f.key || f.key.trim() === '').map((f) => f.label);
+  const percentage = Math.round((completed.length / fields.length) * 100);
+  return { percentage, missing };
+}
+
+// Step 0: Basic Details
 function StepBasicDetails({
   draft,
   onChange,
@@ -788,13 +810,21 @@ function StepReligion({
           onChange={(v) => onChange({ religion: v })}
           error={errors.religion}
         />
-        <Field
+        <SelectField
           label="Community"
-          optional
-          placeholder="e.g. Punjabi, Tamil"
           value={r.community}
           onChange={(v) => onChange({ community: v })}
           error={errors.community}
+          options={[
+            { value: 'HINDU_BRAHMIN', label: 'Brahmin' },
+            { value: 'HINDU_RAJPUT', label: 'Rajput' },
+            { value: 'HINDU_BANYA', label: 'Banya' },
+            { value: 'SIKH_JAT', label: 'Jat Sikh' },
+            { value: 'SIKH_KHATRI', label: 'Khatri Sikh' },
+            { value: 'ISLAM_SUNNI', label: 'Sunni' },
+            { value: 'ISLAM_SHIA', label: 'Shia' },
+            { value: 'OTHER', label: 'Other' },
+          ]}
         />
       </div>
       <details className="rounded-3xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-4">
@@ -869,7 +899,6 @@ function StepEducation({
         <div className="grid gap-3">
           <Field
             label="Highest qualification"
-            optional
             placeholder="e.g. Bachelor's Degree"
             value={ed.highestQualification}
             onChange={(v) => onEdChange({ highestQualification: v })}
@@ -919,11 +948,10 @@ function StepEducation({
           <div className="grid gap-3 sm:grid-cols-2">
             <Field
               label="Occupation"
-              optional
               placeholder="e.g. Software Engineer"
               value={em.occupation}
               onChange={(v) => onEmChange({ occupation: v })}
-              error={errors.highestQualification}
+              error={errors.occupation}
             />
             <Field
               label="Industry"
@@ -1186,7 +1214,6 @@ function StepAbout({
       </div>
       <TextAreaField
         label="Partner expectations"
-        optional
         rows={4}
         placeholder="Describe the values, attributes, or mindset you expect in your future partner..."
         value={a.partnerExpectations}
@@ -1877,9 +1904,33 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     return errs;
   }
 
+  function validateStep2(): StepErrors {
+    const errs: StepErrors = {};
+    if (!draft.religion.religion) errs.religion = 'Religion is required';
+    if (!draft.religion.community) errs.community = 'Community is required';
+    return errs;
+  }
+
+  function validateStep3(): StepErrors {
+    const errs: StepErrors = {};
+    if (!draft.education.highestQualification) errs.highestQualification = 'Highest qualification is required';
+    if (!draft.employment.occupation) errs.occupation = 'Occupation is required';
+    return errs;
+  }
+
+  function validateStep6(): StepErrors {
+    const errs: StepErrors = {};
+    if (!draft.about.aboutMe.trim()) errs.aboutMe = 'About Me is required';
+    if (!draft.about.partnerExpectations.trim()) errs.partnerExpectations = 'Partner expectations are required';
+    return errs;
+  }
+
   function validateCurrentStep(): StepErrors {
     if (step === 0) return validateStep0();
     if (step === 1) return validateStep1();
+    if (step === 2) return validateStep2();
+    if (step === 3) return validateStep3();
+    if (step === 6) return validateStep6();
     return {};
   }
 
@@ -2011,6 +2062,29 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
 
   return (
     <div className="relative grid gap-3">
+      {/* Profile Strength Coaching */}
+      <div className="rounded-2xl border border-[#A10E4D]/20 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFFFFF_100%)] p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-bold text-[#A10E4D]">Profile Strength</p>
+          <p className="text-sm font-bold text-[#A10E4D]">{calculateDraftCompletion(draft).percentage}%</p>
+        </div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#A10E4D]/10">
+          <div
+            className="h-full rounded-full bg-[#A10E4D] transition-all duration-500"
+            style={{ width: `${calculateDraftCompletion(draft).percentage}%` }}
+          />
+        </div>
+        {calculateDraftCompletion(draft).missing.length > 0 ? (
+          <p className="mt-2 text-xs font-semibold text-[#A10E4D]">
+            Add <span className="font-bold underline">{calculateDraftCompletion(draft).missing[0]}</span> to boost your profile views!
+          </p>
+        ) : (
+          <p className="mt-2 text-xs font-semibold text-green-700">
+            Great job! Your profile is looking very strong.
+          </p>
+        )}
+      </div>
+
       {/* Toast */}
       {toast ? (
         <div

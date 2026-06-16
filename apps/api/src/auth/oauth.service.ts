@@ -2,7 +2,7 @@ import { AccountStatus, UserRole } from '@vivah/shared';
 import { HttpError } from './auth-errors.js';
 import { AuthProvider, ProfileModel, UserModel, type UserDocument, type User } from '../models/index.js';
 import type { AuthConfig } from './auth-types.js';
-import { createTokenPair, type TokenPair } from './token.service.js';
+import { createTokenPair, createOpaqueToken, type TokenPair } from './token.service.js';
 
 interface OAuthProfile {
   id: string;
@@ -162,7 +162,7 @@ export async function loginOrRegisterOAuth(
         emailVerified: true,
         mobileVerified: false,
         failedLoginAttempts: 0,
-        refreshTokenVersion: 0,
+        activeSessions: [],
         termsAcceptedAt: now,
         privacyAcceptedAt: now,
         marketingConsent: false,
@@ -231,13 +231,15 @@ export async function loginOrRegisterOAuth(
     throw new HttpError(403, 'Account is not active.');
   }
 
+  const sessionId = createOpaqueToken();
+  user.activeSessions.push(sessionId);
   user.lastLoginAt = new Date();
   await user.save();
 
   const tokenPair = createTokenPair(config, {
     id: user.id || String(user._id),
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    sessionId,
   });
 
   const userResult: { id: string; email?: string; role: string } = {

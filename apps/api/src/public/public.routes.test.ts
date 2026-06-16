@@ -139,6 +139,8 @@ describe('public web routes', () => {
 
     await ProfileModel.create({
       userId: user._id,
+      userStatus: AccountStatus.ACTIVE,
+      userIsDeleted: false,
       displayId: 'VA900001',
       completionPercentage: 80,
       personal: { firstName: 'Priya', age: 31, gender: 'FEMALE' },
@@ -208,6 +210,8 @@ describe('public web routes', () => {
 
     await ProfileModel.create({
       userId: femaleUser._id,
+      userStatus: AccountStatus.ACTIVE,
+      userIsDeleted: false,
       displayId: 'VA910001',
       completionPercentage: 84,
       personal: { firstName: 'Priya', age: 29, gender: 'FEMALE' },
@@ -248,6 +252,8 @@ describe('public web routes', () => {
 
     await ProfileModel.create({
       userId: maleUser._id,
+      userStatus: AccountStatus.ACTIVE,
+      userIsDeleted: false,
       displayId: 'VA910002',
       completionPercentage: 84,
       personal: { firstName: 'Arjun', age: 31, gender: 'MALE' },
@@ -593,6 +599,8 @@ describe('public web routes', () => {
     // Create profiles
     await ProfileModel.create({
       userId: activeUser._id,
+      userStatus: AccountStatus.ACTIVE,
+      userIsDeleted: false,
       displayId: 'VA900010',
       completionPercentage: 80,
       personal: { firstName: 'Active User', age: 31, gender: 'FEMALE' },
@@ -614,6 +622,8 @@ describe('public web routes', () => {
     futureDate.setDate(futureDate.getDate() + 1);
     await ProfileModel.create({
       userId: boostedUser._id,
+      userStatus: AccountStatus.ACTIVE,
+      userIsDeleted: false,
       displayId: 'VA900011',
       completionPercentage: 80,
       personal: { firstName: 'Boosted User', age: 31, gender: 'FEMALE' },
@@ -633,6 +643,8 @@ describe('public web routes', () => {
 
     await ProfileModel.create({
       userId: suspendedUser._id,
+      userStatus: AccountStatus.ACTIVE,
+      userIsDeleted: false,
       displayId: 'VA900012',
       completionPercentage: 80,
       personal: { firstName: 'Suspended User', age: 31, gender: 'FEMALE' },

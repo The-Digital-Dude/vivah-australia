@@ -33,7 +33,7 @@ export interface User {
   passwordChangedAt?: Date;
   failedLoginAttempts: number;
   lockUntil?: Date;
-  refreshTokenVersion: number;
+  activeSessions: string[];
   termsAcceptedAt?: Date;
   privacyAcceptedAt?: Date;
   marketingConsent: boolean;
@@ -94,7 +94,7 @@ const userSchema = new Schema<User>(
     passwordChangedAt: { type: Date },
     failedLoginAttempts: { type: Number, default: 0, min: 0, required: true },
     lockUntil: { type: Date },
-    refreshTokenVersion: { type: Number, default: 0, min: 0, required: true },
+    activeSessions: { type: [String], default: [] },
     termsAcceptedAt: { type: Date },
     privacyAcceptedAt: { type: Date },
     marketingConsent: { type: Boolean, default: false, required: true },

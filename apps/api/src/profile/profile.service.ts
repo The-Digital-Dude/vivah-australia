@@ -10,6 +10,7 @@ import {
 import { Types } from 'mongoose';
 import { recordHighVelocityProfileViews } from '../common/fraud.service.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
+import { sendEmail } from '../common/email.service.js';
 import { HttpError } from '../auth/auth-errors.js';
 import { isPaidMember, cancelSubscription } from '../billing/billing.service.js';
 import {
@@ -167,6 +168,26 @@ export async function submitOwnProfile(userId: Types.ObjectId) {
   profile.set('moderation.reviewedAt', undefined);
   profile.set('moderation.rejectionReason', undefined);
   await profile.save();
+
+  try {
+    await sendEmail({
+      to: process.env.ADMIN_NOTIFICATION_EMAIL || 'admin@vivahaustralia.com.au',
+      subject: `New Profile Submission: ${profile.personal?.firstName ?? profile.displayId}`,
+      html: `
+        <h2>Profile Needs Review</h2>
+        <p>A user has submitted their profile for moderation.</p>
+        <ul>
+          <li><strong>ID:</strong> ${profile._id.toString()}</li>
+          <li><strong>Display ID:</strong> ${profile.displayId}</li>
+          <li><strong>Name:</strong> ${profile.personal?.firstName ?? ''} ${profile.personal?.lastName ?? ''}</li>
+        </ul>
+        <a href="https://admin.vivahaustralia.com.au/profiles/${profile._id.toString()}">Review Profile</a>
+      `
+    });
+  } catch (err) {
+    console.error('Failed to send admin notification email:', err);
+  }
+
   return profile;
 }
 
@@ -554,7 +575,7 @@ export async function deactivateOwnAccount(userId: Types.ObjectId) {
 
   user.status = AccountStatus.SUSPENDED;
   user.failedLoginAttempts = 0;
-  user.refreshTokenVersion += 1;
+  user.activeSessions = [];
   user.set('lockUntil', undefined);
   user.set('updatedBy', userId);
   await user.save();
@@ -598,7 +619,7 @@ export async function requestAccountDeletion(userId: Types.ObjectId) {
   user.deletedAt = now;
   user.deletedBy = userId;
   user.failedLoginAttempts = 0;
-  user.refreshTokenVersion += 1;
+  user.activeSessions = [];
   user.set('lockUntil', undefined);
   user.set('updatedBy', userId);
   await user.save();

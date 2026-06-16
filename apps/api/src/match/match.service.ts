@@ -511,7 +511,7 @@ export function calculateMatchScore(
   }
 
   if (candidate.verification.level !== 'NONE') {
-    addScore(result, 4, `${candidate.verification.level.replaceAll('_', ' ')} verification`);
+    addScore(result, 10, `${candidate.verification.level.replaceAll('_', ' ')} verification`);
   }
 
   if (candidate.stats.lastActiveAt) {
@@ -523,8 +523,14 @@ export function calculateMatchScore(
     }
   }
 
+  if (!candidate.visibility.showPhoto) {
+    result.score -= 15;
+  }
+
   if (candidate.completionPercentage < 80) {
-    result.score -= 8;
+    result.score -= 15;
+  } else if (candidate.completionPercentage < 90) {
+    result.score -= 5;
   }
 
   return {
