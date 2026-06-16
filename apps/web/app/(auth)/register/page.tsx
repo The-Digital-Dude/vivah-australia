@@ -20,6 +20,8 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [emailStep, setEmailStep] = useState<'register' | 'verify'>('register');
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const [mobileOtpStep, setMobileOtpStep] = useState<'register' | 'verify'>('register');
   const [registeredMobile, setRegisteredMobile] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -54,12 +56,36 @@ export default function RegisterPage() {
       });
 
       if (result.ok) {
+        setRegisteredEmail(form.get('email') as string);
+        setEmailStep('verify');
+        setResendCountdown(OTP_RESEND_SECONDS);
         setSuccess('Registration created successfully. Check your email to verify your account.');
       } else {
         setError(result.message || 'Registration failed.');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during registration.');
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function resendVerificationEmail() {
+    if (!registeredEmail || resendCountdown > 0) return;
+    setError(null);
+    setSuccess(null);
+    setPending(true);
+
+    try {
+      const result = await postAuth('resend-verification-email', { email: registeredEmail });
+      if (result.ok) {
+        setResendCountdown(OTP_RESEND_SECONDS);
+        setSuccess('A fresh verification link has been sent to your email.');
+      } else {
+        setError(result.message || 'Could not resend the verification email.');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred while resending the email.');
     } finally {
       setPending(false);
     }
@@ -118,7 +144,7 @@ export default function RegisterPage() {
       if (result.ok && result.data?.accessToken) {
         setSession({ user: result.data?.user as any });
         setSuccess('Mobile number verified. Welcome to Vivah Australia.');
-        router.push('/member');
+        router.push('/member/onboarding');
         router.refresh();
       } else {
         setError(result.message || 'OTP verification failed.');
@@ -248,6 +274,50 @@ export default function RegisterPage() {
             </p>
           </div>
         </form>
+      ) : mode === 'email' && emailStep === 'verify' ? (
+        <div className="grid gap-5">
+          {error && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-center text-sm font-semibold text-green-700">
+              {success}
+            </div>
+          )}
+
+          <div className="rounded-2xl bg-brand-ivory p-4 text-sm leading-6 text-gray-500">
+            A verification link was sent to <span className="font-semibold text-brand-charcoal">{registeredEmail}</span>.
+            Please click the link in the email to activate your account.
+          </div>
+
+          <div className="mt-2 flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => void resendVerificationEmail()}
+              disabled={pending || resendCountdown > 0}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-brand-maroon/20 bg-white px-5 py-2.5 text-sm font-semibold text-brand-maroon transition hover:bg-brand-maroon/5 disabled:opacity-60"
+            >
+              {resendCountdown > 0 ? `Resend Link in ${resendCountdown}s` : 'Resend Verification Email'}
+            </button>
+          </div>
+
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setEmailStep('register');
+                setRegisteredEmail('');
+                setError(null);
+                setSuccess(null);
+              }}
+              className="text-sm font-semibold text-brand-maroon hover:text-[#890B40]"
+            >
+              Use a different email address
+            </button>
+          </div>
+        </div>
       ) : mobileOtpStep === 'register' ? (
         <form method="post" className="grid gap-5" onSubmit={(event) => void onMobileRegister(event)}>
           {error && (

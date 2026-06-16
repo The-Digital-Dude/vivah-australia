@@ -38,13 +38,13 @@ smsWorker?.on('failed', (job, err) => {
   logger.error({ err, jobId: job?.id }, 'SMS job failed');
 });
 
-export async function sendSms(to: string, body: string) {
+export async function sendSms(input: { to: string; message: string }) {
   if (smsQueue) {
-    await smsQueue.add('send', { to, body }, {
+    await smsQueue.add('send', { to: input.to, body: input.message }, {
       attempts: 3,
       backoff: { type: 'exponential', delay: 2000 },
     });
   } else {
-    logger.warn('Redis unavailable — SMS not queued, skipping send to ' + to);
+    logger.warn('Redis unavailable — SMS not queued, skipping send to ' + input.to);
   }
 }

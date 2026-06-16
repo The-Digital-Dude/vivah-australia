@@ -267,6 +267,42 @@ export async function verifyEmail(token: string): Promise<void> {
   await authToken.save();
 }
 
+export async function resendVerificationEmail(email: string, config: AuthConfig) {
+  const user = await UserModel.findOne({ email });
+
+  if (!user || user.emailVerified) {
+    throw new HttpError(400, 'User not found or already verified');
+  }
+
+  const profile = await ProfileModel.findOne({ userId: user._id });
+
+  const verificationToken = await createAuthToken(
+    user._id,
+    AuthTokenPurpose.EMAIL_VERIFICATION,
+    EMAIL_TOKEN_TTL_MS,
+  );
+
+  const verificationLink = `${getWebBaseUrl()}/verify-email?token=${verificationToken}`;
+
+  await sendTemplatedEmail({
+    to: user.email!,
+    from: 'noreply@vivahaustralia.com.au',
+    templateKey: 'auth_email_verification',
+    context: {
+      firstName: profile?.personal?.firstName ?? 'User',
+      lastName: profile?.personal?.lastName ?? '',
+      verificationLink,
+      supportEmail: env.EMAIL_FROM,
+      appName: 'Vivah Australia',
+    },
+    subjectFallback: 'Verify your email address',
+    textFallback: `Please click the following link to verify your email address: ${verificationLink}`,
+    htmlFallback: `<p>Please click the following link to verify your email address:</p><p><a href="${verificationLink}">${verificationLink}</a></p>`,
+  });
+
+  return { message: 'Verification email resent.' };
+}
+
 export async function loginWithEmail(input: LoginInput, config: AuthConfig): Promise<AuthResult> {
   const identifier = normalizeLoginIdentifier(input.email);
   const user = await UserModel.findOne(

@@ -24,6 +24,7 @@ import {
   registerWithMobile,
   resendMobileRegistrationOtp,
   requestPasswordReset,
+  resendVerificationEmail,
   resetPassword,
   verifyEmail,
   verifyMobileRegistration,
@@ -131,6 +132,19 @@ export function createAuthRouter(config: AuthConfig): Router {
       const input = verifyEmailSchema.parse(request.body);
       await verifyEmail(input.token);
       response.status(200).json({ message: 'Email verified' });
+    }),
+  );
+
+  router.post(
+    '/resend-verification-email',
+    authRateLimit,
+    asyncHandler(async (request: Request, response: Response) => {
+      const { email } = request.body as Record<string, unknown>;
+      if (typeof email !== 'string' || !email) {
+        throw new HttpError(400, 'Email is required');
+      }
+      const result = await resendVerificationEmail(email, config);
+      response.status(200).json(result);
     }),
   );
 

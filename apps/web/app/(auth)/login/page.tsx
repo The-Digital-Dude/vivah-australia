@@ -10,6 +10,7 @@ import AuthShell from '../auth-shell';
 import FormField from '../form-field';
 import SubmitButton from '../submit-button';
 import { postAuth } from '@/lib/auth-api';
+import { memberRequest } from '@/lib/member-api';
 import { useAuth } from '@/app/auth-context';
 
 function formValue(form: FormData, key: string) {
@@ -25,6 +26,20 @@ function LoginContent() {
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
 
+  const routeAfterLogin = async () => {
+    let returnUrl = searchParams.get('returnUrl') || '/member';
+    try {
+      const profileRes = await memberRequest('/api/me/profile');
+      if (profileRes.ok && (profileRes.data as any)?.profile?.completionPercentage < 50) {
+        returnUrl = '/member/onboarding';
+      }
+    } catch (e) {
+      // ignore error
+    }
+    router.push(returnUrl);
+    router.refresh();
+  };
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setError('');
@@ -35,8 +50,7 @@ function LoginContent() {
         if (result.ok) {
           setSession({ user: result.data?.user as any });
           setMessage('Signed in successfully.');
-          router.push(searchParams.get('returnUrl') || '/member');
-          router.refresh();
+          await routeAfterLogin();
         } else {
           setError(result.message || 'Google login failed');
           setPending(false);
@@ -70,8 +84,7 @@ function LoginContent() {
         if (result.ok) {
           setSession({ user: result.data?.user as any });
           setMessage('Signed in successfully.');
-          router.push(searchParams.get('returnUrl') || '/member');
-          router.refresh();
+          await routeAfterLogin();
         } else {
           setError(result.message || 'Apple login failed');
           setPending(false);
@@ -101,8 +114,7 @@ function LoginContent() {
       if (result.ok) {
         setSession({ user: result.data?.user as any });
         setMessage('Welcome back');
-        router.push(searchParams.get('returnUrl') || '/member');
-        router.refresh();
+        await routeAfterLogin();
       } else {
         setError(result.message || 'Login failed');
         setPending(false);
@@ -130,8 +142,7 @@ function LoginContent() {
       if (result.ok) {
         setSession({ user: result.data?.user as any });
         setMessage('Signed in successfully.');
-        router.push(searchParams.get('returnUrl') || '/member');
-        router.refresh();
+        await routeAfterLogin();
       } else {
         setError(result.message || 'Facebook login failed');
         setPending(false);

@@ -105,15 +105,19 @@ function hashOtp(code: string) {
   return crypto.createHash('sha256').update(code).digest('hex');
 }
 
-function createOtp() {
-  if (process.env.NODE_ENV === 'test') {
-    return '123456';
+function createOtp(mobile: string) {
+  let otp = '123456';
+  if (process.env.NODE_ENV !== 'test') {
+    otp = String(crypto.randomInt(100000, 1000000));
   }
-  return String(crypto.randomInt(100000, 1000000));
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`\n=== DEV MODE: OTP for ${mobile} is [ ${otp} ] ===\n`);
+  }
+  return otp;
 }
 
 export async function requestMobileOtp(userId: Types.ObjectId, mobile: string) {
-  const code = createOtp();
+  const code = createOtp(mobile);
   await MobileOtpModel.updateMany(
     { userId, mobile, usedAt: { $exists: false }, isDeleted: false },
     { $set: { isDeleted: true, deletedAt: new Date(), deletedBy: userId } },

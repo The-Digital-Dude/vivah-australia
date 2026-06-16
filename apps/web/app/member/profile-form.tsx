@@ -1316,7 +1316,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
         return;
       }
       // GCS URLs are the upload URL without query parameters (if signed URL used queries)
-      assetUrl = signedBody.upload.url.split('?')[0];
+      assetUrl = signedBody.upload.url?.split('?')[0] ?? '';
     }
 
     const completed = await memberRequest('/api/me/media/complete', {

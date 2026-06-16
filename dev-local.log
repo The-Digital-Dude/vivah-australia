@@ -1253,3 +1253,49 @@
 [0]     [35murl[39m: "/api/public/pages/verification-policy"
 [0]     [35mstatusCode[39m: 200
 [0]     [35mdurationMs[39m: 51
+[0] 10:38:38 AM [tsx] change in ./src\app.ts Restarting...
+[0] c
+[0] node:internal/modules/run_main:123
+[0]     triggerUncaughtException(
+[0]     ^
+[0] Error [TransformError]: Transform failed with 1 error:
+[0] D:\AI\Vivah Australia\apps\api\src\app.ts:118:9: ERROR: Unexpected "{"
+[0]     at failureErrorWithLog (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1748:15)
+[0]     at D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1017:50
+[0]     at responseCallbacks.<computed> (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:884:9)
+[0]     at handleIncomingPacket (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:939:12)
+[0]     at Socket.readFromStdout (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:862:7)
+[0]     at Socket.emit (node:events:519:28)
+[0]     at addChunk (node:internal/streams/readable:561:12)
+[0]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[0]     at Readable.push (node:internal/streams/readable:392:5)
+[0]     at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[0] 
+[0] Node.js v22.22.1
+[0] 10:38:50 AM [tsx] change in ./src\app.ts Rerunning...
+[0] c10:39:01 AM [tsx] change in ./src\app.ts Restarting...
+[0] c10:39:12 AM [tsx] change in ./src\app.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 10:39:31.115 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 10:39:31.136 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 10:39:33 AM [tsx] change in ./src\app.ts Restarting...
+[0] c10:39:45 AM [tsx] change in ./src\media\media.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 10:40:12.183 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 10:40:12.216 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 10:44:17 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c10:44:18 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c10:44:18 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c10:44:40 AM [tsx] change in ./..\..\packages\shared\dist\constants.js Restarting...
+[0] c10:44:40 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c10:44:41 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c10:44:44 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 10:45:07.369 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 10:45:07.388 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
