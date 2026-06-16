@@ -108,7 +108,7 @@ function renderPolicyBody(body: string) {
     <div className="whitespace-pre-line text-gray-700 leading-8">
       {lines.map((line, i) => {
         const trimmed = line.trim();
-        const prevTrimmed = i > 0 ? lines[i - 1].trim() : null;
+        const prevTrimmed = i > 0 ? lines[i - 1]?.trim() ?? null : null;
         const isHeading =
           trimmed !== '' &&
           (prevTrimmed === null || prevTrimmed === '') &&

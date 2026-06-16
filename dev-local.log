@@ -681,3 +681,205 @@
 [0]     [35murl[39m: "http://localhost:4000"
 [0]     [35mport[39m: 4000
 [1] ✓ Compiled in 81.5s
+[0] 9:52:29 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c9:52:29 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c9:52:30 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 09:52:47.413 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 09:52:47.471 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1] motion() is deprecated. Use motion.create() instead.
+[0] [2026-06-16 09:56:08.658 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "64acb06c-5f66-4157-a839-d0567c3f1116"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 441
+[0] [2026-06-16 09:56:10.556 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "584a34a8-1d7b-4111-8f86-e4ebb1348225"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 64
+[1]  GET / 200 in 27.6s (next.js: 840ms, application-code: 26.8s)
+[0] 9:56:37 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[0] c9:56:38 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[0] 9:56:39 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c
+[1] ○ Compiling /login ...
+[0] [redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 09:57:04.211 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 09:57:04.272 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] [2026-06-16 09:57:26.447 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "82c94244-0678-4608-8c75-8feb762b16cf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 186
+[1]  GET / 200 in 6.4s (next.js: 1841ms, application-code: 4.6s)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[1] 
+[1] - A server/client branch `if (typeof window !== 'undefined')`.
+[1] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[1] - Date formatting in a user's locale which doesn't match the server.
+[1] - External changing data without sending a snapshot of it along with the HTML.
+[1] - Invalid HTML tag nesting.
+[1] 
+[1] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[1] 
+[1] https://react.dev/link/hydration-mismatch
+[1] 
+[1]   ...
+[1]     <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+[1]       <AppDevOverlayErrorBoundary globalError={[...]}>
+[1]         <ReplaySsrOnlyErrors>
+[1]         <DevRootHTTPAccessFallbackBoundary>
+[1]           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+[1]             <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+[1]               <RedirectBoundary>
+[1]                 <RedirectErrorBoundary router={{...}}>
+[1]                   <Head>
+[1]                   <__next_root_layout_boundary__>
+[1]                     <SegmentViewNode type="layout" pagePath="layout.tsx">
+[1]                       <SegmentTrieNode>
+[1]                       <link>
+[1]                       <script>
+[1]                       <script>
+[1]                       <script>
+[1]                       <RootLayout>
+[1]                         <html lang="en-AU">
+[1]                           <body
+[1] -                           cz-shortcut-listen="true"
+[1]                           >
+[1]                   ...
+[1]  
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at emitPendingHydrationWarnings (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3438:13)
+[1]     at completeWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6885:102)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:131)
+[1]     at completeUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9622:23)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9557:28)
+[1]     at workLoopConcurrentByScheduler (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9551:58)
+[1]     at renderRootConcurrent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9534:71)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9061:150)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64) (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] ✓ Finished writing to filesystem cache in 12.9s
+[1] ✓ Finished filesystem cache database compaction in 11.7s
+[1]  GET /login 200 in 52s (next.js: 10.1s, application-code: 42s)
+[1]  GET /login 200 in 15.5s (next.js: 838ms, application-code: 14.7s)
+[1] [browser] componentWillReceiveProps has been renamed, and is not recommended for use. See https://react.dev/link/unsafe-component-lifecycles for details.
+[1] 
+[1] * Move data fetching code or side effects to componentDidUpdate.
+[1] * If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://react.dev/link/derived-state
+[1] * Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 18.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+[1] 
+[1] Please update the following components: t (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] The method FB.login can no longer be called from http pages. https://developers.facebook.com/blog/post/2018/06/08/enforce-https-facebook-login/ 
+[1]     at Object.s [as log] (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[1]     at u (https://connect.facebook.net/en_US/bundle/sdk.js/:173:234)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:190:779)
+[1]     at Object.<anonymous> (https://connect.facebook.net/en_US/bundle/sdk.js/:106:920)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:96:259)
+[1]     at n.click (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0110djf._.js:434:47)
+[1]     at executeDispatch (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10329:13)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at processDispatchQueue (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10355:41)
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10633:13)
+[1]     at batchedUpdates$1 (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:2253:44)
+[1]     at dispatchEventForPluginEventSystem (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10431:9)
+[1]     at dispatchEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:13002:37)
+[1]     at dispatchDiscreteEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:12984:64) (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[1] [browser] FB.login() called before FB.init(). 
+[1]     at s (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[1]     at c (https://connect.facebook.net/en_US/bundle/sdk.js/:188:1084)
+[1]     at transform (https://connect.facebook.net/en_US/bundle/sdk.js/:188:4322)
+[1]     at Object.prepareCall (https://connect.facebook.net/en_US/bundle/sdk.js/:188:8607)
+[1]     at e (https://connect.facebook.net/en_US/bundle/sdk.js/:189:1076)
+[1]     at a (https://connect.facebook.net/en_US/bundle/sdk.js/:149:668)
+[1]     at Object.s [as login] (https://connect.facebook.net/en_US/bundle/sdk.js/:149:1869)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:190:803)
+[1]     at Object.<anonymous> (https://connect.facebook.net/en_US/bundle/sdk.js/:106:920)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:96:259)
+[1]     at n.click (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0110djf._.js:434:47)
+[1]     at executeDispatch (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10329:13)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at processDispatchQueue (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10355:41)
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10633:13)
+[1]     at batchedUpdates$1 (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:2253:44)
+[1]     at dispatchEventForPluginEventSystem (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10431:9)
+[1]     at dispatchEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:13002:37)
+[1]     at dispatchDiscreteEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:12984:64) (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[1] motion() is deprecated. Use motion.create() instead.
+[1]  GET /login 200 in 5.2s (next.js: 121ms, application-code: 5.1s)
+[0] [2026-06-16 09:59:51.528 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "38c48a8a-0083-495f-a40f-9bf036232a3f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 273
+[1] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[1] 
+[1] - A server/client branch `if (typeof window !== 'undefined')`.
+[1] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[1] - Date formatting in a user's locale which doesn't match the server.
+[1] - External changing data without sending a snapshot of it along with the HTML.
+[1] - Invalid HTML tag nesting.
+[1] 
+[1] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[1] 
+[1] https://react.dev/link/hydration-mismatch
+[1] 
+[1]   ...
+[1]     <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+[1]       <AppDevOverlayErrorBoundary globalError={[...]}>
+[1]         <ReplaySsrOnlyErrors>
+[1]         <DevRootHTTPAccessFallbackBoundary>
+[1]           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+[1]             <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+[1]               <RedirectBoundary>
+[1]                 <RedirectErrorBoundary router={{...}}>
+[1]                   <Head>
+[1]                   <__next_root_layout_boundary__>
+[1]                     <SegmentViewNode type="layout" pagePath="layout.tsx">
+[1]                       <SegmentTrieNode>
+[1]                       <link>
+[1]                       <script>
+[1]                       <script>
+[1]                       <script>
+[1]                       <RootLayout>
+[1]                         <html lang="en-AU">
+[1]                           <body
+[1] -                           cz-shortcut-listen="true"
+[1]                           >
+[1]                   ...
+[1]  
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at emitPendingHydrationWarnings (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3438:13)
+[1]     at completeWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6885:102)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:131)
+[1]     at completeUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9622:23)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9557:28)
+[1]     at workLoopConcurrentByScheduler (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9551:58)
+[1]     at renderRootConcurrent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9534:71)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9061:150)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64) (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] componentWillReceiveProps has been renamed, and is not recommended for use. See https://react.dev/link/unsafe-component-lifecycles for details.
+[1] 
+[1] * Move data fetching code or side effects to componentDidUpdate.
+[1] * If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://react.dev/link/derived-state
+[1] * Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 18.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+[1] 
+[1] Please update the following components: t (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
