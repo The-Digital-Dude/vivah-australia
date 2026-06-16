@@ -2,6 +2,11 @@ import { Redis } from 'ioredis';
 import { env } from '../env.js';
 
 async function tryCreateRedis(): Promise<Redis | null> {
+  if (!env.REDIS_URI) {
+    console.warn('[redis] REDIS_URI not set — queues disabled');
+    return null;
+  }
+
   let client: Redis | null = null;
   try {
     client = new Redis(env.REDIS_URI, { maxRetriesPerRequest: null });
@@ -16,7 +21,6 @@ async function tryCreateRedis(): Promise<Redis | null> {
     return client;
   } catch (err) {
     if (client) await client.quit().catch(() => {});
-    if (env.NODE_ENV === 'production') throw err;
     console.warn('[redis] Could not connect to Redis — queues disabled:', (err as Error).message);
     return null;
   }

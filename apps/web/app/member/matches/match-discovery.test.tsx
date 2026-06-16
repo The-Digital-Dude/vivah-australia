@@ -166,6 +166,24 @@ describe('MatchDiscovery filters', () => {
     expect(screen.getByText('Visa: Australian Citizen, Permanent Resident')).toBeTruthy();
   });
 
+  it('uses verified-only preset semantics for the verified quick filter', async () => {
+    render(<MatchDiscovery />);
+
+    await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Verified only' }));
+
+    await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith(
+        '/api/matches/search?page=1&pageSize=12&sort=VERIFIED&verifiedOnly=true',
+      );
+    });
+
+    expect(screen.getByText('Verified members')).toBeTruthy();
+  });
+
   it('submits advanced filters and sends the updated search query', async () => {
     render(<MatchDiscovery />);
 
@@ -173,7 +191,7 @@ describe('MatchDiscovery filters', () => {
       expect(memberRequestMock).toHaveBeenCalledWith('/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED');
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /advanced filters/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^filters$/i }));
 
     fireEvent.change(screen.getByLabelText('City'), {
       target: { value: 'Sydney, Parramatta' },
@@ -190,7 +208,7 @@ describe('MatchDiscovery filters', () => {
       );
     });
 
-    expect(screen.getByText('Near: Sydney, Parramatta')).toBeTruthy();
+    expect(screen.getByText('Local: Sydney, Parramatta')).toBeTruthy();
     expect(screen.getByText('Visa: Student Visa, Work Visa')).toBeTruthy();
   });
 });

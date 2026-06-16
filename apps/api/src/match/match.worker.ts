@@ -1,5 +1,12 @@
 import { Queue, Worker } from 'bullmq';
-import { MatchRecommendationModel, ProfileModel, SavedSearchModel } from '../models/index.js';
+import {
+  BlockModel,
+  HiddenProfileModel,
+  MatchRecommendationModel,
+  ProfileApprovalStatus,
+  ProfileModel,
+  SavedSearchModel,
+} from '../models/index.js';
 import { calculateMatchScore, searchProfiles } from './match.service.js';
 import { AccountStatus, ProfileVisibility } from '@vivah/shared';
 import { createNotification } from '../notifications/notifications.service.js';
@@ -18,6 +25,7 @@ export const matchCachingWorker = redisConnection
     isDeleted: false,
     userIsDeleted: false,
     userStatus: AccountStatus.ACTIVE,
+    'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
     'visibility.status': { $in: [ProfileVisibility.PUBLIC, ProfileVisibility.MEMBERS_ONLY] },
   };
 
@@ -25,6 +33,23 @@ export const matchCachingWorker = redisConnection
 
   for await (const viewer of cursor) {
     const scoredMatches = [];
+    const [blocks, hiddenProfiles] = await Promise.all([
+      BlockModel.find({
+        isDeleted: false,
+        $or: [{ blockerId: viewer.userId }, { blockedId: viewer.userId }],
+      }).lean(),
+      HiddenProfileModel.find({ userId: viewer.userId, isDeleted: false }).lean(),
+    ]);
+    const excludedUserIds = new Set<string>([
+      ...blocks
+        .map((block) => (String(block.blockerId) === String(viewer.userId) ? block.blockedId : block.blockerId))
+        .filter(Boolean)
+        .map((id) => String(id)),
+      ...hiddenProfiles
+        .map((hiddenProfile) => hiddenProfile.hiddenUserId)
+        .filter(Boolean)
+        .map((id) => String(id)),
+    ]);
     
     // Determine the base filter for candidates
     const viewerPreference = viewer.partnerPreference ?? {};
@@ -48,6 +73,10 @@ export const matchCachingWorker = redisConnection
       .limit(1000);
 
     for (const candidate of candidates) {
+      if (excludedUserIds.has(String(candidate.userId))) {
+        continue;
+      }
+
       const { score, reasons } = calculateMatchScore(viewer, candidate);
       
       if (score > 0) {
@@ -92,15 +121,22 @@ export const savedSearchNotifyWorker = redisConnection
       const searches = await SavedSearchModel.find({ isDeleted: false, notifyOnNewMatches: true });
       for (const search of searches) {
         // Run search using current query and take top 5
-        const result = await searchProfiles(search.userId, { ...((search.query as any) || {}), page: 1, limit: 5 });
+        const result = await searchProfiles(search.userId, {
+          ...((search.query as any) || {}),
+          page: 1,
+          pageSize: 5,
+        });
         if (result.results.length > 0) {
           // Check if there are profiles created recently (in last 24h)
           const now = new Date();
           const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-          const newMatches = result.results.filter((m) => {
-            const createdAt = (m as any).createdAt;
-            return createdAt && new Date(createdAt) > oneDayAgo;
-          });
+          const matchedProfiles = await ProfileModel.find({
+            _id: { $in: result.results.map((match) => match.id) },
+            createdAt: { $gt: oneDayAgo },
+          })
+            .select('_id')
+            .lean();
+          const newMatches = matchedProfiles.map((profile) => String(profile._id));
           
           if (newMatches.length > 0) {
             await createNotification({

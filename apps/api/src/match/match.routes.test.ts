@@ -11,6 +11,7 @@ import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   BlockModel,
   HiddenProfileModel,
+  MatchRecommendationModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -354,6 +355,61 @@ describe('match routes', () => {
     expect(body.results[0]?.firstName).toBe('Neha');
   });
 
+  it('treats verified-only search as any verified tier while keeping exact tier filters available', async () => {
+    const viewer = await createUser('verified-any-viewer@example.com');
+    const basic = await createUser('verified-basic@example.com');
+    const silver = await createUser('verified-silver@example.com');
+    const none = await createUser('verified-none@example.com');
+
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA221001',
+      firstName: 'Amit',
+      gender: Gender.MALE,
+      age: 32,
+    });
+    await createProfile({
+      userId: basic.user._id,
+      displayId: 'VA221002',
+      firstName: 'Basic',
+      gender: Gender.FEMALE,
+      age: 29,
+      verificationLevel: 'BASIC',
+    });
+    await createProfile({
+      userId: silver.user._id,
+      displayId: 'VA221003',
+      firstName: 'Silver',
+      gender: Gender.FEMALE,
+      age: 29,
+      verificationLevel: 'SILVER',
+    });
+    await createProfile({
+      userId: none.user._id,
+      displayId: 'VA221004',
+      firstName: 'None',
+      gender: Gender.FEMALE,
+      age: 29,
+      verificationLevel: 'NONE',
+    });
+
+    const verifiedOnlyResponse = await request(app)
+      .get('/api/matches/search?gender=FEMALE&verifiedOnly=true&sort=VERIFIED')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const verifiedOnlyBody = bodyAs<MatchResponseBody>(verifiedOnlyResponse);
+    expect(verifiedOnlyBody.results.map((profile) => profile.firstName)).toEqual(['Silver', 'Basic']);
+
+    const exactTierResponse = await request(app)
+      .get('/api/matches/search?gender=FEMALE&verificationLevel=SILVER&sort=VERIFIED')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const exactTierBody = bodyAs<MatchResponseBody>(exactTierResponse);
+    expect(exactTierBody.results.map((profile) => profile.firstName)).toEqual(['Silver']);
+  });
+
   it('returns rule-based recommendations ordered by score with reasons', async () => {
     const viewer = await createUser('recommend@example.com');
     const strong = await createUser('strong@example.com');
@@ -400,6 +456,83 @@ describe('match routes', () => {
 
     expect(body.results.every((profile) => profile.firstName !== 'Priya')).toBe(true);
     expect(body.limits.recommendationLimit).toBe(6);
+  });
+
+  it('filters cached recommendations using the same eligibility rules as live discovery', async () => {
+    const viewer = await createUser('cached-viewer@example.com');
+    const approved = await createUser('cached-approved@example.com');
+    const hidden = await createUser('cached-hidden@example.com');
+    const pending = await createUser('cached-pending@example.com');
+
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA231001',
+      firstName: 'Viewer',
+      gender: Gender.MALE,
+      age: 32,
+      city: 'Melbourne',
+    });
+    const approvedProfile = await createProfile({
+      userId: approved.user._id,
+      displayId: 'VA231002',
+      firstName: 'Approved',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+    });
+    const hiddenProfile = await createProfile({
+      userId: hidden.user._id,
+      displayId: 'VA231003',
+      firstName: 'Hidden',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+    });
+    const pendingProfile = await createProfile({
+      userId: pending.user._id,
+      displayId: 'VA231004',
+      firstName: 'Pending',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+      approvalStatus: ProfileApprovalStatus.PENDING,
+    });
+
+    await HiddenProfileModel.create({
+      userId: viewer.user._id,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      profileId: hiddenProfile._id,
+      hiddenUserId: hidden.user._id,
+    });
+
+    await MatchRecommendationModel.insertMany([
+      {
+        userId: viewer.user._id,
+        recommendedProfileId: approvedProfile._id,
+        score: 91,
+        reasons: ['Age fits your preference'],
+      },
+      {
+        userId: viewer.user._id,
+        recommendedProfileId: hiddenProfile._id,
+        score: 95,
+        reasons: ['Hidden should not leak'],
+      },
+      {
+        userId: viewer.user._id,
+        recommendedProfileId: pendingProfile._id,
+        score: 96,
+        reasons: ['Pending should not leak'],
+      },
+    ]);
+
+    const response = await request(app)
+      .get('/api/matches/recommended?limit=12')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const body = bodyAs<MatchResponseBody>(response);
+    expect(body.results.map((profile) => profile.firstName)).toEqual(['Approved']);
   });
 
   it('prioritizes active complete profiles ahead of stale incomplete ones while preserving boosts', async () => {
@@ -466,6 +599,41 @@ describe('match routes', () => {
     expect(names.indexOf('Active')).toBeGreaterThan(-1);
     expect(names.indexOf('Stale')).toBeGreaterThan(-1);
     expect(names.indexOf('Active')).toBeLessThan(names.indexOf('Stale'));
+  });
+
+  it('reports bounded recommended-search pagination based on the ranked window', async () => {
+    const viewer = await createUser('windowed-viewer@example.com');
+
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA236001',
+      firstName: 'Viewer',
+      gender: Gender.MALE,
+      age: 32,
+      city: 'Melbourne',
+    });
+
+    for (let index = 0; index < 205; index += 1) {
+      const candidate = await createUser(`windowed-candidate-${index}@example.com`);
+      await createProfile({
+        userId: candidate.user._id,
+        displayId: `VA236${String(index).padStart(3, '0')}`,
+        firstName: `Candidate ${index}`,
+        gender: Gender.FEMALE,
+        age: 28,
+        city: 'Melbourne',
+      });
+    }
+
+    const response = await request(app)
+      .get('/api/matches/search?sort=RECOMMENDED&page=1&pageSize=25&gender=FEMALE')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const body = bodyAs<MatchResponseBody>(response);
+    expect(body.pagination?.total).toBe(200);
+    expect(body.pagination?.total).not.toBe(205);
+    expect(body.pagination?.totalPages).toBe(8);
   });
 
   it('creates, lists, runs, and deletes saved searches', async () => {

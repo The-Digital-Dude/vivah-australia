@@ -24,7 +24,7 @@ export default function FinalHomepageClient() {
     if (min) params.set('ageMin', min);
     if (max) params.set('ageMax', max);
     if (location !== 'All Australia') params.set('city', location);
-    if (community !== 'All') params.set('religion', community);
+    if (community !== 'All') params.set('community', community);
     router.push(`/search?${params.toString()}`);
   }
 

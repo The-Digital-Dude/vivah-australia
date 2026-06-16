@@ -1,11 +1,12 @@
 import {
+  AccountStatus,
   InterestStatus,
   ProfileVisibility,
   ReportStatus,
   SubscriptionStatus,
   type ReportStatus as ReportStatusType,
 } from '@vivah/shared';
-import mongoose, { Types } from 'mongoose';
+import mongoose, { Types, type ClientSession, type HydratedDocument } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { recordRepeatedReports, syncReportedUserRiskCounter } from '../common/fraud.service.js';
 import {
@@ -20,12 +21,14 @@ import {
   ProfileModel,
   ReportModel,
   SubscriptionModel,
+  type Interest,
 } from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';
 import { createNotification } from '../notifications/notifications.service.js';
 
 const FREE_INTERESTS_PER_MONTH = 5;
 const PAID_INTERESTS_PER_MONTH = 50;
+const QUOTA_COUNTED_STATUSES = new Set<string>([InterestStatus.PENDING, InterestStatus.ACCEPTED]);
 
 type InterestAction = 'ACCEPT' | 'REJECT' | 'WITHDRAW';
 
@@ -67,6 +70,8 @@ async function getTargetProfile(profileId: string) {
   const profile = await ProfileModel.findOne({
     _id: profileId,
     isDeleted: false,
+    userStatus: AccountStatus.ACTIVE,
+    userIsDeleted: false,
     'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
     'visibility.status': { $in: [ProfileVisibility.PUBLIC, ProfileVisibility.MEMBERS_ONLY] },
   });
@@ -127,6 +132,137 @@ function monthStart() {
   return new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
+function monthKey(date = new Date()) {
+  return date.toISOString().substring(0, 7);
+}
+
+function isQuotaCountedStatus(status: string) {
+  return QUOTA_COUNTED_STATUSES.has(status);
+}
+
+function pairKeyForUsers(firstUserId: Types.ObjectId, secondUserId: Types.ObjectId) {
+  return [firstUserId.toString(), secondUserId.toString()].sort().join(':');
+}
+
+function isDuplicateKeyError(error: unknown) {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    Number((error as { code?: unknown }).code) === 11000
+  );
+}
+
+function isUnsupportedTransactionError(error: unknown) {
+  return (
+    error instanceof Error &&
+    (error.message.includes('Transaction numbers are only allowed on a replica set member or mongos') ||
+      error.message.includes('transaction'))
+  );
+}
+
+async function safeNotify(userId: Types.ObjectId, type: string, title: string, body?: string) {
+  try {
+    await notify(userId, type, title, body);
+  } catch (error) {
+    console.error(`[interests] Failed to create ${type} notification`, error);
+  }
+}
+
+async function getInterestCounterValue(userId: Types.ObjectId, when = new Date()) {
+  const counter = await MonthlyInterestCounterModel.findOne({
+    userId,
+    monthYYYYMM: monthKey(when),
+  }).lean();
+  return counter?.count ?? 0;
+}
+
+async function adjustMonthlyInterestCounter(
+  userId: Types.ObjectId,
+  when: Date,
+  delta: number,
+  session?: ClientSession,
+) {
+  const counterMonth = monthKey(when);
+
+  const query = MonthlyInterestCounterModel.findOne({ userId, monthYYYYMM: counterMonth });
+  if (session) {
+    query.session(session);
+  }
+
+  const counter =
+    (await query) ?? new MonthlyInterestCounterModel({ userId, monthYYYYMM: counterMonth, count: 0 });
+  counter.count = Math.max(0, counter.count + delta);
+  if (session) {
+    await counter.save({ session });
+  } else {
+    await counter.save();
+  }
+  return counter.count;
+}
+
+async function transitionInterestStatus(
+  interest: HydratedDocument<Interest>,
+  nextStatus: InterestStatus,
+  respondedAt: Date,
+  session?: ClientSession,
+) {
+  const previousStatus = interest.status;
+  interest.status = nextStatus;
+  interest.respondedAt = respondedAt;
+  if (session) {
+    await interest.save({ session });
+  } else {
+    await interest.save();
+  }
+
+  if (isQuotaCountedStatus(previousStatus) && !isQuotaCountedStatus(nextStatus)) {
+    await adjustMonthlyInterestCounter(interest.senderId, interest.createdAt, -1, session);
+  }
+}
+
+async function findInterestByPair(
+  senderId: Types.ObjectId,
+  receiverId: Types.ObjectId,
+  session?: ClientSession,
+) {
+  const query = InterestModel.findOne({
+    isDeleted: false,
+    $or: [
+      { pairKey: pairKeyForUsers(senderId, receiverId) },
+      { senderId, receiverId },
+      { senderId: receiverId, receiverId: senderId },
+    ],
+  });
+
+  if (session) {
+    query.session(session);
+  }
+
+  return query;
+}
+
+async function runWithOptionalTransaction<T>(work: (session?: ClientSession) => Promise<T>) {
+  const session = await mongoose.startSession();
+  try {
+    let result: T | undefined;
+    try {
+      await session.withTransaction(async () => {
+        result = await work(session);
+      });
+    } catch (error) {
+      if (!isUnsupportedTransactionError(error)) {
+        throw error;
+      }
+      result = await work();
+    }
+
+    return result as T;
+  } finally {
+    await session.endSession();
+  }
+}
+
 function publicProfile(profile: ProfileDocument) {
   return {
     id: profile.id,
@@ -169,60 +305,140 @@ export async function sendInterest(userId: Types.ObjectId, profileId: string) {
   const profile = await getTargetProfile(profileId);
   assertNotSelf(userId, profile);
   await assertNotBlocked(userId, profile.userId);
-
-  const existing = await InterestModel.findOne({
-    senderId: userId,
-    receiverId: profile.userId,
-    isDeleted: false,
-  });
-
-  if (existing) {
-    throw new HttpError(409, 'Interest already exists');
-  }
-
-  const reverseInterest = await InterestModel.findOne({
-    senderId: profile.userId,
-    receiverId: userId,
-    status: InterestStatus.PENDING,
-    isDeleted: false,
-  });
-
-  if (reverseInterest) {
-    return respondToInterest(userId, String(reverseInterest._id), 'ACCEPT');
-  }
-
   const limit = await interestLimitFor(userId);
-  const nowStr = monthStart().toISOString().substring(0, 7);
-  
-  const counter = await MonthlyInterestCounterModel.findOneAndUpdate(
-    { userId, monthYYYYMM: nowStr },
-    { $inc: { count: 1 } },
-    { new: true, upsert: true }
-  );
 
-  if (counter.count > limit) {
-    await MonthlyInterestCounterModel.updateOne({ _id: counter._id }, { $inc: { count: -1 } });
-    throw new HttpError(403, 'Monthly interest limit reached');
+  try {
+    const { resultInterestId, shouldNotifyReceiver, shouldNotifySender } =
+      await runWithOptionalTransaction(async (session) => {
+        let resultInterestId: string | null = null;
+        let shouldNotifyReceiver = false;
+        let shouldNotifySender = false;
+
+        const existing = await findInterestByPair(userId, profile.userId, session);
+
+        if (existing) {
+          if (existing.senderId.equals(userId)) {
+            throw new HttpError(409, 'Interest already exists');
+          }
+
+          if (existing.status === InterestStatus.PENDING) {
+            await transitionInterestStatus(existing, InterestStatus.ACCEPTED, new Date(), session);
+            const conversationQuery = ConversationModel.findOne({
+              participantIds: { $all: [existing.senderId, existing.receiverId] },
+              isDeleted: false,
+            });
+            if (session) {
+              conversationQuery.session(session);
+            }
+            const existingConversation = await conversationQuery;
+
+            if (!existingConversation) {
+              const participantIds = [existing.senderId, existing.receiverId].sort((a, b) =>
+                a.toString().localeCompare(b.toString()),
+              );
+              if (session) {
+                await ConversationModel.create([{ participantIds }], { session });
+              } else {
+                await ConversationModel.create({ participantIds });
+              }
+            }
+
+            resultInterestId = existing.id;
+            shouldNotifySender = true;
+            return { resultInterestId, shouldNotifyReceiver, shouldNotifySender };
+          }
+
+          throw new HttpError(409, 'Interest already exists');
+        }
+
+        const nextCount = await adjustMonthlyInterestCounter(userId, new Date(), 1, session);
+        if (nextCount > limit) {
+          await adjustMonthlyInterestCounter(userId, new Date(), -1, session);
+          throw new HttpError(403, 'Monthly interest limit reached');
+        }
+
+        let interest: HydratedDocument<Interest> | null = null;
+        if (session) {
+          const createdInterests = await InterestModel.create(
+            [
+              {
+                senderId: userId,
+                receiverId: profile.userId,
+                pairKey: pairKeyForUsers(userId, profile.userId),
+                status: InterestStatus.PENDING,
+              },
+            ],
+            { session },
+          );
+          interest = createdInterests[0] ?? null;
+        } else {
+          interest = await InterestModel.create({
+            senderId: userId,
+            receiverId: profile.userId,
+            pairKey: pairKeyForUsers(userId, profile.userId),
+            status: InterestStatus.PENDING,
+          });
+        }
+
+        if (!interest) {
+          throw new HttpError(500, 'Interest could not be created');
+        }
+
+        if (session) {
+          await Promise.all([
+            ProfileModel.updateOne({ userId }, { $inc: { 'stats.interestsSent': 1 } }, { session }),
+            ProfileModel.updateOne(
+              { userId: profile.userId },
+              { $inc: { 'stats.interestsReceived': 1 } },
+              { session },
+            ),
+          ]);
+        } else {
+          await Promise.all([
+            ProfileModel.updateOne({ userId }, { $inc: { 'stats.interestsSent': 1 } }),
+            ProfileModel.updateOne(
+              { userId: profile.userId },
+              { $inc: { 'stats.interestsReceived': 1 } },
+            ),
+          ]);
+        }
+
+        resultInterestId = interest.id;
+        shouldNotifyReceiver = true;
+        return { resultInterestId, shouldNotifyReceiver, shouldNotifySender };
+      });
+
+    const interest = resultInterestId
+      ? await InterestModel.findById(resultInterestId)
+      : await findInterestByPair(userId, profile.userId);
+
+    if (!interest) {
+      throw new HttpError(500, 'Interest could not be loaded');
+    }
+
+    if (shouldNotifyReceiver) {
+      await safeNotify(
+        profile.userId,
+        'INTEREST_RECEIVED',
+        'New interest received',
+        'A member has sent you an interest.',
+      );
+    }
+
+    if (shouldNotifySender) {
+      await safeNotify(userId, 'INTEREST_ACCEPTED', 'Interest accepted');
+    }
+
+    return publicInterest(interest);
+  } catch (error) {
+    if (isDuplicateKeyError(error)) {
+      const existing = await findInterestByPair(userId, profile.userId);
+      if (existing?.senderId.equals(profile.userId) && existing.status === InterestStatus.PENDING) {
+        return respondToInterest(userId, String(existing._id), 'ACCEPT');
+      }
+    }
+    throw error;
   }
-
-  const interest = await InterestModel.create({
-    senderId: userId,
-    receiverId: profile.userId,
-    status: InterestStatus.PENDING,
-  });
-
-  await Promise.all([
-    ProfileModel.updateOne({ userId }, { $inc: { 'stats.interestsSent': 1 } }),
-    ProfileModel.updateOne({ userId: profile.userId }, { $inc: { 'stats.interestsReceived': 1 } }),
-    notify(
-      profile.userId,
-      'INTEREST_RECEIVED',
-      'New interest received',
-      'A member has sent you an interest.',
-    ),
-  ]);
-
-  return publicInterest(interest);
 }
 
 export async function respondToInterest(
@@ -246,17 +462,8 @@ export async function respondToInterest(
       throw new HttpError(400, 'Only pending interests can be withdrawn');
     }
 
-    interest.status = InterestStatus.WITHDRAWN;
-    interest.respondedAt = new Date();
-    await interest.save();
-    
-    const monthStr = new Date(interest.createdAt).toISOString().substring(0, 7);
-    await MonthlyInterestCounterModel.updateOne(
-      { userId: interest.senderId, monthYYYYMM: monthStr },
-      { $inc: { count: -1 } }
-    );
-    
-    await notify(interest.receiverId, 'INTEREST_WITHDRAWN', 'Interest withdrawn');
+    await transitionInterestStatus(interest, InterestStatus.WITHDRAWN, new Date());
+    await safeNotify(interest.receiverId, 'INTEREST_WITHDRAWN', 'Interest withdrawn');
     return publicInterest(interest);
   }
 
@@ -269,40 +476,46 @@ export async function respondToInterest(
   }
 
   if (action === 'ACCEPT') {
-    const session = await mongoose.startSession();
-    try {
-      session.startTransaction();
-
-      interest.status = InterestStatus.ACCEPTED;
-      interest.respondedAt = new Date();
-      await interest.save({ session });
-
-      const existingConversation = await ConversationModel.findOne({
-        participantIds: { $all: [interest.senderId, interest.receiverId] },
-        isDeleted: false,
-      }).session(session);
-
-      if (!existingConversation) {
-        const pIds = [String(interest.senderId), String(interest.receiverId)].sort();
-        await ConversationModel.create([{
-          participantIds: pIds,
-        }], { session });
+    await runWithOptionalTransaction(async (session) => {
+      const currentInterest = session
+        ? await InterestModel.findOne({ _id: interestId, isDeleted: false }).session(session)
+        : await InterestModel.findOne({ _id: interestId, isDeleted: false });
+      if (!currentInterest) {
+        throw new HttpError(404, 'Interest not found');
+      }
+      if (currentInterest.status !== InterestStatus.PENDING) {
+        throw new HttpError(400, 'Only pending interests can be updated');
       }
 
-      await session.commitTransaction();
-    } catch (err) {
-      await session.abortTransaction();
-      throw err;
-    } finally {
-      await session.endSession();
-    }
-  } else {
-    interest.status = InterestStatus.REJECTED;
+      await transitionInterestStatus(currentInterest, InterestStatus.ACCEPTED, new Date(), session);
+
+      const conversationQuery = ConversationModel.findOne({
+        participantIds: { $all: [currentInterest.senderId, currentInterest.receiverId] },
+        isDeleted: false,
+      });
+      if (session) {
+        conversationQuery.session(session);
+      }
+      const existingConversation = await conversationQuery;
+
+      if (!existingConversation) {
+        const participantIds = [currentInterest.senderId, currentInterest.receiverId].sort((a, b) =>
+          a.toString().localeCompare(b.toString()),
+        );
+        if (session) {
+          await ConversationModel.create([{ participantIds }], { session });
+        } else {
+          await ConversationModel.create({ participantIds });
+        }
+      }
+    });
+    interest.status = InterestStatus.ACCEPTED;
     interest.respondedAt = new Date();
-    await interest.save();
+  } else {
+    await transitionInterestStatus(interest, InterestStatus.REJECTED, new Date());
   }
 
-  await notify(
+  await safeNotify(
     interest.senderId,
     action === 'ACCEPT' ? 'INTEREST_ACCEPTED' : 'INTEREST_REJECTED',
     action === 'ACCEPT' ? 'Interest accepted' : 'Interest declined',
@@ -460,18 +673,43 @@ export async function blockProfile(userId: Types.ObjectId, profileId: string) {
     await existing.save();
   }
 
-  await InterestModel.updateMany(
-    {
-      isDeleted: false,
-      $or: [
-        { senderId: userId, receiverId: profile.userId },
-        { senderId: profile.userId, receiverId: userId },
-      ],
-    },
-    { $set: { status: InterestStatus.WITHDRAWN, respondedAt: new Date() } },
-  );
+  await runWithOptionalTransaction(async (session) => {
+      const interestsQuery = InterestModel.find({
+        isDeleted: false,
+        $or: [
+          { senderId: userId, receiverId: profile.userId },
+          { senderId: profile.userId, receiverId: userId },
+        ],
+      });
+      if (session) {
+        interestsQuery.session(session);
+      }
+      const interests = await interestsQuery;
+
+      const respondedAt = new Date();
+      for (const interest of interests) {
+        if (interest.status === InterestStatus.WITHDRAWN) {
+          continue;
+        }
+        await transitionInterestStatus(interest, InterestStatus.WITHDRAWN, respondedAt, session);
+      }
+    });
 
   return { id: block.id, profile: publicProfile(profile) };
+}
+
+export async function getInterestQuotaSummary(userId: Types.ObjectId) {
+  const [limit, used] = await Promise.all([
+    interestLimitFor(userId),
+    getInterestCounterValue(userId),
+  ]);
+
+  return {
+    limit,
+    used,
+    remaining: Math.max(0, limit - used),
+    month: monthKey(),
+  };
 }
 
 export async function unblockProfile(userId: Types.ObjectId, profileId: string) {

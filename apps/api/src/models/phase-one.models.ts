@@ -213,6 +213,7 @@ verificationDocumentSchema.index({ userId: 1, uploadStatus: 1, createdAt: -1 });
 export interface Interest {
   senderId: ObjectId;
   receiverId: ObjectId;
+  pairKey?: string;
   status: InterestStatusType;
   respondedAt?: Date;
   createdAt: Date;
@@ -224,6 +225,7 @@ const interestSchema = new Schema<Interest>(
   {
     senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     receiverId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    pairKey: { type: String, trim: true },
     status: {
       type: String,
       enum: Object.values(InterestStatus),
@@ -238,6 +240,7 @@ const interestSchema = new Schema<Interest>(
 );
 
 interestSchema.index({ senderId: 1, receiverId: 1 }, { unique: true });
+interestSchema.index({ pairKey: 1 }, { unique: true, partialFilterExpression: { pairKey: { $exists: true } } });
 interestSchema.index({ receiverId: 1, status: 1 });
 
 export interface UserPair {

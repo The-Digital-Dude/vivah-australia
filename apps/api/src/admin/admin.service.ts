@@ -17,6 +17,7 @@ import {
   type ProfileModerationReviewInput,
   type VerificationRequestCreateInput,
   type VerificationReviewInput,
+  type AdminInterestListQueryInput,
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
@@ -178,6 +179,32 @@ function publicProfileSummary(profile: Awaited<ReturnType<typeof ProfileModel.fi
     lastName: profile.personal.lastName,
     verificationLevel: profile.verification.level,
     approvalStatus: profile.moderation.approvalStatus,
+  };
+}
+
+function publicInterestActivity(
+  interest: {
+    id: string;
+    status: string;
+    createdAt: Date;
+    respondedAt?: Date;
+    updatedAt: Date;
+  } | null,
+  senderProfile: Awaited<ReturnType<typeof ProfileModel.findOne>> | null,
+  receiverProfile: Awaited<ReturnType<typeof ProfileModel.findOne>> | null,
+) {
+  if (!interest) {
+    return null;
+  }
+
+  return {
+    id: interest.id,
+    status: interest.status,
+    createdAt: interest.createdAt,
+    respondedAt: interest.respondedAt,
+    updatedAt: interest.updatedAt,
+    sender: senderProfile ? publicProfileSummary(senderProfile) : null,
+    receiver: receiverProfile ? publicProfileSummary(receiverProfile) : null,
   };
 }
 
@@ -392,6 +419,75 @@ export async function getRevenueAnalytics(input: DateRangeInput = {}) {
   ]);
 
   return { dailyRevenue };
+}
+
+export async function listInterestActivity(input: AdminInterestListQueryInput) {
+  const page = input.page;
+  const pageSize = input.pageSize;
+  const skip = (page - 1) * pageSize;
+  const filter: Record<string, unknown> = { isDeleted: false };
+
+  if (input.status) {
+    filter.status = input.status;
+  }
+
+  if (input.memberId) {
+    const memberObjectId = new Types.ObjectId(input.memberId);
+    filter.$or = [{ senderId: memberObjectId }, { receiverId: memberObjectId }];
+  }
+
+  if (input.from || input.to) {
+    filter.createdAt = {
+      ...(input.from ? { $gte: new Date(input.from) } : {}),
+      ...(input.to ? { $lte: new Date(input.to) } : {}),
+    };
+  }
+
+  const [interests, total] = await Promise.all([
+    InterestModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(pageSize),
+    InterestModel.countDocuments(filter),
+  ]);
+
+  const userIds = [
+    ...new Set(
+      interests.flatMap((interest) => [String(interest.senderId), String(interest.receiverId)]),
+    ),
+  ].map((id) => new Types.ObjectId(id));
+
+  const profiles = await ProfileModel.find({ userId: { $in: userIds }, isDeleted: false });
+  const profilesByUserId = new Map(profiles.map((profile) => [String(profile.userId), profile]));
+
+  return {
+    results: interests.map((interest) =>
+      publicInterestActivity(
+        interest,
+        profilesByUserId.get(String(interest.senderId)) ?? null,
+        profilesByUserId.get(String(interest.receiverId)) ?? null,
+      ),
+    ),
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}
+
+export async function getInterestActivityDetail(interestId: string) {
+  if (!Types.ObjectId.isValid(interestId)) {
+    throw new HttpError(404, 'Interest not found');
+  }
+
+  const interest = await InterestModel.findOne({ _id: interestId, isDeleted: false });
+  if (!interest) {
+    throw new HttpError(404, 'Interest not found');
+  }
+
+  const [senderProfile, receiverProfile] = await Promise.all([
+    ProfileModel.findOne({ userId: interest.senderId, isDeleted: false }),
+    ProfileModel.findOne({ userId: interest.receiverId, isDeleted: false }),
+  ]);
+
+  return publicInterestActivity(interest, senderProfile, receiverProfile);
 }
 
 export async function getVerificationAnalytics() {

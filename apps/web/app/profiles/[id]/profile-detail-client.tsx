@@ -1628,6 +1628,9 @@ function ProfileDetailView({
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                           Why you match
                         </p>
+                        <p className="text-xs text-gray-500">
+                          These reasons come directly from the ranking rules used for your match score.
+                        </p>
                         <div className="flex flex-wrap gap-2">
                           {matchReasons.slice(0, 3).map((reason) => (
                             <ToneBadge key={reason} tone="emerald">
@@ -1899,7 +1902,9 @@ function ProfileDetailView({
                   <ScoreRing score={overallScore} size={48} strokeWidth={4} color="#A10E4D" />
                   <div>
                     <p className="text-sm font-semibold text-brand-charcoal">{overallScore}% compatible</p>
-                    <p className="text-xs text-gray-500">Across {compatibilityRows.length} dimensions</p>
+                    <p className="text-xs text-gray-500">
+                      Dimension scores below are a profile comparison estimate across {compatibilityRows.length} areas.
+                    </p>
                   </div>
                 </div>
 

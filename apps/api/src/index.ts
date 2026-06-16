@@ -76,6 +76,8 @@ async function startServer() {
     await savedSearchNotifyQueue.add('notify-saved-searches', {}, {
       repeat: { pattern: '0 8 * * *' }, // 8 AM everyday
     });
+  } else {
+    logger.warn('Redis not available — saved search notifications disabled');
   }
 }
 

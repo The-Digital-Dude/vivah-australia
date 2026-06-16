@@ -35,7 +35,6 @@ const ADVANCED_FILTER_KEYS: Array<keyof ProfileSearchQueryInput> = [
   'heightMaxCm',
   'incomeMin',
   'incomeMax',
-  'verificationLevel',
   'hasPhoto',
   'visaStatus',
   'citizenshipStatus',
@@ -86,6 +85,8 @@ export interface ScoredMatch {
   score: number;
   reasons: string[];
 }
+
+const VERIFIED_LEVELS = ['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED'] as const;
 
 function verificationPriority(level?: string) {
   switch (level) {
@@ -252,6 +253,21 @@ function buildBaseVisibilityFilter(
   };
 }
 
+function buildRecommendationEligibilityFilter(
+  viewerProfile: ProfileDocument,
+  excludedUserIds: Types.ObjectId[],
+  candidateIds?: Types.ObjectId[],
+): ProfileFilter {
+  const filter = buildBaseVisibilityFilter(viewerProfile, excludedUserIds);
+
+  filter._id = {
+    ...(typeof filter._id === 'object' && filter._id !== null ? filter._id : {}),
+    ...(candidateIds ? { $in: candidateIds } : {}),
+  };
+
+  return filter;
+}
+
 async function buildSearchFilter(
   viewerProfile: ProfileDocument,
   excludedUserIds: Types.ObjectId[],
@@ -303,6 +319,10 @@ async function buildSearchFilter(
 
   if (input.verificationLevel) {
     filter['verification.level'] = input.verificationLevel;
+  }
+
+  if (input.verifiedOnly && !input.verificationLevel) {
+    filter['verification.level'] = { $in: VERIFIED_LEVELS };
   }
 
   if (input.recentlyActive) {
@@ -385,7 +405,7 @@ function sortFor(input: ProfileSearchQueryInput) {
   }
 
   if (input.sort === 'VERIFIED') {
-    return { 'verification.level': -1, createdAt: -1 } as const;
+    return { createdAt: -1 } as const;
   }
 
   return { 'stats.lastActiveAt': -1, completionPercentage: -1, createdAt: -1 } as const;
@@ -428,10 +448,6 @@ export function calculateMatchScore(
   const result: ScoredMatch = { score: 0, reasons: [] };
   const viewerPreference = viewer.partnerPreference ?? {};
   const candidatePreference = candidate.partnerPreference ?? {};
-
-  if (candidate.personal.gender && viewerPreference) {
-    addScore(result, 4, `${candidate.personal.gender.toLowerCase().replaceAll('_', ' ')} profile`);
-  }
 
   if (inRange(candidate.personal.age, viewerPreference.ageMin, viewerPreference.ageMax)) {
     addScore(result, 18, 'Age fits your preference');
@@ -601,6 +617,77 @@ async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]
   });
 }
 
+async function fetchProfilesByOrderedIds(profileIds: Types.ObjectId[], matchSelect: string) {
+  if (profileIds.length === 0) {
+    return [];
+  }
+
+  const profiles = await ProfileModel.find({ _id: { $in: profileIds } }).select(matchSelect);
+  const order = new Map(profileIds.map((profileId, index) => [String(profileId), index] as const));
+
+  return profiles.sort((left, right) => {
+    return (order.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (order.get(right.id) ?? Number.MAX_SAFE_INTEGER);
+  });
+}
+
+async function fetchVerifiedSortedProfiles(
+  boostedFilter: ProfileFilter,
+  standardFilter: ProfileFilter,
+  skip: number,
+  pageSize: number,
+  matchSelect: string,
+) {
+  const verificationRankExpression = {
+    $switch: {
+      branches: [
+        { case: { $eq: ['$verification.level', 'FULLY_VERIFIED'] }, then: 5 },
+        { case: { $eq: ['$verification.level', 'PLATINUM'] }, then: 4 },
+        { case: { $eq: ['$verification.level', 'GOLD'] }, then: 3 },
+        { case: { $eq: ['$verification.level', 'SILVER'] }, then: 2 },
+        { case: { $eq: ['$verification.level', 'BASIC'] }, then: 1 },
+      ],
+      default: 0,
+    },
+  };
+
+  const totalBoosted = await ProfileModel.countDocuments(boostedFilter);
+  const boostedIds =
+    skip < totalBoosted
+      ? await ProfileModel.aggregate<{ _id: Types.ObjectId }>([
+          { $match: boostedFilter },
+          { $addFields: { verificationRank: verificationRankExpression } },
+          { $sort: { verificationRank: -1, 'stats.lastActiveAt': -1, createdAt: -1 } },
+          { $skip: skip },
+          { $limit: pageSize },
+          { $project: { _id: 1 } },
+        ])
+      : [];
+
+  const remaining = pageSize - boostedIds.length;
+  const standardSkip = Math.max(0, skip - totalBoosted);
+  const standardIds =
+    remaining > 0
+      ? await ProfileModel.aggregate<{ _id: Types.ObjectId }>([
+          { $match: standardFilter },
+          { $addFields: { verificationRank: verificationRankExpression } },
+          { $sort: { verificationRank: -1, 'stats.lastActiveAt': -1, createdAt: -1 } },
+          { $skip: standardSkip },
+          { $limit: remaining },
+          { $project: { _id: 1 } },
+        ])
+      : [];
+
+  const [boostedProfiles, standardProfiles] = await Promise.all([
+    fetchProfilesByOrderedIds(boostedIds.map((item) => item._id), matchSelect),
+    fetchProfilesByOrderedIds(standardIds.map((item) => item._id), matchSelect),
+  ]);
+
+  return {
+    profiles: boostedProfiles.concat(standardProfiles),
+    totalBoosted,
+  };
+}
+
 export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearchQueryInput) {
   const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
@@ -619,8 +706,6 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
     [...blockedUserIds, ...hiddenUserIds],
     input,
   );
-  const total = await ProfileModel.countDocuments(filter);
-
   const matchSelect = 'displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto';
 
   if (input.sort === 'RECOMMENDED') {
@@ -647,30 +732,49 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
 
     return {
       results,
-      pagination: { page: input.page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+      pagination: {
+        page: input.page,
+        pageSize,
+        total: cards.length,
+        totalPages: Math.ceil(cards.length / pageSize),
+      },
       limits,
     };
   }
+
+  const total = await ProfileModel.countDocuments(filter);
 
   const now = new Date();
   const boostedFilter = { ...filter, 'stats.activeBoostEndsAt': { $gt: now } };
   const standardFilter = { ...filter, $or: [{ 'stats.activeBoostEndsAt': { $lte: now } }, { 'stats.activeBoostEndsAt': { $exists: false } }] };
 
-  const totalBoosted = await ProfileModel.countDocuments(boostedFilter);
   const skip = (input.page - 1) * pageSize;
 
   let profiles: ProfileDocument[] = [];
 
-  if (skip < totalBoosted) {
-    const boosted = await ProfileModel.find(boostedFilter).sort(sortFor(input)).skip(skip).select(matchSelect).limit(pageSize);
-    profiles = profiles.concat(boosted);
-  }
+  if (input.sort === 'VERIFIED') {
+    const verifiedPage = await fetchVerifiedSortedProfiles(
+      boostedFilter,
+      standardFilter,
+      skip,
+      pageSize,
+      matchSelect,
+    );
+    profiles = verifiedPage.profiles;
+  } else {
+    const totalBoosted = await ProfileModel.countDocuments(boostedFilter);
 
-  if (profiles.length < pageSize) {
-    const standardSkip = Math.max(0, skip - totalBoosted);
-    const standardLimit = pageSize - profiles.length;
-    const standard = await ProfileModel.find(standardFilter).sort(sortFor(input)).skip(standardSkip).select(matchSelect).limit(standardLimit);
-    profiles = profiles.concat(standard);
+    if (skip < totalBoosted) {
+      const boosted = await ProfileModel.find(boostedFilter).sort(sortFor(input)).skip(skip).select(matchSelect).limit(pageSize);
+      profiles = profiles.concat(boosted);
+    }
+
+    if (profiles.length < pageSize) {
+      const standardSkip = Math.max(0, skip - totalBoosted);
+      const standardLimit = pageSize - profiles.length;
+      const standard = await ProfileModel.find(standardFilter).sort(sortFor(input)).skip(standardSkip).select(matchSelect).limit(standardLimit);
+      profiles = profiles.concat(standard);
+    }
   }
 
   return {
@@ -696,18 +800,19 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
     .lean();
 
   if (cachedMatches.length > 0) {
-    const profileIds = cachedMatches.map(m => m.recommendedProfileId);
-    const candidates = await ProfileModel.find({ 
-      _id: { $in: profileIds }, 
-      userId: { $nin: [...blockedUserIds, ...hiddenUserIds] },
-      isDeleted: false 
-    });
-    
-    // Convert to MatchCards
+    const profileIds = cachedMatches.map((match) => match.recommendedProfileId);
+    const candidates = await ProfileModel.find(
+      buildRecommendationEligibilityFilter(
+        viewerProfile,
+        [...blockedUserIds, ...hiddenUserIds],
+        profileIds,
+      ),
+    );
+
     const results = await toMatchCards(viewerProfile, candidates);
-    
-    // Attach reasons and score from cache
-    const cachedById = new Map(cachedMatches.map(c => [String(c.recommendedProfileId), c]));
+
+    const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
+    const cachedById = new Map(cachedMatches.map((cache) => [String(cache.recommendedProfileId), cache]));
     for (const res of results) {
       const cache = cachedById.get(String(res.id));
       if (cache) {
@@ -715,10 +820,20 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
         res.matchReasons = cache.reasons;
       }
     }
-    
-    // Sort properly
-    results.sort((a, b) => b.matchScore - a.matchScore);
-    
+
+    results.sort((left, right) => {
+      if (left.isBoosted && !right.isBoosted) return -1;
+      if (!left.isBoosted && right.isBoosted) return 1;
+      const leftProfile = profileById.get(left.id);
+      const rightProfile = profileById.get(right.id);
+
+      if (leftProfile && rightProfile) {
+        return discoveryPriority(rightProfile, right) - discoveryPriority(leftProfile, left);
+      }
+
+      return right.matchScore - left.matchScore;
+    });
+
     return { results, limits };
   }
 

@@ -15,6 +15,7 @@ import {
   FraudEventModel,
   HiddenProfileModel,
   InterestModel,
+  MonthlyInterestCounterModel,
   NotificationModel,
   PlanModel,
   ProfileApprovalStatus,
@@ -114,6 +115,8 @@ async function createProfile(
     },
     stats: { profileViews: 0, interestsReceived: 0, interestsSent: 0, favouritesCount: 0 },
     moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
+    userStatus: AccountStatus.ACTIVE,
+    userIsDeleted: false,
   });
 }
 
@@ -233,6 +236,12 @@ describe('interaction routes', () => {
     expect(bodyAs<{ interest: { status: string } }>(withdrawn).interest.status).toBe(
       InterestStatus.WITHDRAWN,
     );
+    expect(
+      await NotificationModel.findOne({
+        userId: receiver.user._id,
+        type: 'INTEREST_WITHDRAWN',
+      }),
+    ).toBeTruthy();
   });
 
   it('enforces blocked-user rules and free monthly interest limits', async () => {
@@ -280,6 +289,97 @@ describe('interaction routes', () => {
       .set('Authorization', `Bearer ${sender.accessToken}`)
       .send({ profileId: finalProfile.id })
       .expect(403);
+  });
+
+  it('releases monthly quota after rejection and block-driven withdrawal', async () => {
+    const sender = await createUser('quota-sender@example.com');
+    const receiver = await createUser('quota-receiver@example.com');
+    const blocker = await createUser('quota-blocker@example.com');
+    await createProfile(sender.user._id, 'VA320201', 'Amit', Gender.MALE);
+    const receiverProfile = await createProfile(
+      receiver.user._id,
+      'VA320202',
+      'Priya',
+      Gender.FEMALE,
+    );
+    const blockerProfile = await createProfile(
+      blocker.user._id,
+      'VA320203',
+      'Sara',
+      Gender.FEMALE,
+    );
+
+    const sent = await request(app)
+      .post('/api/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: receiverProfile.id })
+      .expect(201);
+
+    await request(app)
+      .patch(`/api/interests/${bodyAs<{ interest: { id: string } }>(sent).interest.id}`)
+      .set('Authorization', `Bearer ${receiver.accessToken}`)
+      .send({ action: 'REJECT' })
+      .expect(200);
+
+    expect(await MonthlyInterestCounterModel.findOne({ userId: sender.user._id }).lean()).toMatchObject({
+      count: 0,
+    });
+    expect(
+      await NotificationModel.findOne({
+        userId: sender.user._id,
+        type: 'INTEREST_REJECTED',
+      }),
+    ).toBeTruthy();
+
+    await request(app)
+      .post('/api/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: blockerProfile.id })
+      .expect(201);
+
+    await request(app)
+      .post('/api/me/blocks')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: blockerProfile.id })
+      .expect(201);
+
+    expect(await MonthlyInterestCounterModel.findOne({ userId: sender.user._id }).lean()).toMatchObject({
+      count: 0,
+    });
+  });
+
+  it('rejects interests to suspended or deleted targets', async () => {
+    const sender = await createUser('safety-sender@example.com');
+    const suspended = await createUser('suspended-target@example.com');
+    const deleted = await createUser('deleted-target@example.com');
+    await createProfile(sender.user._id, 'VA320301', 'Amit', Gender.MALE);
+    const suspendedProfile = await createProfile(
+      suspended.user._id,
+      'VA320302',
+      'Riya',
+      Gender.FEMALE,
+    );
+    const deletedProfile = await createProfile(
+      deleted.user._id,
+      'VA320303',
+      'Mina',
+      Gender.FEMALE,
+    );
+
+    await UserModel.updateOne({ _id: suspended.user._id }, { $set: { status: AccountStatus.SUSPENDED } });
+    await UserModel.updateOne({ _id: deleted.user._id }, { $set: { isDeleted: true } });
+
+    await request(app)
+      .post('/api/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: suspendedProfile.id })
+      .expect(404);
+
+    await request(app)
+      .post('/api/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: deletedProfile.id })
+      .expect(404);
   });
 
   it('allows premium members to send more than free interest limit', async () => {
@@ -493,5 +593,47 @@ describe('interaction routes', () => {
       activeReportCount: 3,
       highestSeverity: 'CRITICAL',
     });
+  });
+
+  it('allows moderators to review interest activity and blocks normal members', async () => {
+    const sender = await createUser('interest-admin-sender@example.com');
+    const receiver = await createUser('interest-admin-receiver@example.com');
+    const moderator = await createUser('interest-moderator@example.com', UserRole.MODERATOR);
+    await createProfile(sender.user._id, 'VA380001', 'Amit', Gender.MALE);
+    const receiverProfile = await createProfile(
+      receiver.user._id,
+      'VA380002',
+      'Priya',
+      Gender.FEMALE,
+    );
+
+    const created = await request(app)
+      .post('/api/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: receiverProfile.id })
+      .expect(201);
+    const interestId = bodyAs<{ interest: { id: string } }>(created).interest.id;
+
+    const list = await request(app)
+      .get('/api/admin/interests?status=PENDING')
+      .set('Authorization', `Bearer ${moderator.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ results: Array<{ id: string }> }>(list).results.map((item) => item.id)).toContain(
+      interestId,
+    );
+
+    const detail = await request(app)
+      .get(`/api/admin/interests/${interestId}`)
+      .set('Authorization', `Bearer ${moderator.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ interest: { id: string; sender: { firstName: string } } }>(detail).interest).toMatchObject({
+      id: interestId,
+      sender: { firstName: 'Amit' },
+    });
+
+    await request(app)
+      .get('/api/admin/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .expect(403);
   });
 });

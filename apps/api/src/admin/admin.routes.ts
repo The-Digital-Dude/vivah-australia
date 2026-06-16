@@ -4,6 +4,7 @@ import {
   auditLogQuerySchema,
   adminUserQuerySchema,
   adminUserNoteSchema,
+  adminInterestListQuerySchema,
   adminUserRoleUpdateSchema,
   adminUserStatusUpdateSchema,
   adminUserUpdateSchema,
@@ -50,6 +51,8 @@ import {
   updateUser,
   getRevenueAnalytics,
   getVerificationAnalytics,
+  getInterestActivityDetail,
+  listInterestActivity,
 } from './admin.service.js';
 import { resolveVerificationDocumentPreview } from '../verification/verification-document.service.js';
 
@@ -172,6 +175,28 @@ export function createAdminRouter(config: AuthConfig): Router {
       response
         .status(200)
         .json({ event: await updateFraudEventStatus(auth.userId, eventId, status) });
+    }),
+  );
+
+  router.get(
+    '/admin/interests',
+    requireAuth(config),
+    requirePermission(AdminPermission.MODERATION_MANAGE),
+    asyncHandler(async (request, response) => {
+      response.status(200).json(await listInterestActivity(adminInterestListQuerySchema.parse(request.query)));
+    }),
+  );
+
+  router.get(
+    '/admin/interests/:id',
+    requireAuth(config),
+    requirePermission(AdminPermission.MODERATION_MANAGE),
+    asyncHandler(async (request, response) => {
+      const interestId = request.params.id;
+      if (!interestId) {
+        throw new HttpError(404, 'Interest not found');
+      }
+      response.status(200).json({ interest: await getInterestActivityDetail(interestId) });
     }),
   );
 

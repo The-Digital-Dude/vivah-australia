@@ -429,6 +429,7 @@ export const profileSearchQuerySchema = z
       return undefined;
     }, z.array(maritalStatusSchema).max(10).optional()),
     verificationLevel: verificationLevelSchema.optional(),
+    verifiedOnly: z.coerce.boolean().optional(),
     hasPhoto: z.coerce.boolean().optional(),
     visaStatus: csvQueryParam(),
     citizenshipStatus: csvQueryParam(),
@@ -486,6 +487,15 @@ export const interestListQuerySchema = z.object({
   box: z.enum(['sent', 'received']).default('received'),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
+});
+
+export const adminInterestListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(25),
+  status: z.nativeEnum(InterestStatus).optional(),
+  memberId: objectIdSchema.optional(),
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
 });
 
 export const reportTargetTypeSchema = z.enum([
@@ -942,6 +952,7 @@ export type SavedSearchCreateInput = z.infer<typeof savedSearchCreateSchema>;
 export type ProfileTargetInput = z.infer<typeof profileTargetSchema>;
 export type InterestRespondInput = z.infer<typeof interestRespondSchema>;
 export type InterestListQueryInput = z.infer<typeof interestListQuerySchema>;
+export type AdminInterestListQueryInput = z.infer<typeof adminInterestListQuerySchema>;
 export type ReportCreateInput = z.infer<typeof reportCreateSchema>;
 export type ReportAdminReviewInput = z.infer<typeof reportAdminReviewSchema>;
 export type AdminUserQueryInput = z.infer<typeof adminUserQuerySchema>;

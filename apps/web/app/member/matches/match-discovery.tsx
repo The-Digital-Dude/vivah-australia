@@ -91,9 +91,9 @@ const quickFilterDefinitions = [
     apply: () => ({ recentlyActive: true, sort: 'RECENTLY_ACTIVE' }),
   },
   {
-    key: 'verificationLevel',
+    key: 'verifiedOnly',
     label: 'Verified only',
-    apply: () => ({ verificationLevel: 'GOLD', sort: 'VERIFIED' }),
+    apply: () => ({ verifiedOnly: true, sort: 'VERIFIED' }),
   },
   {
     key: 'maritalStatus',
@@ -196,6 +196,9 @@ function normalizeQuickFilterLabel(key: string, value: unknown) {
   if (key === 'verificationLevel' && typeof value === 'string') {
     return `Verification: ${value}`;
   }
+  if (key === 'verifiedOnly' && value === true) {
+    return 'Verified members';
+  }
   if (key === 'maritalStatus' && Array.isArray(value)) {
     return `Status: ${value.join(', ').replaceAll('_', ' ')}`;
   }
@@ -203,7 +206,7 @@ function normalizeQuickFilterLabel(key: string, value: unknown) {
     return `Language: ${value.join(', ')}`;
   }
   if (key === 'city' && Array.isArray(value)) {
-    return `Near: ${value.join(', ')}`;
+    return `Local: ${value.join(', ')}`;
   }
   if (key === 'visaStatus' && Array.isArray(value)) {
     return `Visa: ${value.join(', ')}`;
@@ -363,6 +366,7 @@ export default function MatchDiscovery() {
       heightMaxCm: optionalNumber(form.get('heightMaxCm')),
       incomeMin: optionalNumber(form.get('incomeMin')),
       verificationLevel: optionalString(form.get('verificationLevel')),
+      verifiedOnly: form.get('verifiedOnly') === 'on' ? true : undefined,
       recentlyActive: form.get('recentlyActive') === 'on' ? true : undefined,
     };
     const parsed = profileSearchQuerySchema.safeParse(payload);
@@ -391,7 +395,7 @@ export default function MatchDiscovery() {
     }
 
     if (tab === 'verified') {
-      await runSearch({ page: 1, pageSize: 12, sort: 'VERIFIED', verificationLevel: 'GOLD' });
+      await runSearch({ page: 1, pageSize: 12, sort: 'VERIFIED', verifiedOnly: true });
       return;
     }
 
@@ -592,6 +596,15 @@ export default function MatchDiscovery() {
                   />
                   <label className="flex items-center gap-2.5 text-sm font-semibold text-[#2F2F2F]">
                     <input
+                      name="verifiedOnly"
+                      type="checkbox"
+                      defaultChecked={queryBoolean('verifiedOnly')}
+                      className="size-4 rounded accent-[#A10E4D]"
+                    />
+                    Verified members only
+                  </label>
+                  <label className="flex items-center gap-2.5 text-sm font-semibold text-[#2F2F2F]">
+                    <input
                       name="recentlyActive"
                       type="checkbox"
                       defaultChecked={queryBoolean('recentlyActive')}
@@ -752,7 +765,7 @@ export default function MatchDiscovery() {
             ))}
             <button type="button" onClick={() => void applyPreset('nearby')}
               className="shrink-0 rounded-xl border border-[#A10E4D]/10 bg-[#FFF9F5] px-3 py-1.5 text-xs font-semibold text-[#A10E4D] transition hover:bg-[#FFF0F3]">
-              Near you
+              Local to you
             </button>
             {!isDefaultQuery(currentQuery) && (
               <button type="button" onClick={() => void clearFilters()}
@@ -781,7 +794,7 @@ export default function MatchDiscovery() {
           { key: 'active', label: 'Active', icon: Clock3 },
           { key: 'verified', label: 'Verified', icon: ShieldCheck },
           { key: 'newest', label: 'New', icon: UserPlus },
-          { key: 'nearby', label: 'Near you', icon: MapPin },
+          { key: 'nearby', label: 'Local to you', icon: MapPin },
           { key: 'saved', label: 'Saved', icon: Bookmark },
         ].map((tab) => {
           const Icon = tab.icon;
