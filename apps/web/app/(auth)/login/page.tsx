@@ -3,6 +3,9 @@
 import { useState, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useGoogleLogin } from '@react-oauth/google';
+import appleAuthHelpers from 'react-apple-signin-auth';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import AuthShell from '../auth-shell';
 import FormField from '../form-field';
 import SubmitButton from '../submit-button';
@@ -21,6 +24,66 @@ function LoginContent() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setError('');
+      setMessage('');
+      setPending(true);
+      try {
+        const result = await postAuth('oauth/google', { token: tokenResponse.access_token });
+        if (result.ok) {
+          setSession({ user: result.data?.user as any });
+          setMessage('Signed in successfully.');
+          router.push(searchParams.get('returnUrl') || '/member');
+          router.refresh();
+        } else {
+          setError(result.message || 'Google login failed');
+          setPending(false);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred during Google login');
+        setPending(false);
+      }
+    },
+    onError: () => {
+      setError('Google login failed');
+      setPending(false);
+    },
+  });
+
+  const handleAppleSignIn = async () => {
+    setError('');
+    setMessage('');
+    setPending(true);
+    try {
+      const response = await appleAuthHelpers.signIn({
+        authOptions: {
+          clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || 'missing-client-id',
+          scope: 'email name',
+          redirectURI: typeof window !== 'undefined' ? `${window.location.origin}/login` : '',
+          usePopup: true,
+        },
+      });
+      if (response.authorization?.id_token) {
+        const result = await postAuth('oauth/apple', { token: response.authorization.id_token });
+        if (result.ok) {
+          setSession({ user: result.data?.user as any });
+          setMessage('Signed in successfully.');
+          router.push(searchParams.get('returnUrl') || '/member');
+          router.refresh();
+        } else {
+          setError(result.message || 'Apple login failed');
+          setPending(false);
+        }
+      } else {
+        throw new Error('No Apple token received');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during Apple login');
+      setPending(false);
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,20 +113,19 @@ function LoginContent() {
     }
   };
 
-  const handleOAuth = async (provider: 'google' | 'facebook') => {
+  const responseFacebook = async (response: any) => {
+    if (!response.accessToken) {
+      setError('Facebook login failed or was cancelled');
+      setPending(false);
+      return;
+    }
+
     setError('');
     setMessage('');
     setPending(true);
 
     try {
-      const mockToken = provider === 'google' ? 'mock-google-token' : 'mock-facebook-token';
-      const result = await postAuth(`oauth/${provider}`, { token: mockToken });
-      const data = result.data as {
-        tokenPair?: {
-          accessToken: string;
-          refreshToken: string;
-        };
-      } | undefined;
+      const result = await postAuth('oauth/facebook', { token: response.accessToken });
 
       if (result.ok) {
         setSession({ user: result.data?.user as any });
@@ -71,11 +133,11 @@ function LoginContent() {
         router.push(searchParams.get('returnUrl') || '/member');
         router.refresh();
       } else {
-        setError(result.message || 'Social login failed');
+        setError(result.message || 'Facebook login failed');
         setPending(false);
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred during social login');
+      setError(error instanceof Error ? error.message : 'An error occurred during Facebook login');
       setPending(false);
     }
   };
@@ -141,21 +203,36 @@ function LoginContent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <button
             type="button"
-            onClick={() => void handleOAuth('google')}
-            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-brand-maroon/10 bg-white px-4 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
+            onClick={() => googleLogin()}
+            className="flex h-11 items-center justify-center gap-1 rounded-2xl border border-brand-maroon/10 bg-white px-2 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
           >
             Google
           </button>
           <button
             type="button"
-            onClick={() => void handleOAuth('facebook')}
-            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-brand-maroon/10 bg-white px-4 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
+            onClick={() => void handleAppleSignIn()}
+            className="flex h-11 items-center justify-center gap-1 rounded-2xl border border-brand-maroon/10 bg-white px-2 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
           >
-            Facebook
+            Apple
           </button>
+          <FacebookLogin
+            appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || 'missing-app-id'}
+            autoLoad={false}
+            fields="name,email,picture"
+            callback={responseFacebook}
+            render={(renderProps: any) => (
+              <button
+                type="button"
+                onClick={renderProps.onClick}
+                className="flex h-11 items-center justify-center gap-1 rounded-2xl border border-brand-maroon/10 bg-white px-2 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
+              >
+                Facebook
+              </button>
+            )}
+          />
         </div>
 
         <div className="text-center mt-4">

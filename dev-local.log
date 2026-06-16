@@ -612,3 +612,26 @@
 [0]     [35murl[39m: "/api/public/matches?limit=12&gender=FEMALE&ageMin=22&ageMax=40"
 [0]     [35mstatusCode[39m: 304
 [0]     [35mdurationMs[39m: 96
+[1]  GET / 200 in 903ms (next.js: 407ms, application-code: 497ms)
+[1]  GET / 200 in 225ms (next.js: 26ms, application-code: 199ms)
+[1] motion() is deprecated. Use motion.create() instead.
+[1]  GET / 200 in 5.0s (next.js: 22ms, application-code: 4.9s)
+[0] [2026-06-16 08:41:00.074 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "240d0b73-422b-4618-949e-83a9eff25925"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 308
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-ananya.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-rohan.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/australia-dotted-map.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-03-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-05-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-04-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-06-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-02-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-1.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET /about 200 in 2.1s (next.js: 699ms, application-code: 1360ms)

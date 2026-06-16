@@ -14,10 +14,30 @@ export function proxy(request: NextRequest) {
 
   const token = request.cookies.get('accessToken')?.value;
 
-  if (isAdminRoute && !isAdminLogin && !token) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/admin/login';
-    return NextResponse.redirect(url);
+  if (isAdminRoute && !isAdminLogin) {
+    if (!token) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/admin/login';
+      return NextResponse.redirect(url);
+    }
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      if (!payloadBase64) throw new Error('Invalid token');
+      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(payloadJson);
+
+      const adminRoles = ['SUPER_ADMIN', 'ADMIN', 'MODERATOR'];
+      if (!adminRoles.includes(payload.role)) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        return NextResponse.redirect(url);
+      }
+    } catch (e) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/admin/login';
+      return NextResponse.redirect(url);
+    }
   }
 
   if (isMemberRoute && !token) {

@@ -11,9 +11,13 @@ interface OAuthProfile {
   lastName?: string | undefined;
 }
 
-export async function verifyGoogleToken(token: string): Promise<OAuthProfile> {
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export async function verifyGoogleToken(accessToken: string): Promise<OAuthProfile> {
   // Local/Testing Mock Bypass
-  if (token === 'mock-google-token' || process.env.NODE_ENV === 'test') {
+  if (accessToken === 'mock-google-token' || process.env.NODE_ENV === 'test') {
     return {
       id: '12345google',
       email: 'google-user@example.com',
@@ -23,20 +27,31 @@ export async function verifyGoogleToken(token: string): Promise<OAuthProfile> {
   }
 
   try {
-    const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
-    if (!res.ok) {
-      throw new HttpError(400, 'Invalid Google token');
+    const tokenInfo = await googleClient.getTokenInfo(accessToken);
+    if (!tokenInfo.email) {
+      throw new HttpError(400, 'Invalid Google token payload');
     }
-    const data = await res.json() as { sub: string; email?: string; given_name?: string; family_name?: string };
+    
+    // To get names, we must fetch the userinfo endpoint because tokenInfo only has basic info
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    
+    if (!res.ok) {
+      throw new HttpError(400, 'Failed to fetch user profile from Google');
+    }
+    
+    const data = await res.json() as { sub: string; email: string; given_name?: string; family_name?: string };
+    
     return {
       id: data.sub,
-      email: data.email ?? undefined,
-      firstName: data.given_name ?? undefined,
-      lastName: data.family_name ?? undefined,
+      email: data.email,
+      firstName: data.given_name,
+      lastName: data.family_name,
     };
   } catch (error) {
     if (error instanceof HttpError) throw error;
-    throw new HttpError(400, 'Failed to verify Google token');
+    throw new HttpError(400, 'Failed to verify Google access token');
   }
 }
 
@@ -69,6 +84,8 @@ export async function verifyFacebookToken(token: string): Promise<OAuthProfile> 
   }
 }
 
+import appleSignin from 'apple-signin-auth';
+
 export async function verifyAppleToken(token: string): Promise<OAuthProfile> {
   // Local/Testing Mock Bypass
   if (token === 'mock-apple-token' || process.env.NODE_ENV === 'test') {
@@ -81,21 +98,14 @@ export async function verifyAppleToken(token: string): Promise<OAuthProfile> {
   }
 
   try {
-    // Decoding JWT payload without verification for simplicity since we would use an Apple ID verification package in reality.
-    // In production, you would verify the JWT signature using Apple's public keys.
-    const base64Url = token.split('.')[1];
-    if (!base64Url) {
-      throw new HttpError(400, 'Invalid Apple token');
-    }
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    const data = JSON.parse(jsonPayload) as { sub: string; email?: string };
+    const data = await appleSignin.verifyIdToken(token, {
+      audience: process.env.APPLE_CLIENT_ID,
+      ignoreExpiration: false,
+    });
 
     return {
       id: data.sub,
-      email: data.email ?? undefined,
+      email: data.email,
       firstName: undefined, // Apple only sends name on the first login via another parameter
       lastName: undefined,
     };
