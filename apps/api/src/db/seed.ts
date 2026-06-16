@@ -53,6 +53,7 @@ import {
   RefundModel,
   ReportModel,
   SavedSearchModel,
+  LandingPageModel,
   SubscriptionModel,
   SuccessStoryModel,
   SystemSettingModel,
@@ -70,6 +71,148 @@ const now = new Date();
 const dayMs = 24 * 60 * 60 * 1000;
 
 type ObjectId = Types.ObjectId;
+
+const seoLandingPages = [
+  {
+    slug: 'indian-matrimony-sydney',
+    title: 'Indian Matrimony in Sydney',
+    metaDescription:
+      'Meet verified Indian singles and families in Sydney through Vivah Australia, a safer matrimonial platform built for serious relationships.',
+    city: 'Sydney',
+    heroHeadline: 'Find Verified Indian Matrimony Matches in Sydney',
+    heroSubheadline:
+      'Connect with serious Sydney-based Indian singles who value family, culture, and long-term commitment.',
+    customBody:
+      'Sydney is home to a vibrant Indian community with families from many regions, languages, and traditions. Vivah Australia helps members discover compatible matches with verified profiles, privacy controls, and respectful communication tools. Whether you are searching independently or with family support, this Sydney matrimony page is designed for meaningful introductions across Greater Sydney.',
+  },
+  {
+    slug: 'indian-matrimony-melbourne',
+    title: 'Indian Matrimony in Melbourne',
+    metaDescription:
+      'Discover verified Indian matrimony matches in Melbourne with Vivah Australia, built for trusted and culturally aware matchmaking.',
+    city: 'Melbourne',
+    heroHeadline: 'Meet Serious Indian Singles in Melbourne',
+    heroSubheadline:
+      'A safer way for Melbourne singles and families to find compatible Indian matrimonial matches.',
+    customBody:
+      'Melbourne brings together Indian communities from across Victoria, from students and professionals to established families. Vivah Australia supports this journey with profile verification, cultural preferences, and member-first privacy features so every conversation can begin with confidence and respect.',
+  },
+  {
+    slug: 'indian-matrimony-brisbane',
+    title: 'Indian Matrimony in Brisbane',
+    metaDescription:
+      'Find verified Indian matrimony profiles in Brisbane and Queensland through Vivah Australia.',
+    city: 'Brisbane',
+    heroHeadline: 'Brisbane Indian Matrimony for Meaningful Matches',
+    heroSubheadline:
+      'Search verified Brisbane profiles with shared values, family goals, and serious relationship intent.',
+    customBody:
+      'For Indian singles in Brisbane and across Queensland, finding a life partner should feel safe, respectful, and culturally informed. Vivah Australia combines modern discovery with trust signals, verification badges, and privacy controls for members who are ready for commitment.',
+  },
+  {
+    slug: 'indian-matrimony-perth',
+    title: 'Indian Matrimony in Perth',
+    metaDescription:
+      'Connect with verified Indian matrimony profiles in Perth through Vivah Australia.',
+    city: 'Perth',
+    heroHeadline: 'Perth Indian Matrimony with Verified Profiles',
+    heroSubheadline:
+      'Meet Perth-based Indian singles looking for serious, family-aware relationships.',
+    customBody:
+      'Perth members often search across a close-knit but growing Indian community. Vivah Australia makes that search easier with verified profiles, location-aware discovery, and communication designed for people who are looking for marriage, not casual browsing.',
+  },
+  {
+    slug: 'hindu-matrimony-australia',
+    title: 'Hindu Matrimony in Australia',
+    metaDescription:
+      'Find verified Hindu matrimony matches across Australia with Vivah Australia.',
+    religion: 'Hindu',
+    heroHeadline: 'Verified Hindu Matrimony Across Australia',
+    heroSubheadline:
+      'Discover Hindu singles and families who share your values, traditions, and future goals.',
+    customBody:
+      'Vivah Australia helps Hindu members search with confidence across major Australian cities. Profiles can highlight cultural background, family expectations, lifestyle, and relationship goals so members can focus on introductions that feel genuinely compatible.',
+  },
+  {
+    slug: 'sikh-matrimony-australia',
+    title: 'Sikh Matrimony in Australia',
+    metaDescription:
+      'Meet verified Sikh matrimony matches across Australia through Vivah Australia.',
+    religion: 'Sikh',
+    heroHeadline: 'Sikh Matrimony for Australian Singles and Families',
+    heroSubheadline:
+      'Connect with verified Sikh profiles seeking respectful, long-term relationships.',
+    customBody:
+      'Sikh families and singles across Australia use Vivah Australia to find introductions grounded in trust, respect, and shared intention. Verification and privacy features help members move from discovery to conversation with greater confidence.',
+  },
+  {
+    slug: 'muslim-matrimony-australia',
+    title: 'Muslim Matrimony in Australia',
+    metaDescription:
+      'Search verified Muslim matrimony profiles in Australia with Vivah Australia.',
+    religion: 'Muslim',
+    heroHeadline: 'Muslim Matrimony Matches Across Australia',
+    heroSubheadline:
+      'A respectful matrimonial platform for Muslim singles looking for serious commitment.',
+    customBody:
+      'Vivah Australia supports Muslim members who want a safer, values-led matrimonial search. Members can express location, lifestyle, and family preferences while using privacy controls and verification signals to build trust before connecting.',
+  },
+  {
+    slug: 'tamil-matrimony-australia',
+    title: 'Tamil Matrimony in Australia',
+    metaDescription:
+      'Find verified Tamil matrimony matches across Australia on Vivah Australia.',
+    heroHeadline: 'Tamil Matrimony for Australian Singles',
+    heroSubheadline:
+      'Meet Tamil singles and families seeking meaningful, marriage-focused introductions.',
+    customBody:
+      'For Tamil singles across Australia, compatibility often includes language, family values, education, and lifestyle. Vivah Australia helps members present these details clearly while keeping privacy and safety central to the matchmaking journey.',
+  },
+  {
+    slug: 'punjabi-matrimony-australia',
+    title: 'Punjabi Matrimony in Australia',
+    metaDescription:
+      'Connect with verified Punjabi matrimony profiles across Australia through Vivah Australia.',
+    heroHeadline: 'Punjabi Matrimony Across Australia',
+    heroSubheadline:
+      'Find Punjabi singles who share your family values, culture, and long-term goals.',
+    customBody:
+      'Vivah Australia brings Punjabi singles and families together through verified profiles and serious relationship intent. Members can search across cities while keeping communication respectful, private, and focused on genuine compatibility.',
+  },
+  {
+    slug: 'gujarati-matrimony-australia',
+    title: 'Gujarati Matrimony in Australia',
+    metaDescription:
+      'Discover verified Gujarati matrimony profiles in Australia with Vivah Australia.',
+    heroHeadline: 'Gujarati Matrimony for Australian Families',
+    heroSubheadline:
+      'Meet Gujarati singles looking for trusted, family-aware matrimonial matches.',
+    customBody:
+      'Gujarati matrimony searches often include cultural traditions, family involvement, and shared ambitions. Vivah Australia gives members a modern, safer way to discover compatible profiles while respecting those expectations.',
+  },
+  {
+    slug: 'telugu-matrimony-australia',
+    title: 'Telugu Matrimony in Australia',
+    metaDescription:
+      'Search verified Telugu matrimony profiles across Australia on Vivah Australia.',
+    heroHeadline: 'Telugu Matrimony Across Australia',
+    heroSubheadline:
+      'Connect with Telugu singles seeking serious relationships and shared family values.',
+    customBody:
+      'Vivah Australia helps Telugu members across Australia search beyond chance introductions. Profiles, verification, and preferences make it easier to find people aligned on culture, education, family, and future plans.',
+  },
+  {
+    slug: 'malayali-matrimony-australia',
+    title: 'Malayali Matrimony in Australia',
+    metaDescription:
+      'Find verified Malayali matrimony matches across Australia with Vivah Australia.',
+    heroHeadline: 'Malayali Matrimony for Australian Singles',
+    heroSubheadline:
+      'Meet Malayali singles and families ready for meaningful, long-term introductions.',
+    customBody:
+      'Malayali singles in Australia can use Vivah Australia to search with clarity and confidence. The platform supports verified profiles, cultural preferences, and privacy-first conversations for people looking toward marriage.',
+  },
+] as const;
 
 interface DemoMember {
   index: number;
@@ -1273,6 +1416,20 @@ async function seedCmsAndBlog() {
     );
   }
 
+  for (const page of seoLandingPages) {
+    await LandingPageModel.updateOne(
+      { slug: page.slug },
+      {
+        $set: {
+          ...page,
+          active: true,
+          isDeleted: false,
+        },
+      },
+      { upsert: true },
+    );
+  }
+
   const blogTitles = [
     'How to Create a Strong Matrimonial Profile',
     'Online Safety Tips Before Meeting a Match',
@@ -1736,6 +1893,7 @@ async function resetDemoData() {
           /^(how-to-create|online-safety|what-families|understanding-verification|how-to-start|choosing-the-right|matrimony-for|privacy-tips)/,
       },
     }),
+    LandingPageModel.deleteMany({ slug: { $in: seoLandingPages.map((page) => page.slug) } }),
     TestimonialModel.deleteMany({ name: 'Demo Family' }),
     SuccessStoryModel.deleteMany({ slug: 'melbourne-demo-match' }),
     BannerModel.deleteMany({ key: { $regex: /^blog-\d+$/ } }),

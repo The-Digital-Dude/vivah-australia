@@ -12,6 +12,7 @@ import {
   CmsPageModel,
   ContactInquiryModel,
   FraudEventModel,
+  LandingPageModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -339,6 +340,35 @@ describe('public web routes', () => {
     if (hasTitle(updated)) {
       expect(updated.title).toBe('About Vivah Australia');
     }
+  });
+
+  it('lists active matrimony landing page slugs for sitemap generation', async () => {
+    await LandingPageModel.create([
+      {
+        slug: 'indian-matrimony-sydney',
+        title: 'Indian Matrimony in Sydney',
+        active: true,
+        isDeleted: false,
+      },
+      {
+        slug: 'draft-matrimony-page',
+        title: 'Draft Matrimony Page',
+        active: false,
+        isDeleted: false,
+      },
+      {
+        slug: 'deleted-matrimony-page',
+        title: 'Deleted Matrimony Page',
+        active: true,
+        isDeleted: true,
+      },
+    ]);
+
+    const response = await request(app).get('/api/public/matrimony').expect(200);
+
+    expect(bodyAs<{ pages: Array<{ slug: string; updatedAt?: string }> }>(response).pages).toEqual([
+      expect.objectContaining({ slug: 'indian-matrimony-sydney' }),
+    ]);
   });
 
   it('manages homepage and CMS content collections from admin APIs', async () => {

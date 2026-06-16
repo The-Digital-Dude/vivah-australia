@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useState,
   useEffect,
+  useRef,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
@@ -48,6 +49,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
 }
 
 type PremiumButtonProps = {
+  ariaLabel?: string;
   children: ReactNode;
   className?: string;
   disabled?: boolean;
@@ -68,6 +70,7 @@ const buttonStyles = {
 } as const;
 
 export function PremiumButton({
+  ariaLabel,
   children,
   className,
   disabled,
@@ -90,6 +93,7 @@ export function PremiumButton({
       <MotionLink
         href={href}
         className={classes}
+        aria-label={ariaLabel}
         aria-disabled={disabled}
         {...(shouldReduceMotion ? {} : { whileHover: { y: -1, scale: 1.01 } })}
         {...(shouldReduceMotion ? {} : { whileTap: { scale: 0.98 } })}
@@ -103,6 +107,7 @@ export function PremiumButton({
     <motion.button
       type={type}
       className={classes}
+      aria-label={ariaLabel}
       onClick={onClick}
       disabled={disabled}
       {...(shouldReduceMotion ? {} : { whileHover: { y: -1, scale: 1.01 } })}
@@ -632,11 +637,86 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
   const { clearToken, initialized, token } = useAuth();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const resourcesRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
   const links = initialized && token ? memberLinks : publicLinks;
   const MotionLink = motion(Link);
   const pathname = usePathname();
 
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (!resourcesOpen) return;
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!resourcesRef.current?.contains(event.target as Node)) {
+        setResourcesOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setResourcesOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [resourcesOpen]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const focusableSelector =
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    window.setTimeout(() => {
+      const first = drawerRef.current?.querySelector<HTMLElement>(focusableSelector);
+      first?.focus();
+    }, 0);
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab' || !drawerRef.current) return;
+
+      const focusable = Array.from(
+        drawerRef.current.querySelectorAll<HTMLElement>(focusableSelector),
+      ).filter((element) => element.offsetParent !== null);
+
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (!first || !last) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      const target = previousFocus ?? menuButtonRef.current;
+      target?.focus();
+    };
+  }, [open]);
 
   let headerClass = "sticky top-0 z-50 transition-all font-poppins ";
   if (variant === 'dark') {
@@ -657,7 +737,7 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
     <header className={headerClass}>
       <div className="px-8 sm:px-12 lg:px-16">
         <div className="mx-auto flex min-h-[54px] container items-center justify-between gap-3 py-2 lg:h-[72px] lg:py-0">
-          <Link href="/" className="flex shrink-0 items-center">
+          <Link href="/" aria-label="Vivah Australia home" className="flex shrink-0 items-center">
             <Image
               src={isLight ? "/logo-color.png" : "/logo-white.png"}
               alt="Vivah Australia Logo"
@@ -688,15 +768,38 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
               </MotionLink>
             ))}
             {!(initialized && token) && (
-              <div className="group relative flex items-center gap-1 cursor-pointer">
-                <span className={cx("transition", isLight ? "hover:text-brand-maroon" : "hover:text-white")}>Resources</span>
-                <ChevronDown className="size-3.5 transition-transform duration-200 group-hover:rotate-180" />
-                <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+              <div ref={resourcesRef} className="relative flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-expanded={resourcesOpen}
+                  aria-controls="public-resources-menu"
+                  className={cx("inline-flex items-center gap-1 transition focus:outline-none focus:ring-2 focus:ring-brand-gold/60", isLight ? "hover:text-brand-maroon" : "hover:text-white")}
+                  onClick={() => setResourcesOpen((current) => !current)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'ArrowDown') {
+                      event.preventDefault();
+                      setResourcesOpen(true);
+                      window.setTimeout(() => {
+                        resourcesRef.current?.querySelector<HTMLAnchorElement>('a')?.focus();
+                      }, 0);
+                    }
+                  }}
+                >
+                  Resources
+                  <ChevronDown className={cx("size-3.5 transition-transform duration-200", resourcesOpen && "rotate-180")} />
+                </button>
+                <div
+                  id="public-resources-menu"
+                  className={cx(
+                    "absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 transition-all duration-200",
+                    resourcesOpen ? "visible opacity-100" : "invisible opacity-0",
+                  )}
+                >
                   <div className="w-52 overflow-hidden rounded-xl border border-white/10 bg-brand-charcoal p-2 shadow-2xl">
-                    <Link href="/blog"   className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Blog & Advice</Link>
-                    <Link href="/help"   className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Help Center</Link>
-                    <Link href="/safety" className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">Safety Guidelines</Link>
-                    <Link href="/faq"    className="block rounded-lg px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white transition">FAQ</Link>
+                    <Link href="/blog" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">Blog & Advice</Link>
+                    <Link href="/help" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">Help Center</Link>
+                    <Link href="/safety" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">Safety Guidelines</Link>
+                    <Link href="/faq" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">FAQ</Link>
                   </div>
                 </div>
               </div>
@@ -709,6 +812,7 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
                   href="/member/notifications"
                   variant="secondary"
                   className="min-h-10 px-3"
+                  ariaLabel="Notifications"
                 >
                   <Bell className="size-4" />
                 </PremiumButton>
@@ -734,8 +838,10 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
             )}
           </div>
           <button
+            ref={menuButtonRef}
             type="button"
             aria-label="Open menu"
+            aria-expanded={open}
             className={cx("rounded-full border p-2 lg:hidden transition", isLight ? "border-gray-200 bg-white text-brand-charcoal hover:bg-gray-50" : "border-white/40 bg-white/20 text-white hover:bg-white/30")}
             onClick={() => setOpen(true)}
           >
@@ -752,6 +858,10 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
             onClick={() => setOpen(false)}
           />
           <aside
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Main menu"
             className="absolute right-0 top-0 h-full w-80 max-w-[85vw] p-6 flex flex-col border-l border-white/10 text-white"
             style={{ backgroundColor: '#A10E4D', boxShadow: '-20px 0 40px rgba(0,0,0,0.4)' }}
           >

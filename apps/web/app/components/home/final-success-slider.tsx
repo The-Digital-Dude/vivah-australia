@@ -1,10 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight, Heart, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const successStories = [
@@ -138,6 +137,9 @@ export function FinalSuccessSlider({ isDark = false }: { isDark?: boolean }) {
           {successStories.map((_, index) => (
             <button
               key={index}
+              type="button"
+              aria-label={`Show success story ${index + 1}`}
+              aria-current={activeStory === index ? 'true' : undefined}
               onClick={() => goToSlide(index)}
               className={`size-2.5 rounded-full transition-all duration-300 ${activeStory === index ? 'bg-[#d4a04c]' : isDark ? 'bg-transparent border border-white/40 hover:bg-white/20' : 'bg-transparent border border-gray-300 hover:bg-gray-100'}`}
             />

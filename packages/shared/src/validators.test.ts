@@ -43,4 +43,19 @@ describe('apiEnvSchema', () => {
 
     expect(parsed.API_PORT).toBe(4000);
   });
+
+  it('requires hCaptcha secret in production', () => {
+    expect(() =>
+      parseEnv(apiEnvSchema, {
+        NODE_ENV: 'production',
+        API_PORT: '4000',
+        API_BASE_URL: 'https://api.vivahaustralia.com.au',
+        WEB_BASE_URL: 'https://vivahaustralia.com.au',
+        MONGODB_URI: 'mongodb://localhost:27017/vivah_test',
+        JWT_ACCESS_SECRET: 'a'.repeat(32),
+        JWT_REFRESH_SECRET: 'b'.repeat(32),
+        CORS_ORIGINS: 'https://vivahaustralia.com.au',
+      }),
+    ).toThrow(/HCAPTCHA_SECRET/);
+  });
 });

@@ -1303,6 +1303,26 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
   // ── PHASE B: LANDING PAGES (public) ──────────────────────────────────────
 
   router.get(
+    '/public/matrimony',
+    asyncHandler(async (_request, response) => {
+      const pages = await LandingPageModel.find({
+        active: true,
+        isDeleted: false,
+      })
+        .sort({ slug: 1 })
+        .select('slug updatedAt')
+        .lean();
+
+      response.status(200).json({
+        pages: pages.map((page) => ({
+          slug: String((page as { slug: unknown }).slug),
+          updatedAt: (page as { updatedAt?: Date }).updatedAt?.toISOString(),
+        })),
+      });
+    }),
+  );
+
+  router.get(
     '/public/matrimony/:slug',
     asyncHandler(async (request, response) => {
       const page: unknown = await LandingPageModel.findOne({

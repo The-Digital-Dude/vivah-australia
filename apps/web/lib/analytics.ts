@@ -14,6 +14,17 @@ declare global {
       capture: (event: string, properties?: Record<string, unknown>) => void;
       identify: (id: string, properties?: Record<string, unknown>) => void;
     };
+    gtag?: (command: 'event', eventName: string, properties?: Record<string, unknown>) => void;
+  }
+}
+
+function hasAnalyticsConsent(): boolean {
+  try {
+    const stored = window.localStorage.getItem('vivah_cookie_consent_v1');
+    if (!stored) return false;
+    return Boolean((JSON.parse(stored) as { analytics?: boolean }).analytics);
+  } catch {
+    return false;
   }
 }
 
@@ -35,8 +46,14 @@ export function track(
   properties?: Record<string, unknown>,
 ): void {
   try {
-    if (typeof window !== 'undefined' && window.posthog?.capture) {
+    if (typeof window === 'undefined' || !hasAnalyticsConsent()) {
+      return;
+    }
+    if (window.posthog?.capture) {
       window.posthog.capture(event, properties);
+    }
+    if (window.gtag) {
+      window.gtag('event', event, properties);
     }
   } catch {
     // Never throw from analytics

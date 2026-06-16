@@ -218,6 +218,13 @@ export async function getLandingPage(slug: string) {
   );
 }
 
+export async function getLandingPages() {
+  return getJson<{ pages: Array<{ slug: string; updatedAt?: string }> }>(
+    '/api/public/matrimony',
+    { pages: [] },
+  );
+}
+
 export async function validateCoupon(code: string, planCode?: string) {
   try {
     const response = await fetch(`${apiBaseUrl}/api/public/promotions/validate`, {
