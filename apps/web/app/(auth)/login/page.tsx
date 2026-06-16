@@ -4,7 +4,7 @@ import { useState, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useGoogleLogin } from '@react-oauth/google';
-import appleAuthHelpers from 'react-apple-signin-auth';
+import { appleAuthHelpers } from 'react-apple-signin-auth';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import AuthShell from '../auth-shell';
 import FormField from '../form-field';
@@ -65,8 +65,8 @@ function LoginContent() {
           usePopup: true,
         },
       });
-      if (response.authorization?.id_token) {
-        const result = await postAuth('oauth/apple', { token: response.authorization.id_token });
+      if (response?.authorization?.id_token) {
+        const result = await postAuth('oauth/apple', { token: response?.authorization?.id_token });
         if (result.ok) {
           setSession({ user: result.data?.user as any });
           setMessage('Signed in successfully.');

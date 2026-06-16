@@ -635,3 +635,49 @@
 [1] [browser] Image with src "/home/app-mockup-1.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
 [1] [browser] Image with src "/home/app-mockup-2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
 [1]  GET /about 200 in 2.1s (next.js: 699ms, application-code: 1360ms)
+[0] 9:38:33 AM [tsx] change in ./src\auth\oauth.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 09:38:39.150 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 09:38:39.155 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1]   Reload env: .env
+[1] ✓ Compiled in 831ms
+[1] ✓ Compiled in 1319ms
+[0] 9:39:55 AM [tsx] change in ./src\auth\oauth.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 09:40:11.557 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 09:40:11.564 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 9:41:38 AM [tsx] change in ./src\auth\oauth.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 09:41:43.203 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 09:41:43.209 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1] Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts" are detected. Please use "./proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[1]     at ignore-listed frames
+[1] ⨯ unhandledRejection: Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts" are detected. Please use "./proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[1]     at ignore-listed frames
+[1] ⨯ unhandledRejection:  Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts" are detected. Please use "./proxy.ts" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[1]     at ignore-listed frames
+[1] ○ Compiling middleware ...
+[1] ✓ Compiled in 5.8s
+[0] 9:49:07 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] 9:49:07 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Process hasn't exited. Killing process...
+[0] c9:49:08 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 09:49:26.073 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 09:49:26.095 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 9:49:59 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c9:49:59 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c9:49:59 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 09:50:14.600 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 09:50:14.717 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1] ✓ Compiled in 81.5s
