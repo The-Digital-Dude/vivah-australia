@@ -208,7 +208,7 @@ export default function RegisterPage() {
         ))}
       </div>
 
-      {mode === 'email' ? (
+      {mode === 'email' && emailStep === 'register' ? (
         <form method="post" className="grid gap-5" onSubmit={(event) => void onEmailSubmit(event)}>
           {error && (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700">
