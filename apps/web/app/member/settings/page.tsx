@@ -89,12 +89,37 @@ export default function MemberSettingsPage() {
   }
 
   async function enablePush() {
-    const endpoint = `https://push.local/${crypto.randomUUID()}`;
-    const result = await memberRequest('/api/me/push-subscriptions', {
-      method: 'POST',
-      body: { endpoint, keys: { p256dh: 'local-placeholder-p256dh', auth: 'local-placeholder-auth' }, userAgent: navigator.userAgent },
-    });
-    setMessage(result.ok ? 'Push placeholder subscription saved.' : result.message);
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setMessage('Push notifications are not supported in this browser.');
+      return;
+    }
+    const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    if (!vapidKey) {
+      setMessage('Push notifications are not configured.');
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        setMessage('Permission denied. Please allow notifications in your browser settings.');
+        return;
+      }
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+      const raw = Uint8Array.from(atob(vapidKey.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: raw,
+      });
+      const sub = subscription.toJSON() as { endpoint: string; keys: { p256dh: string; auth: string } };
+      const result = await memberRequest('/api/me/push-subscriptions', {
+        method: 'POST',
+        body: { endpoint: sub.endpoint, keys: sub.keys, userAgent: navigator.userAgent },
+      });
+      setMessage(result.ok ? 'Push notifications enabled.' : result.message);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed to enable push notifications.');
+    }
   }
 
   return (

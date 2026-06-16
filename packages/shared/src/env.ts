@@ -47,6 +47,7 @@ export const webEnvSchema = z.object({
   NODE_ENV: nodeEnvSchema,
   NEXT_PUBLIC_API_BASE_URL: urlString.default('http://localhost:4000'),
   NEXT_PUBLIC_HCAPTCHA_SITEKEY: nonEmptyString.optional(),
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: nonEmptyString.optional(),
 });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;

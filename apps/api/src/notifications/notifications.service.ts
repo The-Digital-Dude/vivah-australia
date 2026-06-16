@@ -27,6 +27,8 @@ export async function createNotification(input: {
   emailTemplateContext?: Record<string, unknown>;
   smsBody?: string;
   pushBody?: string;
+  /** Set true for promotional / marketing emails — respects marketingNotifications preference */
+  isMarketing?: boolean;
 }) {
   const notification = await NotificationModel.create({
     userId: input.userId,
@@ -38,7 +40,12 @@ export async function createNotification(input: {
 
   if (input.emailSubject && input.emailBody) {
     const user = await UserModel.findById(input.userId);
-    if (user?.email && (user.notificationPreferences?.emailNotifications ?? true)) {
+    const prefs = user?.notificationPreferences;
+    const emailAllowed = input.isMarketing
+      ? (prefs?.marketingNotifications ?? false)
+      : (prefs?.emailNotifications ?? true);
+
+    if (user?.email && emailAllowed) {
       if (input.emailTemplateKey) {
         await sendTemplatedEmail({
           to: user.email,
@@ -47,10 +54,12 @@ export async function createNotification(input: {
             ...input.emailTemplateContext,
             title: input.title,
             body: input.body ?? input.emailBody,
+            userId: String(input.userId),
           },
           subjectFallback: input.emailSubject,
           textFallback: input.emailBody,
           htmlFallback: `<p>${input.emailBody}</p>`,
+          ...(input.isMarketing ? { isMarketing: true, recipientUserId: input.userId } : {}),
         });
       } else {
         await sendEmail({
@@ -58,6 +67,7 @@ export async function createNotification(input: {
           subject: input.emailSubject,
           text: input.emailBody,
           html: `<p>${input.emailBody}</p>`,
+          ...(input.isMarketing ? { isMarketing: true, recipientUserId: input.userId } : {}),
         });
       }
     }
@@ -83,6 +93,7 @@ export async function createNotification(input: {
         subscriptions.map((subscription) =>
           sendPush({
             endpoint: subscription.endpoint,
+            keys: subscription.keys as { p256dh: string; auth: string },
             title: input.title,
             body: input.pushBody ?? input.body ?? input.title,
             data: input.data,

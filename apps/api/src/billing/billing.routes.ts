@@ -7,6 +7,7 @@ import {
   planUpdateSchema,
   refundCreateSchema,
   UserRole,
+  type CouponInput,
 } from '@vivah/shared';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
@@ -20,6 +21,8 @@ import {
   createCoupon,
   createProfileBoost,
   createRefund,
+  deleteCoupon,
+  deletePlan,
   getSubscriptionOverview,
   handleStripeEvent,
   listInvoices,
@@ -29,6 +32,7 @@ import {
   listPlans,
   listRefunds,
   listSubscriptions,
+  updateCoupon,
   updatePlan,
   upsertPlan,
   createPaymentIntent,
@@ -52,12 +56,17 @@ function requireRequestAuth(request: AuthenticatedRequest) {
   return request.auth;
 }
 
-function requireAdmin(request: AuthenticatedRequest) {
-  const auth = requireRequestAuth(request);
-  if (auth.role !== UserRole.ADMIN && auth.role !== UserRole.SUPER_ADMIN) {
-    throw new HttpError(403, 'Admin access required');
+function requireAdminMiddleware(
+  request: AuthenticatedRequest,
+  _response: Response,
+  next: NextFunction,
+) {
+  const auth = request.auth;
+  if (!auth || (auth.role !== UserRole.ADMIN && auth.role !== UserRole.SUPER_ADMIN)) {
+    next(new HttpError(403, 'Admin access required'));
+    return;
   }
-  return auth;
+  next();
 }
 
 export function createBillingRouter(config: AuthConfig): Router {
@@ -199,8 +208,8 @@ export function createBillingRouter(config: AuthConfig): Router {
   router.get(
     '/admin/plans',
     requireAuth(config),
-    asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+    requireAdminMiddleware,
+    asyncHandler(async (_request, response) => {
       response.status(200).json({ plans: await listPlans(true) });
     }),
   );
@@ -208,42 +217,82 @@ export function createBillingRouter(config: AuthConfig): Router {
   router.post(
     '/admin/plans',
     requireAuth(config),
+    requireAdminMiddleware,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+      const auth = requireRequestAuth(request);
       const input = planInputSchema.parse(request.body);
-      response.status(201).json({ plan: await upsertPlan(input) });
+      response.status(201).json({ plan: await upsertPlan(auth.userId, input) });
     }),
   );
 
   router.patch(
     '/admin/plans/:id',
     requireAuth(config),
+    requireAdminMiddleware,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+      const auth = requireRequestAuth(request);
       const input = planUpdateSchema.parse(request.body);
       const planId = request.params.id;
-      if (!planId) {
-        throw new HttpError(404, 'Plan not found');
-      }
-      response.status(200).json({ plan: await updatePlan(planId, input) });
+      if (!planId) throw new HttpError(404, 'Plan not found');
+      response.status(200).json({ plan: await updatePlan(auth.userId, planId, input) });
+    }),
+  );
+
+  router.delete(
+    '/admin/plans/:id',
+    requireAuth(config),
+    requireAdminMiddleware,
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const planId = request.params.id;
+      if (!planId) throw new HttpError(404, 'Plan not found');
+      await deletePlan(auth.userId, planId);
+      response.status(204).send();
     }),
   );
 
   router.post(
     '/admin/coupons',
     requireAuth(config),
+    requireAdminMiddleware,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+      const auth = requireRequestAuth(request);
       const input = couponInputSchema.parse(request.body);
-      response.status(201).json({ coupon: await createCoupon(input) });
+      response.status(201).json({ coupon: await createCoupon(auth.userId, input) });
+    }),
+  );
+
+  router.patch(
+    '/admin/coupons/:id',
+    requireAuth(config),
+    requireAdminMiddleware,
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const couponId = request.params.id;
+      if (!couponId) throw new HttpError(404, 'Coupon not found');
+      const input = couponInputSchema.innerType().partial().parse(request.body) as Partial<CouponInput>;
+      response.status(200).json({ coupon: await updateCoupon(auth.userId, couponId, input) });
+    }),
+  );
+
+  router.delete(
+    '/admin/coupons/:id',
+    requireAuth(config),
+    requireAdminMiddleware,
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const couponId = request.params.id;
+      if (!couponId) throw new HttpError(404, 'Coupon not found');
+      await deleteCoupon(auth.userId, couponId);
+      response.status(204).send();
     }),
   );
 
   router.get(
     '/admin/coupons',
     requireAuth(config),
-    asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+    requireAdminMiddleware,
+    asyncHandler(async (_request, response) => {
       response.status(200).json({ coupons: await listCoupons() });
     }),
   );
@@ -251,8 +300,8 @@ export function createBillingRouter(config: AuthConfig): Router {
   router.get(
     '/admin/subscriptions',
     requireAuth(config),
-    asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+    requireAdminMiddleware,
+    asyncHandler(async (_request, response) => {
       response.status(200).json({ subscriptions: await listSubscriptions() });
     }),
   );
@@ -260,8 +309,8 @@ export function createBillingRouter(config: AuthConfig): Router {
   router.get(
     '/admin/payments',
     requireAuth(config),
-    asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+    requireAdminMiddleware,
+    asyncHandler(async (_request, response) => {
       response.status(200).json({
         payments: await listPayments(),
         invoices: await listInvoices(),
@@ -272,8 +321,8 @@ export function createBillingRouter(config: AuthConfig): Router {
   router.get(
     '/admin/payments/:id',
     requireAuth(config),
-    asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+    requireAdminMiddleware,
+    asyncHandler(async (request, response) => {
       const paymentId = request.params.id;
       if (!paymentId) {
         throw new HttpError(400, 'Payment ID is required');
@@ -285,8 +334,8 @@ export function createBillingRouter(config: AuthConfig): Router {
   router.get(
     '/admin/refunds',
     requireAuth(config),
-    asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+    requireAdminMiddleware,
+    asyncHandler(async (_request, response) => {
       response.status(200).json({ refunds: await listRefunds() });
     }),
   );
@@ -294,8 +343,9 @@ export function createBillingRouter(config: AuthConfig): Router {
   router.post(
     '/admin/refunds',
     requireAuth(config),
+    requireAdminMiddleware,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
-      const auth = requireAdmin(request);
+      const auth = requireRequestAuth(request);
       const input = refundCreateSchema.parse(request.body);
       response.status(201).json({ refund: await createRefund(input, auth.userId) });
     }),

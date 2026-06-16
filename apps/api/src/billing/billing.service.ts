@@ -101,16 +101,25 @@ export async function listPlans(includeInactive = false) {
   return plans.map((plan) => publicPlan(plan));
 }
 
-export async function upsertPlan(input: PlanInput) {
+export async function upsertPlan(actorId: Types.ObjectId, input: PlanInput) {
+  const existing = await PlanModel.findOne({ code: input.code });
   const plan = await PlanModel.findOneAndUpdate(
     { code: input.code },
     { $set: input },
     { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
   );
+  await logAudit({
+    actorId,
+    actorRole: 'ADMIN',
+    action: existing ? 'PLAN_UPDATED' : 'PLAN_CREATED',
+    targetId: plan._id,
+    targetType: 'PLAN',
+    metadata: { code: input.code, name: input.name, priceCents: input.priceCents },
+  });
   return publicPlan(plan);
 }
 
-export async function updatePlan(planId: string, input: PlanUpdateInput) {
+export async function updatePlan(actorId: Types.ObjectId, planId: string, input: PlanUpdateInput) {
   const plan = await PlanModel.findOneAndUpdate(
     { _id: planId, isDeleted: false },
     { $set: input },
@@ -121,7 +130,32 @@ export async function updatePlan(planId: string, input: PlanUpdateInput) {
     throw new HttpError(404, 'Plan not found');
   }
 
+  await logAudit({
+    actorId,
+    actorRole: 'ADMIN',
+    action: 'PLAN_UPDATED',
+    targetId: plan._id,
+    targetType: 'PLAN',
+    metadata: { code: plan.code, changes: Object.keys(input) },
+  });
   return publicPlan(plan);
+}
+
+export async function deletePlan(actorId: Types.ObjectId, planId: string) {
+  const plan = await PlanModel.findOneAndUpdate(
+    { _id: planId, isDeleted: false },
+    { $set: { isDeleted: true, deletedAt: new Date(), deletedBy: actorId, active: false } },
+    { returnDocument: 'after' },
+  );
+  if (!plan) throw new HttpError(404, 'Plan not found');
+  await logAudit({
+    actorId,
+    actorRole: 'ADMIN',
+    action: 'PLAN_DELETED',
+    targetId: plan._id,
+    targetType: 'PLAN',
+    metadata: { code: plan.code },
+  });
 }
 
 export async function createCheckoutSession(userId: Types.ObjectId, input: CheckoutSessionInput) {
@@ -141,6 +175,10 @@ export async function createCheckoutSession(userId: Types.ObjectId, input: Check
 
   if (input.couponCode && !coupon) {
     throw new HttpError(404, 'Coupon not found');
+  }
+
+  if (coupon && coupon.maxRedemptions != null && coupon.redemptionCount >= coupon.maxRedemptions) {
+    throw new HttpError(410, 'This coupon has reached its maximum number of uses');
   }
 
   if (!stripe || !plan.stripePriceId) {
@@ -342,13 +380,56 @@ export async function listCoupons() {
   return CouponModel.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(100).lean();
 }
 
-export async function createCoupon(input: CouponInput) {
+export async function createCoupon(actorId: Types.ObjectId, input: CouponInput) {
   const coupon = await CouponModel.findOneAndUpdate(
     { code: input.code },
     { $set: input },
     { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
-  ).lean();
-  return coupon;
+  );
+  await logAudit({
+    actorId,
+    actorRole: 'ADMIN',
+    action: 'COUPON_CREATED',
+    targetId: coupon._id,
+    targetType: 'COUPON',
+    metadata: { code: input.code, percentOff: input.percentOff, maxRedemptions: input.maxRedemptions },
+  });
+  return coupon.toObject();
+}
+
+export async function updateCoupon(actorId: Types.ObjectId, couponId: string, input: Partial<CouponInput>) {
+  const coupon = await CouponModel.findOneAndUpdate(
+    { _id: couponId, isDeleted: false },
+    { $set: input },
+    { returnDocument: 'after' },
+  );
+  if (!coupon) throw new HttpError(404, 'Coupon not found');
+  await logAudit({
+    actorId,
+    actorRole: 'ADMIN',
+    action: 'COUPON_UPDATED',
+    targetId: coupon._id,
+    targetType: 'COUPON',
+    metadata: { code: coupon.code, changes: Object.keys(input) },
+  });
+  return coupon.toObject();
+}
+
+export async function deleteCoupon(actorId: Types.ObjectId, couponId: string) {
+  const coupon = await CouponModel.findOneAndUpdate(
+    { _id: couponId, isDeleted: false },
+    { $set: { isDeleted: true, deletedAt: new Date(), deletedBy: actorId, active: false } },
+    { returnDocument: 'after' },
+  );
+  if (!coupon) throw new HttpError(404, 'Coupon not found');
+  await logAudit({
+    actorId,
+    actorRole: 'ADMIN',
+    action: 'COUPON_DELETED',
+    targetId: coupon._id,
+    targetType: 'COUPON',
+    metadata: { code: coupon.code },
+  });
 }
 
 export async function listRefunds() {
@@ -561,6 +642,14 @@ export async function handleStripeEvent(event: Stripe.Event) {
         : {}),
     };
     await SubscriptionModel.create(subscriptionData);
+
+    const couponId = session.metadata?.couponId;
+    if (couponId && Types.ObjectId.isValid(couponId)) {
+      await CouponModel.updateOne(
+        { _id: new Types.ObjectId(couponId) },
+        { $inc: { redemptionCount: 1 } },
+      );
+    }
   }
 
   if (event.type === 'invoice.paid') {

@@ -45,6 +45,17 @@ process.on('unhandledRejection', (reason) => {
 
 async function startServer() {
   const corsOrigins = env.CORS_ORIGINS.split(',').map((origin) => origin.trim());
+
+  if (env.NODE_ENV === 'production') {
+    if (corsOrigins.includes('*')) {
+      throw new Error('CORS_ORIGINS must not contain * in production');
+    }
+    const insecure = corsOrigins.filter((o) => !o.startsWith('https://'));
+    if (insecure.length > 0) {
+      throw new Error(`Non-HTTPS CORS origins are not allowed in production: ${insecure.join(', ')}`);
+    }
+  }
+
   const app = createApp({
     corsOrigins,
     auth: authConfig,

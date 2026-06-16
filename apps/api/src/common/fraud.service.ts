@@ -2,35 +2,37 @@ import type { Types } from 'mongoose';
 import { ReportStatus } from '@vivah/shared';
 import { ReportModel, FraudEventModel } from '../models/index.js';
 
+type FraudSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
 const FRAUD_RULES = {
   HIGH_VELOCITY_PROFILE_VIEWS: {
     label: 'High velocity profile views',
     dedupeWindowMs: 60 * 60 * 1000,
-    severityFor: (_viewCount: number) => 'MEDIUM',
+    severityFor: (_viewCount: number): FraudSeverity => 'MEDIUM',
     scoreFor: (viewCount: number) => Math.min(100, viewCount * 2),
   },
   REPEATED_REPORT_SUBMISSIONS: {
     label: 'Repeated report submissions',
     dedupeWindowMs: 60 * 60 * 1000,
-    severityFor: (reportCount: number) => (reportCount >= 10 ? 'HIGH' : 'MEDIUM'),
+    severityFor: (reportCount: number): FraudSeverity => (reportCount >= 10 ? 'HIGH' : 'MEDIUM'),
     scoreFor: (reportCount: number) => Math.min(100, reportCount * 10),
   },
   DUPLICATE_CONTACT_ATTEMPTS: {
     label: 'Duplicate contact attempts',
     dedupeWindowMs: 60 * 60 * 1000,
-    severityFor: (count: number) => (count >= 6 ? 'HIGH' : 'LOW'),
+    severityFor: (count: number): FraudSeverity => (count >= 6 ? 'HIGH' : 'LOW'),
     scoreFor: (count: number) => Math.min(100, count * 12),
   },
   UNUSUAL_MESSAGE_VOLUME: {
     label: 'Unusual message volume',
     dedupeWindowMs: 60 * 60 * 1000,
-    severityFor: (messageCount: number) => (messageCount >= 80 ? 'HIGH' : 'MEDIUM'),
+    severityFor: (messageCount: number): FraudSeverity => (messageCount >= 80 ? 'HIGH' : 'MEDIUM'),
     scoreFor: (messageCount: number) => Math.min(100, messageCount * 2),
   },
   REPEATED_OTP_FAILURES: {
     label: 'Repeated OTP failures',
     dedupeWindowMs: 60 * 60 * 1000,
-    severityFor: (attempts: number) => (attempts >= 5 ? 'HIGH' : 'MEDIUM'),
+    severityFor: (attempts: number): FraudSeverity => (attempts >= 5 ? 'HIGH' : 'MEDIUM'),
     scoreFor: (attempts: number) => Math.min(100, attempts * 18),
   },
   REPORTED_USER_RISK_SCORE: {

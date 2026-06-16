@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+import type { Types } from 'mongoose';
 import { TemplateModel } from '../models/index.js';
 import { env } from '../env.js';
 import { Queue, Worker } from 'bullmq';
@@ -20,12 +22,33 @@ emailWorker?.on('failed', (job, err) => {
   console.error(`Email job ${job?.id} failed:`, err);
 });
 
+export function generateUnsubscribeToken(userId: Types.ObjectId): string {
+  return crypto
+    .createHmac('sha256', env.JWT_ACCESS_SECRET)
+    .update(String(userId))
+    .digest('hex');
+}
+
+export function buildUnsubscribeUrl(userId: Types.ObjectId): string {
+  const token = generateUnsubscribeToken(userId);
+  return `${env.API_BASE_URL}/api/public/unsubscribe?userId=${String(userId)}&token=${token}`;
+}
+
+const UNSUBSCRIBE_FOOTER = (url: string) => `
+  <div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;font-family:sans-serif;font-size:12px;color:#9ca3af;">
+    <p>You're receiving this email because you are a member of Vivah Australia.</p>
+    <p><a href="${url}" style="color:#A10E4D;text-decoration:underline;">Unsubscribe from marketing emails</a></p>
+  </div>
+`;
+
 export interface Email {
   to: string;
   from?: string;
   subject: string;
   html: string;
   text?: string;
+  isMarketing?: boolean;
+  recipientUserId?: Types.ObjectId;
 }
 
 export interface EmailProvider {
@@ -47,6 +70,8 @@ export interface TemplatedEmail extends Omit<Email, 'subject' | 'html' | 'text'>
   subjectFallback: string;
   textFallback?: string;
   htmlFallback?: string;
+  isMarketing?: boolean;
+  recipientUserId?: Types.ObjectId;
 }
 
 type RenderValue = string | number | boolean | null | undefined;
@@ -201,14 +226,23 @@ function getEmailProvider(): EmailProvider {
 }
 
 export async function sendEmail(email: Email): Promise<void> {
+  const finalEmail: Email = { ...email };
+  if (email.isMarketing && email.recipientUserId) {
+    const unsubUrl = buildUnsubscribeUrl(email.recipientUserId);
+    finalEmail.html = email.html + UNSUBSCRIBE_FOOTER(unsubUrl);
+    finalEmail.text = (email.text ?? '') + `\n\nTo unsubscribe from marketing emails, visit: ${unsubUrl}`;
+  }
+  // Strip internal-only fields before queuing/sending
+  const { isMarketing: _m, recipientUserId: _r, ...sendable } = finalEmail;
+
   if (emailQueue) {
-    await emailQueue.add('sendEmail', email, {
+    await emailQueue.add('sendEmail', sendable, {
       attempts: 3,
       backoff: { type: 'exponential', delay: 1000 },
     });
   } else {
     // Redis unavailable — send directly (dev fallback)
-    await getEmailProvider().sendEmail(email);
+    await getEmailProvider().sendEmail(sendable);
   }
 }
 
@@ -252,5 +286,7 @@ export async function sendTemplatedEmail(input: TemplatedEmail): Promise<void> {
     subject: renderedSubject,
     html: renderedHtml,
     text: renderedText,
+    ...(input.isMarketing ? { isMarketing: true } : {}),
+    ...(input.recipientUserId ? { recipientUserId: input.recipientUserId } : {}),
   });
 }

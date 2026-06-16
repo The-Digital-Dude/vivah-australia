@@ -649,6 +649,8 @@ export interface CommunityPost {
   title?: string;
   body: string;
   status: CommunityPostStatusType;
+  isPinned: boolean;
+  isAnonymous: boolean;
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -669,6 +671,8 @@ const communityPostSchema = new Schema<CommunityPost>(
       required: true,
       index: true,
     },
+    isPinned: { type: Boolean, default: false, index: true },
+    isAnonymous: { type: Boolean, default: false },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'community_posts' },

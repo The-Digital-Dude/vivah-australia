@@ -25,7 +25,7 @@ import {
 import { requireAuth } from '../auth/auth.middleware.js';
 import { HttpError } from '../auth/auth-errors.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
-import { sendTemplatedEmail } from '../common/email.service.js';
+import { generateUnsubscribeToken, sendTemplatedEmail } from '../common/email.service.js';
 import { recordDuplicateContactAttempts } from '../common/fraud.service.js';
 import { logAudit } from '../common/audit.service.js';
 import {
@@ -623,6 +623,12 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       );
 
       publicCache.del('homeContent');
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_HOME_UPDATED',
+        targetType: 'SystemSetting',
+        metadata: { key: 'homepageContent' },
+      });
       response.status(200).json({ content: input });
     }),
   );
@@ -633,8 +639,14 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsPageInputSchema.parse(request.body);
-      const page: unknown = await CmsPageModel.create(input);
-
+      const page = (await CmsPageModel.create(input)) as { _id: Types.ObjectId; slug?: unknown };
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_PAGE_CREATED',
+        targetType: 'CmsPage',
+        targetId: page._id,
+        metadata: { slug: page.slug },
+      });
       response.status(201).json({ page });
     }),
   );
@@ -645,15 +657,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsPageInputSchema.partial().parse(request.body);
-      const page: unknown = await CmsPageModel.findByIdAndUpdate(request.params.id, input, {
+      const page = (await CmsPageModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as { _id: Types.ObjectId; slug?: unknown } | null;
 
       if (!page) {
         throw new HttpError(404, 'Page not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_PAGE_UPDATED',
+        targetType: 'CmsPage',
+        targetId: page._id,
+        metadata: { slug: page.slug },
+      });
       response.status(200).json({ page });
     }),
   );
@@ -663,16 +682,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const page: unknown = await CmsPageModel.findByIdAndUpdate(
+      const page = (await CmsPageModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as { _id: Types.ObjectId } | null;
 
       if (!page) {
         throw new HttpError(404, 'Page not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_PAGE_DELETED',
+        targetType: 'CmsPage',
+        targetId: page._id,
+      });
       response.status(204).send();
     }),
   );
@@ -697,11 +722,17 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsContentInputSchema.parse(request.body);
-      const blog: unknown = await BlogPostModel.create({
+      const blog = (await BlogPostModel.create({
         ...input,
         authorId: request.auth?.userId,
+      })) as { _id: Types.ObjectId; slug?: unknown };
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_BLOG_CREATED',
+        targetType: 'BlogPost',
+        targetId: blog._id,
+        metadata: { slug: blog.slug },
       });
-
       response.status(201).json({ blog });
     }),
   );
@@ -712,15 +743,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsContentInputSchema.partial().parse(request.body);
-      const blog: unknown = await BlogPostModel.findByIdAndUpdate(request.params.id, input, {
+      const blog = (await BlogPostModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as { _id: Types.ObjectId; slug?: unknown } | null;
 
       if (!blog) {
         throw new HttpError(404, 'Blog not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_BLOG_UPDATED',
+        targetType: 'BlogPost',
+        targetId: blog._id,
+        metadata: { slug: blog.slug },
+      });
       response.status(200).json({ blog });
     }),
   );
@@ -730,16 +768,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const blog: unknown = await BlogPostModel.findByIdAndUpdate(
+      const blog = (await BlogPostModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as { _id: Types.ObjectId } | null;
 
       if (!blog) {
         throw new HttpError(404, 'Blog not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_BLOG_DELETED',
+        targetType: 'BlogPost',
+        targetId: blog._id,
+      });
       response.status(204).send();
     }),
   );
@@ -764,8 +808,14 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsSuccessStoryInputSchema.parse(request.body);
-      const story: unknown = await SuccessStoryModel.create(input);
-
+      const story = (await SuccessStoryModel.create(input)) as { _id: Types.ObjectId; slug?: unknown };
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_SUCCESS_STORY_CREATED',
+        targetType: 'SuccessStory',
+        targetId: story._id,
+        metadata: { slug: story.slug },
+      });
       response.status(201).json({ story });
     }),
   );
@@ -776,15 +826,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsSuccessStoryInputSchema.partial().parse(request.body);
-      const story: unknown = await SuccessStoryModel.findByIdAndUpdate(request.params.id, input, {
+      const story = (await SuccessStoryModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as { _id: Types.ObjectId; slug?: unknown } | null;
 
       if (!story) {
         throw new HttpError(404, 'Success story not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_SUCCESS_STORY_UPDATED',
+        targetType: 'SuccessStory',
+        targetId: story._id,
+        metadata: { slug: story.slug },
+      });
       response.status(200).json({ story });
     }),
   );
@@ -794,16 +851,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const story: unknown = await SuccessStoryModel.findByIdAndUpdate(
+      const story = (await SuccessStoryModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as { _id: Types.ObjectId } | null;
 
       if (!story) {
         throw new HttpError(404, 'Success story not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_SUCCESS_STORY_DELETED',
+        targetType: 'SuccessStory',
+        targetId: story._id,
+      });
       response.status(204).send();
     }),
   );
@@ -828,8 +891,13 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsTestimonialInputSchema.parse(request.body);
-      const testimonial: unknown = await TestimonialModel.create(input);
-
+      const testimonial = (await TestimonialModel.create(input)) as { _id: Types.ObjectId };
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_TESTIMONIAL_CREATED',
+        targetType: 'Testimonial',
+        targetId: testimonial._id,
+      });
       response.status(201).json({ testimonial });
     }),
   );
@@ -840,19 +908,25 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsTestimonialInputSchema.partial().parse(request.body);
-      const testimonial: unknown = await TestimonialModel.findByIdAndUpdate(
+      const testimonial = (await TestimonialModel.findByIdAndUpdate(
         request.params.id,
         input,
         {
           returnDocument: 'after',
           runValidators: true,
         },
-      );
+      )) as { _id: Types.ObjectId } | null;
 
       if (!testimonial) {
         throw new HttpError(404, 'Testimonial not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_TESTIMONIAL_UPDATED',
+        targetType: 'Testimonial',
+        targetId: testimonial._id,
+      });
       response.status(200).json({ testimonial });
     }),
   );
@@ -862,16 +936,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const testimonial: unknown = await TestimonialModel.findByIdAndUpdate(
+      const testimonial = (await TestimonialModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as { _id: Types.ObjectId } | null;
 
       if (!testimonial) {
         throw new HttpError(404, 'Testimonial not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_TESTIMONIAL_DELETED',
+        targetType: 'Testimonial',
+        targetId: testimonial._id,
+      });
       response.status(204).send();
     }),
   );
@@ -896,8 +976,14 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsBannerInputSchema.parse(request.body);
-      const banner: unknown = await BannerModel.create(input);
-
+      const banner = (await BannerModel.create(input)) as { _id: Types.ObjectId; key?: unknown };
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_BANNER_CREATED',
+        targetType: 'Banner',
+        targetId: banner._id,
+        metadata: { key: banner.key },
+      });
       response.status(201).json({ banner });
     }),
   );
@@ -908,15 +994,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const input = cmsBannerInputSchema.partial().parse(request.body);
-      const banner: unknown = await BannerModel.findByIdAndUpdate(request.params.id, input, {
+      const banner = (await BannerModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
-      });
+      })) as { _id: Types.ObjectId; key?: unknown } | null;
 
       if (!banner) {
         throw new HttpError(404, 'Banner not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_BANNER_UPDATED',
+        targetType: 'Banner',
+        targetId: banner._id,
+        metadata: { key: banner.key },
+      });
       response.status(200).json({ banner });
     }),
   );
@@ -926,16 +1019,22 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     requireAuth(authConfig),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
-      const banner: unknown = await BannerModel.findByIdAndUpdate(
+      const banner = (await BannerModel.findByIdAndUpdate(
         request.params.id,
         { isDeleted: true, deletedAt: new Date(), deletedBy: request.auth?.userId },
         { returnDocument: 'after' },
-      );
+      )) as { _id: Types.ObjectId } | null;
 
       if (!banner) {
         throw new HttpError(404, 'Banner not found');
       }
 
+      await logAudit({
+        ...(request.auth?.userId ? { actorId: request.auth.userId } : {}),
+        action: 'CMS_BANNER_DELETED',
+        targetType: 'Banner',
+        targetId: banner._id,
+      });
       response.status(204).send();
     }),
   );
@@ -1540,6 +1639,38 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         metadata: { key: (banner as { key: unknown }).key },
       });
       response.status(204).send();
+    }),
+  );
+
+  router.get(
+    '/public/unsubscribe',
+    asyncHandler(async (request, response) => {
+      const { userId, token } = request.query as Record<string, string | undefined>;
+      if (!userId || !token) {
+        response.status(400).send('<p>Invalid unsubscribe link.</p>');
+        return;
+      }
+      const expectedToken = generateUnsubscribeToken({ toString: () => userId } as Types.ObjectId);
+      if (token !== expectedToken) {
+        response.status(400).send('<p>Invalid or expired unsubscribe link.</p>');
+        return;
+      }
+      await UserModel.updateOne(
+        { _id: userId },
+        { $set: { 'notificationPreferences.marketingNotifications': false } },
+      );
+      response
+        .status(200)
+        .send(
+          `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Unsubscribed</title>
+          <style>body{font-family:sans-serif;max-width:480px;margin:80px auto;text-align:center;color:#333}
+          h1{color:#A10E4D}a{color:#A10E4D}</style></head>
+          <body><h1>You've been unsubscribed</h1>
+          <p>You will no longer receive marketing emails from Vivah Australia.</p>
+          <p>Transactional emails (account security, payment receipts) will continue as normal.</p>
+          <p><a href="${process.env.WEB_BASE_URL ?? ''}">Return to Vivah Australia</a></p>
+          </body></html>`,
+        );
     }),
   );
 

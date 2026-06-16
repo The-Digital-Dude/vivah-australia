@@ -705,6 +705,7 @@ export const communityPostsQuerySchema = z.object({
 export const communityPostCreateSchema = z.object({
   title: z.string().trim().min(2).max(160).optional(),
   body: z.string().trim().min(5).max(5000),
+  isAnonymous: z.boolean().optional().default(false),
 });
 
 export const communityPostUpdateSchema = communityPostCreateSchema.partial();

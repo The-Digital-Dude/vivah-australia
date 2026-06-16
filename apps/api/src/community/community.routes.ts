@@ -11,6 +11,8 @@ import {
   UserRole,
 } from '@vivah/shared';
 import { Router, type NextFunction, type Request, type Response } from 'express';
+import { rateLimit } from 'express-rate-limit';
+import { z } from 'zod';
 import { HttpError } from '../auth/auth-errors.js';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
@@ -26,6 +28,7 @@ import {
   listPostsForRoom,
   listRooms,
   moderatePost,
+  pinPost,
   toggleReaction,
   updatePost,
   updateRoom,
@@ -59,6 +62,22 @@ function requireAdmin(request: AuthenticatedRequest) {
 export function createCommunityRouter(config: AuthConfig): Router {
   const router = Router();
 
+  const postRateLimit = rateLimit({
+    windowMs: 60 * 1000,
+    max: 5,
+    message: { message: 'Too many posts. Please wait before posting again.' },
+    keyGenerator: (req) =>
+      (req as AuthenticatedRequest).auth?.userId?.toString() ?? req.ip ?? 'anon',
+  });
+
+  const commentRateLimit = rateLimit({
+    windowMs: 60 * 1000,
+    max: 15,
+    message: { message: 'Too many comments. Please slow down.' },
+    keyGenerator: (req) =>
+      (req as AuthenticatedRequest).auth?.userId?.toString() ?? req.ip ?? 'anon',
+  });
+
   router.get(
     '/community/rooms',
     asyncHandler(async (_request, response) => {
@@ -89,6 +108,7 @@ export function createCommunityRouter(config: AuthConfig): Router {
   router.post(
     '/community/rooms/:roomId/posts',
     requireAuth(config),
+    postRateLimit,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const roomId = request.params.roomId;
@@ -143,6 +163,7 @@ export function createCommunityRouter(config: AuthConfig): Router {
   router.post(
     '/community/posts/:id/comments',
     requireAuth(config),
+    commentRateLimit,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const postId = request.params.id;
@@ -168,7 +189,26 @@ export function createCommunityRouter(config: AuthConfig): Router {
       response.status(200).json({
         reaction: await toggleReaction(
           auth.userId,
+          'POST',
           postId,
+          communityReactionSchema.parse(request.body),
+        ),
+      });
+    }),
+  );
+
+  router.post(
+    '/community/comments/:id/reactions',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const commentId = request.params.id;
+      if (!commentId) throw new HttpError(404, 'Comment not found');
+      response.status(200).json({
+        reaction: await toggleReaction(
+          auth.userId,
+          'COMMENT',
+          commentId,
           communityReactionSchema.parse(request.body),
         ),
       });
@@ -269,6 +309,21 @@ export function createCommunityRouter(config: AuthConfig): Router {
           communityPostStatusUpdateSchema.parse(request.body),
         ),
         message: 'Post moderated',
+      });
+    }),
+  );
+
+  router.patch(
+    '/admin/community/posts/:id/pin',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireAdmin(request);
+      const postId = request.params.id;
+      if (!postId) throw new HttpError(404, 'Post not found');
+      const { pin } = z.object({ pin: z.boolean() }).parse(request.body);
+      response.status(200).json({
+        post: await pinPost(auth.userId, postId, pin),
+        message: pin ? 'Post pinned' : 'Post unpinned',
       });
     }),
   );

@@ -16,10 +16,12 @@ interface Room {
 
 interface Post {
   id: string;
-  _id?: string;
   roomId: string;
   title?: string;
   body: string;
+  isPinned: boolean;
+  isAnonymous: boolean;
+  author: { displayId: string; firstName: string };
   commentCount: number;
   reactionCount: number;
   createdAt: string;
@@ -67,6 +69,7 @@ export default function MemberCommunityPage() {
     const parsed = communityPostCreateSchema.safeParse({
       title: optionalString(form.get('title')),
       body: formString(form.get('body')),
+      isAnonymous: form.get('isAnonymous') === 'on',
     });
     if (!parsed.success) {
       setMessage(validationMessage(parsed.error.issues));
@@ -154,7 +157,7 @@ export default function MemberCommunityPage() {
           >
             <input
               name="title"
-              placeholder="Post title"
+              placeholder="Post title (optional)"
               className="h-11 rounded-md border border-[#F0D6DA] px-3 text-sm"
             />
             <textarea
@@ -162,15 +165,34 @@ export default function MemberCommunityPage() {
               placeholder="Share something useful with the community"
               className="min-h-28 rounded-md border border-[#F0D6DA] p-3 text-sm"
             />
+            <label className="flex items-center gap-2 text-sm text-[#5E6470] cursor-pointer select-none">
+              <input type="checkbox" name="isAnonymous" className="rounded" />
+              Post anonymously
+            </label>
             <button className="h-11 rounded-md bg-[#7A1E3A] px-4 text-sm font-semibold text-white">
               Publish post
             </button>
           </form>
           <div className="grid gap-3">
             {posts.map((post) => (
-              <article key={post.id} className="rounded-lg border border-[#F0D6DA] bg-white p-4">
-                <h2 className="font-semibold text-[#232323]">{post.title ?? 'Community post'}</h2>
-                <p className="mt-2 text-sm leading-6 text-[#5E6470]">{post.body}</p>
+              <article
+                key={post.id}
+                className={`rounded-lg border bg-white p-4 ${post.isPinned ? 'border-[#7A1E3A] bg-[#FFF8F1]' : 'border-[#F0D6DA]'}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <h2 className="font-semibold text-[#232323]">{post.title ?? 'Community post'}</h2>
+                  {post.isPinned && (
+                    <span className="shrink-0 rounded-full bg-[#7A1E3A] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                      Pinned
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#9CA3AF] mb-2">
+                  {post.isAnonymous ? 'Anonymous' : `${post.author.firstName} · ${post.author.displayId}`}
+                  {' · '}
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </p>
+                <p className="text-sm leading-6 text-[#5E6470]">{post.body}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     className="inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold"

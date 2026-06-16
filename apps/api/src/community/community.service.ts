@@ -12,11 +12,13 @@ import {
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { logAudit } from '../common/audit.service.js';
+import { createNotification } from '../notifications/notifications.service.js';
 import {
   CommunityCommentModel,
   CommunityPostModel,
   CommunityReactionModel,
   CommunityRoomModel,
+  ProfileModel,
 } from '../models/index.js';
 
 const defaultRooms: CommunityRoomInput[] = [
@@ -43,6 +45,39 @@ const defaultRooms: CommunityRoomInput[] = [
 function toId(id: string) {
   if (!Types.ObjectId.isValid(id)) throw new HttpError(404, 'Resource not found');
   return new Types.ObjectId(id);
+}
+
+async function notify(userId: Types.ObjectId, type: string, title: string, body?: string) {
+  await createNotification({
+    userId,
+    type,
+    title,
+    ...(body ? { body } : {}),
+    emailSubject: title,
+    emailBody: body ?? title,
+    pushBody: body ?? title,
+  });
+}
+
+async function getAuthorProfiles(authorIds: Types.ObjectId[]) {
+  const profiles = await ProfileModel.find(
+    { userId: { $in: authorIds } },
+    { userId: 1, displayId: 1, 'personal.firstName': 1 },
+  ).lean();
+  return new Map(profiles.map((p) => [String(p.userId), p]));
+}
+
+function safeAuthor(
+  authorId: Types.ObjectId,
+  isAnonymous: boolean,
+  profileMap: Map<string, { displayId: string; personal?: { firstName?: string } }>,
+) {
+  if (isAnonymous) return { displayId: 'Anonymous', firstName: 'Anonymous' };
+  const profile = profileMap.get(String(authorId));
+  return {
+    displayId: profile?.displayId ?? 'Member',
+    firstName: profile?.personal?.firstName ?? 'Member',
+  };
 }
 
 export async function ensureDefaultRooms() {
@@ -147,11 +182,16 @@ export async function listPostsForRoom(slugOrId: string, input: CommunityPostsQu
     status: CommunityPostStatus.PUBLISHED,
   };
   const [posts, total] = await Promise.all([
-    CommunityPostModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(input.pageSize).lean(),
+    CommunityPostModel.find(filter)
+      .sort({ isPinned: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(input.pageSize)
+      .lean(),
     CommunityPostModel.countDocuments(filter),
   ]);
   const postIds = posts.map((post) => post._id);
-  const [commentCounts, reactions] = await Promise.all([
+  const authorIds = posts.map((post) => post.authorId);
+  const [commentCounts, reactions, profileMap] = await Promise.all([
     CommunityCommentModel.aggregate<{ _id: Types.ObjectId; count: number }>([
       { $match: { postId: { $in: postIds }, isDeleted: false } },
       { $group: { _id: '$postId', count: { $sum: 1 } } },
@@ -160,6 +200,7 @@ export async function listPostsForRoom(slugOrId: string, input: CommunityPostsQu
       { $match: { targetType: 'POST', targetId: { $in: postIds }, isDeleted: false } },
       { $group: { _id: '$targetId', count: { $sum: 1 } } },
     ]),
+    getAuthorProfiles(authorIds),
   ]);
   const commentsByPost = new Map(commentCounts.map((item) => [String(item._id), item.count]));
   const reactionsByPost = new Map(reactions.map((item) => [String(item._id), item.count]));
@@ -171,8 +212,16 @@ export async function listPostsForRoom(slugOrId: string, input: CommunityPostsQu
       description: room.description,
     },
     posts: posts.map((post) => ({
-      ...post,
       id: String(post._id),
+      roomId: String(post.roomId),
+      title: post.title,
+      body: post.body,
+      status: post.status,
+      isPinned: post.isPinned ?? false,
+      isAnonymous: post.isAnonymous ?? false,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      author: safeAuthor(post.authorId, post.isAnonymous ?? false, profileMap),
       commentCount: commentsByPost.get(String(post._id)) ?? 0,
       reactionCount: reactionsByPost.get(String(post._id)) ?? 0,
     })),
@@ -192,6 +241,7 @@ export async function createPost(
     authorId: userId,
     body: input.body,
     status: CommunityPostStatus.PUBLISHED,
+    isAnonymous: input.isAnonymous ?? false,
     ...(input.title ? { title: input.title } : {}),
   });
   return post;
@@ -242,25 +292,48 @@ export async function addComment(
     status: CommunityPostStatus.PUBLISHED,
   });
   if (!post) throw new HttpError(404, 'Post not found');
-  return CommunityCommentModel.create({ postId: post._id, authorId: userId, body: input.body });
+  const comment = await CommunityCommentModel.create({
+    postId: post._id,
+    authorId: userId,
+    body: input.body,
+  });
+  if (String(post.authorId) !== String(userId)) {
+    notify(post.authorId, 'COMMUNITY_COMMENT', 'New comment on your post',
+      'Someone commented on your community post.').catch(() => {});
+  }
+  return comment;
 }
 
 export async function listComments(postId: string) {
-  return CommunityCommentModel.find({ postId: toId(postId), isDeleted: false })
+  const comments = await CommunityCommentModel.find({ postId: toId(postId), isDeleted: false })
     .sort({ createdAt: 1 })
     .limit(100)
     .lean();
+  const authorIds = comments.map((c) => c.authorId);
+  const profileMap = await getAuthorProfiles(authorIds);
+  return comments.map((c) => ({
+    id: String(c._id),
+    postId: String(c.postId),
+    body: c.body,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
+    author: {
+      displayId: profileMap.get(String(c.authorId))?.displayId ?? 'Member',
+      firstName: profileMap.get(String(c.authorId))?.personal?.firstName ?? 'Member',
+    },
+  }));
 }
 
 export async function toggleReaction(
   userId: Types.ObjectId,
-  postId: string,
+  targetType: 'POST' | 'COMMENT',
+  targetId: string,
   input: CommunityReactionInput,
 ) {
-  const targetId = toId(postId);
+  const targetObjectId = toId(targetId);
   const existing = await CommunityReactionModel.findOne({
-    targetType: 'POST',
-    targetId,
+    targetType,
+    targetId: targetObjectId,
     userId,
     reaction: input.reaction,
     isDeleted: false,
@@ -273,12 +346,35 @@ export async function toggleReaction(
     return { active: false };
   }
   await CommunityReactionModel.create({
-    targetType: 'POST',
-    targetId,
+    targetType,
+    targetId: targetObjectId,
     userId,
     reaction: input.reaction,
   });
+  if (targetType === 'POST') {
+    const post = await CommunityPostModel.findById(targetObjectId).lean();
+    if (post && String(post.authorId) !== String(userId)) {
+      notify(post.authorId, 'COMMUNITY_REACTION', 'Someone liked your post').catch(() => {});
+    }
+  }
   return { active: true };
+}
+
+export async function pinPost(actorId: Types.ObjectId, postId: string, pin: boolean) {
+  const post = await CommunityPostModel.findOneAndUpdate(
+    { _id: toId(postId), isDeleted: false },
+    { $set: { isPinned: pin } },
+    { returnDocument: 'after' },
+  );
+  if (!post) throw new HttpError(404, 'Post not found');
+  await logAudit({
+    actorId,
+    action: pin ? 'COMMUNITY_POST_PINNED' : 'COMMUNITY_POST_UNPINNED',
+    targetType: 'COMMUNITY_POST',
+    targetId: post._id,
+    metadata: {},
+  });
+  return post;
 }
 
 export async function moderatePost(
