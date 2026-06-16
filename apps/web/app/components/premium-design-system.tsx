@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useState,
@@ -627,12 +628,13 @@ const memberLinks = [
   ['Profile', '/member/profile'],
 ] as const;
 
-export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'dark' | 'transparent' | 'full-maroon' | 'white' } = {}) {
+export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dark' | 'transparent' | 'full-maroon' | 'white' } = {}) {
   const { clearToken, initialized, token } = useAuth();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const links = initialized && token ? memberLinks : publicLinks;
   const MotionLink = motion(Link);
+  const pathname = usePathname();
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -669,7 +671,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
             {!(initialized && token) && (
               <Link
                 href="/"
-                className={cx("transition", isLight ? "hover:text-brand-maroon" : "hover:text-white")}
+                className={cx("transition", pathname === '/' ? (isLight ? "text-brand-maroon" : "text-white") : (isLight ? "hover:text-brand-maroon" : "hover:text-white"))}
               >
                 Home
               </Link>
@@ -678,7 +680,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
               <MotionLink
                 key={href}
                 href={href}
-                className={cx("transition", isLight ? "hover:text-brand-maroon" : "hover:text-white")}
+                className={cx("transition", pathname === href ? (isLight ? "text-brand-maroon" : "text-white") : (isLight ? "hover:text-brand-maroon" : "hover:text-white"))}
                 {...{ whileHover: { y: -1 } }}
                 {...{ whileTap: { scale: 0.98 } }}
               >
@@ -769,7 +771,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
                 <MotionLink
                   href="/"
                   onClick={() => setOpen(false)}
-                  className="rounded-2xl px-4 py-3.5 text-base font-bold text-white/90 transition hover:bg-white/10 hover:text-white"
+                  className={cx("rounded-2xl px-4 py-3.5 text-base font-bold transition hover:bg-white/10 hover:text-white", pathname === '/' ? "bg-white/15 text-white" : "text-white/90")}
                   {...{ whileHover: { x: 4 } }}
                   {...{ whileTap: { scale: 0.98 } }}
                 >
@@ -781,7 +783,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
                   key={href}
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="rounded-2xl px-4 py-3.5 text-base font-bold text-white/90 transition hover:bg-white/10 hover:text-white"
+                  className={cx("rounded-2xl px-4 py-3.5 text-base font-bold transition hover:bg-white/10 hover:text-white", pathname === href ? "bg-white/15 text-white" : "text-white/90")}
                   {...{ whileHover: { x: 4 } }}
                   {...{ whileTap: { scale: 0.98 } }}
                 >

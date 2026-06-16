@@ -26,11 +26,13 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { FAQAccordion, PremiumButton, PublicFooter, PublicHeader } from '@/app/components';
 import { Badge } from '@/app/components/ui/badge';
 import { track } from '@/lib/analytics';
 import UpgradeModal from '../member/upgrade-modal';
 import { validateCoupon } from '@/lib/public-api';
+import { useAuth } from '@/app/auth-context';
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
@@ -734,6 +736,8 @@ export default function PricingClient() {
   const [openComparisonRow, setOpenComparisonRow] = useState<ComparisonRowKey>('monthlyInterests');
   const trustStripRef = useRef<HTMLDivElement>(null);
   const [trustStripSeen, setTrustStripSeen] = useState(false);
+  const searchParams = useSearchParams();
+  const { token, initialized } = useAuth();
 
   // Coupon state
   const [couponOpen, setCouponOpen] = useState(false);
@@ -865,6 +869,19 @@ export default function PricingClient() {
 
   const effectiveTier = recommendedTier;
   const effectivePlan = displayPlans.find((plan) => plan.tierKey === effectiveTier) ?? null;
+
+  // Auto-open checkout when arriving from homepage/membership CTA with ?tier= and authenticated
+  const autoOpenedRef = useRef(false);
+  useEffect(() => {
+    if (!initialized || !token || displayPlans.length === 0 || autoOpenedRef.current) return;
+    const tierParam = searchParams.get('tier')?.toUpperCase() as TierKey | null;
+    if (!tierParam || tierParam === 'FREE') return;
+    const match = displayPlans.find((p) => p.tierKey === tierParam && p.isAvailableForBilling);
+    if (!match) return;
+    autoOpenedRef.current = true;
+    setSelectedPlan(match);
+    track('membership_checkout_started', { tier: match.tierKey, billing: match.billingOption, price_cents: match.priceCents });
+  }, [initialized, token, displayPlans, searchParams]);
 
   function openPaidPlan(plan: DisplayPlan) {
     if (plan.tierKey === 'FREE' || !plan.isAvailableForBilling) return;

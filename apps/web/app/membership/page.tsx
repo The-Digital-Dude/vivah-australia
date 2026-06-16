@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PlanCTA from './plan-cta';
 import {
   ArrowRight,
   Check,
@@ -39,7 +40,6 @@ const plans = [
     color: 'border-gray-200',
     buttonStyle: 'border border-brand-maroon text-brand-maroon hover:bg-brand-maroon/5',
     buttonLabel: 'Get Started Free',
-    href: '/register',
     features: [
       'Create your profile',
       'Browse verified members',
@@ -68,7 +68,6 @@ const plans = [
     color: 'border-gray-200',
     buttonStyle: 'border border-brand-maroon text-brand-maroon hover:bg-brand-maroon/5',
     buttonLabel: 'Upgrade to Premium',
-    href: '/pricing',
     features: [
       'Everything in Essential',
       'Direct messaging',
@@ -97,7 +96,6 @@ const plans = [
     color: 'border-brand-gold',
     buttonStyle: 'bg-brand-gold text-brand-charcoal hover:bg-brand-gold/90',
     buttonLabel: 'Choose Gold',
-    href: '/pricing',
     features: [
       'Everything in Premium',
       '120 interests / month',
@@ -125,7 +123,6 @@ const plans = [
     color: 'border-brand-maroon',
     buttonStyle: 'bg-brand-maroon text-white hover:bg-brand-maroon/90',
     buttonLabel: 'Go Platinum',
-    href: '/pricing',
     features: [
       'Everything in Gold',
       '200 interests / month',
@@ -214,7 +211,7 @@ const faqs = [
   },
   {
     q: 'Is there a free trial for Premium or Gold?',
-    a: 'We offer a 7-day trial on selected plans for new members. Check the pricing page for current trial offers. The Essential (Free) plan is always available with no time limit.',
+    a: 'We offer a 7-day trial on selected plans for new members. The Essential (Free) plan is always available with no time limit.',
   },
   {
     q: 'How does billing work?',
@@ -295,7 +292,7 @@ export default function MembershipPage() {
               {plans.map((plan) => (
                 <div
                   key={plan.id}
-                  className={`relative bg-white rounded-3xl border-2 ${plan.color} flex flex-col p-7 shadow-sm ${plan.highlight ? 'shadow-[0_12px_40px_rgba(212,160,76,0.18)] xl:-translate-y-3' : 'hover:shadow-md'} transition`}
+                  className={`relative bg-white rounded-3xl border-2 ${plan.color} flex flex-col p-7 shadow-sm ${plan.highlight ? 'shadow-[0_12px_40px_rgba(212,160,76,0.18)]' : 'hover:shadow-md'} transition`}
                 >
                   {/* Badge */}
                   {plan.badge && (
@@ -335,20 +332,17 @@ export default function MembershipPage() {
                   </ul>
 
                   {/* CTA */}
-                  <Link
-                    href={plan.href}
-                    className={`w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-base font-bold transition ${plan.buttonStyle}`}
-                  >
-                    {plan.buttonLabel} <ArrowRight className="size-4" />
-                  </Link>
+                  <PlanCTA
+                    tierKey={plan.id.toUpperCase() as 'FREE' | 'PREMIUM' | 'GOLD' | 'PLATINUM'}
+                    label={plan.buttonLabel}
+                    style={plan.buttonStyle}
+                  />
                 </div>
               ))}
             </div>
 
             <p className="text-center text-gray-400 text-sm mt-8">
-              All prices in AUD. Annual and quarterly billing options available on the{' '}
-              <Link href="/pricing" className="text-brand-maroon underline underline-offset-2">pricing page</Link>{' '}
-              with savings up to 30%.
+              All prices in AUD. Annual and quarterly billing options available — save up to 30%.
             </p>
           </div>
         </section>
@@ -439,12 +433,11 @@ export default function MembershipPage() {
                 <div className="col-span-1" />
                 {plans.map((plan) => (
                   <div key={plan.id} className={`px-3 text-center border-l border-gray-100 ${plan.highlight ? 'bg-brand-gold/5' : ''}`}>
-                    <Link
-                      href={plan.href}
-                      className={`inline-flex w-full items-center justify-center gap-1.5 rounded-xl py-3 text-sm font-bold transition ${plan.buttonStyle}`}
-                    >
-                      {plan.id === 'free' ? 'Start Free' : 'Choose'} <ArrowRight className="size-3.5" />
-                    </Link>
+                    <PlanCTA
+                      tierKey={plan.id.toUpperCase() as 'FREE' | 'PREMIUM' | 'GOLD' | 'PLATINUM'}
+                      label={plan.id === 'free' ? 'Start Free' : 'Choose'}
+                      style={`inline-flex w-full items-center justify-center gap-1.5 rounded-xl py-3 text-sm font-bold transition ${plan.buttonStyle}`}
+                    />
                   </div>
                 ))}
               </div>
@@ -538,13 +531,10 @@ export default function MembershipPage() {
             <div className="space-y-4">
               {faqs.map((faq, idx) => (
                 <div key={idx} className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-7">
-                  <h3 className="font-bold text-brand-charcoal text-base sm:text-lg mb-3 flex items-start gap-3">
-                    <span className="shrink-0 size-6 rounded-full bg-brand-maroon text-white text-xs font-bold flex items-center justify-center mt-0.5">
-                      {idx + 1}
-                    </span>
+                  <h3 className="font-bold text-brand-charcoal text-base sm:text-lg mb-3">
                     {faq.q}
                   </h3>
-                  <p className="text-gray-600 text-base leading-relaxed pl-9">{faq.a}</p>
+                  <p className="text-gray-600 text-base leading-relaxed">{faq.a}</p>
                 </div>
               ))}
             </div>
@@ -552,7 +542,7 @@ export default function MembershipPage() {
             <p className="text-center text-gray-500 text-base mt-8">
               Still have questions?{' '}
               <Link href="/help" className="text-brand-maroon font-bold hover:underline">
-                Visit our Help Centre
+                Visit our Help Center
               </Link>
             </p>
           </div>
@@ -577,10 +567,10 @@ export default function MembershipPage() {
                 Create Free Profile <ArrowRight className="size-4" />
               </Link>
               <Link
-                href="/pricing"
+                href="/membership#plans"
                 className="inline-flex items-center justify-center gap-2 rounded border border-white/30 px-8 py-4 text-base font-bold text-white transition hover:bg-white/10"
               >
-                View All Plans & Billing
+                Compare Plans <ArrowRight className="size-4" />
               </Link>
             </div>
           </div>

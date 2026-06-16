@@ -3,13 +3,15 @@
 import { PublicHeader, PublicFooter } from '@/app/components';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users, ShieldCheck, MapPin, LockKeyhole, Search, Sparkles, Heart, ArrowRight } from 'lucide-react';
+import { Users, ShieldCheck, MapPin, LockKeyhole, Search, Sparkles, Heart, ArrowRight, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/auth-context';
 import { FinalSuccessSlider } from '@/app/components/home/final-success-slider';
 
 export default function FinalHomepageClient() {
   const router = useRouter();
+  const { token, initialized } = useAuth();
   const [lookingFor, setLookingFor] = useState('Female');
   const [ageRange, setAgeRange] = useState('22 - 40');
   const [location, setLocation] = useState('All Australia');
@@ -28,7 +30,7 @@ export default function FinalHomepageClient() {
 
   return (
     <div className="min-h-screen bg-brand-ivory flex flex-col font-poppins selection:bg-brand-gold/20 selection:text-brand-maroon">
-      <PublicHeader variant="white" />
+      <PublicHeader />
 
       <main className="flex-1">
         {/* HERO SECTION */}
@@ -56,8 +58,8 @@ export default function FinalHomepageClient() {
               className="object-cover object-top"
             />
             {/* Deep maroon gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-maroon from-10% via-brand-maroon/70 via-35% to-transparent to-55%" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/50 from-0% to-transparent to-40%" />
+            <div className="absolute inset-0 bg-gradient-to-r from-brand-maroon from-20% via-brand-maroon/85 via-45% to-transparent to-65%" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/65 from-0% to-transparent to-45%" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,160,76,0.15),transparent_60%)]" />
           </div>
 
@@ -140,78 +142,145 @@ export default function FinalHomepageClient() {
 
         {/* SEARCH WIDGET (Overlapping Hero) */}
         <section className="relative z-20 px-4 sm:px-6 lg:px-8 -mt-24 mb-20 max-w-6xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-6 sm:p-8 border border-gray-100">
-            <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="size-5 text-brand-gold" />
-              <h3 className="text-xl font-playfair font-bold text-brand-charcoal">Find Your Perfect Match</h3>
+          <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.18),0_4px_16px_rgba(161,14,77,0.08)] p-6 sm:p-8">
+
+            {/* Title row */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="size-5 text-brand-gold" />
+                <h3 className="text-xl font-playfair font-bold text-brand-charcoal">Find Your Perfect Match</h3>
+              </div>
+              <div className="hidden sm:flex items-center gap-1.5">
+                <ShieldCheck className="size-3.5 text-brand-maroon/50" />
+                <span className="text-xs font-medium text-gray-400">Every profile verified</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-              
-              <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-sm font-medium text-gray-500">I&apos;m Looking For</label>
-                <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
-                  value={lookingFor}
-                  onChange={(e) => setLookingFor(e.target.value)}
-                >
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                </select>
+            {/* Filter grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+
+              <div className="lg:col-span-1 group">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Users className="size-3 text-brand-maroon" />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-maroon">Looking For</label>
+                </div>
+                <div className="relative">
+                  <select
+                    className="w-full appearance-none rounded-xl border border-gray-200 bg-brand-ivory/50 px-4 py-3.5 pr-10 text-sm font-semibold text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-2 focus:ring-brand-maroon/10 cursor-pointer"
+                    value={lookingFor}
+                    onChange={(e) => setLookingFor(e.target.value)}
+                  >
+                    <option value="Female">A Bride</option>
+                    <option value="Male">A Groom</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-brand-gold" />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-sm font-medium text-gray-500">Age</label>
-                <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
-                  value={ageRange}
-                  onChange={(e) => setAgeRange(e.target.value)}
-                >
-                  <option value="22 - 40">22 - 40</option>
-                  <option value="25 - 35">25 - 35</option>
-                  <option value="30 - 45">30 - 45</option>
-                </select>
+              <div className="lg:col-span-1 group">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Heart className="size-3 text-brand-maroon" />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-maroon">Age Range</label>
+                </div>
+                <div className="relative">
+                  <select
+                    className="w-full appearance-none rounded-xl border border-gray-200 bg-brand-ivory/50 px-4 py-3.5 pr-10 text-sm font-semibold text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-2 focus:ring-brand-maroon/10 cursor-pointer"
+                    value={ageRange}
+                    onChange={(e) => setAgeRange(e.target.value)}
+                  >
+                    <option value="18 - 25">18 – 25 years</option>
+                    <option value="22 - 30">22 – 30 years</option>
+                    <option value="22 - 40">22 – 40 years</option>
+                    <option value="25 - 35">25 – 35 years</option>
+                    <option value="30 - 45">30 – 45 years</option>
+                    <option value="35 - 50">35 – 50 years</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-brand-gold" />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-sm font-medium text-gray-500">Location</label>
-                <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                >
-                  <option value="All Australia">All Australia</option>
-                  <option value="Sydney">Sydney</option>
-                  <option value="Melbourne">Melbourne</option>
-                  <option value="Brisbane">Brisbane</option>
-                </select>
+              <div className="lg:col-span-1 group">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <MapPin className="size-3 text-brand-maroon" />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-maroon">Location</label>
+                </div>
+                <div className="relative">
+                  <select
+                    className="w-full appearance-none rounded-xl border border-gray-200 bg-brand-ivory/50 px-4 py-3.5 pr-10 text-sm font-semibold text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-2 focus:ring-brand-maroon/10 cursor-pointer"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                  >
+                    <option value="All Australia">All Australia</option>
+                    <option value="Sydney">Sydney, NSW</option>
+                    <option value="Melbourne">Melbourne, VIC</option>
+                    <option value="Brisbane">Brisbane, QLD</option>
+                    <option value="Perth">Perth, WA</option>
+                    <option value="Adelaide">Adelaide, SA</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-brand-gold" />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1.5 lg:col-span-1">
-                <label className="text-sm font-medium text-gray-500">Community</label>
-                <select 
-                  className="w-full appearance-none rounded border border-gray-200 bg-white px-4 py-3.5 text-base font-medium text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-1 focus:ring-brand-maroon"
-                  value={community}
-                  onChange={(e) => setCommunity(e.target.value)}
-                >
-                  <option value="All">All</option>
-                  <option value="Hindu">Hindu</option>
-                  <option value="Sikh">Sikh</option>
-                  <option value="Muslim">Muslim</option>
-                </select>
+              <div className="lg:col-span-1 group">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Sparkles className="size-3 text-brand-maroon" />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-maroon">Community</label>
+                </div>
+                <div className="relative">
+                  <select
+                    className="w-full appearance-none rounded-xl border border-gray-200 bg-brand-ivory/50 px-4 py-3.5 pr-10 text-sm font-semibold text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-2 focus:ring-brand-maroon/10 cursor-pointer"
+                    value={community}
+                    onChange={(e) => setCommunity(e.target.value)}
+                  >
+                    <option value="All">All Communities</option>
+                    <option value="Hindu">Hindu</option>
+                    <option value="Sikh">Sikh</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Christian">Christian</option>
+                    <option value="Jain">Jain</option>
+                    <option value="Buddhist">Buddhist</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-brand-gold" />
+                </div>
               </div>
 
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 flex flex-col justify-end">
                 <button
                   type="button"
                   onClick={handleSearch}
-                  className="w-full h-[50px] inline-flex items-center justify-center gap-2 rounded bg-brand-maroon px-6 py-3.5 text-base font-bold text-white transition hover:bg-brand-maroon/90"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-maroon px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#8A0C41] active:scale-[0.98] shadow-[0_4px_14px_rgba(161,14,77,0.30)]"
                 >
-                  <Search className="size-4" /> View Matches
+                  <Search className="size-4 shrink-0" /> View Matches
                 </button>
               </div>
 
             </div>
+
+            {/* Quick filter chips */}
+            <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest shrink-0">Popular:</span>
+              {[
+                { label: 'Hindu Bride 25–32', gender: 'Female', age: '25 - 35', comm: 'Hindu' },
+                { label: 'Sikh Groom 28–36', gender: 'Male', age: '25 - 35', comm: 'Sikh' },
+                { label: 'Muslim Bride in Sydney', gender: 'Female', age: '22 - 40', comm: 'Muslim', loc: 'Sydney' },
+              ].map((q) => (
+                <button
+                  key={q.label}
+                  type="button"
+                  onClick={() => {
+                    setLookingFor(q.gender);
+                    setAgeRange(q.age);
+                    setCommunity(q.comm);
+                    if (q.loc) setLocation(q.loc);
+                    handleSearch();
+                  }}
+                  className="inline-flex items-center gap-1 rounded-full border border-brand-maroon/15 bg-brand-ivory px-3 py-1 text-[11px] font-semibold text-brand-maroon hover:bg-brand-maroon hover:text-white hover:border-brand-maroon transition-colors"
+                >
+                  {q.label}
+                </button>
+              ))}
+            </div>
+
           </div>
         </section>
 
@@ -516,13 +585,18 @@ export default function FinalHomepageClient() {
         <section className="bg-brand-ivory py-24 px-4 sm:px-6 lg:px-8">
           <div className="max-w-[1400px] mx-auto">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-12">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon">
-                Choose Your Membership <ArrowRight className="inline-block size-3.5 ml-1" />
-              </p>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-playfair font-bold text-brand-charcoal">
-                Plans Designed for Meaningful Connections.
-              </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-12">
+              <div>
+                <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-1">
+                  Choose Your Membership
+                </p>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-playfair font-bold text-brand-charcoal">
+                  Plans Designed for Meaningful Connections.
+                </h2>
+              </div>
+              <Link href="/membership" className="shrink-0 inline-flex items-center gap-1.5 text-sm font-bold text-brand-maroon hover:underline">
+                See all plans <ArrowRight className="size-3.5" />
+              </Link>
             </div>
 
             {/* Grid Layout: 3 Pricing Cards + 1 Features Column */}
@@ -533,7 +607,7 @@ export default function FinalHomepageClient() {
                 <h3 className="font-bold text-brand-charcoal text-lg mb-2">Essential</h3>
                 <div className="text-4xl font-bold text-brand-charcoal mb-8 font-playfair">FREE</div>
                 <ul className="space-y-4 mb-10 w-full text-left">
-                  {['Create Profile', 'Browse Members', 'Express Interest'].map((feat, i) => (
+                  {['Create your profile', 'Browse verified members', 'Send 5 interests / month'].map((feat, i) => (
                     <li key={i} className="flex items-center gap-3 text-base text-gray-700 font-medium">
                       <span className="text-brand-maroon"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg></span>
                       {feat}
@@ -541,26 +615,28 @@ export default function FinalHomepageClient() {
                   ))}
                 </ul>
                 <div className="mt-auto w-full">
-                  <button className="w-full rounded-xl border border-brand-maroon py-3.5 text-base font-bold text-brand-maroon transition hover:bg-brand-maroon/5">
+                  <button
+                    onClick={() => router.push(initialized && token ? '/member' : '/register')}
+                    className="w-full rounded-xl border border-brand-maroon py-3.5 text-base font-bold text-brand-maroon transition hover:bg-brand-maroon/5"
+                  >
                     Get Started <ArrowRight className="inline-block size-4 ml-1" />
                   </button>
                 </div>
               </div>
 
-              {/* Card 2: Premium (Highlighted) */}
-              <div className="bg-white rounded-[24px] p-8 border-2 border-brand-gold flex flex-col items-center text-center shadow-[0_12px_40px_rgba(212,160,76,0.15)] relative transform lg:-translate-y-2">
-                <div className="absolute -top-4 right-6 bg-brand-gold text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-sm">
+              {/* Card 2: Gold (Most Popular) */}
+              <div className="bg-white rounded-[24px] p-8 border-2 border-brand-gold flex flex-col items-center text-center shadow-[0_12px_40px_rgba(212,160,76,0.18)] relative">
+                <div className="absolute -top-4 right-6 bg-brand-gold text-brand-charcoal text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md shadow-sm">
                   Most Popular
-                  {/* Small triangle below the ribbon */}
                   <div className="absolute -bottom-1.5 right-2 border-[3px] border-transparent border-t-brand-gold border-r-brand-gold" />
                 </div>
-                
-                <h3 className="font-bold text-brand-charcoal text-lg mb-2 mt-2">Premium</h3>
+
+                <h3 className="font-bold text-brand-charcoal text-lg mb-2 mt-2">Gold</h3>
                 <div className="text-4xl font-bold text-brand-maroon mb-1 font-playfair">
-                  $29 <span className="text-sm font-medium text-gray-500 font-poppins">/month</span>
+                  $59 <span className="text-sm font-medium text-gray-500 font-poppins">/month</span>
                 </div>
                 <ul className="space-y-4 mb-10 mt-7 w-full text-left">
-                  {['Unlimited Messaging', 'Advanced Search Filters', 'See Who Viewed You', 'Priority Profile Listing'].map((feat, i) => (
+                  {['Everything in Premium', 'Priority discovery', '4 profile boosts / month', 'Priority member care'].map((feat, i) => (
                     <li key={i} className="flex items-center gap-3 text-base text-gray-700 font-medium">
                       <span className="text-brand-gold"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg></span>
                       {feat}
@@ -568,20 +644,23 @@ export default function FinalHomepageClient() {
                   ))}
                 </ul>
                 <div className="mt-auto w-full">
-                  <button className="w-full rounded-xl bg-brand-gold py-3.5 text-base font-bold text-white shadow-md transition hover:bg-brand-gold">
-                    Upgrade Now <ArrowRight className="inline-block size-4 ml-1" />
+                  <button
+                    onClick={() => router.push(initialized && token ? '/pricing?tier=GOLD' : '/register?returnUrl=/pricing?tier=GOLD')}
+                    className="w-full rounded-xl bg-brand-gold py-3.5 text-base font-bold text-brand-charcoal shadow-md transition hover:bg-brand-gold/90"
+                  >
+                    Choose Gold <ArrowRight className="inline-block size-4 ml-1" />
                   </button>
                 </div>
               </div>
 
-              {/* Card 3: Elite */}
-              <div className="bg-white rounded-[24px] p-8 border border-gray-200 flex flex-col items-center text-center shadow-sm hover:shadow-md transition">
-                <h3 className="font-bold text-brand-charcoal text-lg mb-2">Elite</h3>
+              {/* Card 3: Platinum */}
+              <div className="bg-white rounded-[24px] p-8 border border-brand-maroon/30 flex flex-col items-center text-center shadow-sm hover:shadow-md transition">
+                <h3 className="font-bold text-brand-charcoal text-lg mb-2">Platinum</h3>
                 <div className="text-4xl font-bold text-brand-charcoal mb-1 font-playfair">
                   $99 <span className="text-sm font-medium text-gray-500 font-poppins">/month</span>
                 </div>
                 <ul className="space-y-4 mb-10 mt-7 w-full text-left">
-                  {['Everything in Premium', 'Dedicated Matchmaking', 'Priority Support', 'Verified Badge'].map((feat, i) => (
+                  {['Everything in Gold', 'Dedicated profile review', 'Concierge matchmaking', 'Front-of-queue support'].map((feat, i) => (
                     <li key={i} className="flex items-center gap-3 text-base text-gray-700 font-medium">
                       <span className="text-brand-maroon"><svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg></span>
                       {feat}
@@ -589,8 +668,11 @@ export default function FinalHomepageClient() {
                   ))}
                 </ul>
                 <div className="mt-auto w-full">
-                  <button className="w-full rounded-xl border border-brand-maroon py-3.5 text-base font-bold text-brand-maroon transition hover:bg-brand-maroon/5">
-                    Go Elite <ArrowRight className="inline-block size-4 ml-1" />
+                  <button
+                    onClick={() => router.push(initialized && token ? '/pricing?tier=PLATINUM' : '/register?returnUrl=/pricing?tier=PLATINUM')}
+                    className="w-full rounded-xl bg-brand-maroon py-3.5 text-base font-bold text-white transition hover:bg-brand-maroon/90"
+                  >
+                    Go Platinum <ArrowRight className="inline-block size-4 ml-1" />
                   </button>
                 </div>
               </div>

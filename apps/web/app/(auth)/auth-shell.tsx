@@ -29,10 +29,10 @@ export default function AuthShell({
         </div>
       </section>
 
-      {/* Form card — pulled up over the wave */}
-      <main className="flex-1 flex flex-col items-center px-4 -mt-10 pb-16 sm:px-6">
+      {/* Form card */}
+      <main className="flex-1 flex flex-col items-center px-4 mt-8 pb-16 sm:px-6">
         <section className="w-full max-w-md bg-white border border-brand-maroon/10 rounded-3xl p-8 shadow-[0_18px_50px_rgba(122,31,43,0.08)] sm:p-10">
-          <div className="mt-8">{children}</div>
+          <div className="mt-4">{children}</div>
         </section>
       </main>
 

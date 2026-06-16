@@ -80,9 +80,7 @@ export default async function RefundPolicyPage() {
       <section className="py-16 px-6 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-3xl">
           <div className="rounded-[28px] bg-white border border-gray-100 shadow-sm p-8 sm:p-12">
-            <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 leading-8 whitespace-pre-line">
-              {body}
-            </div>
+            {renderPolicyBody(body)}
           </div>
 
           <div className="mt-8 rounded-[20px] border border-brand-gold/25 bg-[linear-gradient(135deg,#FFF8EC,#FFF9F5)] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -100,6 +98,29 @@ export default async function RefundPolicyPage() {
       </section>
 
       <PublicFooter />
+    </div>
+  );
+}
+
+function renderPolicyBody(body: string) {
+  const lines = body.split('\n');
+  return (
+    <div className="whitespace-pre-line text-gray-700 leading-8">
+      {lines.map((line, i) => {
+        const trimmed = line.trim();
+        const prevTrimmed = i > 0 ? lines[i - 1].trim() : null;
+        const isHeading =
+          trimmed !== '' &&
+          (prevTrimmed === null || prevTrimmed === '') &&
+          !trimmed.endsWith('.') &&
+          !trimmed.startsWith('-') &&
+          trimmed.length < 70;
+        return isHeading ? (
+          <span key={i} className="font-bold text-brand-charcoal">{line}{'\n'}</span>
+        ) : (
+          <span key={i}>{line}{i < lines.length - 1 ? '\n' : ''}</span>
+        );
+      })}
     </div>
   );
 }

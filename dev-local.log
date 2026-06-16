@@ -1,0 +1,614 @@
+
+> vivah-australia@0.1.0 dev D:\AI\Vivah Australia
+> pnpm --filter @vivah/shared build && concurrently "pnpm --filter @vivah/api dev" "pnpm --filter @vivah/web dev"
+
+
+> @vivah/shared@0.1.0 build D:\AI\Vivah Australia\packages\shared
+> tsc -p tsconfig.json
+
+[0] 
+[0] > @vivah/api@0.1.0 dev D:\AI\Vivah Australia\apps\api
+[0] > tsx watch src/index.ts
+[0] 
+[1] 
+[1] > @vivah/web@0.1.0 dev D:\AI\Vivah Australia\apps\web
+[1] > next dev
+[1] 
+[1] ▲ Next.js 16.2.6 (Turbopack)
+[1] - Local:         http://localhost:3000
+[1] - Network:       http://192.168.0.105:3000
+[1] - Environments: .env
+[1] ✓ Ready in 3.7s
+[1] Creating turbopack project { dir: 'D:\\AI\\Vivah Australia\\apps\\web', testMode: true }
+[1] 
+[0] [redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[1] ○ Compiling / ...
+[0] [2026-06-16 06:56:34.987 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 06:56:34.992 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1] motion() is deprecated. Use motion.create() instead.
+[1]  GET / 200 in 9.1s (next.js: 5.9s, application-code: 3.2s)
+[1]  GET / 200 in 1012ms (next.js: 36ms, application-code: 976ms)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[1] 
+[1] - A server/client branch `if (typeof window !== 'undefined')`.
+[1] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[1] - Date formatting in a user's locale which doesn't match the server.
+[1] - External changing data without sending a snapshot of it along with the HTML.
+[1] - Invalid HTML tag nesting.
+[1] 
+[1] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[1] 
+[1] https://react.dev/link/hydration-mismatch
+[1] 
+[1]   ...
+[1]     <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+[1]       <AppDevOverlayErrorBoundary globalError={[...]}>
+[1]         <ReplaySsrOnlyErrors>
+[1]         <DevRootHTTPAccessFallbackBoundary>
+[1]           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+[1]             <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+[1]               <RedirectBoundary>
+[1]                 <RedirectErrorBoundary router={{...}}>
+[1]                   <Head>
+[1]                   <__next_root_layout_boundary__>
+[1]                     <SegmentViewNode type="layout" pagePath="layout.tsx">
+[1]                       <SegmentTrieNode>
+[1]                       <link>
+[1]                       <script>
+[1]                       <script>
+[1]                       <script>
+[1]                       <RootLayout>
+[1]                         <html lang="en-AU">
+[1]                           <body
+[1] -                           cz-shortcut-listen="true"
+[1]                           >
+[1]                   ...
+[1]  
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at emitPendingHydrationWarnings (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3438:13)
+[1]     at completeWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6885:102)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:131)
+[1]     at completeUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9622:23)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9557:28)
+[1]     at workLoopConcurrentByScheduler (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9551:58)
+[1]     at renderRootConcurrent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9534:71)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9061:150)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64) (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/australia-dotted-map.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-05-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-06-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-02-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-03-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-04-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-1.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-ananya.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-rohan.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] ✓ Compiled in 1249ms
+[1]  GET / 200 in 595ms (next.js: 258ms, application-code: 337ms)
+[0] [2026-06-16 07:11:48.606 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "42b3a206-8aab-426c-bfbe-77339cf317e0"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 256
+[1] ✓ Compiled in 427ms
+[1]  GET / 200 in 271ms (next.js: 103ms, application-code: 168ms)
+[1] ○ Compiling /how-it-works ...
+[1]  GET /how-it-works 200 in 14.8s (next.js: 12.7s, application-code: 2.1s)
+[1]  GET /how-it-works 200 in 585ms (next.js: 98ms, application-code: 487ms)
+[1] ⚠ Fast Refresh had to perform a full reload when ./apps/web/app/components/premium-design-system.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[1] ✓ Compiled in 1412ms
+[1] motion() is deprecated. Use motion.create() instead.
+[1]  GET /how-it-works 200 in 5.5s (next.js: 4.9s, application-code: 661ms)
+[1]  GET /how-it-works 200 in 6.3s (next.js: 189ms, application-code: 6.1s)
+[1]  GET /how-it-works 200 in 5.7s (next.js: 67ms, application-code: 5.6s)
+[1] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[1] 
+[1] - A server/client branch `if (typeof window !== 'undefined')`.
+[1] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[1] - Date formatting in a user's locale which doesn't match the server.
+[1] - External changing data without sending a snapshot of it along with the HTML.
+[1] - Invalid HTML tag nesting.
+[1] 
+[1] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[1] 
+[1] https://react.dev/link/hydration-mismatch
+[1] 
+[1]   ...
+[1]     <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+[1]       <AppDevOverlayErrorBoundary globalError={[...]}>
+[1]         <ReplaySsrOnlyErrors>
+[1]         <DevRootHTTPAccessFallbackBoundary>
+[1]           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+[1]             <HTTPAccessFallbackErrorBoundary pathname="/how-it-works" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+[1]               <RedirectBoundary>
+[1]                 <RedirectErrorBoundary router={{...}}>
+[1]                   <Head>
+[1]                   <__next_root_layout_boundary__>
+[1]                     <SegmentViewNode type="layout" pagePath="layout.tsx">
+[1]                       <SegmentTrieNode>
+[1]                       <link>
+[1]                       <script>
+[1]                       <script>
+[1]                       <script>
+[1]                       <RootLayout>
+[1]                         <html lang="en-AU">
+[1]                           <body
+[1] -                           cz-shortcut-listen="true"
+[1]                           >
+[1]                   ...
+[1]  
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at emitPendingHydrationWarnings (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3438:13)
+[1]     at completeWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6885:102)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:131)
+[1]     at completeUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9622:23)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9557:28)
+[1]     at workLoopConcurrentByScheduler (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9551:58)
+[1]     at renderRootConcurrent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9534:71)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9061:150)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64) (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] ✓ Compiled in 1440ms
+[1] ⚠ Fast Refresh had to perform a full reload when ./apps/web/app/components/premium-design-system.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[1] motion() is deprecated. Use motion.create() instead.
+[1]  GET /how-it-works 200 in 1492ms (next.js: 289ms, application-code: 1203ms)
+[1]  GET /how-it-works 200 in 2.2s (next.js: 335ms, application-code: 1912ms)
+[1]  GET /how-it-works 200 in 2.3s (next.js: 41ms, application-code: 2.2s)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET / 200 in 282ms (next.js: 161ms, application-code: 122ms)
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-ananya.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-rohan.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] ✓ Compiled in 1037ms
+[1]  GET / 200 in 426ms (next.js: 256ms, application-code: 171ms)
+[1] ✓ Compiled in 613ms
+[1]  GET / 200 in 380ms (next.js: 109ms, application-code: 271ms)
+[1]  GET / 200 in 125ms (next.js: 15ms, application-code: 110ms)
+[1] ✓ Compiled in 946ms
+[1]  GET / 200 in 498ms (next.js: 172ms, application-code: 326ms)
+[1]  GET / 200 in 145ms (next.js: 11ms, application-code: 134ms)
+[1] ○ Compiling /about ...
+[1]  GET /about 200 in 3.6s (next.js: 3.3s, application-code: 227ms)
+[1]  GET /membership 200 in 1273ms (next.js: 1146ms, application-code: 127ms)
+[1]  GET / 200 in 139ms (next.js: 19ms, application-code: 120ms)
+[1]  GET /membership 200 in 550ms (next.js: 17ms, application-code: 532ms)
+[1] ✓ Compiled in 998ms
+[1]  GET /membership 200 in 784ms (next.js: 254ms, application-code: 529ms)
+[1]  GET /how-it-works 200 in 203ms (next.js: 86ms, application-code: 117ms)
+[0] [2026-06-16 07:14:47.926 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5a6fa75c-e6eb-480f-b94b-a0d6df01d7d4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/faq"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 132
+[0] [2026-06-16 07:14:47.939 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "41ad8ec5-8b0a-44c8-8a11-dec83784a704"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/faqs"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 75
+[1]  GET /faq 200 in 1821ms (next.js: 1529ms, application-code: 293ms)
+[1]  GET / 200 in 120ms (next.js: 74ms, application-code: 46ms)
+[1] [browser] Image with src "/home/australia-dotted-map.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET / 200 in 1322ms (next.js: 1166ms, application-code: 155ms)
+[1]  GET / 200 in 34ms (next.js: 10ms, application-code: 24ms)
+[1] [browser] Image with src "/home/success-stories/couple-06-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-05-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-02-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-03-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-04-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-1.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET /membership 200 in 654ms (next.js: 33ms, application-code: 621ms)
+[1]  GET / 200 in 109ms (next.js: 12ms, application-code: 96ms)
+[1]  GET /membership 200 in 405ms (next.js: 18ms, application-code: 387ms)
+[1] ✓ Compiled in 1650ms
+[1]  GET /membership 200 in 510ms (next.js: 240ms, application-code: 270ms)
+[1]  GET / 200 in 225ms (next.js: 85ms, application-code: 140ms)
+[1] ✓ Compiled in 594ms
+[1]  GET / 200 in 228ms (next.js: 132ms, application-code: 96ms)
+[1] motion() is deprecated. Use motion.create() instead.
+[0] [2026-06-16 07:20:00.662 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2f188d10-8c47-46b1-89e0-909a6faa8311"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 114
+[1]  GET /membership 200 in 2.6s (next.js: 67ms, application-code: 2.6s)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] ○ Compiling /pricing ...
+[1]  GET /pricing 200 in 4.6s (next.js: 4.5s, application-code: 122ms)
+[0] [2026-06-16 07:20:28.227 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "30251882-4406-4515-8b85-4f6872ae9a6b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/plans"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 361
+[0] [2026-06-16 07:20:28.347 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "325adb85-3cc6-4d19-8281-8622d0439a12"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/plans"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 107
+[1] ✓ Compiled in 1819ms
+[1]  GET / 200 in 243ms (next.js: 50ms, application-code: 193ms)
+[1]  GET /membership 200 in 2.8s (next.js: 1630ms, application-code: 1167ms)
+[1] ✓ Compiled in 1370ms
+[1]  GET / 200 in 69ms (next.js: 33ms, application-code: 36ms)
+[1]  GET /membership 200 in 680ms (next.js: 193ms, application-code: 486ms)
+[1] ✓ Compiled in 1347ms
+[1]  GET / 200 in 98ms (next.js: 50ms, application-code: 48ms)
+[1]  GET /membership 200 in 853ms (next.js: 224ms, application-code: 629ms)
+[1]  GET /pricing 200 in 325ms (next.js: 130ms, application-code: 195ms)
+[0] [2026-06-16 07:33:55.591 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "03c088b3-84f2-4aff-b98e-0efac8816963"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/plans"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 274
+[0] [2026-06-16 07:33:55.715 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "bd53306e-83e3-4e3e-b78a-9ee69f6d6440"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/plans"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 93
+[1]  GET / 200 in 65ms (next.js: 6ms, application-code: 60ms)
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-rohan.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-ananya.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/australia-dotted-map.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-02-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-05-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-06-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-03-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-04-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-1.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET /membership 200 in 174ms (next.js: 9ms, application-code: 165ms)
+[1] ✓ Compiled in 776ms
+[1]  GET / 200 in 403ms (next.js: 361ms, application-code: 42ms)
+[1]  GET /membership 200 in 448ms (next.js: 88ms, application-code: 360ms)
+[1] ✓ Compiled in 945ms
+[1]  GET / 200 in 487ms (next.js: 146ms, application-code: 340ms)
+[1]  GET /membership 200 in 250ms (next.js: 13ms, application-code: 236ms)
+[1] ✓ Compiled in 336ms
+[1]  GET / 200 in 454ms (next.js: 370ms, application-code: 84ms)
+[1]  GET /membership 200 in 472ms (next.js: 56ms, application-code: 416ms)
+[1] ✓ Compiled in 444ms
+[1]  GET / 200 in 435ms (next.js: 84ms, application-code: 351ms)
+[1]  GET /membership 200 in 461ms (next.js: 166ms, application-code: 295ms)
+[1] ✓ Compiled in 406ms
+[1]  GET / 200 in 365ms (next.js: 294ms, application-code: 71ms)
+[1]  GET /membership 200 in 393ms (next.js: 81ms, application-code: 311ms)
+[1] ✓ Compiled in 428ms
+[1]  GET / 200 in 355ms (next.js: 292ms, application-code: 63ms)
+[1]  GET /membership 200 in 372ms (next.js: 68ms, application-code: 304ms)
+[1]  GET / 200 in 19ms (next.js: 5ms, application-code: 14ms)
+[1]  GET / 200 in 39ms (next.js: 11ms, application-code: 29ms)
+[1] ✓ Compiled in 1046ms
+[1]  GET / 200 in 516ms (next.js: 164ms, application-code: 352ms)
+[1]  GET /membership 200 in 532ms (next.js: 274ms, application-code: 258ms)
+[1]  GET /register?returnUrl=%2Fpricing%3Ftier%3DGOLD 200 in 3.1s (next.js: 3.0s, application-code: 101ms)
+[1]  GET /register?returnUrl=%2Fpricing%3Ftier%3DPLATINUM 200 in 131ms (next.js: 15ms, application-code: 115ms)
+[1]  GET /membership 200 in 295ms (next.js: 11ms, application-code: 284ms)
+[1] ✓ Compiled in 893ms
+[1]  GET /membership 200 in 1403ms (next.js: 270ms, application-code: 1133ms)
+[1]  GET /membership 200 in 677ms (next.js: 13ms, application-code: 664ms)
+[1]  GET /membership 200 in 252ms (next.js: 11ms, application-code: 241ms)
+[1]  GET /membership 200 in 253ms (next.js: 97ms, application-code: 157ms)
+[1] ✓ Compiled in 1357ms
+[1]  GET /membership 200 in 2.2s (next.js: 447ms, application-code: 1735ms)
+[1]  GET /membership 200 in 1549ms (next.js: 8ms, application-code: 1541ms)
+[1]  GET /membership 200 in 1939ms (next.js: 20ms, application-code: 1919ms)
+[1]  GET /membership 200 in 1950ms (next.js: 522ms, application-code: 1428ms)
+[1]  GET /membership 200 in 984ms (next.js: 10ms, application-code: 974ms)
+[1]  GET /membership 200 in 735ms (next.js: 293ms, application-code: 443ms)
+[1]  GET /membership 200 in 745ms (next.js: 10ms, application-code: 735ms)
+[1]  GET /membership 200 in 269ms (next.js: 12ms, application-code: 258ms)
+[1]  GET /register?returnUrl=%2Fpricing%3Ftier%3DPREMIUM 200 in 73ms (next.js: 27ms, application-code: 47ms)
+[1]  GET / 200 in 128ms (next.js: 56ms, application-code: 71ms)
+[1] ✓ Compiled in 490ms
+[1] ⚠ Fast Refresh had to perform a full reload when ./apps/web/app/components/premium-design-system.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[1] ⚠ Fast Refresh had to perform a full reload when ./apps/web/app/components/premium-design-system.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[1] ⚠ Fast Refresh had to perform a full reload when ./apps/web/app/components/premium-design-system.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[1] ⚠ Fast Refresh had to perform a full reload when ./apps/web/app/components/premium-design-system.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[1] motion() is deprecated. Use motion.create() instead.
+[1] motion() is deprecated. Use motion.create() instead.
+[1]  GET / 200 in 2.1s (next.js: 140ms, application-code: 1971ms)
+[1]  GET / 200 in 1362ms (next.js: 75ms, application-code: 1287ms)
+[1]  GET / 200 in 1365ms (next.js: 14ms, application-code: 1351ms)
+[1]  GET / 200 in 50ms (next.js: 8ms, application-code: 42ms)
+[0] [2026-06-16 07:37:11.822 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "67caad34-7d48-497f-980a-8fda66985257"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 109
+[1]  GET /membership 200 in 955ms (next.js: 697ms, application-code: 257ms)
+[0] [2026-06-16 07:37:11.832 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "800219d6-35ee-41f0-b286-3fc0f46cbdbe"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 78
+[1]  GET /membership 200 in 2.3s (next.js: 436ms, application-code: 1819ms)
+[1]  GET /membership 200 in 2.6s (next.js: 573ms, application-code: 2.0s)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[1] 
+[1] - A server/client branch `if (typeof window !== 'undefined')`.
+[1] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[1] - Date formatting in a user's locale which doesn't match the server.
+[1] - External changing data without sending a snapshot of it along with the HTML.
+[1] - Invalid HTML tag nesting.
+[1] 
+[1] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[1] 
+[1] https://react.dev/link/hydration-mismatch
+[1] 
+[1]   ...
+[1]     <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+[1]       <AppDevOverlayErrorBoundary globalError={[...]}>
+[1]         <ReplaySsrOnlyErrors>
+[1]         <DevRootHTTPAccessFallbackBoundary>
+[1]           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+[1]             <HTTPAccessFallbackErrorBoundary pathname="/membership" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+[1]               <RedirectBoundary>
+[1]                 <RedirectErrorBoundary router={{...}}>
+[1]                   <Head>
+[1]                   <__next_root_layout_boundary__>
+[1]                     <SegmentViewNode type="layout" pagePath="layout.tsx">
+[1]                       <SegmentTrieNode>
+[1]                       <link>
+[1]                       <script>
+[1]                       <script>
+[1]                       <script>
+[1]                       <RootLayout>
+[1]                         <html lang="en-AU">
+[1]                           <body
+[1] -                           cz-shortcut-listen="true"
+[1] -                           data-new-gr-c-s-check-loaded="14.1302.0"
+[1] -                           data-gr-ext-installed=""
+[1]                           >
+[1]                   ...
+[1]  
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at emitPendingHydrationWarnings (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3438:13)
+[1]     at completeWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6885:102)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:131)
+[1]     at completeUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9622:23)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9557:28)
+[1]     at workLoopConcurrentByScheduler (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9551:58)
+[1]     at renderRootConcurrent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9534:71)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9061:150)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64) (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1] ○ Compiling /community ...
+[1]  GET /community 200 in 4.9s (next.js: 3.9s, application-code: 951ms)
+[1]  GET /membership 200 in 870ms (next.js: 199ms, application-code: 671ms)
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[1] 
+[1] - A server/client branch `if (typeof window !== 'undefined')`.
+[1] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[1] - Date formatting in a user's locale which doesn't match the server.
+[1] - External changing data without sending a snapshot of it along with the HTML.
+[1] - Invalid HTML tag nesting.
+[1] 
+[1] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[1] 
+[1] https://react.dev/link/hydration-mismatch
+[1] 
+[1]   ...
+[1]     <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+[1]       <AppDevOverlayErrorBoundary globalError={[...]}>
+[1]         <ReplaySsrOnlyErrors>
+[1]         <DevRootHTTPAccessFallbackBoundary>
+[1]           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+[1]             <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+[1]               <RedirectBoundary>
+[1]                 <RedirectErrorBoundary router={{...}}>
+[1]                   <Head>
+[1]                   <__next_root_layout_boundary__>
+[1]                     <SegmentViewNode type="layout" pagePath="layout.tsx">
+[1]                       <SegmentTrieNode>
+[1]                       <link>
+[1]                       <script>
+[1]                       <script>
+[1]                       <script>
+[1]                       <RootLayout>
+[1]                         <html lang="en-AU">
+[1]                           <body
+[1] -                           cz-shortcut-listen="true"
+[1] -                           data-new-gr-c-s-check-loaded="14.1302.0"
+[1] -                           data-gr-ext-installed=""
+[1]                           >
+[1]                   ...
+[1]  
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at emitPendingHydrationWarnings (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3438:13)
+[1]     at completeWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6885:102)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:131)
+[1]     at completeUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9622:23)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9557:28)
+[1]     at workLoopConcurrentByScheduler (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9551:58)
+[1]     at renderRootConcurrent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9534:71)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9061:150)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64) (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1] ✓ Compiled in 597ms
+[1]  GET / 200 in 494ms (next.js: 316ms, application-code: 177ms)
+[1]  GET / 200 in 138ms (next.js: 11ms, application-code: 128ms)
+[1]  GET /membership 200 in 1148ms (next.js: 157ms, application-code: 991ms)
+[1]  GET /membership 200 in 587ms (next.js: 9ms, application-code: 578ms)
+[1]  GET / 200 in 544ms (next.js: 207ms, application-code: 336ms)
+[1]  GET / 200 in 280ms (next.js: 244ms, application-code: 35ms)
+[1]  GET /membership 200 in 604ms (next.js: 56ms, application-code: 548ms)
+[1]  GET /membership 200 in 336ms (next.js: 7ms, application-code: 329ms)
+[1] ✓ Compiled in 591ms
+[1]  GET / 200 in 551ms (next.js: 374ms, application-code: 177ms)
+[1]  GET / 200 in 99ms (next.js: 19ms, application-code: 80ms)
+[1]  GET /membership 200 in 1002ms (next.js: 131ms, application-code: 870ms)
+[1]  GET /membership 200 in 630ms (next.js: 15ms, application-code: 614ms)
+[1]  GET / 200 in 368ms (next.js: 185ms, application-code: 183ms)
+[1]  GET / 200 in 154ms (next.js: 78ms, application-code: 76ms)
+[1]  GET /membership 200 in 408ms (next.js: 54ms, application-code: 354ms)
+[1]  GET /membership 200 in 187ms (next.js: 5ms, application-code: 182ms)
+[1] [browser] Uncaught Error: Failed prop type: The prop `href` expects a `string` or `object` in `<Link>`, but got `undefined` instead.
+[1] Open your browser's console to view the Component stack trace.
+[1]     at createPropError (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0~xmm.n._.js:871:42)
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0~xmm.n._.js:885:27)
+[1]     at Array.forEach (<anonymous>)
+[1]     at LinkComponent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0~xmm.n._.js:882:23)
+[1]     at Object.react_stack_bottom_frame (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:15037:24)
+[1]     at renderWithHooks (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:4620:24)
+[1]     at updateFunctionComponent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6081:21)
+[1]     at beginWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6691:24)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9555:97)
+[1]     at workLoopSync (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9449:40)
+[1]     at renderRootSync (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9433:13)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9098:47)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64)
+[1]     at <anonymous> (app\membership\page.tsx:439:21)
+[1]     at Array.map (<anonymous>:1:18)
+[1]     at MembershipPage (app\membership\page.tsx:437:24)
+[1]   437 |                 {plans.map((plan) => (
+[1]   438 |                   <div key={plan.id} className={`px-3 text-center border-l border-gray-10...
+[1] > 439 |                     <Link
+[1]       |                     ^
+[1]   440 |                       href={plan.href}
+[1]   441 |                       className={`inline-flex w-full items-center justify-center gap-1.5 ...
+[1]   442 |                     >
+[1] ✓ Compiled in 296ms
+[1] motion() is deprecated. Use motion.create() instead.
+[1] ⨯ Error: Failed prop type: The prop `href` expects a `string` or `object` in `<Link>`, but got `undefined` instead.
+[1]     at ignore-listed frames {
+[1]   digest: '2383709258@E319'
+[1] }
+[1]  GET / 200 in 1810ms (next.js: 94ms, application-code: 1716ms)
+[1]  GET / 200 in 1596ms (next.js: 2ms, application-code: 1594ms)
+[1]  GET /membership 500 in 1625ms (next.js: 226ms, application-code: 1399ms)
+[0] [2026-06-16 07:39:19.321 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "84a26fb1-d6ca-479d-8648-8477536039d7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 99
+[1] ✓ Compiled in 666ms
+[1]  GET / 200 in 368ms (next.js: 145ms, application-code: 223ms)
+[1]  GET / 200 in 85ms (next.js: 6ms, application-code: 79ms)
+[1] motion() is deprecated. Use motion.create() instead.
+[1] ⨯ Error: Failed prop type: The prop `href` expects a `string` or `object` in `<Link>`, but got `undefined` instead.
+[1]     at ignore-listed frames {
+[1]   digest: '1497724009@E319'
+[1] }
+[1]  GET /membership 500 in 1786ms (next.js: 261ms, application-code: 1526ms)
+[1] motion() is deprecated. Use motion.create() instead.
+[1] ⨯ Error: Failed prop type: The prop `href` expects a `string` or `object` in `<Link>`, but got `undefined` instead.
+[1]     at ignore-listed frames {
+[1]   digest: '131979651@E319'
+[1] }
+[1]  GET / 200 in 1151ms (next.js: 979ms, application-code: 172ms)
+[1]  GET / 200 in 151ms (next.js: 5ms, application-code: 145ms)
+[1]  GET /membership 500 in 1284ms (next.js: 99ms, application-code: 1185ms)
+[1] motion() is deprecated. Use motion.create() instead.
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Uncaught Error: Failed prop type: The prop `href` expects a `string` or `object` in `<Link>`, but got `undefined` instead.
+[1] Open your browser's console to view the Component stack trace.
+[1]     at createPropError (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0~xmm.n._.js:871:42)
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0~xmm.n._.js:885:27)
+[1]     at Array.forEach (<anonymous>)
+[1]     at LinkComponent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0~xmm.n._.js:882:23)
+[1]     at Object.react_stack_bottom_frame (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:15037:24)
+[1]     at renderWithHooks (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:4620:24)
+[1]     at updateFunctionComponent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6081:21)
+[1]     at beginWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6665:639)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9555:97)
+[1]     at workLoopSync (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9449:40)
+[1]     at renderRootSync (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9433:13)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9098:47)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64)
+[1]     at <anonymous> (app\membership\page.tsx:436:21)
+[1]     at Array.map (<anonymous>:1:18)
+[1]     at MembershipPage (app\membership\page.tsx:434:24)
+[1]   434 |                 {plans.map((plan) => (
+[1]   435 |                   <div key={plan.id} className={`px-3 text-center border-l border-gray-10...
+[1] > 436 |                     <PlanCTA
+[1]       |                     ^
+[1]   437 |                       tierKey={plan.id.toUpperCase() as 'FREE' | 'PREMIUM' | 'GOLD' | 'PL...
+[1]   438 |                       label={plan.id === 'free' ? 'Start Free' : 'Choose'}
+[1]   439 |                       style={`inline-flex w-full items-center justify-center gap-1.5 roun...
+[1]  GET / 200 in 2.6s (next.js: 2.0s, application-code: 526ms)
+[1]  GET / 200 in 222ms (next.js: 18ms, application-code: 204ms)
+[1]  GET /membership 200 in 3.1s (next.js: 101ms, application-code: 3.0s)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET /register?returnUrl=%2Fpricing%3Ftier%3DPREMIUM 200 in 380ms (next.js: 215ms, application-code: 165ms)
+[1] [browser] Image with src "/home/match-rohan.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-ananya.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] ✓ Compiled in 1810ms
+[1]  GET / 200 in 1282ms (next.js: 430ms, application-code: 852ms)
+[1]  GET /register?returnUrl=%2Fpricing%3Ftier%3DPREMIUM 200 in 579ms (next.js: 130ms, application-code: 449ms)
+[1] [browser] Image with src "/home/australia-dotted-map.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] ✓ Compiled in 1899ms
+[1]  GET / 200 in 1044ms (next.js: 741ms, application-code: 303ms)
+[1] ○ Compiling /search ...
+[1]  GET /search?gender=MALE&ageMin=25&ageMax=35&religion=Sikh 200 in 2.8s (next.js: 2.7s, application-code: 140ms)
+[1]  GET /search?gender=FEMALE&ageMin=25&ageMax=35&religion=Hindu 200 in 3.8s (next.js: 3.7s, application-code: 107ms)
+[1]  GET /search?gender=FEMALE&ageMin=22&ageMax=40 200 in 4.7s (next.js: 4.5s, application-code: 250ms)
+[0] [2026-06-16 07:53:12.364 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a7a1e255-81dc-40a4-8222-1e4da5fcb01a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/matches?limit=12&gender=MALE&ageMin=25&ageMax=35&religion=Sikh"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 478
+[0] [2026-06-16 07:53:12.525 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0293deb9-2cc0-4973-906d-1d6a60f33284"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/matches?limit=12&gender=MALE&ageMin=25&ageMax=35&religion=Sikh"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 115
+[1]  GET / 200 in 325ms (next.js: 75ms, application-code: 250ms)
+[1]  GET /search?gender=FEMALE&ageMin=22&ageMax=40 200 in 154ms (next.js: 14ms, application-code: 140ms)
+[0] [2026-06-16 07:53:20.927 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a5b6d260-5bce-4e9d-a16d-f9c3cfc41860"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/matches?limit=12&gender=FEMALE&ageMin=22&ageMax=40"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 161
+[0] [2026-06-16 07:53:21.066 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8da793df-ae7f-42c8-a0d5-95252d9dcfaa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/matches?limit=12&gender=FEMALE&ageMin=22&ageMax=40"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 134
+[1]  GET / 200 in 72ms (next.js: 18ms, application-code: 54ms)
+[1]  GET /search?gender=FEMALE&ageMin=22&ageMax=40 200 in 62ms (next.js: 10ms, application-code: 52ms)
+[0] [2026-06-16 07:53:36.852 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d803af26-6204-41e5-bb6f-5d9c95ac84ab"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/matches?limit=12&gender=FEMALE&ageMin=22&ageMax=40"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 101
+[0] [2026-06-16 07:53:36.961 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e88a50d7-9739-41d7-a18f-6c8140e4554d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/matches?limit=12&gender=FEMALE&ageMin=22&ageMax=40"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 96

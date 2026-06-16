@@ -191,7 +191,7 @@ export default function HowItWorksPage() {
                     {/* Content */}
                     <div className={isEven ? 'lg:order-2' : ''}>
                       <div className="flex items-center gap-4 mb-4">
-                        <span className="text-5xl font-bold font-playfair text-brand-maroon/30 leading-none select-none">
+                        <span className="text-5xl font-bold font-playfair text-brand-maroon/60 leading-none select-none">
                           {step.number}
                         </span>
                         <div
@@ -229,7 +229,7 @@ export default function HowItWorksPage() {
                             <Icon className="size-10 text-white" strokeWidth={1.5} />
                           </div>
                           <div>
-                            <p className="text-white/60 text-sm font-semibold uppercase tracking-widest mb-1">Step {step.number}</p>
+                            <p className="text-white/80 text-sm font-semibold uppercase tracking-widest mb-1">Step {step.number}</p>
                             <h4 className="text-white text-2xl font-playfair font-bold">{step.title}</h4>
                           </div>
                           <div className="w-full grid grid-cols-2 gap-3">
@@ -359,13 +359,10 @@ export default function HowItWorksPage() {
             <div className="space-y-4">
               {faqs.map((faq, idx) => (
                 <div key={idx} className="bg-brand-ivory rounded-2xl border border-gray-100 p-6 sm:p-7">
-                  <h3 className="font-bold text-brand-charcoal text-base sm:text-lg mb-3 flex items-start gap-3">
-                    <span className="shrink-0 size-6 rounded-full bg-brand-maroon text-white text-xs font-bold flex items-center justify-center mt-0.5">
-                      {idx + 1}
-                    </span>
+                  <h3 className="font-bold text-brand-charcoal text-base sm:text-lg mb-3">
                     {faq.q}
                   </h3>
-                  <p className="text-gray-600 text-base leading-relaxed pl-9">{faq.a}</p>
+                  <p className="text-gray-600 text-base leading-relaxed">{faq.a}</p>
                 </div>
               ))}
             </div>
@@ -376,7 +373,7 @@ export default function HowItWorksPage() {
                 href="/help"
                 className="inline-flex items-center gap-2 text-brand-maroon font-bold text-base hover:underline"
               >
-                Visit Help Centre <ArrowRight className="size-4" />
+                Visit Help Center <ArrowRight className="size-4" />
               </Link>
             </div>
           </div>

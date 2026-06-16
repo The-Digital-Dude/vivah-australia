@@ -1433,26 +1433,39 @@ function ProfileDetailView({
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let ticking = false;
+
     function handleScroll() {
-      const current = MOBILE_SECTION_TABS.find((tab) => {
-        const element = document.getElementById(tab.sectionId);
-        if (!element) {
-          return false;
-        }
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const current = MOBILE_SECTION_TABS.find((tab) => {
+            const element = document.getElementById(tab.sectionId);
+            if (!element) {
+              return false;
+            }
 
-        const rect = element.getBoundingClientRect();
-        return rect.top <= 190 && rect.bottom > 190;
-      });
+            const rect = element.getBoundingClientRect();
+            return rect.top <= 190 && rect.bottom > 190;
+          });
 
-      if (current) {
-        setActiveMobileTab(current.key);
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          const activeTabEl = document.querySelector(`[data-state="active"]`);
-          if (activeTabEl) {
-            activeTabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          if (current) {
+            setActiveMobileTab((prev) => {
+              if (prev !== current.key) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                  const activeTabEl = document.querySelector(`[data-state="active"]`);
+                  if (activeTabEl) {
+                    activeTabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                  }
+                }, 100);
+                return current.key;
+              }
+              return prev;
+            });
           }
-        }, 100);
+          ticking = false;
+        });
+        ticking = true;
       }
     }
 
