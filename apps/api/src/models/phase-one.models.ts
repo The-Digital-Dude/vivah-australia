@@ -112,6 +112,20 @@ const profileMediaSchema = new Schema<ProfileMedia>(
 
 profileMediaSchema.index({ profileId: 1, category: 1, approvalStatus: 1 });
 profileMediaSchema.index({ userId: 1, uploadStatus: 1, createdAt: -1 });
+profileMediaSchema.index({
+  profileId: 1,
+  uploadStatus: 1,
+  approvalStatus: 1,
+  mediaType: 1,
+  category: 1,
+  visibility: 1,
+  isPrimary: -1,
+  createdAt: -1,
+});
+profileMediaSchema.index(
+  { uploadExpiresAt: 1 },
+  { expireAfterSeconds: 0, partialFilterExpression: { uploadStatus: MediaUploadStatus.SIGNED } },
+);
 
 export interface VerificationRequest {
   userId: ObjectId;
@@ -209,6 +223,10 @@ const verificationDocumentSchema = new Schema<VerificationDocument>(
 
 verificationRequestSchema.index({ status: 1, createdAt: -1 });
 verificationDocumentSchema.index({ userId: 1, uploadStatus: 1, createdAt: -1 });
+verificationDocumentSchema.index(
+  { uploadExpiresAt: 1 },
+  { expireAfterSeconds: 0, partialFilterExpression: { uploadStatus: MediaUploadStatus.SIGNED } },
+);
 
 export interface Interest {
   senderId: ObjectId;
@@ -337,6 +355,8 @@ const profileViewSchema = new Schema<ProfileView>(
 );
 
 profileViewSchema.index({ viewerId: 1, profileId: 1 }, { unique: true });
+profileViewSchema.index({ viewerId: 1, isDeleted: 1, viewedAt: -1 });
+profileViewSchema.index({ viewedAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 90 });
 
 // ── Photo Access Requests ────────────────────────────────────────────────────
 
@@ -440,6 +460,7 @@ const reportSchema = new Schema<Report>(
 
 export interface Conversation {
   participantIds: ObjectId[];
+  pairKey?: string;
   lastMessageAt?: Date;
   lastMessagePreview?: string;
   unreadCounts: Record<string, number>;
@@ -452,6 +473,7 @@ export interface Conversation {
 const conversationSchema = new Schema<Conversation>(
   {
     participantIds: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+    pairKey: { type: String, trim: true },
     lastMessageAt: { type: Date, index: true },
     lastMessagePreview: { type: String },
     unreadCounts: { type: Map, of: Number, default: {} },
@@ -461,7 +483,8 @@ const conversationSchema = new Schema<Conversation>(
   { ...timestampedSchemaOptions, collection: 'conversations' },
 );
 
-conversationSchema.index({ participantIds: 1 }, { unique: true });
+conversationSchema.index({ pairKey: 1 }, { unique: true, partialFilterExpression: { pairKey: { $exists: true } } });
+conversationSchema.index({ participantIds: 1, isDeleted: 1, lastMessageAt: -1, updatedAt: -1 });
 
 export interface MobileOtp {
   userId: ObjectId;
@@ -479,7 +502,7 @@ const mobileOtpSchema = new Schema<MobileOtp>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     mobile: { type: String, required: true, trim: true, index: true },
-    codeHash: { type: String, required: true },
+    codeHash: { type: String, required: true, select: false },
     expiresAt: { type: Date, required: true, index: true },
     attempts: { type: Number, default: 0, min: 0 },
     usedAt: { type: Date },
@@ -487,6 +510,7 @@ const mobileOtpSchema = new Schema<MobileOtp>(
   },
   { ...timestampedSchemaOptions, collection: 'mobile_otps' },
 );
+mobileOtpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export interface PushSubscription {
   userId: ObjectId;
@@ -592,6 +616,10 @@ const messageAttachmentSchema = new Schema<MessageAttachment>(
   },
   { ...timestampedSchemaOptions, collection: 'message_attachments' },
 );
+messageAttachmentSchema.index(
+  { uploadExpiresAt: 1 },
+  { expireAfterSeconds: 0, partialFilterExpression: { uploadStatus: MediaUploadStatus.SIGNED } },
+);
 
 export interface Message {
   conversationId: ObjectId;
@@ -619,6 +647,8 @@ const messageSchema = new Schema<Message>(
 );
 
 messageSchema.index({ conversationId: 1, createdAt: 1 });
+messageSchema.index({ senderId: 1, isDeleted: 1, createdAt: -1 });
+messageSchema.index({ conversationId: 1, isDeleted: 1, createdAt: -1 });
 
 export interface CommunityRoom {
   slug: string;
@@ -802,6 +832,7 @@ const subscriptionSchema = new Schema<Subscription>(
 
 subscriptionSchema.index({ userId: 1, status: 1 });
 subscriptionSchema.index({ providerSubscriptionId: 1 }, { unique: true, sparse: true });
+subscriptionSchema.index({ userId: 1, status: 1, isDeleted: 1, currentPeriodEnd: 1, createdAt: -1 });
 
 export interface Payment {
   userId: ObjectId;
@@ -848,7 +879,7 @@ const paymentSchema = new Schema<Payment>(
 
 paymentSchema.index({ userId: 1, createdAt: 1 });
 paymentSchema.index({ providerPaymentId: 1 }, { unique: true, sparse: true });
-paymentSchema.index({ subscriptionId: 1, createdAt: -1 });
+paymentSchema.index({ providerSubscriptionId: 1, createdAt: -1 });
 
 export interface UsageCounter {
   userId: ObjectId;
@@ -1032,6 +1063,9 @@ const notificationSchema = new Schema<Notification>(
   },
   { ...timestampedSchemaOptions, collection: 'notifications' },
 );
+notificationSchema.index({ userId: 1, isDeleted: 1, readAt: 1, createdAt: -1 });
+notificationSchema.index({ userId: 1, type: 1, isDeleted: 1, createdAt: -1 });
+notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 90 });
 
 export interface AuditLog {
   actorId?: ObjectId;
@@ -1064,6 +1098,8 @@ const auditLogSchema = new Schema<AuditLog>(
 
 auditLogSchema.index({ actorId: 1, createdAt: 1 });
 auditLogSchema.index({ targetType: 1, targetId: 1, createdAt: -1 });
+auditLogSchema.index({ createdAt: -1 });
+auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 365 });
 
 export interface ActivityLog {
   actorId?: ObjectId;
@@ -1085,6 +1121,7 @@ const activityLogSchema = new Schema<ActivityLog>(
 );
 
 activityLogSchema.index({ actorId: 1, createdAt: 1 });
+activityLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 365 });
 
 const cmsPageSchema = new Schema(
   { ...simpleContentFields, seoTitle: String, seoDescription: String, ...auditedSchemaFields },

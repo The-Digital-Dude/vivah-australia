@@ -334,6 +334,26 @@ profileSchema.index({ userStatus: 1, userIsDeleted: 1 });
 profileSchema.index({ 'stats.activeBoostEndsAt': -1 });
 profileSchema.index({ 'personal.gender': 1, 'personal.age': 1 });
 profileSchema.index({ 'visibility.status': 1, 'moderation.approvalStatus': 1 });
+profileSchema.index({
+  isDeleted: 1,
+  userIsDeleted: 1,
+  userStatus: 1,
+  'moderation.approvalStatus': 1,
+  'visibility.status': 1,
+  'stats.lastActiveAt': -1,
+  createdAt: -1,
+});
+profileSchema.index({
+  isDeleted: 1,
+  userIsDeleted: 1,
+  userStatus: 1,
+  'moderation.approvalStatus': 1,
+  'visibility.status': 1,
+  'personal.gender': 1,
+  'personal.age': 1,
+  'location.city': 1,
+  'religion.religion': 1,
+});
 
 export const ProfileModel = getOrCreateModel<Profile>('Profile', profileSchema);
 export { profileSchema };

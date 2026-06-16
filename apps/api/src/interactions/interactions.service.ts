@@ -6,9 +6,11 @@ import {
   SubscriptionStatus,
   type ReportStatus as ReportStatusType,
 } from '@vivah/shared';
-import mongoose, { Types, type ClientSession, type HydratedDocument } from 'mongoose';
+import { Types, type ClientSession, type HydratedDocument } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { recordRepeatedReports, syncReportedUserRiskCounter } from '../common/fraud.service.js';
+import { runInTransaction } from '../common/mongo-transactions.js';
+import { pairKeyForUsers } from '../common/pair-key.js';
 import { disconnectMessageSocketsForPair } from '../messages/messages.realtime.js';
 import {
   BlockModel,
@@ -146,24 +148,12 @@ function isQuotaCountedStatus(status: string) {
   return QUOTA_COUNTED_STATUSES.has(status);
 }
 
-function pairKeyForUsers(firstUserId: Types.ObjectId, secondUserId: Types.ObjectId) {
-  return [firstUserId.toString(), secondUserId.toString()].sort().join(':');
-}
-
 function isDuplicateKeyError(error: unknown) {
   return (
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
     Number((error as { code?: unknown }).code) === 11000
-  );
-}
-
-function isUnsupportedTransactionError(error: unknown) {
-  return (
-    error instanceof Error &&
-    (error.message.includes('Transaction numbers are only allowed on a replica set member or mongos') ||
-      error.message.includes('transaction'))
   );
 }
 
@@ -191,20 +181,21 @@ async function adjustMonthlyInterestCounter(
 ) {
   const counterMonth = monthKey(when);
 
-  const query = MonthlyInterestCounterModel.findOne({ userId, monthYYYYMM: counterMonth });
-  if (session) {
-    query.session(session);
-  }
+  const counter = await MonthlyInterestCounterModel.findOneAndUpdate(
+    { userId, monthYYYYMM: counterMonth },
+    [
+      {
+        $set: {
+          count: {
+            $max: [0, { $add: [{ $ifNull: ['$count', 0] }, delta] }],
+          },
+        },
+      },
+    ],
+    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true, ...(session ? { session } : {}) },
+  );
 
-  const counter =
-    (await query) ?? new MonthlyInterestCounterModel({ userId, monthYYYYMM: counterMonth, count: 0 });
-  counter.count = Math.max(0, counter.count + delta);
-  if (session) {
-    await counter.save({ session });
-  } else {
-    await counter.save();
-  }
-  return counter.count;
+  return counter?.count ?? 0;
 }
 
 async function transitionInterestStatus(
@@ -248,25 +239,39 @@ async function findInterestByPair(
   return query;
 }
 
-async function runWithOptionalTransaction<T>(work: (session?: ClientSession) => Promise<T>) {
-  const session = await mongoose.startSession();
-  try {
-    let result: T | undefined;
-    try {
-      await session.withTransaction(async () => {
-        result = await work(session);
-      });
-    } catch (error) {
-      if (!isUnsupportedTransactionError(error)) {
-        throw error;
-      }
-      result = await work();
-    }
-
-    return result as T;
-  } finally {
-    await session.endSession();
+async function findConversationByPair(
+  firstUserId: Types.ObjectId,
+  secondUserId: Types.ObjectId,
+  session?: ClientSession,
+) {
+  const query = ConversationModel.findOne({
+    pairKey: pairKeyForUsers(firstUserId, secondUserId),
+    isDeleted: false,
+  });
+  if (session) {
+    query.session(session);
   }
+  return query;
+}
+
+async function ensureConversationByPair(
+  firstUserId: Types.ObjectId,
+  secondUserId: Types.ObjectId,
+  session?: ClientSession,
+) {
+  const participantIds = [firstUserId, secondUserId].sort((a, b) =>
+    a.toString().localeCompare(b.toString()),
+  );
+  return ConversationModel.findOneAndUpdate(
+    { pairKey: pairKeyForUsers(firstUserId, secondUserId) },
+    {
+      $setOnInsert: {
+        participantIds,
+        pairKey: pairKeyForUsers(firstUserId, secondUserId),
+      },
+    },
+    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true, ...(session ? { session } : {}) },
+  );
 }
 
 function publicProfile(profile: ProfileDocument) {
@@ -514,7 +519,7 @@ export async function sendInterest(userId: Types.ObjectId, profileId: string) {
 
   try {
     const { resultInterestId, shouldNotifyReceiver, shouldNotifySender } =
-      await runWithOptionalTransaction(async (session) => {
+      await runInTransaction(async (session) => {
         let resultInterestId: string | null = null;
         let shouldNotifyReceiver = false;
         let shouldNotifySender = false;
@@ -528,25 +533,7 @@ export async function sendInterest(userId: Types.ObjectId, profileId: string) {
 
           if (existing.status === InterestStatus.PENDING) {
             await transitionInterestStatus(existing, InterestStatus.ACCEPTED, new Date(), session);
-            const conversationQuery = ConversationModel.findOne({
-              participantIds: { $all: [existing.senderId, existing.receiverId] },
-              isDeleted: false,
-            });
-            if (session) {
-              conversationQuery.session(session);
-            }
-            const existingConversation = await conversationQuery;
-
-            if (!existingConversation) {
-              const participantIds = [existing.senderId, existing.receiverId].sort((a, b) =>
-                a.toString().localeCompare(b.toString()),
-              );
-              if (session) {
-                await ConversationModel.create([{ participantIds }], { session });
-              } else {
-                await ConversationModel.create({ participantIds });
-              }
-            }
+            await ensureConversationByPair(existing.senderId, existing.receiverId, session);
 
             resultInterestId = existing.id;
             shouldNotifySender = true;
@@ -681,7 +668,7 @@ export async function respondToInterest(
   }
 
   if (action === 'ACCEPT') {
-    await runWithOptionalTransaction(async (session) => {
+    await runInTransaction(async (session) => {
       const currentInterest = session
         ? await InterestModel.findOne({ _id: interestId, isDeleted: false }).session(session)
         : await InterestModel.findOne({ _id: interestId, isDeleted: false });
@@ -694,25 +681,7 @@ export async function respondToInterest(
 
       await transitionInterestStatus(currentInterest, InterestStatus.ACCEPTED, new Date(), session);
 
-      const conversationQuery = ConversationModel.findOne({
-        participantIds: { $all: [currentInterest.senderId, currentInterest.receiverId] },
-        isDeleted: false,
-      });
-      if (session) {
-        conversationQuery.session(session);
-      }
-      const existingConversation = await conversationQuery;
-
-      if (!existingConversation) {
-        const participantIds = [currentInterest.senderId, currentInterest.receiverId].sort((a, b) =>
-          a.toString().localeCompare(b.toString()),
-        );
-        if (session) {
-          await ConversationModel.create([{ participantIds }], { session });
-        } else {
-          await ConversationModel.create({ participantIds });
-        }
-      }
+      await ensureConversationByPair(currentInterest.senderId, currentInterest.receiverId, session);
     });
     interest.status = InterestStatus.ACCEPTED;
     interest.respondedAt = new Date();
@@ -868,17 +837,34 @@ export async function blockProfile(userId: Types.ObjectId, profileId: string) {
     throw new HttpError(409, 'Member is already blocked');
   }
 
-  const block =
-    existing ?? (await BlockModel.create({ blockerId: userId, blockedId: profile.userId }));
+  const block = await runInTransaction(async (session) => {
+      const currentBlock =
+        existing ??
+        (session
+          ? await BlockModel.findOne({
+              blockerId: userId,
+              blockedId: profile.userId,
+            }).session(session)
+          : await BlockModel.findOne({
+              blockerId: userId,
+              blockedId: profile.userId,
+            }));
 
-  if (existing?.isDeleted) {
-    existing.isDeleted = false;
-    existing.set('deletedAt', undefined);
-    existing.set('deletedBy', undefined);
-    await existing.save();
-  }
+      let nextBlock = currentBlock;
+      if (!nextBlock) {
+        nextBlock = new BlockModel({ blockerId: userId, blockedId: profile.userId });
+        await nextBlock.save(session ? { session } : undefined);
+      } else if (nextBlock.isDeleted) {
+        nextBlock.isDeleted = false;
+        nextBlock.set('deletedAt', undefined);
+        nextBlock.set('deletedBy', undefined);
+        await nextBlock.save(session ? { session } : undefined);
+      }
 
-  await runWithOptionalTransaction(async (session) => {
+      if (!nextBlock) {
+        throw new HttpError(500, 'Block could not be created');
+      }
+
       const interestsQuery = InterestModel.find({
         isDeleted: false,
         $or: [
@@ -898,6 +884,7 @@ export async function blockProfile(userId: Types.ObjectId, profileId: string) {
         }
         await transitionInterestStatus(interest, InterestStatus.WITHDRAWN, respondedAt, session);
       }
+      return nextBlock;
     });
 
   disconnectMessageSocketsForPair(userId, profile.userId, 'blocked');

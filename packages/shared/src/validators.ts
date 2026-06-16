@@ -605,6 +605,8 @@ export const verificationReviewSchema = z.object({
 
 export const notificationListQuerySchema = z.object({
   unreadOnly: z.coerce.boolean().default(false),
+  cursor: z.string().trim().min(1).max(500).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
 });
 
 export const mobileOtpRequestSchema = z.object({
@@ -633,6 +635,8 @@ export const pushSubscriptionSchema = z.object({
 export const auditLogQuerySchema = z.object({
   page: z.coerce.number().int().min(1).max(500).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(25),
+  cursor: z.string().trim().min(1).max(500).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
   actor: objectIdSchema.optional(),
   action: z.string().trim().max(120).optional(),
   entityType: z.string().trim().max(80).optional(),
@@ -681,6 +685,11 @@ export const typingEventSchema = z.object({
 
 export const conversationCreateSchema = z.object({
   profileId: objectIdSchema,
+});
+
+export const conversationListQuerySchema = z.object({
+  cursor: z.string().trim().min(1).max(500).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
 });
 
 export const communityRoomInputSchema = z.object({
@@ -982,6 +991,7 @@ export type MessageAttachmentCompleteUploadInput = z.infer<
 export type MessageCreateInput = z.infer<typeof messageCreateSchema>;
 export type TypingEventInput = z.infer<typeof typingEventSchema>;
 export type ConversationCreateInput = z.infer<typeof conversationCreateSchema>;
+export type ConversationListQueryInput = z.infer<typeof conversationListQuerySchema>;
 export type CommunityRoomInput = z.infer<typeof communityRoomInputSchema>;
 export type CommunityRoomUpdateInput = z.infer<typeof communityRoomUpdateSchema>;
 export type CommunityPostsQueryInput = z.infer<typeof communityPostsQuerySchema>;

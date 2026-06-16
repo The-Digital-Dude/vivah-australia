@@ -15,6 +15,33 @@ import {
 } from '../models/index.js';
 import { HttpError } from '../auth/auth-errors.js';
 
+function encodeCursor(value: { timestamp: string; id: string }) {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+function decodeCursor(cursor?: string) {
+  if (!cursor) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8')) as {
+      timestamp?: string;
+      id?: string;
+    };
+    if (!decoded.timestamp || !decoded.id) {
+      throw new Error('Invalid cursor');
+    }
+    const timestamp = new Date(decoded.timestamp);
+    if (Number.isNaN(timestamp.getTime())) {
+      throw new Error('Invalid cursor');
+    }
+    return { timestamp, id: decoded.id };
+  } catch {
+    throw new HttpError(400, 'Invalid cursor');
+  }
+}
+
 export async function createNotification(input: {
   userId: Types.ObjectId;
   type: string;
@@ -163,7 +190,9 @@ export async function verifyMobileOtp(userId: Types.ObjectId, mobile: string, co
     usedAt: { $exists: false },
     expiresAt: { $gt: new Date() },
     isDeleted: false,
-  }).sort({ createdAt: -1 });
+  })
+    .select('+codeHash')
+    .sort({ createdAt: -1 });
 
   if (!otp) {
     throw new HttpError(400, 'Invalid or expired OTP');
@@ -222,15 +251,39 @@ export async function sendTestPush(userId: Types.ObjectId) {
   });
 }
 
-export async function listNotifications(userId: Types.ObjectId, unreadOnly = false) {
-  return NotificationModel.find({
+export async function listNotifications(
+  userId: Types.ObjectId,
+  unreadOnly = false,
+  cursor?: string,
+  limit = 50,
+) {
+  const decodedCursor = decodeCursor(cursor);
+  const filter: Record<string, unknown> = {
     userId,
     isDeleted: false,
     ...(unreadOnly ? { readAt: { $exists: false } } : {}),
-  })
-    .sort({ createdAt: -1 })
-    .limit(50)
+  };
+  if (decodedCursor) {
+    filter.$or = [
+      { createdAt: { $lt: decodedCursor.timestamp } },
+      { createdAt: decodedCursor.timestamp, _id: { $lt: decodedCursor.id } },
+    ];
+  }
+  const notifications = await NotificationModel.find(filter)
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(limit + 1)
     .lean();
+  const hasMore = notifications.length > limit;
+  const page = hasMore ? notifications.slice(0, limit) : notifications;
+  const tail = page.at(-1);
+
+  return {
+    notifications: page,
+    nextCursor:
+      hasMore && tail
+        ? encodeCursor({ timestamp: tail.createdAt.toISOString(), id: String(tail._id) })
+        : null,
+  };
 }
 
 export async function unreadNotificationCount(userId: Types.ObjectId) {

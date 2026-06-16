@@ -16,11 +16,16 @@ import { isPaidMember, cancelSubscription } from '../billing/billing.service.js'
 import {
   BlockModel,
   AuthTokenModel,
+  ConversationModel,
+  MessageAttachmentModel,
   NotificationModel,
+  PhotoRequestModel,
   ProfileApprovalStatus,
   ProfileMediaModel,
   ProfileModel,
   ProfileViewModel,
+  PushSubscriptionModel,
+  ReportModel,
   UserModel,
   InterestModel,
   FavouriteModel,
@@ -232,8 +237,7 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
   }
 
   if (!viewerId || !profile.userId.equals(viewerId)) {
-    profile.stats.profileViews += 1;
-    await profile.save();
+    await ProfileModel.updateOne({ _id: profile._id }, { $inc: { 'stats.profileViews': 1 } });
   }
 
   if (viewerId && !profile.userId.equals(viewerId)) {
@@ -642,11 +646,33 @@ export async function requestAccountDeletion(userId: Types.ObjectId) {
   await Promise.all([
     AuthTokenModel.deleteMany({ userId }),
     ProfileMediaModel.updateMany({ userId }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
-    InterestModel.updateMany({ $or: [{ senderId: userId }, { recipientId: userId }] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    InterestModel.updateMany({ $or: [{ senderId: userId }, { receiverId: userId }] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
     FavouriteModel.updateMany({ $or: [{ userId }, ...(profileId ? [{ profileId }] : [])] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
     SavedSearchModel.updateMany({ userId }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
-    ProfileViewModel.updateMany({ $or: [{ viewerId: userId }, ...(profileId ? [{ profileId }, { profileUserId: profileId }] : [])] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    ProfileViewModel.updateMany({ $or: [{ viewerId: userId }, ...(profileId ? [{ profileId }, { profileUserId: userId }] : [])] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
     BlockModel.updateMany({ $or: [{ blockerId: userId }, { blockedId: userId }] }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    NotificationModel.updateMany({ userId }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    PushSubscriptionModel.updateMany({ userId }, { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } }),
+    PhotoRequestModel.updateMany(
+      { $or: [{ requesterId: userId }, { ownerId: userId }, ...(profileId ? [{ ownerProfileId: profileId }] : [])] },
+      { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } },
+    ),
+    MessageAttachmentModel.updateMany(
+      { uploadedBy: userId },
+      { $set: { isDeleted: true, deletedAt: now, deletedBy: userId } },
+    ),
+    ConversationModel.updateMany(
+      { participantIds: userId, isDeleted: false },
+      {
+        $addToSet: { deletedFor: userId },
+        $set: { [`unreadCounts.${userId}`]: 0 },
+      },
+    ),
+    ReportModel.updateMany({ reporterId: userId }, { $set: { 'targetSnapshot.reporterDeletedAt': now.toISOString() } }),
+    ReportModel.updateMany(
+      { reportedUserId: userId },
+      { $set: { 'targetSnapshot.reportedUserDeletedAt': now.toISOString() } },
+    ),
   ]);
 
   try {

@@ -23,6 +23,7 @@ import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
 import { fraudRuleLabel, listFraudEvents, reviewFraudEvent } from '../common/fraud.service.js';
+import { escapeRegex } from '../common/regex.js';
 import { disconnectMessageSocketsForUser } from '../messages/messages.realtime.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import { assignVerificationProvider } from './verification-providers.js';
@@ -73,6 +74,37 @@ const selfDestructiveStatuses = [
   AccountStatus.DELETED,
 ] as const;
 const accessRevokingStatuses = new Set<string>(selfDestructiveStatuses);
+
+function encodeCursor(value: { timestamp: string; id: string }) {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+function decodeCursor(cursor?: string) {
+  if (!cursor) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8')) as {
+      timestamp?: string;
+      id?: string;
+    };
+    if (!decoded.timestamp || !decoded.id || !Types.ObjectId.isValid(decoded.id)) {
+      throw new Error('Invalid cursor');
+    }
+    const timestamp = new Date(decoded.timestamp);
+    if (Number.isNaN(timestamp.getTime())) {
+      throw new Error('Invalid cursor');
+    }
+    return { timestamp, id: new Types.ObjectId(decoded.id) };
+  } catch {
+    throw new HttpError(400, 'Invalid cursor');
+  }
+}
+
+function sanitizeVerificationRequest<T extends { documentUrls?: unknown }>(request: T) {
+  return { ...request, documentUrls: [] };
+}
 
 function monthStart() {
   const now = new Date();
@@ -597,16 +629,17 @@ export async function listUsers(input: AdminUserQueryInput) {
   if (input.role) filter.role = input.role;
   if (input.status) filter.status = input.status;
   if (input.q) {
+    const escaped = escapeRegex(input.q);
     const matchingProfiles = await ProfileModel.find({
       isDeleted: false,
       $or: [
-        { displayId: { $regex: input.q, $options: 'i' } },
-        { 'personal.firstName': { $regex: input.q, $options: 'i' } },
-        { 'personal.lastName': { $regex: input.q, $options: 'i' } },
+        { displayId: { $regex: `^${escaped}`, $options: 'i' } },
+        { 'personal.firstName': { $regex: escaped, $options: 'i' } },
+        { 'personal.lastName': { $regex: escaped, $options: 'i' } },
       ],
     }).select('userId');
     filter.$or = [
-      { email: { $regex: input.q, $options: 'i' } },
+      { email: { $regex: `^${escaped}`, $options: 'i' } },
       { _id: { $in: matchingProfiles.map((profile) => profile.userId) } },
     ];
   }
@@ -793,7 +826,7 @@ export async function getProfileModerationDetail(profileId: string) {
 export async function listAuditLogs(input: AuditLogQueryInput) {
   const filter: Record<string, unknown> = {};
   if (input.actor) filter.actorId = input.actor;
-  if (input.action) filter.action = { $regex: input.action, $options: 'i' };
+  if (input.action) filter.action = { $regex: escapeRegex(input.action), $options: 'i' };
   if (input.entityType) filter.targetType = input.entityType;
   if (input.from || input.to) {
     filter.createdAt = {
@@ -801,12 +834,38 @@ export async function listAuditLogs(input: AuditLogQueryInput) {
       ...(input.to ? { $lte: input.to } : {}),
     };
   }
+  const pageSize = input.limit ?? input.pageSize;
+  if (input.cursor) {
+    const cursor = decodeCursor(input.cursor);
+    if (!cursor) {
+      throw new HttpError(400, 'Invalid cursor');
+    }
+    filter.$or = [
+      { createdAt: { $lt: cursor.timestamp } },
+      { createdAt: cursor.timestamp, _id: { $lt: cursor.id } },
+    ];
+    const logs = await AuditLogModel.find(filter)
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(pageSize + 1)
+      .lean();
+    const hasMore = logs.length > pageSize;
+    const page = hasMore ? logs.slice(0, pageSize) : logs;
+    const tail = page.at(-1);
+    return {
+      logs: page,
+      nextCursor:
+        hasMore && tail
+          ? encodeCursor({ timestamp: tail.createdAt.toISOString(), id: String(tail._id) })
+          : null,
+      pagination: null,
+    };
+  }
   const skip = (input.page - 1) * input.pageSize;
   const [logs, total] = await Promise.all([
-    AuditLogModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(input.pageSize).lean(),
+    AuditLogModel.find(filter).sort({ createdAt: -1, _id: -1 }).skip(skip).limit(pageSize).lean(),
     AuditLogModel.countDocuments(filter),
   ]);
-  return { logs, pagination: { page: input.page, pageSize: input.pageSize, total } };
+  return { logs, nextCursor: null, pagination: { page: input.page, pageSize, total } };
 }
 
 export async function reviewProfile(
@@ -917,7 +976,7 @@ export async function createVerificationRequest(
     provider: providerAssignment.provider,
     providerReferenceId: providerAssignment.providerReferenceId,
     status: VerificationStatus.PENDING,
-    documentUrls: document ? [document.assetUrl] : [],
+    documentUrls: [],
     submittedAt,
   });
   if (document) {
@@ -933,11 +992,12 @@ export async function createVerificationRequest(
     event: 'VERIFICATION_REQUEST_CREATED',
     metadata: { type: input.type },
   });
-  return request;
+  return sanitizeVerificationRequest(request.toObject());
 }
 
 export async function listOwnVerificationRequests(userId: Types.ObjectId) {
-  return VerificationRequestModel.find({ userId, isDeleted: false }).sort({ createdAt: -1 }).lean();
+  const requests = await VerificationRequestModel.find({ userId, isDeleted: false }).sort({ createdAt: -1 }).lean();
+  return requests.map((request) => sanitizeVerificationRequest(request));
 }
 
 export async function getOwnVerificationRequest(userId: Types.ObjectId, requestId: string) {
@@ -947,7 +1007,7 @@ export async function getOwnVerificationRequest(userId: Types.ObjectId, requestI
     isDeleted: false,
   }).lean();
   if (!request) throw new HttpError(404, 'Verification request not found');
-  return request;
+  return sanitizeVerificationRequest(request);
 }
 
 export async function listVerificationRequests(
@@ -958,7 +1018,7 @@ export async function listVerificationRequests(
     .limit(100)
     .lean();
   return requests
-    .map((request) => ({ ...request, priority: verificationPriority(request) }))
+    .map((request) => ({ ...sanitizeVerificationRequest(request), priority: verificationPriority(request) }))
     .sort((a, b) => b.priority.score - a.priority.score);
 }
 
@@ -984,7 +1044,7 @@ export async function getVerificationRequestDetail(requestId: string, actorId?: 
       metadata: { documentCount: documents.length },
     });
   }
-  return { request, documents };
+  return { request: sanitizeVerificationRequest(request), documents };
 }
 
 export async function getVerificationDocumentPreview(

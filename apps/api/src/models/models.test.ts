@@ -50,6 +50,10 @@ describe('database models', () => {
       { conversationId: 1, createdAt: 1 },
       {},
     ]);
+    expect(phaseOneSchemas.conversationSchema.indexes()).toContainEqual([
+      { pairKey: 1 },
+      expect.objectContaining({ unique: true }),
+    ]);
     expect(phaseOneSchemas.subscriptionSchema.indexes()).toContainEqual([
       { userId: 1, status: 1 },
       {},
@@ -81,6 +85,10 @@ describe('database models', () => {
     expect(phaseOneSchemas.auditLogSchema.indexes()).toContainEqual([
       { targetType: 1, targetId: 1, createdAt: -1 },
       {},
+    ]);
+    expect(phaseOneSchemas.mobileOtpSchema.indexes()).toContainEqual([
+      { expiresAt: 1 },
+      expect.objectContaining({ expireAfterSeconds: 0 }),
     ]);
     expect(phaseOneSchemas.stripeEventLogSchema.indexes()).toContainEqual([
       { stripeEventId: 1 },

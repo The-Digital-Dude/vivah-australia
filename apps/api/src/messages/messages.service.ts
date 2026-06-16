@@ -20,8 +20,10 @@ import {
   NotificationModel,
   ProfileApprovalStatus,
   ProfileModel,
+  UserModel,
 } from '../models/index.js';
 import type { ConversationDocument, MessageDocument } from '../models/phase-one.models.js';
+import { runInTransaction } from '../common/mongo-transactions.js';
 
 const UPLOAD_TTL_SECONDS = 10 * 60;
 const ACCESS_TTL_SECONDS = 5 * 60;
@@ -78,6 +80,33 @@ function signAccessToken(attachmentId: string, viewerId: string, expiresAt: numb
   const payload = `${attachmentId}.${viewerId}.${expiresAt}`;
   const signature = crypto.createHmac('sha256', accessSecret()).update(payload).digest('hex');
   return Buffer.from(`${payload}.${signature}`).toString('base64url');
+}
+
+function encodeCursor(value: { timestamp: string; id: string }) {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+function decodeCursor(cursor?: string) {
+  if (!cursor) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8')) as {
+      timestamp?: string;
+      id?: string;
+    };
+    if (!decoded.timestamp || !decoded.id || !Types.ObjectId.isValid(decoded.id)) {
+      throw new Error('Invalid cursor');
+    }
+    const timestamp = new Date(decoded.timestamp);
+    if (Number.isNaN(timestamp.getTime())) {
+      throw new Error('Invalid cursor');
+    }
+    return { timestamp, id: new Types.ObjectId(decoded.id) };
+  } catch {
+    throw new HttpError(400, 'Invalid cursor');
+  }
 }
 
 async function assertNoBlock(userId: Types.ObjectId, otherUserId: Types.ObjectId) {
@@ -388,43 +417,88 @@ export async function sendMessage(
     throw new HttpError(429, 'Rate limit exceeded. Please try again later.');
   }
 
-  const message = await MessageModel.create({
-    conversationId: conversation._id,
-    senderId: userId,
-    ...(input.body ? { body: input.body } : {}),
-    attachmentIds: attachments.map((attachment) => attachment._id),
-    readBy: [userId],
-    deletedFor: [],
-  });
+  const message = await runInTransaction(async (session) => {
+    const createdMessage = new MessageModel({
+      conversationId: conversation._id,
+      senderId: userId,
+      ...(input.body ? { body: input.body } : {}),
+      attachmentIds: attachments.map((attachment) => attachment._id),
+      readBy: [userId],
+      deletedFor: [],
+    });
+    await createdMessage.save(session ? { session } : undefined);
 
-  conversation.lastMessageAt = new Date();
-  conversation.lastMessagePreview = input.body ? (input.body.length > 50 ? `${input.body.slice(0, 47)}...` : input.body) : 'Sent an attachment';
-  conversation.set(`unreadCounts.${otherUserId}`, (conversation.get(`unreadCounts.${otherUserId}`) || 0) + 1);
-  conversation.deletedFor = [];
-  await conversation.save();
+    const sentAt = new Date();
+    await ConversationModel.updateOne(
+      { _id: conversation._id },
+      {
+        $set: {
+          lastMessageAt: sentAt,
+          lastMessagePreview: input.body
+            ? input.body.length > 50
+              ? `${input.body.slice(0, 47)}...`
+              : input.body
+            : 'Sent an attachment',
+          deletedFor: [],
+        },
+        $inc: { [`unreadCounts.${otherUserId}`]: 1 },
+      },
+      session ? { session } : {},
+    );
 
-  const lastNotif = await NotificationModel.findOne({ userId: otherUserId, type: 'NEW_MESSAGE' }).sort({ createdAt: -1 });
-  if (!lastNotif || Date.now() - lastNotif.createdAt.getTime() > 60 * 60 * 1000) {
-    await NotificationModel.create({
+    const lastNotifQuery = NotificationModel.findOne({
       userId: otherUserId,
       type: 'NEW_MESSAGE',
-      title: 'New message received',
-      body: 'You have received a new message.',
-    });
-  }
+      isDeleted: false,
+    }).sort({ createdAt: -1 });
+    if (session) {
+      lastNotifQuery.session(session);
+    }
+    const lastNotif = await lastNotifQuery;
+    if (!lastNotif || Date.now() - lastNotif.createdAt.getTime() > 60 * 60 * 1000) {
+      const notification = new NotificationModel({
+        userId: otherUserId,
+        type: 'NEW_MESSAGE',
+        title: 'New message received',
+        body: 'You have received a new message.',
+      });
+      await notification.save(session ? { session } : undefined);
+    }
 
+    return createdMessage;
+  });
   await message.populate('attachmentIds');
   return publicMessage(message, userId);
 }
 
-export async function listConversations(userId: Types.ObjectId) {
-  const conversations = await ConversationModel.find({
+export async function listConversations(userId: Types.ObjectId, cursor?: string, limit = 25) {
+  const decodedCursor = decodeCursor(cursor);
+  const filter: Record<string, unknown> = {
     participantIds: userId,
     isDeleted: false,
     deletedFor: { $ne: userId },
-  }).sort({ lastMessageAt: -1, updatedAt: -1 });
+  };
+  if (decodedCursor) {
+    filter.$or = [
+      { updatedAt: { $lt: decodedCursor.timestamp } },
+      { updatedAt: decodedCursor.timestamp, _id: { $lt: decodedCursor.id } },
+    ];
+  }
+  const conversations = await ConversationModel.find(filter)
+    .sort({ updatedAt: -1, _id: -1 })
+    .limit(limit + 1);
+  const hasMore = conversations.length > limit;
+  const page = hasMore ? conversations.slice(0, limit) : conversations;
+  const data = await Promise.all(page.map((conversation) => publicConversation(conversation, userId)));
+  const tail = page.at(-1);
 
-  return Promise.all(conversations.map((conversation) => publicConversation(conversation, userId)));
+  return {
+    data,
+    nextCursor:
+      hasMore && tail
+        ? encodeCursor({ timestamp: tail.updatedAt.toISOString(), id: tail.id })
+        : null,
+  };
 }
 
 export async function listMessages(userId: Types.ObjectId, conversationId: string, limit = 50, beforeDate?: string) {
@@ -483,12 +557,9 @@ export async function deleteMessageForUser(userId: Types.ObjectId, messageId: st
 async function publicConversation(conversation: ConversationDocument, userId: Types.ObjectId) {
   const otherUserId = otherParticipant(conversation.participantIds, userId);
   const otherProfile = otherUserId ? await profileForUser(otherUserId) : undefined;
-
-  return {
-    id: conversation.id,
-    participantIds: conversation.participantIds.map(String),
-    otherUserId: otherUserId ? String(otherUserId) : undefined,
-    otherProfile: otherProfile
+  const otherUser = otherUserId ? await UserModel.findById(otherUserId).lean() : null;
+  const otherProfilePayload =
+    otherProfile && !otherProfile.isDeleted
       ? {
           id: otherProfile.id,
           firstName: otherProfile.personal.firstName,
@@ -496,7 +567,22 @@ async function publicConversation(conversation: ConversationDocument, userId: Ty
           city: otherProfile.location.city,
           occupation: otherProfile.employment.occupation,
         }
-      : undefined,
+      : otherUser?.isDeleted
+        ? {
+            id: undefined,
+            firstName: 'Deleted member',
+            age: undefined,
+            city: undefined,
+            occupation: undefined,
+            deleted: true,
+          }
+        : undefined;
+
+  return {
+    id: conversation.id,
+    participantIds: conversation.participantIds.map(String),
+    otherUserId: otherUserId ? String(otherUserId) : undefined,
+    otherProfile: otherProfilePayload,
     lastMessageAt: conversation.lastMessageAt,
     lastMessagePreview: conversation.lastMessagePreview,
     unreadCount: conversation.get(`unreadCounts.${userId}`) || 0,
@@ -518,9 +604,23 @@ function publicAttachment(
     mimeType: string;
     fileSizeBytes: number;
     uploadStatus: string;
+    isDeleted?: boolean;
   },
   viewerId: Types.ObjectId,
 ) {
+  if (attachment.isDeleted) {
+    return {
+      id: attachment.id,
+      attachmentType: attachment.attachmentType,
+      assetUrl: undefined,
+      fileName: attachment.fileName,
+      mimeType: attachment.mimeType,
+      fileSizeBytes: attachment.fileSizeBytes,
+      uploadStatus: 'UNAVAILABLE',
+      unavailable: true,
+    };
+  }
+
   return {
     id: attachment.id,
     attachmentType: attachment.attachmentType,
@@ -548,6 +648,7 @@ function publicMessage(message: MessageDocument, viewerId: Types.ObjectId) {
       mimeType: string;
       fileSizeBytes: number;
       uploadStatus: string;
+      isDeleted?: boolean;
     }>;
     readBy: Types.ObjectId[];
     createdAt: Date;
@@ -570,6 +671,7 @@ function publicMessage(message: MessageDocument, viewerId: Types.ObjectId) {
           mimeType: attachment.mimeType,
           fileSizeBytes: attachment.fileSizeBytes,
           uploadStatus: attachment.uploadStatus,
+          ...(attachment.isDeleted !== undefined ? { isDeleted: attachment.isDeleted } : {}),
         },
         viewerId,
       ),

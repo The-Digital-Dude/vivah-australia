@@ -30,6 +30,7 @@ import {
 } from '../models/index.js';
 import { sendTemplatedEmail } from '../common/email.service.js';
 import { logAudit } from '../common/audit.service.js';
+import { runInTransaction } from '../common/mongo-transactions.js';
 
 const stripe = env.STRIPE_SECRET_KEY
   ? new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2026-05-27.dahlia' })
@@ -83,6 +84,40 @@ async function activeSubscription(userId: Types.ObjectId) {
     isDeleted: false,
     $or: [{ endsAt: { $exists: false } }, { endsAt: { $gt: now } }],
   }).sort({ createdAt: -1 });
+}
+
+async function activateSubscriptionRecord(
+  userId: Types.ObjectId,
+  planId: Types.ObjectId,
+  input: {
+    provider?: string;
+    providerCustomerId?: string;
+    providerSubscriptionId?: string;
+    currentPeriodEnd?: Date;
+  },
+) {
+  return runInTransaction(async (session) => {
+    await SubscriptionModel.updateMany(
+      { userId, status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] } },
+      { $set: { status: SubscriptionStatus.CANCELED, endsAt: new Date() } },
+      session ? { session } : {},
+    );
+
+    const created = new SubscriptionModel({
+      userId,
+      planId,
+      status: SubscriptionStatus.ACTIVE,
+      startsAt: new Date(),
+      cancelAtPeriodEnd: false,
+      ...(input.provider ? { provider: input.provider } : {}),
+      ...(input.providerCustomerId ? { providerCustomerId: input.providerCustomerId } : {}),
+      ...(input.providerSubscriptionId ? { providerSubscriptionId: input.providerSubscriptionId } : {}),
+      ...(input.currentPeriodEnd ? { currentPeriodEnd: input.currentPeriodEnd } : {}),
+    });
+    await created.save(session ? { session } : undefined);
+
+    return created;
+  });
 }
 
 export async function isPaidMember(userId: Types.ObjectId): Promise<boolean> {
@@ -468,15 +503,39 @@ export async function createRefund(input: RefundCreateInput, adminId?: Types.Obj
     refund.providerRefundId = stripeRefund.id;
     refund.status =
       stripeRefund.status === 'succeeded' ? RefundStatus.SUCCEEDED : RefundStatus.PENDING;
-    await refund.save();
   }
+  await runInTransaction(async (session) => {
+    const updatedPayment = await PaymentModel.findOneAndUpdate(
+      {
+        _id: payment._id,
+        refundedAmountCents: { $lte: payment.amountCents - amountCents },
+      },
+      [
+        {
+          $set: {
+            refundedAmountCents: { $add: ['$refundedAmountCents', amountCents] },
+          },
+        },
+        {
+          $set: {
+            status: {
+              $cond: [
+                { $gte: ['$refundedAmountCents', payment.amountCents] },
+                PaymentStatus.REFUNDED,
+                PaymentStatus.PARTIALLY_REFUNDED,
+              ],
+            },
+          },
+        },
+      ] as any,
+      { returnDocument: 'after', ...(session ? { session } : {}) },
+    );
+    if (!updatedPayment) {
+      throw new HttpError(409, 'Refund exceeds remaining payment amount');
+    }
 
-  payment.refundedAmountCents += amountCents;
-  payment.status =
-    payment.refundedAmountCents >= payment.amountCents
-      ? PaymentStatus.REFUNDED
-      : PaymentStatus.PARTIALLY_REFUNDED;
-  await payment.save();
+    await refund.save(session ? { session } : undefined);
+  });
 
   if (adminId) {
     await logAudit({
@@ -615,17 +674,8 @@ export async function handleStripeEvent(event: Stripe.Event) {
       return;
     }
 
-    await SubscriptionModel.updateMany(
-      { userId: toObjectId(userId), status: SubscriptionStatus.ACTIVE },
-      { $set: { status: SubscriptionStatus.CANCELED, endsAt: new Date() } },
-    );
-    const subscriptionData = {
-      userId: toObjectId(userId),
-      planId: toObjectId(planId),
-      status: SubscriptionStatus.ACTIVE,
-      startsAt: new Date(),
+    await activateSubscriptionRecord(toObjectId(userId), toObjectId(planId), {
       provider: 'stripe',
-      cancelAtPeriodEnd: false,
       ...(session.customer
         ? {
             providerCustomerId:
@@ -640,8 +690,7 @@ export async function handleStripeEvent(event: Stripe.Event) {
                 : session.subscription.id,
           }
         : {}),
-    };
-    await SubscriptionModel.create(subscriptionData);
+    });
 
     const couponId = session.metadata?.couponId;
     if (couponId && Types.ObjectId.isValid(couponId)) {
@@ -854,11 +903,6 @@ export async function verifyCheckoutSession(userId: Types.ObjectId, sessionId: s
   const plan = await PlanModel.findById(metadata.planId);
   if (!plan) return false;
 
-  await SubscriptionModel.updateMany(
-    { userId, status: SubscriptionStatus.ACTIVE },
-    { $set: { status: SubscriptionStatus.CANCELED } }
-  );
-
   let currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   if (providerSubscriptionId) {
     try {
@@ -871,18 +915,14 @@ export async function verifyCheckoutSession(userId: Types.ObjectId, sessionId: s
     }
   }
 
-  const newSub = new SubscriptionModel({
-    userId,
-    planId: plan._id,
-    status: SubscriptionStatus.ACTIVE,
-    startsAt: new Date(),
-    currentPeriodEnd,
-    cancelAtPeriodEnd: false,
+  await activateSubscriptionRecord(userId, plan._id, {
     provider: 'stripe',
-    ...(session.customer ? { providerCustomerId: typeof session.customer === 'string' ? session.customer : session.customer.id } : {}),
-    ...(providerSubscriptionId ? { providerSubscriptionId } : {})
+    currentPeriodEnd,
+    ...(session.customer
+      ? { providerCustomerId: typeof session.customer === 'string' ? session.customer : session.customer.id }
+      : {}),
+    ...(providerSubscriptionId ? { providerSubscriptionId } : {}),
   });
-  await newSub.save();
 
   const providerPaymentId = typeof session.payment_intent === 'string' 
     ? session.payment_intent 

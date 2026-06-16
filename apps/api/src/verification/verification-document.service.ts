@@ -119,8 +119,6 @@ function publicVerificationDocument(document: HydratedDocument<VerificationDocum
     requestId: document.requestId?.toString(),
     userId: document.userId.toString(),
     documentType: document.documentType,
-    storageKey: document.storageKey,
-    assetUrl: document.assetUrl,
     uploadProvider: document.uploadProvider,
     uploadExpiresAt: document.uploadExpiresAt,
     uploadStatus: document.uploadStatus,

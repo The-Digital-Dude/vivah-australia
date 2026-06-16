@@ -44,8 +44,10 @@ export function createNotificationsRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const input = notificationListQuerySchema.parse(request.query);
+      const result = await listNotifications(auth.userId, input.unreadOnly, input.cursor, input.limit);
       response.status(200).json({
-        notifications: await listNotifications(auth.userId, input.unreadOnly),
+        notifications: result.notifications,
+        nextCursor: result.nextCursor,
         unreadCount: await unreadNotificationCount(auth.userId),
       });
     }),

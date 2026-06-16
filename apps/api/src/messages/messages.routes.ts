@@ -1,4 +1,5 @@
 import {
+  conversationListQuerySchema,
   conversationCreateSchema,
   messageAttachmentCompleteUploadSchema,
   messageAttachmentSignUploadSchema,
@@ -68,8 +69,8 @@ export function createMessagesRouter(config: AuthConfig): Router {
     requireAuth(config),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
-      const conversations = await listConversations(auth.userId);
-      response.status(200).json({ conversations });
+      const input = conversationListQuerySchema.parse(request.query);
+      response.status(200).json(await listConversations(auth.userId, input.cursor, input.limit));
     }),
   );
 

@@ -64,7 +64,7 @@ const userSchema = new Schema<User>(
   {
     email: { type: String, trim: true, lowercase: true },
     mobile: { type: String, trim: true },
-    passwordHash: { type: String },
+    passwordHash: { type: String, select: false },
     authProviders: {
       type: [String],
       enum: Object.values(AuthProvider),

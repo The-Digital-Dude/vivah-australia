@@ -307,7 +307,7 @@ export async function loginWithEmail(input: LoginInput, config: AuthConfig): Pro
   const identifier = normalizeLoginIdentifier(input.email);
   const user = await UserModel.findOne(
     identifier.includes('@') ? { email: identifier } : { mobile: identifier },
-  );
+  ).select('+passwordHash');
 
   if (!user?.passwordHash) {
     throw new HttpError(401, 'Invalid email or password');
@@ -507,7 +507,7 @@ export async function changePassword(
   userId: Types.ObjectId,
   input: ChangePasswordInput,
 ): Promise<void> {
-  const user = await UserModel.findById(userId).orFail();
+  const user = await UserModel.findById(userId).select('+passwordHash').orFail();
 
   if (!user.passwordHash) {
     throw new HttpError(400, 'Password login is not configured');

@@ -63,6 +63,7 @@ import {
   VerificationRequestModel,
   phaseOneModels,
 } from '../models/index.js';
+import { pairKeyForUsers } from '../common/pair-key.js';
 
 const DEMO_TAG = 'vivah-demo-seed';
 const MEMBER_PASSWORD = 'TestUserStrong123!';
@@ -1056,19 +1057,26 @@ async function seedMessages(
     const participantIds = [first.userId, second.userId].sort((a, b) =>
       String(a).localeCompare(String(b)),
     );
+    const [firstParticipantId, secondParticipantId] = participantIds;
+    if (!firstParticipantId || !secondParticipantId) {
+      throw new Error('Seed conversation participants are missing');
+    }
+    const pairKey = pairKeyForUsers(firstParticipantId, secondParticipantId);
     const existingConversation = await ConversationModel.findOne({
-      participantIds: { $all: participantIds, $size: 2 },
+      pairKey,
     });
     const conversation =
       existingConversation ??
       (await ConversationModel.create({
         participantIds,
+        pairKey,
         lastMessageAt: new Date(now.getTime() - index * dayMs),
         deletedFor: index >= 5 ? [first.userId] : [],
         isDeleted: false,
       }));
     conversation.set({
       participantIds,
+      pairKey,
       lastMessageAt: new Date(now.getTime() - index * dayMs),
       deletedFor: index >= 5 ? [first.userId] : [],
       isDeleted: false,

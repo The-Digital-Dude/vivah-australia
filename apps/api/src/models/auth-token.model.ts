@@ -24,7 +24,7 @@ const authTokenSchema = new Schema<AuthToken>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     purpose: { type: String, enum: Object.values(AuthTokenPurpose), required: true, index: true },
-    tokenHash: { type: String, required: true, unique: true },
+    tokenHash: { type: String, required: true, unique: true, select: false },
     expiresAt: { type: Date, required: true, index: { expires: 0 } },
     usedAt: { type: Date },
   },
