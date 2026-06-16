@@ -19,6 +19,7 @@ import { createNotificationsRouter } from './notifications/notifications.routes.
 import { createPublicRouter } from './public/public.routes.js';
 import { createProfileRouter } from './profile/profile.routes.js';
 import { createVerificationRouter } from './verification/verification.routes.js';
+import { createMockStorageRouter } from './media/mock-storage.routes.js';
 import { reportApplicationError } from './common/error-tracking.service.js';
 import { logger } from './common/logger.js';
 
@@ -113,6 +114,7 @@ export function createApp(options: CreateAppOptions): Express {
   app.use('/api', createAdminRouter(options.auth));
   app.use('/api', createNotificationsRouter(options.auth));
   app.use('/api', createVerificationRouter(options.auth));
+  app.use('/api/mock-gcs-storage', createMockStorageRouter());
 
   app.use((error: unknown, request: Request, response: Response, _next: express.NextFunction) => {
     const reqId = response.getHeader('x-request-id') || request.headers['x-request-id'];

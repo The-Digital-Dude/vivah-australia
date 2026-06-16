@@ -143,22 +143,16 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
   });
 
   if (!cloudinary) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
     return {
       media: publicMedia(media),
       upload: {
-        provider: 'mock',
-        method: 'POST',
-        url: `${LOCAL_UPLOAD_BASE_URL}/api/mock-storage/upload`,
+        provider: 'gcs',
+        method: 'PUT',
+        url: `${LOCAL_UPLOAD_BASE_URL}/api/mock-gcs-storage/${storageKey}`,
         expiresAt: expiresAt.toISOString(),
         fields: {
-          public_id: storageKey,
-          timestamp: String(timestamp),
-          signature: signAccessToken(
-            media.id,
-            userId.toString(),
-            Math.floor(expiresAt.getTime() / 1000),
-          ),
+          storageKey,
         },
       },
     };

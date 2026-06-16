@@ -789,6 +789,8 @@ export const profileDraftSchema = z.object({
       subCaste: z.string().trim().max(80).optional(),
       motherTongue: z.string().trim().max(80).optional(),
       languagesSpoken: z.array(z.string().trim().min(1).max(80)).max(20).optional(),
+      zodiacSign: z.string().trim().max(80).optional(),
+      manglikStatus: z.string().trim().max(80).optional(),
     })
     .optional(),
   location: z

@@ -1285,8 +1285,8 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
     }
 
     const signedBody = signed.data as unknown as SignUploadResponse;
-    let assetUrl = `http://localhost:4000/api/mock-storage/${signedBody.upload.fields.public_id}`;
-    let storageKey = signedBody.upload.fields.public_id;
+    let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
+    let storageKey = signedBody.upload.fields.storageKey;
 
     if (signedBody.upload.provider === 'cloudinary') {
       const cf = new FormData();
@@ -1301,6 +1301,22 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
       }
       assetUrl = upJson.secure_url;
       storageKey = upJson.public_id ?? storageKey;
+    } else if (signedBody.upload.provider === 'gcs') {
+      // Direct binary PUT upload for GCS
+      const up = await fetch(signedBody.upload.url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+      if (!up.ok) {
+        setMsg({ text: 'Upload failed', ok: false });
+        setUploading(false);
+        return;
+      }
+      // GCS URLs are the upload URL without query parameters (if signed URL used queries)
+      assetUrl = signedBody.upload.url.split('?')[0];
     }
 
     const completed = await memberRequest('/api/me/media/complete', {
@@ -1770,9 +1786,25 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   const [submitMsg, setSubmitMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const LOCAL_STORAGE_KEY = 'vivah_profile_draft';
+
   // Load existing profile on mount
   useEffect(() => {
     async function load() {
+      // Attempt to load from local storage first for immediate rendering and crash recovery
+      try {
+        const localDraft = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (localDraft) {
+          const parsed = JSON.parse(localDraft);
+          // Only apply if it has the right shape
+          if (parsed && parsed.personal) {
+            setDraft(parsed);
+          }
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+
       const result = await memberRequest('/api/me/profile');
       if (result.ok && result.data) {
         interface RawProfile {
@@ -1798,12 +1830,28 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
           }
         }
 
-        setDraft(apiToDraft(result.data as Record<string, unknown>));
+        const remoteDraft = apiToDraft(result.data as Record<string, unknown>);
+        setDraft((currentDraft) => {
+           // If we have a local draft stored in local storage, we prefer it to prevent data loss on reload.
+           // In a production app, we might compare timestamps or prompt the user.
+           const localDraft = localStorage.getItem(LOCAL_STORAGE_KEY);
+           if (localDraft) {
+             return currentDraft; // keep the state we already parsed from localStorage
+           }
+           return remoteDraft;
+        });
       }
       setLoading(false);
     }
     void load();
   }, [mode, router, memberRequest]);
+
+  // Save to local storage on every draft change
+  useEffect(() => {
+    if (!loading) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(draft));
+    }
+  }, [draft, loading]);
 
   function showToast(text: string, ok: boolean) {
     setToast({ text, ok });
@@ -1892,6 +1940,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     setSubmitMsg(result.message);
     setSubmitting(false);
     if (result.ok) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
       showToast('Profile onboarding submitted successfully', true);
       setTimeout(() => {
         router.push('/member');

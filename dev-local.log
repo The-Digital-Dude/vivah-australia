@@ -883,3 +883,373 @@
 [1] * Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 18.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
 [1] 
 [1] Please update the following components: t (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET /login 200 in 2.5s (next.js: 243ms, application-code: 2.2s)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] componentWillReceiveProps has been renamed, and is not recommended for use. See https://react.dev/link/unsafe-component-lifecycles for details.
+[1] 
+[1] * Move data fetching code or side effects to componentDidUpdate.
+[1] * If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://react.dev/link/derived-state
+[1] * Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 18.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+[1] 
+[1] Please update the following components: t (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] The method FB.login can no longer be called from http pages. https://developers.facebook.com/blog/post/2018/06/08/enforce-https-facebook-login/ 
+[1]     at Object.s [as log] (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[1]     at u (https://connect.facebook.net/en_US/bundle/sdk.js/:173:234)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:190:779)
+[1]     at Object.<anonymous> (https://connect.facebook.net/en_US/bundle/sdk.js/:106:920)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:96:259)
+[1]     at n.click (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0110djf._.js:434:47)
+[1]     at executeDispatch (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10329:13)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at processDispatchQueue (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10355:41)
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10633:13)
+[1]     at batchedUpdates$1 (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:2253:44)
+[1]     at dispatchEventForPluginEventSystem (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10431:9)
+[1]     at dispatchEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:13002:37)
+[1]     at dispatchDiscreteEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:12984:64) (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[1] [browser] FB.login() called before FB.init(). 
+[1]     at s (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[1]     at c (https://connect.facebook.net/en_US/bundle/sdk.js/:188:1084)
+[1]     at transform (https://connect.facebook.net/en_US/bundle/sdk.js/:188:4322)
+[1]     at Object.prepareCall (https://connect.facebook.net/en_US/bundle/sdk.js/:188:8607)
+[1]     at e (https://connect.facebook.net/en_US/bundle/sdk.js/:189:1076)
+[1]     at a (https://connect.facebook.net/en_US/bundle/sdk.js/:149:668)
+[1]     at Object.s [as login] (https://connect.facebook.net/en_US/bundle/sdk.js/:149:1869)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:190:803)
+[1]     at Object.<anonymous> (https://connect.facebook.net/en_US/bundle/sdk.js/:106:920)
+[1]     at Object.login (https://connect.facebook.net/en_US/bundle/sdk.js/:96:259)
+[1]     at n.click (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/node_modules__pnpm_0110djf._.js:434:47)
+[1]     at executeDispatch (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10329:13)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at processDispatchQueue (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10355:41)
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10633:13)
+[1]     at batchedUpdates$1 (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:2253:44)
+[1]     at dispatchEventForPluginEventSystem (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10431:9)
+[1]     at dispatchEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:13002:37)
+[1]     at dispatchDiscreteEvent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:12984:64) (https://connect.facebook.net/en_US/bundle/sdk.js/:77:299)
+[0] 10:00:21 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c10:00:22 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c10:00:23 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 10:00:40.746 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 10:00:40.816 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1]  GET /register 200 in 17.7s (next.js: 3.3s, application-code: 14.5s)
+[1]  GET /register 200 in 1768ms (next.js: 425ms, application-code: 1343ms)
+[1]  GET /login 200 in 2.1s (next.js: 73ms, application-code: 2.0s)
+[1] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[1] 
+[1] - A server/client branch `if (typeof window !== 'undefined')`.
+[1] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[1] - Date formatting in a user's locale which doesn't match the server.
+[1] - External changing data without sending a snapshot of it along with the HTML.
+[1] - Invalid HTML tag nesting.
+[1] 
+[1] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[1] 
+[1] https://react.dev/link/hydration-mismatch
+[1] 
+[1]   ...
+[1]     <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+[1]       <AppDevOverlayErrorBoundary globalError={[...]}>
+[1]         <ReplaySsrOnlyErrors>
+[1]         <DevRootHTTPAccessFallbackBoundary>
+[1]           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+[1]             <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+[1]               <RedirectBoundary>
+[1]                 <RedirectErrorBoundary router={{...}}>
+[1]                   <Head>
+[1]                   <__next_root_layout_boundary__>
+[1]                     <SegmentViewNode type="layout" pagePath="layout.tsx">
+[1]                       <SegmentTrieNode>
+[1]                       <link>
+[1]                       <script>
+[1]                       <script>
+[1]                       <script>
+[1]                       <RootLayout>
+[1]                         <html lang="en-AU">
+[1]                           <body
+[1] -                           cz-shortcut-listen="true"
+[1]                           >
+[1]                   ...
+[1]  
+[1]     at <unknown> (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:74)
+[1]     at emitPendingHydrationWarnings (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3438:13)
+[1]     at completeWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:6885:102)
+[1]     at runWithFiberInDEV (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:965:131)
+[1]     at completeUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9622:23)
+[1]     at performUnitOfWork (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9557:28)
+[1]     at workLoopConcurrentByScheduler (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9551:58)
+[1]     at renderRootConcurrent (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9534:71)
+[1]     at performWorkOnRoot (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:9061:150)
+[1]     at performWorkOnRootViaSchedulerTask (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:10255:9)
+[1]     at MessagePort.performWorkUntilDeadline (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_0dgzynu._.js:2647:64) (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_compiled_react-dom_0mxz6tg._.js:3439:25)
+[1] [browser] motion() is deprecated. Use motion.create() instead. (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] componentWillReceiveProps has been renamed, and is not recommended for use. See https://react.dev/link/unsafe-component-lifecycles for details.
+[1] 
+[1] * Move data fetching code or side effects to componentDidUpdate.
+[1] * If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://react.dev/link/derived-state
+[1] * Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 18.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+[1] 
+[1] Please update the following components: t (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET /register 200 in 1124ms (next.js: 165ms, application-code: 959ms)
+[1]  GET / 200 in 20.9s (next.js: 4.5s, application-code: 16.4s)
+[0] 10:04:09 AM [tsx] change in ./..\..\packages\shared\dist\constants.js Restarting...
+[0] 10:04:10 AM [tsx] change in ./..\..\packages\shared\dist\env.js Process hasn't exited. Killing process...
+[0] c10:04:10 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c10:04:12 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 10:04:46.109 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 10:04:46.204 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1] [browser] Image with src "/home/hero-bg-attached.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-ananya.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/match-rohan.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/australia-dotted-map.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-06-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-05-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-02-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-04-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/success-stories/couple-03-v2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-1.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1] [browser] Image with src "/home/app-mockup-2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes (file://D:/AI/Vivah Australia/apps/web/.next/dev/static/chunks/06ue_next_dist_02nkcud._.js:2477:13)
+[1]  GET / 200 in 8.6s (next.js: 1133ms, application-code: 7.5s)
+[1]  GET / 200 in 1338ms (next.js: 157ms, application-code: 1181ms)
+[0] [2026-06-16 10:09:24.549 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6234fad9-bf64-4002-83a4-13c1b33a49d2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1286
+[0] [2026-06-16 10:09:24.620 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "612236b4-b381-43cc-bfd1-6d8ff07e5100"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/blogs?limit=12"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 560
+[0] [2026-06-16 10:09:24.662 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6dcffec1-b479-4669-997d-aa2c6c9d7e53"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/community-guidelines"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 518
+[0] [2026-06-16 10:09:24.692 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6c25b8a1-45b3-4437-9bcd-97f87d17a898"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 474
+[0] [2026-06-16 10:09:24.729 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "efc29778-8da0-40af-9bf4-16ddf00d3a1b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 486
+[0] 10:10:52 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c10:10:52 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c10:10:53 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c
+[1] ✓ Compiled in 104s
+[0] [redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 10:11:13.656 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 10:11:13.865 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[1]  GET / 200 in 3.3min (next.js: 9.8s, application-code: 3.2min)
+[1]  GET / 200 in 2.3min (next.js: 97s, application-code: 38.4s)
+[1]  GET /login 200 in 47s (next.js: 6.6s, application-code: 41s)
+[0] [2026-06-16 10:15:35.121 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "10413ede-251f-4b5c-b1cf-9f6a2051d1a6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1346
+[0] [2026-06-16 10:15:35.150 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a2a1466c-e09e-4079-a6bb-51247388ec52"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 704
+[0] [2026-06-16 10:15:35.159 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c06fa0ac-b544-49f1-9eb6-c26e7ccf737d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 693
+[0] [2026-06-16 10:15:35.171 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1a240993-592f-4acf-a7af-1b905ffa05c0"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 690
+[0] [2026-06-16 10:15:35.273 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b75e6392-10fe-41f4-98fe-08299de44272"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 762
+[0] [2026-06-16 10:15:35.280 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c4262593-e8c3-46cb-b2e9-35198d5e58cb"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 761
+[0] [2026-06-16 10:15:35.289 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "cddae950-eb73-4252-87dc-a24647556244"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 762
+[0] [2026-06-16 10:15:35.297 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3e9e0a84-9b16-487f-ab33-1ada3a8e90c8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 764
+[0] [2026-06-16 10:15:35.315 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "66896afc-ee75-4045-b27e-1ab9b03c1813"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/blogs?limit=12"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 737
+[0] [2026-06-16 10:15:35.324 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "bbf07124-1c10-4ce3-8929-a97f5741e830"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 680
+[0] [2026-06-16 10:15:35.331 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "85bd7c16-a53e-415c-ad4a-27a02b6eaeec"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 638
+[0] [2026-06-16 10:15:35.334 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5091f94a-19b3-4e2b-8fdc-cdbab082921b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 638
+[0] [2026-06-16 10:15:35.346 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f21fe730-e1f8-4f34-a40c-6f2d7b103027"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 645
+[0] [2026-06-16 10:15:35.350 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a6fc3bfc-27d7-4b74-946f-09f1c5440abf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 642
+[0] [2026-06-16 10:15:35.368 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0301c8c4-da45-42d1-b71b-b59096db22f0"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/community-guidelines"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 652
+[0] [2026-06-16 10:15:35.378 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4f386826-7d98-4335-bd69-0395b7076ed5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 619
+[0] [2026-06-16 10:15:35.385 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6f4ddfa4-4ddf-48a4-8f40-1942d2b0464e"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 419
+[0] [2026-06-16 10:15:35.407 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c9891c91-389b-4216-836f-4b5d9ddb63aa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 434
+[0] [2026-06-16 10:15:35.415 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "eb70e511-b47a-45d8-8c74-ff670e8b25e1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 447
+[0] [2026-06-16 10:15:35.448 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6d1145e2-86a0-405b-be8e-8cc2bb9f57c2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 478
+[0] [2026-06-16 10:15:35.457 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "80684b91-88da-47c4-9cab-b5ab973f17c8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 481
+[0] [2026-06-16 10:15:35.461 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8b19cc37-0a51-428a-8342-82464c40d3bf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 483
+[0] [2026-06-16 10:15:35.469 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7b5cb88e-2006-4784-b842-2d50c8cd0f99"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 488
+[0] [2026-06-16 10:15:35.948 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7e2524ca-f01e-4a5a-81c6-1f84090bfac3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1109
+[0] [2026-06-16 10:15:35.953 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "813082ec-d8b2-4da3-bdf3-d05413435bb8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1188
+[0] [2026-06-16 10:15:38.943 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a05484eb-8414-4b93-8808-eb8f9aa4acb5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/refund-policy"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 66
+[0] [2026-06-16 10:15:39.090 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "72634730-fd3c-4335-a0ed-8e802469f009"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/help-centre"
+[0]     [35mstatusCode[39m: 404
+[0]     [35mdurationMs[39m: 145
+[0] [2026-06-16 10:15:39.271 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8748b067-f6dc-4562-86a2-084eb16982e8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/faq"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 97
+[0] [2026-06-16 10:15:39.289 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "048336f2-b62c-4d0a-b042-fe9664b54e1b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/faqs"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 111
+[0] [2026-06-16 10:15:39.426 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9d68eaef-cb6a-4628-88ac-fa5c87d8d6d7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/privacy-policy"
+[0]     [35mstatusCode[39m: 404
+[0]     [35mdurationMs[39m: 62
+[0] [2026-06-16 10:15:42.140 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c7e9a188-5653-4770-9b9d-ee00b92eca01"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/terms-and-conditions"
+[0]     [35mstatusCode[39m: 404
+[0]     [35mdurationMs[39m: 61
+[0] [2026-06-16 10:15:42.359 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6ed11456-9e42-46e6-b601-8b96ceba8d95"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/verification-policy"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 51
