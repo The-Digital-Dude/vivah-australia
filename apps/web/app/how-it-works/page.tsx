@@ -191,7 +191,7 @@ export default function HowItWorksPage() {
                     {/* Content */}
                     <div className={isEven ? 'lg:order-2' : ''}>
                       <div className="flex items-center gap-4 mb-4">
-                        <span className="text-5xl font-bold font-playfair text-brand-maroon/10 leading-none select-none">
+                        <span className="text-5xl font-bold font-playfair text-brand-maroon/30 leading-none select-none">
                           {step.number}
                         </span>
                         <div

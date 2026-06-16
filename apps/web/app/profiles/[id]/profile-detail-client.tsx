@@ -1723,8 +1723,8 @@ function ProfileDetailView({
                         {group.label}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {group.items.map((item) => (
-                          <ToneBadge key={item} tone="emerald">
+                        {group.items.map((item, i) => (
+                          <ToneBadge key={`${item}-${i}`} tone="emerald">
                             <Sparkles className="size-3" />
                             {item}
                           </ToneBadge>
@@ -1739,11 +1739,11 @@ function ProfileDetailView({
                 </div>
               ) : (
                 <div className="mt-6 flex flex-wrap gap-2">
-                  {[...(profile.about?.hobbies ?? []), ...(profile.about?.interests ?? [])]
+                  {Array.from(new Set([...(profile.about?.hobbies ?? []), ...(profile.about?.interests ?? [])]))
                     .filter(Boolean)
                     .slice(0, 10)
-                    .map((item) => (
-                      <ToneBadge key={item} tone="emerald">
+                    .map((item, i) => (
+                      <ToneBadge key={`${item}-${i}`} tone="emerald">
                         <Sparkles className="size-3.5" />
                         {item}
                       </ToneBadge>

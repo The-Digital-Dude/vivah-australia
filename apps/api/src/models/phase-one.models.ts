@@ -406,6 +406,8 @@ const reportSchema = new Schema<Report>(
 export interface Conversation {
   participantIds: ObjectId[];
   lastMessageAt?: Date;
+  lastMessagePreview?: string;
+  unreadCounts: Record<string, number>;
   deletedFor: ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -416,13 +418,15 @@ const conversationSchema = new Schema<Conversation>(
   {
     participantIds: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
     lastMessageAt: { type: Date, index: true },
+    lastMessagePreview: { type: String },
+    unreadCounts: { type: Map, of: Number, default: {} },
     deletedFor: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'conversations' },
 );
 
-conversationSchema.index({ participantIds: 1 });
+conversationSchema.index({ participantIds: 1 }, { unique: true });
 
 export interface MobileOtp {
   userId: ObjectId;
@@ -1275,6 +1279,32 @@ export const VerificationDocumentModel = getOrCreateModel<VerificationDocument>(
   verificationDocumentSchema,
 );
 export const InterestModel = getOrCreateModel<Interest>('Interest', interestSchema);
+
+export interface MonthlyInterestCounter {
+  userId: ObjectId;
+  monthYYYYMM: string;
+  count: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const monthlyInterestCounterSchema = new Schema<MonthlyInterestCounter>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    monthYYYYMM: { type: String, required: true },
+    count: { type: Number, default: 0, required: true },
+  },
+  { ...timestampedSchemaOptions, collection: 'monthly_interest_counters' }
+);
+
+monthlyInterestCounterSchema.index({ userId: 1, monthYYYYMM: 1 }, { unique: true });
+
+export type MonthlyInterestCounterDocument = HydratedDocument<MonthlyInterestCounter>;
+export const MonthlyInterestCounterModel = getOrCreateModel<MonthlyInterestCounter>(
+  'MonthlyInterestCounter',
+  monthlyInterestCounterSchema
+);
+
 export const FavouriteModel = getOrCreateModel<UserPair>('Favourite', favouriteSchema);
 export const BlockModel = getOrCreateModel<UserPair>('Block', blockSchema);
 export const HiddenProfileModel = getOrCreateModel<HiddenProfile>(
@@ -1382,6 +1412,7 @@ export const phaseOneSchemas = {
   verificationRequestSchema,
   verificationDocumentSchema,
   interestSchema,
+  monthlyInterestCounterSchema,
   favouriteSchema,
   blockSchema,
   hiddenProfileSchema,
@@ -1433,6 +1464,7 @@ export const phaseOneModels = [
   VerificationRequestModel,
   VerificationDocumentModel,
   InterestModel,
+  MonthlyInterestCounterModel,
   FavouriteModel,
   BlockModel,
   HiddenProfileModel,

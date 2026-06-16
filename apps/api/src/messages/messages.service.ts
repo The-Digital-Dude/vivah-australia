@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {
   InterestStatus,
   MediaUploadStatus,
+  ProfileVisibility,
   type MessageAttachmentCompleteUploadInput,
   type MessageAttachmentSignUploadInput,
   type MessageCreateInput,
@@ -15,6 +16,8 @@ import {
   InterestModel,
   MessageAttachmentModel,
   MessageModel,
+  NotificationModel,
+  ProfileApprovalStatus,
   ProfileModel,
 } from '../models/index.js';
 import type { ConversationDocument, MessageDocument } from '../models/phase-one.models.js';
@@ -81,6 +84,19 @@ async function assertNoBlock(userId: Types.ObjectId, otherUserId: Types.ObjectId
   }
 }
 
+async function assertActiveProfile(userId: Types.ObjectId) {
+  const profile = await ProfileModel.findOne({
+    userId,
+    isDeleted: false,
+    'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+    'visibility.status': { $in: [ProfileVisibility.PUBLIC, ProfileVisibility.MEMBERS_ONLY] },
+  });
+
+  if (!profile) {
+    throw new HttpError(403, 'This member is currently not available for messaging');
+  }
+}
+
 function otherParticipant(participantIds: Types.ObjectId[], userId: Types.ObjectId) {
   return participantIds.find((participantId) => !participantId.equals(userId));
 }
@@ -136,7 +152,7 @@ async function getOwnMessageAttachmentOrFail(userId: Types.ObjectId, attachmentI
   return attachment;
 }
 
-export async function getConversationForUser(userId: Types.ObjectId, conversationId: string) {
+export async function getConversationForUser(userId: Types.ObjectId, conversationId: string, assertWriteAllowed = true) {
   if (!Types.ObjectId.isValid(conversationId)) {
     throw new HttpError(404, 'Conversation not found');
   }
@@ -157,51 +173,24 @@ export async function getConversationForUser(userId: Types.ObjectId, conversatio
     throw new HttpError(404, 'Conversation not found');
   }
 
-  await assertNoBlock(userId, otherUserId);
+  if (assertWriteAllowed) {
+    await assertNoBlock(userId, otherUserId);
+    await assertActiveProfile(otherUserId);
+  }
+  
   return conversation;
 }
 
-export async function createOrGetConversation(userId: Types.ObjectId, profileId: string) {
-  if (!Types.ObjectId.isValid(profileId)) {
-    throw new HttpError(404, 'Profile not found');
-  }
-
-  const profile = await ProfileModel.findOne({ _id: profileId, isDeleted: false });
-  if (!profile) {
-    throw new HttpError(404, 'Profile not found');
-  }
-
-  if (profile.userId.equals(userId)) {
-    throw new HttpError(400, 'Cannot message your own profile');
-  }
-
-  await assertNoBlock(userId, profile.userId);
-  await assertAcceptedInterest(userId, profile.userId);
-
-  const existing = await ConversationModel.findOne({
-    participantIds: { $all: [userId, profile.userId] },
-    isDeleted: false,
-  });
-
-  if (existing) {
-    existing.deletedFor = existing.deletedFor.filter(
-      (deletedUserId) => !deletedUserId.equals(userId),
-    );
-    await existing.save();
-    return await publicConversation(existing, userId);
-  }
-
-  const conversation = await ConversationModel.create({
-    participantIds: [userId, profile.userId],
-    deletedFor: [],
-  });
-  return await publicConversation(conversation, userId);
-}
 
 export async function createSignedMessageAttachmentUpload(
   userId: Types.ObjectId,
   input: MessageAttachmentSignUploadInput,
 ) {
+  const maxSize = input.attachmentType === 'IMAGE' ? 10 * 1024 * 1024 : 25 * 1024 * 1024;
+  if (input.fileSizeBytes > maxSize) {
+    throw new HttpError(400, `File size exceeds the limit of ${maxSize / (1024 * 1024)}MB`);
+  }
+
   const storageKey = attachmentStorageKeyFor(userId, input.attachmentType);
   const cloudinary = cloudinaryConfig();
   const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
@@ -271,10 +260,19 @@ export async function completeMessageAttachmentUpload(
   input: MessageAttachmentCompleteUploadInput,
 ) {
   const attachment = await getOwnMessageAttachmentOrFail(userId, input.attachmentId);
-  attachment.assetUrl = input.assetUrl;
-  if (input.storageKey) {
-    attachment.storageKey = input.storageKey;
+  const cloudinary = cloudinaryConfig();
+
+  if (cloudinary) {
+    if (!input.assetUrl.startsWith(`https://res.cloudinary.com/${cloudinary.cloudName}/`) || !input.assetUrl.includes(String(attachment.storageKey))) {
+      throw new HttpError(400, 'Invalid attachment asset URL');
+    }
+  } else {
+    if (!input.assetUrl.startsWith(`${LOCAL_UPLOAD_BASE_URL}/api/mock-storage/`) || !input.assetUrl.includes(String(attachment.storageKey))) {
+      throw new HttpError(400, 'Invalid attachment asset URL');
+    }
   }
+
+  attachment.assetUrl = input.assetUrl;
   attachment.uploadStatus = MediaUploadStatus.UPLOADED;
   attachment.fileSizeBytes = input.bytes ?? attachment.fileSizeBytes;
   await attachment.save();
@@ -327,6 +325,8 @@ export async function sendMessage(
   });
 
   conversation.lastMessageAt = new Date();
+  conversation.lastMessagePreview = input.body ? (input.body.length > 50 ? `${input.body.slice(0, 47)}...` : input.body) : 'Sent an attachment';
+  conversation.set(`unreadCounts.${otherUserId}`, (conversation.get(`unreadCounts.${otherUserId}`) || 0) + 1);
   conversation.deletedFor = [];
   await conversation.save();
 
@@ -338,6 +338,17 @@ export async function sendMessage(
 
   if (sentThisHour >= 50) {
     await recordUnusualMessageVolume(userId, sentThisHour);
+    throw new HttpError(429, 'Rate limit exceeded. Please try again later.');
+  }
+
+  const lastNotif = await NotificationModel.findOne({ userId: otherUserId, type: 'NEW_MESSAGE' }).sort({ createdAt: -1 });
+  if (!lastNotif || Date.now() - lastNotif.createdAt.getTime() > 60 * 60 * 1000) {
+    await NotificationModel.create({
+      userId: otherUserId,
+      type: 'NEW_MESSAGE',
+      title: 'New message received',
+      body: 'You have received a new message.',
+    });
   }
 
   await message.populate('attachmentIds');
@@ -354,21 +365,28 @@ export async function listConversations(userId: Types.ObjectId) {
   return Promise.all(conversations.map((conversation) => publicConversation(conversation, userId)));
 }
 
-export async function listMessages(userId: Types.ObjectId, conversationId: string) {
-  const conversation = await getConversationForUser(userId, conversationId);
-  const messages = await MessageModel.find({
+export async function listMessages(userId: Types.ObjectId, conversationId: string, limit = 50, beforeDate?: string) {
+  const conversation = await getConversationForUser(userId, conversationId, false);
+  const filter: any = {
     conversationId: conversation._id,
     isDeleted: false,
     deletedFor: { $ne: userId },
-  })
-    .sort({ createdAt: 1 })
+  };
+  if (beforeDate) {
+    filter.createdAt = { $lt: new Date(beforeDate) };
+  }
+  const messages = await MessageModel.find(filter)
+    .sort({ createdAt: -1 })
+    .limit(limit)
     .populate('attachmentIds');
 
-  return messages.map((message) => publicMessage(message, userId));
+  return messages.map((message) => publicMessage(message, userId)).reverse();
 }
 
 export async function markConversationRead(userId: Types.ObjectId, conversationId: string) {
-  const conversation = await getConversationForUser(userId, conversationId);
+  const conversation = await getConversationForUser(userId, conversationId, false);
+  conversation.set(`unreadCounts.${userId}`, 0);
+  await conversation.save();
   await MessageModel.updateMany(
     {
       conversationId: conversation._id,
@@ -382,11 +400,8 @@ export async function markConversationRead(userId: Types.ObjectId, conversationI
 }
 
 export async function deleteConversationForUser(userId: Types.ObjectId, conversationId: string) {
-  const conversation = await getConversationForUser(userId, conversationId);
-  conversation.deletedFor = Array.from(
-    new Map([...conversation.deletedFor, userId].map((id) => [String(id), id])).values(),
-  );
-  await conversation.save();
+  const conversation = await getConversationForUser(userId, conversationId, false);
+  await ConversationModel.updateOne({ _id: conversation._id }, { $addToSet: { deletedFor: userId } });
 }
 
 export async function deleteMessageForUser(userId: Types.ObjectId, messageId: string) {
@@ -399,11 +414,8 @@ export async function deleteMessageForUser(userId: Types.ObjectId, messageId: st
     throw new HttpError(404, 'Message not found');
   }
 
-  await getConversationForUser(userId, String(message.conversationId));
-  message.deletedFor = Array.from(
-    new Map([...message.deletedFor, userId].map((id) => [String(id), id])).values(),
-  );
-  await message.save();
+  await getConversationForUser(userId, String(message.conversationId), false);
+  await MessageModel.updateOne({ _id: message._id }, { $addToSet: { deletedFor: userId } });
 }
 
 async function publicConversation(conversation: ConversationDocument, userId: Types.ObjectId) {
@@ -424,6 +436,8 @@ async function publicConversation(conversation: ConversationDocument, userId: Ty
         }
       : undefined,
     lastMessageAt: conversation.lastMessageAt,
+    lastMessagePreview: conversation.lastMessagePreview,
+    unreadCount: conversation.get(`unreadCounts.${userId}`) || 0,
     updatedAt: conversation.updatedAt,
   };
 }

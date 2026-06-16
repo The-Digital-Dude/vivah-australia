@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { AlertTriangle, Ban, CheckCircle2, Flag, Heart, Send, ShieldAlert, X } from 'lucide-react';
+import { AlertTriangle, Ban, CheckCircle2, Flag, Heart, Send, ShieldAlert, X, MessageCircle, Undo2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { reportCreateSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 
 interface InteractionStatus {
   interestStatus: 'PENDING' | 'ACCEPTED' | 'DECLINED' | null;
   interestId: string | null;
+  isSender: boolean;
   isFavourited: boolean;
   isHidden: boolean;
 }
@@ -19,6 +21,7 @@ export default function ProfileActions({
   stacked = false,
   onProfileHidden,
 }: Readonly<{ profileId: string; compact?: boolean; stacked?: boolean; onProfileHidden?: () => void }>) {
+  const router = useRouter();
   const memberRequest = useMemberRequest();
   const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
@@ -56,7 +59,30 @@ export default function ProfileActions({
   async function sendInterest() {
     const result = await action('interest', '/api/interests', { profileId });
     if (result.ok) {
-      setStatus((prev) => prev ? { ...prev, interestStatus: 'PENDING', interestId: (result.data as { interest?: { id?: string } })?.interest?.id ?? null } : prev);
+      setStatus((prev) => prev ? { ...prev, interestStatus: 'PENDING', isSender: true, interestId: (result.data as { interest?: { id?: string } })?.interest?.id ?? null } : prev);
+    }
+  }
+
+  async function withdrawInterest() {
+    if (!status?.interestId) return;
+    const result = await action('withdraw', `/api/interests/${status.interestId}`, { action: 'WITHDRAW' }, 'PATCH');
+    if (result.ok) {
+      setStatus((prev) => prev ? { ...prev, interestStatus: 'WITHDRAWN' as any } : prev);
+    }
+  }
+
+  async function openMessage() {
+    setPending('message');
+    setFeedback(null);
+    const result = await memberRequest('/api/me/conversations', {
+      method: 'POST',
+      body: { profileId }
+    });
+    if (result.ok) {
+      router.push(`/member/messages/${(result.data as any).conversation.id}`);
+    } else {
+      setPending(null);
+      setFeedback({ message: result.message ?? 'Failed to open conversation', tone: 'error' });
     }
   }
 
@@ -112,19 +138,32 @@ export default function ProfileActions({
     <div className="grid gap-2">
       <div className="grid gap-2">
         <div className={compact ? 'flex flex-wrap gap-2' : stacked ? 'grid gap-2' : 'grid grid-cols-2 gap-2'}>
-          <ActionButton
-            label={
-              pending === 'interest' ? 'Sending…'
-              : interestAccepted ? 'Accepted'
-              : interestSent ? 'Interest Sent'
-              : 'Interest'
-            }
-            icon={<Send className="size-3.5" />}
-            onClick={() => void sendInterest()}
-            disabled={interestSent || interestAccepted}
-            active={interestAccepted}
-            fullWidth={stacked}
-          />
+          {interestAccepted ? (
+            <ActionButton
+              label={pending === 'message' ? 'Opening…' : 'Message'}
+              icon={<MessageCircle className="size-3.5" />}
+              onClick={() => void openMessage()}
+              active={true}
+              fullWidth={stacked}
+            />
+          ) : interestSent && status?.isSender ? (
+            <ActionButton
+              label={pending === 'withdraw' ? 'Withdrawing…' : 'Withdraw'}
+              icon={<Undo2 className="size-3.5" />}
+              onClick={() => void withdrawInterest()}
+              variant="safety"
+              fullWidth={stacked}
+            />
+          ) : (
+            <ActionButton
+              label={pending === 'interest' ? 'Sending…' : interestSent ? 'Interest Sent' : 'Interest'}
+              icon={<Send className="size-3.5" />}
+              onClick={() => void sendInterest()}
+              disabled={interestSent}
+              active={false}
+              fullWidth={stacked}
+            />
+          )}
           <ActionButton
             label={pending === 'favourite' ? (isFavourited ? 'Removing…' : 'Saving…') : isFavourited ? 'Saved' : 'Save'}
             icon={<Heart className={`size-3.5 ${isFavourited ? 'fill-current' : ''}`} />}

@@ -190,3 +190,32 @@ Live local checks also passed for:
 2. Expand broader frontend/component and deep E2E coverage.
 3. Add frontend test coverage for the expanded `/admin/cms` editor and future visual CMS layout controls.
 4. Add CI/CD and frontend/E2E tests once the next user-facing workflows are complete.
+
+ 
+ # #   2 0 2 6 - 0 6 - 1 6   C o d e b a s e   A u d i t   U p d a t e s 
+ 
+ T h i s   s e c t i o n   w a s   g e n e r a t e d   b y   a n   a u t o m a t e d   a u d i t   o f   t h e   c o d e b a s e   a g a i n s t   t h e   p r o j e c t   t a s k l i s t . 
+ 
+ # # #   N e w l y   C o m p l e t e d   /   I d e n t i f i e d   T a s k s 
+ -   * * A U T H - 0 0 3   S o c i a l   L o g i n * * :   P a r t i a l l y   c o m p l e t e d .   B a c k e n d   s e r v i c e   \ o a u t h . s e r v i c e . t s \   e x i s t s   w i t h   m o c k   v e r i f i e r s   f o r   G o o g l e ,   F a c e b o o k ,   a n d   A p p l e .   F r o n t e n d   \ l o g i n / p a g e . t s x \   h a s   m o c k   b u t t o n s .   * * G a p : * *   R e q u i r e s   i n t e g r a t i o n   w i t h   r e a l   I d e n t i t y   P r o v i d e r s   ( e . g . ,   G o o g l e   O A u t h   c l i e n t ,   A p p l e   S i g n   I n )   a n d   p r o p e r   t o k e n   g e n e r a t i o n . 
+ -   * * C O M M U N I T Y - 0 0 1   R o o m s   &   C O M M U N I T Y - 0 0 2   P o s t s * * :   F o u n d   f u l l y   i m p l e m e n t e d   i n   b o t h   b a c k e n d   ( \  p p s / a p i / s r c / c o m m u n i t y \ )   a n d   f r o n t e n d   a d m i n / m e m b e r   i n t e r f a c e s . 
+ -   * * F r o n t e n d   R o u t i n g   S t a b i l i t y * * :   A l l   v e r i f i e d   f r o n t e n d   r o u t e s   s u c c e s s f u l l y   r e n d e r   w i t h o u t   r u n t i m e   e r r o r s   i n   l o c a l   p r o b e   t e s t s . 
+ 
+ # # #   R e m a i n i n g   T a s k s   ( I n c o m p l e t e ) 
+ -   * * M E D I A - 0 0 2   V i d e o   I n t r o d u c t i o n   U p l o a d * * :   N o   b a c k e n d   s e r v i c e   o r   f r o n t e n d   c o m p o n e n t   e x i s t s   f o r   v i d e o   p r o c e s s i n g . 
+ -   * * V E R I F Y - 0 0 3   E x t e r n a l   P r o v i d e r   E x t e n s i o n * * :   T h e   p r o v i d e r   i n t e r f a c e s   e x i s t ,   b u t   n o   r e a l   i m p l e m e n t a t i o n   f o r   I D   v e r i f i c a t i o n / F a c i a l   r e c o g n i t i o n   ( e . g . ,   S t r i p e   I d e n t i t y ,   V e r i f f )   i s   i m p l e m e n t e d . 
+ -   * * T E S T - 0 0 4   B r o a d e r   E 2 E   M a t r i x * * :   P l a y w r i g h t   c o n f i g s   e x i s t   b u t   t e s t s   a r e   m i n i m a l . 
+ -   * * D E V O P S - 0 0 1   t h r o u g h   0 0 4 * * :   D e p l o y m e n t   p i p e l i n e s ,   a u t o m a t e d   b a c k u p s ,   a n d   a d v a n c e d   l o g g i n g / m o n i t o r i n g   a r e   d e f e r r e d . 
+ 
+ # # #   M i s s i n g   &   G a p s   ( C o d e b a s e   A u d i t ) 
+ -   * * E m a i l / S M S   P r o d u c t i o n   I n t e g r a t i o n * * :   \ N O T I F - 0 0 2 \   a n d   \ N O T I F - 0 0 3 \   r e l y   o n   c o n s o l e   m o c k s .   N e e d s   S e n d G r i d / M a i l g u n   a n d   T w i l i o   c o n f i g u r a t i o n . 
+ -   * * P a y m e n t   V e r i f i c a t i o n * * :   S t r i p e   i n t e g r a t i o n   i s   p r e s e n t   b u t   l a c k s   e d g e - c a s e   h a n d l i n g   f o r   f a i l e d   p a y m e n t s   o r   a l t e r n a t i v e   w a l l e t s   l i k e   P a y P a l   ( \ P A Y - 0 0 3 \ ) . 
+ -   * * P r o f i l e   M o d e r a t i o n   D i f f * * :   A d m i n   p a n e l   l a c k s   a   v i s u a l   d i f f   t o o l   f o r   p r o f i l e   u p d a t e s   ( \ A D M I N - 0 0 3 \ ) . 
+ -   * * P u s h   N o t i f i c a t i o n s * * :   \ N O T I F - 0 0 4 \   h a s   p l a c e h o l d e r   p r o v i d e r   a b s t r a c t i o n   b u t   l a c k s   b r o w s e r   s e r v i c e   w o r k e r   i n t e g r a t i o n . 
+ 
+ # # #   N e x t   S t e p s   R e c o m m e n d a t i o n 
+ 1 .   R e p l a c e   m o c k   S o c i a l   L o g i n   t o k e n s   w i t h   r e a l   S D K s   ( G o o g l e   I d e n t i t y   S e r v i c e s ) . 
+ 2 .   W i r e   u p   t r a n s a c t i o n a l   e m a i l   a n d   S M S   p r o v i d e r s . 
+ 3 .   I m p l e m e n t   V i d e o   I n t r o   u p l o a d s   u s i n g   C l o u d i n a r y   v i d e o   t r a n s f o r m a t i o n s . 
+  
+ 

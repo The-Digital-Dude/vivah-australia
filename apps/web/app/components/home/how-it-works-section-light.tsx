@@ -89,7 +89,7 @@ export function HowItWorksSection() {
           {steps.map(({ title, description, icon: Icon }, index) => (
             <FadeInAnimation key={title} index={index}>
               <article className="group relative flex min-h-[250px] flex-col items-center justify-center rounded-2xl border border-[#D9A05B]/30 bg-gradient-to-br from-white to-[#FDFBF7] px-6 py-10 text-center shadow-[0_20px_50px_rgba(217,160,91,0.1)] hover:-translate-y-2 transition duration-500">
-                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#D9A05B] to-[#C48C45] text-sm font-bold text-white shadow-[0_8px_20px_rgba(217,160,91,0.3)] border border-[#D9A05B]/30">
+                <span className="absolute left-6 top-6 flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#B8803A] to-[#C48C45] text-sm font-bold text-white shadow-[0_8px_20px_rgba(217,160,91,0.3)] border border-[#D9A05B]/30">
                   {index + 1}
                 </span>
 

@@ -8,8 +8,8 @@ import { Router, type NextFunction, type Request, type Response } from 'express'
 import { HttpError } from '../auth/auth-errors.js';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
+import { rateLimit } from 'express-rate-limit';
 import {
-  createOrGetConversation,
   createSignedMessageAttachmentUpload,
   deleteConversationForUser,
   deleteMessageForUser,
@@ -71,16 +71,6 @@ export function createMessagesRouter(config: AuthConfig): Router {
     }),
   );
 
-  router.post(
-    '/me/conversations',
-    requireAuth(config),
-    asyncHandler(async (request: AuthenticatedRequest, response) => {
-      const auth = requireRequestAuth(request);
-      const input = conversationCreateSchema.parse(request.body);
-      const conversation = await createOrGetConversation(auth.userId, input.profileId);
-      response.status(201).json({ conversation });
-    }),
-  );
 
   router.delete(
     '/me/conversations/:id',
@@ -109,14 +99,24 @@ export function createMessagesRouter(config: AuthConfig): Router {
         throw new HttpError(404, 'Conversation not found');
       }
 
-      const messages = await listMessages(auth.userId, conversationId);
+      const limit = request.query.limit ? parseInt(String(request.query.limit), 10) : 50;
+      const beforeDate = typeof request.query.beforeDate === 'string' ? request.query.beforeDate : undefined;
+
+      const messages = await listMessages(auth.userId, conversationId, limit, beforeDate);
       response.status(200).json({ messages });
     }),
   );
 
+  const messageRateLimit = rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    message: { message: 'Too many requests. Please try again later.' },
+  });
+
   router.post(
     '/me/conversations/:id/messages',
     requireAuth(config),
+    messageRateLimit,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const conversationId = request.params.id;
@@ -127,7 +127,7 @@ export function createMessagesRouter(config: AuthConfig): Router {
 
       const input = messageCreateSchema.parse(request.body);
       const message = await sendMessage(auth.userId, conversationId, input);
-      response.status(201).json({ message });
+      response.status(201).json({ message: 'Message sent successfully', data: message });
     }),
   );
 

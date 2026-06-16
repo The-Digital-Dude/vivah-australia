@@ -5,7 +5,7 @@ import {
   SubscriptionStatus,
   type ReportStatus as ReportStatusType,
 } from '@vivah/shared';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { recordRepeatedReports, syncReportedUserRiskCounter } from '../common/fraud.service.js';
 import {
@@ -16,6 +16,7 @@ import {
   HiddenProfileModel,
   NotificationModel,
   PlanModel,
+  MonthlyInterestCounterModel,
   ProfileApprovalStatus,
   ProfileModel,
   ReportModel,
@@ -171,14 +172,28 @@ export async function sendInterest(userId: Types.ObjectId, profileId: string) {
     throw new HttpError(409, 'Interest already exists');
   }
 
-  const limit = await interestLimitFor(userId);
-  const sentThisMonth = await InterestModel.countDocuments({
-    senderId: userId,
-    createdAt: { $gte: monthStart() },
+  const reverseInterest = await InterestModel.findOne({
+    senderId: profile.userId,
+    receiverId: userId,
+    status: InterestStatus.PENDING,
     isDeleted: false,
   });
 
-  if (sentThisMonth >= limit) {
+  if (reverseInterest) {
+    return respondToInterest(userId, String(reverseInterest._id), 'ACCEPT');
+  }
+
+  const limit = await interestLimitFor(userId);
+  const nowStr = monthStart().toISOString().substring(0, 7);
+  
+  const counter = await MonthlyInterestCounterModel.findOneAndUpdate(
+    { userId, monthYYYYMM: nowStr },
+    { $inc: { count: 1 } },
+    { new: true, upsert: true }
+  );
+
+  if (counter.count > limit) {
+    await MonthlyInterestCounterModel.updateOne({ _id: counter._id }, { $inc: { count: -1 } });
     throw new HttpError(403, 'Monthly interest limit reached');
   }
 
@@ -226,6 +241,13 @@ export async function respondToInterest(
     interest.status = InterestStatus.WITHDRAWN;
     interest.respondedAt = new Date();
     await interest.save();
+    
+    const monthStr = new Date(interest.createdAt).toISOString().substring(0, 7);
+    await MonthlyInterestCounterModel.updateOne(
+      { userId: interest.senderId, monthYYYYMM: monthStr },
+      { $inc: { count: -1 } }
+    );
+    
     await notify(interest.receiverId, 'INTEREST_WITHDRAWN', 'Interest withdrawn');
     return publicInterest(interest);
   }
@@ -238,21 +260,38 @@ export async function respondToInterest(
     throw new HttpError(400, 'Only pending interests can be updated');
   }
 
-  interest.status = action === 'ACCEPT' ? InterestStatus.ACCEPTED : InterestStatus.REJECTED;
-  interest.respondedAt = new Date();
-  await interest.save();
-
   if (action === 'ACCEPT') {
-    const existingConversation = await ConversationModel.findOne({
-      participantIds: { $all: [interest.senderId, interest.receiverId] },
-      isDeleted: false,
-    });
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
 
-    if (!existingConversation) {
-      await ConversationModel.create({
-        participantIds: [interest.senderId, interest.receiverId],
-      });
+      interest.status = InterestStatus.ACCEPTED;
+      interest.respondedAt = new Date();
+      await interest.save({ session });
+
+      const existingConversation = await ConversationModel.findOne({
+        participantIds: { $all: [interest.senderId, interest.receiverId] },
+        isDeleted: false,
+      }).session(session);
+
+      if (!existingConversation) {
+        const pIds = [String(interest.senderId), String(interest.receiverId)].sort();
+        await ConversationModel.create([{
+          participantIds: pIds,
+        }], { session });
+      }
+
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      await session.endSession();
     }
+  } else {
+    interest.status = InterestStatus.REJECTED;
+    interest.respondedAt = new Date();
+    await interest.save();
   }
 
   await notify(
@@ -264,13 +303,40 @@ export async function respondToInterest(
   return publicInterest(interest);
 }
 
-export async function listInterests(userId: Types.ObjectId, box: 'sent' | 'received') {
+export async function listInterests(userId: Types.ObjectId, box: 'sent' | 'received', page = 1, limit = 20) {
   const filter =
     box === 'sent'
       ? { senderId: userId, isDeleted: false }
       : { receiverId: userId, isDeleted: false };
-  const interests = await InterestModel.find(filter).sort({ createdAt: -1 });
-  return Promise.all(interests.map((interest) => publicInterest(interest)));
+      
+  const skip = (page - 1) * limit;
+  const [interests, total] = await Promise.all([
+    InterestModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    InterestModel.countDocuments(filter)
+  ]);
+  
+  const mapped = await Promise.all(interests.map((interest) => publicInterest(interest)));
+  return {
+    interests: mapped,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit)
+  };
+}
+
+export async function getInterest(userId: Types.ObjectId, interestId: string) {
+  assertObjectId(interestId, 'Interest not found');
+  const interest = await InterestModel.findOne({
+    _id: interestId,
+    isDeleted: false,
+    $or: [{ senderId: userId }, { receiverId: userId }],
+  });
+
+  if (!interest) {
+    throw new HttpError(404, 'Interest not found');
+  }
+
+  return publicInterest(interest);
 }
 
 export async function addFavourite(userId: Types.ObjectId, profileId: string) {
@@ -325,7 +391,13 @@ export async function getInteractionStatus(userId: Types.ObjectId, profileId: st
   }
 
   const [interest, favourite, hidden] = await Promise.all([
-    InterestModel.findOne({ senderId: userId, receiverId: profile.userId, isDeleted: false }),
+    InterestModel.findOne({
+      $or: [
+        { senderId: userId, receiverId: profile.userId },
+        { senderId: profile.userId, receiverId: userId }
+      ],
+      isDeleted: false
+    }),
     FavouriteModel.findOne({ userId, profileId: profile._id, isDeleted: false }),
     HiddenProfileModel.findOne({ userId, profileId: profile._id, isDeleted: false }),
   ]);
@@ -333,6 +405,7 @@ export async function getInteractionStatus(userId: Types.ObjectId, profileId: st
   return {
     interestStatus: interest?.status ?? null,
     interestId: interest ? String(interest._id) : null,
+    isSender: interest ? interest.senderId.equals(userId) : false,
     isFavourited: Boolean(favourite),
     isHidden: Boolean(hidden),
   };

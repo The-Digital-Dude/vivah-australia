@@ -30,12 +30,20 @@ export async function postAuth(
   const data = (await response.json()) as {
     message?: string;
     data?: { accessToken?: string; refreshToken?: string; [key: string]: unknown };
+    issues?: Array<{ message: string }>;
     [key: string]: unknown;
   };
 
+  let errorMessage = data.message ?? (response.ok ? 'Done' : 'Request failed');
+  
+  if (data.issues && Array.isArray(data.issues)) {
+    const issuesList = data.issues.map((i) => i.message).join(', ');
+    errorMessage = `${errorMessage}: ${issuesList}`;
+  }
+
   return {
     ok: response.ok,
-    message: data.message ?? (response.ok ? 'Done' : 'Request failed'),
+    message: errorMessage,
     data: data.data ?? data,
   };
 }

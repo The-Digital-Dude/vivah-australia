@@ -15,6 +15,7 @@ import {
   addFavourite,
   blockProfile,
   createReport,
+  getInterest,
   getInteractionStatus,
   hideProfile,
   listBlocks,
@@ -78,8 +79,24 @@ export function createInteractionsRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const input = interestListQuerySchema.parse(request.query);
-      const interests = await listInterests(auth.userId, input.box);
-      response.status(200).json({ interests });
+      const result = await listInterests(auth.userId, input.box, input.page, input.limit);
+      response.status(200).json(result);
+    }),
+  );
+
+  router.get(
+    '/interests/:id',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const interestId = request.params.id;
+      
+      if (!interestId) {
+        throw new HttpError(404, 'Interest not found');
+      }
+
+      const interest = await getInterest(auth.userId, interestId);
+      response.status(200).json({ interest });
     }),
   );
 

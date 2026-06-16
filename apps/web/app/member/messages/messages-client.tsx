@@ -39,6 +39,8 @@ interface Conversation {
     occupation?: string;
   };
   lastMessageAt?: string;
+  lastMessagePreview?: string;
+  unreadCount?: number;
 }
 
 interface Message {
@@ -131,6 +133,14 @@ export default function MessagesClient() {
   const [typing, setTyping] = useState<string | null>(null);
   const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [writeLocked, setWriteLocked] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+
+  const selectedRef = useRef<Conversation | null>(null);
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
 
   const selectedProfileId = selected?.otherProfile?.id;
   const currentUserId = useMemo(() => getUserIdFromToken(token), [token]);
@@ -146,14 +156,27 @@ export default function MessagesClient() {
     setSelected((current) => current ?? items[0] ?? null);
   }
 
-  async function loadMessages(conversationId: string) {
-    const result = await memberRequest(`/api/me/conversations/${conversationId}/messages`);
+  async function loadMessages(conversationId: string, pageNum = 1, append = false) {
+    const limit = 50;
+    const result = await memberRequest(`/api/me/conversations/${conversationId}/messages?limit=${limit * pageNum}`);
     if (!result.ok) {
+      if (result.status === 403) setWriteLocked(true);
       setMessage(result.message);
       return;
     }
-    setMessages((result.data as { messages?: Message[] }).messages ?? []);
+    setWriteLocked(false);
+    const newMessages = (result.data as { messages?: Message[] }).messages ?? [];
+    setMessages(newMessages);
+    setHasMore(newMessages.length >= limit * pageNum);
     await memberRequest(`/api/me/conversations/${conversationId}/read`, { method: 'POST' });
+    void loadConversations();
+  }
+
+  async function loadMoreMessages() {
+    if (!selected) return;
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await loadMessages(selected.id, nextPage, true);
   }
 
   useEffect(() => {
@@ -164,11 +187,17 @@ export default function MessagesClient() {
     if (!selected) {
       return;
     }
-    void loadMessages(selected.id);
+    setPage(1);
+    setHasMore(false);
+    setWriteLocked(false);
+    void loadMessages(selected.id, 1);
+    if (socketRef.current) {
+      socketRef.current.emit('conversation:join', { conversationId: selected.id });
+    }
   }, [selected?.id]);
 
   useEffect(() => {
-    if (!token || !selected) {
+    if (!token) {
       return;
     }
 
@@ -177,28 +206,39 @@ export default function MessagesClient() {
       transports: ['websocket'],
     });
     socketRef.current = socket;
-    socket.emit('conversation:join', { conversationId: selected.id });
+
     socket.on('message:new', (incoming: Message) => {
-      if (incoming.conversationId === selected.id) {
+      if (selectedRef.current?.id === incoming.conversationId) {
         setMessages((current) =>
           current.some((item) => item.id === incoming.id) ? current : [...current, incoming],
         );
+        void memberRequest(`/api/me/conversations/${incoming.conversationId}/read`, { method: 'POST' });
       }
+      void loadConversations();
     });
+
+    let typingTimer: NodeJS.Timeout;
     socket.on('typing', (event: { conversationId: string; typing: boolean }) => {
-      if (event.conversationId === selected.id) {
+      if (event.conversationId === selectedRef.current?.id) {
         setTyping(event.typing ? 'Typing...' : null);
+        clearTimeout(typingTimer);
+        if (event.typing) {
+          typingTimer = setTimeout(() => setTyping(null), 3000);
+        }
       }
     });
+
     socket.on('message:read', () => {
-      void loadMessages(selected.id);
+      if (selectedRef.current?.id) {
+        void loadMessages(selectedRef.current.id, page);
+      }
     });
 
     return () => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [selected?.id, token]);
+  }, [token]);
 
   useEffect(() => {
     if (!messageListRef.current) return;
@@ -255,11 +295,18 @@ export default function MessagesClient() {
       method: 'POST',
       body: parsed.data,
     });
+    
+    if (result.status === 403) {
+      setWriteLocked(true);
+      setMessage('You cannot reply to this conversation.');
+      return;
+    }
+    
     setMessage(result.message);
     if (result.ok) {
       formEl.reset();
       setPendingAttachments([]);
-      await loadMessages(selected.id);
+      await loadMessages(selected.id, page);
       socketRef.current?.emit('message:read', { conversationId: selected.id });
     }
   }
@@ -450,12 +497,19 @@ export default function MessagesClient() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-[#232323] truncate">{name}</p>
-                        <span className="shrink-0 text-xs font-medium text-[#8B8B8B]">
-                          {formatRelativeTime(conversation.lastMessageAt)}
-                        </span>
+                        <p className={cx("font-semibold truncate", conversation.unreadCount ? "text-[#A10E4D]" : "text-[#232323]")}>{name}</p>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <span className="text-[10px] font-medium text-[#8B8B8B]">
+                            {formatRelativeTime(conversation.lastMessageAt)}
+                          </span>
+                          {conversation.unreadCount ? (
+                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#A10E4D] text-[9px] font-bold text-white">
+                              {conversation.unreadCount}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
-                      <p className="mt-0.5 text-sm text-[#5E6470] truncate">{meta || 'Australia'}</p>
+                      <p className="mt-0.5 text-xs text-[#5E6470] truncate">{conversation.lastMessagePreview || meta || 'Australia'}</p>
                       <div className="mt-2 flex items-center gap-1.5 text-xs text-[#6B7280]">
                         <Circle className="size-2 fill-[#1F6F4A] text-[#1F6F4A]" />
                         Active
@@ -531,6 +585,17 @@ export default function MessagesClient() {
             ref={messageListRef}
             className="grid max-h-[620px] gap-4 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] px-5 py-5 sm:px-6"
           >
+            {hasMore ? (
+              <div className="text-center py-2">
+                <button 
+                  onClick={() => void loadMoreMessages()}
+                  className="text-xs font-semibold text-[#A10E4D] hover:underline"
+                >
+                  Load previous messages
+                </button>
+              </div>
+            ) : null}
+
             {messages.map((item) => {
               const isMine = currentUserId != null && item.senderId === currentUserId;
               const otherInitial = (selected?.otherProfile?.firstName ?? 'V').slice(0, 1);
@@ -642,7 +707,13 @@ export default function MessagesClient() {
                 </div>
               ) : null}
 
-              <form className="flex items-end gap-3" onSubmit={(event) => void sendMessage(event)}>
+              {writeLocked ? (
+                <div className="flex items-center justify-center rounded-[20px] border border-[#E8D5D8] bg-[#FFF0F3] px-4 py-4 text-sm font-semibold text-[#A10E4D]">
+                  <ShieldCheck className="mr-2 size-4" />
+                  Messaging is currently unavailable for this conversation.
+                </div>
+              ) : (
+                <form className="flex items-end gap-3" onSubmit={(event) => void sendMessage(event)}>
                 <div className="flex-1">
                   <textarea
                     name="body"
@@ -679,6 +750,7 @@ export default function MessagesClient() {
                   </label>
                 </div>
               </form>
+              )}
 
               {uploadingAttachment ? (
                 <p className="mt-2 flex items-center gap-2 text-xs text-[#6B7280]">

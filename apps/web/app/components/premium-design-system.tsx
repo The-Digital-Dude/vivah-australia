@@ -763,7 +763,7 @@ export function PublicHeader({ variant = 'default' }: { variant?: 'default' | 'd
           />
           <aside
             className="absolute right-0 top-0 h-full w-80 max-w-[85vw] p-6 flex flex-col border-l border-white/10 text-white"
-            style={{ backgroundColor: '#1A060B', boxShadow: '-20px 0 40px rgba(0,0,0,0.4)' }}
+            style={{ backgroundColor: '#A10E4D', boxShadow: '-20px 0 40px rgba(0,0,0,0.4)' }}
           >
             <div className="flex items-center justify-end mb-8">
               <button
