@@ -52,6 +52,8 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:400
 interface PublicPhoto {
   id: string;
   assetUrl: string;
+  thumbnailUrl?: string;
+  videoPosterUrl?: string;
   isPrimary: boolean;
   category?: string;
 }
@@ -70,6 +72,7 @@ interface ProfileDetail {
   completionPercentage: number;
   photoUrl?: string;
   videoUrl?: string;
+  videoPosterUrl?: string;
   publicGallery?: PublicPhoto[];
   personal?: {
     firstName?: string;
@@ -196,6 +199,8 @@ interface PhotoStatusResponse {
 interface PrivatePhoto {
   id: string;
   assetUrl: string;
+  thumbnailUrl?: string;
+  videoPosterUrl?: string;
   mediaType: string;
   isPrimary: boolean;
 }
@@ -767,7 +772,7 @@ function GalleryExperienceSection({
                 transition={{ duration: 0.2 }}
               >
                 <Image
-                  src={gallery[0]!.assetUrl}
+                  src={gallery[0]!.thumbnailUrl ?? gallery[0]!.assetUrl}
                   alt={`${profile.personal?.firstName ?? 'Vivah member'} profile photo`}
                   fill
                   sizes="(min-width: 1280px) 40vw, 100vw"
@@ -798,7 +803,7 @@ function GalleryExperienceSection({
                       transition={{ duration: 0.18 }}
                     >
                       <Image
-                        src={photo.assetUrl}
+                        src={photo.thumbnailUrl ?? photo.assetUrl}
                         alt={`Gallery photo ${index + 2}`}
                         fill
                         sizes="(min-width: 768px) 20vw, 33vw"
@@ -1028,13 +1033,17 @@ function PrivateGalleryAccessCard({
                 transition={{ duration: 0.18 }}
               >
                 <Image
-                  src={photo.assetUrl}
+                  src={photo.thumbnailUrl ?? photo.videoPosterUrl ?? photo.assetUrl}
                   alt="Private gallery photo"
                   fill
                   sizes="(min-width: 768px) 20vw, 50vw"
                   className="object-cover transition duration-300 hover:scale-105"
+                  onContextMenu={(event) => event.preventDefault()}
                 />
                 <span className="block aspect-[4/4.6]" aria-hidden="true" />
+                <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-full bg-brand-charcoal/70 px-2 py-1 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-white/90">
+                  Private
+                </div>
               </motion.button>
             ))}
           </div>
@@ -1124,13 +1133,17 @@ function PrivateGalleryAccessCard({
 
 // ─── Audio/Video Intro Placeholder ──────────────────────────────────────────
 
-function IntroMediaPlaceholder({ videoUrl }: Readonly<{ firstName?: string; videoUrl?: string }>) {
+function IntroMediaPlaceholder({
+  videoUrl,
+  posterUrl,
+}: Readonly<{ firstName?: string; videoUrl?: string; posterUrl?: string }>) {
   if (!videoUrl) return null;
   return (
     <div className="rounded-[26px] border border-brand-maroon/10 bg-white p-4 shadow-[0_12px_30px_rgba(161,14,77,0.05)] overflow-hidden flex flex-col items-start">
       <p className="text-sm font-semibold text-brand-charcoal mb-3">Video Introduction</p>
       <video
         src={videoUrl}
+        poster={posterUrl}
         controls
         className="w-full aspect-video rounded-2xl border border-brand-maroon/10 bg-black"
       />
@@ -1784,7 +1797,10 @@ function ProfileDetailView({
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold mb-4">
                     Video introduction
                   </p>
-                  <IntroMediaPlaceholder videoUrl={profile.videoUrl} />
+                  <IntroMediaPlaceholder
+                    videoUrl={profile.videoUrl}
+                    {...(profile.videoPosterUrl ? { posterUrl: profile.videoPosterUrl } : {})}
+                  />
                 </div>
               )}
             </div>

@@ -350,10 +350,11 @@ export const mediaCompleteUploadSchema = z.object({
     .number()
     .int()
     .min(1)
-    .max(10 * 1024 * 1024)
+    .max(50 * 1024 * 1024)
     .optional(),
   width: z.number().int().positive().max(10000).optional(),
   height: z.number().int().positive().max(10000).optional(),
+  durationSeconds: z.number().positive().max(600).optional(),
 });
 
 export const mediaUpdateSchema = z.object({

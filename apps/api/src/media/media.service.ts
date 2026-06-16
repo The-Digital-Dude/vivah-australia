@@ -1,10 +1,11 @@
 import crypto from 'crypto';
+import path from 'path';
 import {
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
+  UserRole,
   VerificationStatus,
-  InterestStatus,
 } from '@vivah/shared';
 import type {
   MediaCompleteUploadInput,
@@ -14,15 +15,36 @@ import type {
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
-import { ProfileMediaModel, ProfileModel, InterestModel, type ProfileMediaDocument } from '../models/index.js';
+import {
+  PhotoRequestModel,
+  ProfileMediaModel,
+  ProfileModel,
+  UserModel,
+  type ProfileMediaDocument,
+} from '../models/index.js';
 
 const UPLOAD_TTL_SECONDS = 10 * 60;
 const ACCESS_TTL_SECONDS = 5 * 60;
+const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
+const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
+const VIDEO_MAX_DURATION_SECONDS = 120;
 const LOCAL_UPLOAD_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:4000';
+const LOCAL_STORAGE_ROUTE = '/api/mock-gcs-storage/';
+
+const MEDIA_COUNT_LIMITS: Record<MediaCategory, number> = {
+  [MediaCategory.PROFILE_PHOTO]: 1,
+  [MediaCategory.PUBLIC_GALLERY]: 6,
+  [MediaCategory.PRIVATE_GALLERY]: 6,
+  [MediaCategory.VIDEO_INTRO]: 1,
+};
 
 function envValue(name: string) {
   const value = process.env[name];
   return value && value.trim() ? value.trim() : undefined;
+}
+
+function isProductionEnv() {
+  return process.env.NODE_ENV === 'production';
 }
 
 function cloudinaryConfig() {
@@ -35,6 +57,14 @@ function cloudinaryConfig() {
   }
 
   return { cloudName, apiKey, apiSecret };
+}
+
+function requireCloudinaryConfig() {
+  const config = cloudinaryConfig();
+  if (!config) {
+    throw new HttpError(500, 'Cloudinary is required for media uploads in production');
+  }
+  return config;
 }
 
 function signCloudinaryParams(params: Record<string, string | number>, apiSecret: string) {
@@ -59,15 +89,118 @@ function defaultVisibility(category: MediaCategory) {
 }
 
 function accessSecret() {
-  return (
-    process.env.MEDIA_ACCESS_SECRET ?? process.env.JWT_ACCESS_SECRET ?? 'local-media-access-secret'
-  );
+  return process.env.MEDIA_ACCESS_SECRET ?? process.env.JWT_ACCESS_SECRET ?? 'local-media-access-secret';
 }
 
-function signAccessToken(mediaId: string, viewerId: string, expiresAt: number) {
-  const payload = `${mediaId}.${viewerId}.${expiresAt}`;
+function localAssetUrl(storageKey: string) {
+  return `${LOCAL_UPLOAD_BASE_URL}${LOCAL_STORAGE_ROUTE}${storageKey}`;
+}
+
+function publicIdFromStorageKey(storageKey: string) {
+  return storageKey.split('/').at(-1) ?? storageKey;
+}
+
+function insertCloudinaryTransform(assetUrl: string, transform: string) {
+  return assetUrl.replace('/upload/', `/upload/${transform}/`);
+}
+
+function deriveThumbnailUrl(provider: 'cloudinary' | 'gcs', assetUrl: string, mediaType: 'PHOTO' | 'VIDEO') {
+  if (provider === 'cloudinary') {
+    if (mediaType === 'VIDEO') {
+      return insertCloudinaryTransform(assetUrl, 'so_0,f_jpg,w_640,c_fill,q_auto');
+    }
+    return insertCloudinaryTransform(assetUrl, 'f_auto,q_auto,w_640,c_limit');
+  }
+
+  return assetUrl;
+}
+
+function deriveVideoPosterUrl(provider: 'cloudinary' | 'gcs', assetUrl: string) {
+  if (provider === 'cloudinary') {
+    return insertCloudinaryTransform(assetUrl, 'so_0,f_jpg,w_960,c_fill,q_auto');
+  }
+
+  return assetUrl;
+}
+
+function categoryByteLimit(category: MediaCategory) {
+  return category === MediaCategory.VIDEO_INTRO ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
+}
+
+function mediaVariantPath(mediaId: string) {
+  return `${LOCAL_UPLOAD_BASE_URL}/api/media/private/${mediaId}`;
+}
+
+function signAccessToken(
+  mediaId: string,
+  viewerId: string,
+  variant: 'original' | 'thumbnail' | 'poster',
+  expiresAt: number,
+) {
+  const payload = `${mediaId}.${viewerId}.${variant}.${expiresAt}`;
   const signature = crypto.createHmac('sha256', accessSecret()).update(payload).digest('hex');
   return Buffer.from(`${payload}.${signature}`).toString('base64url');
+}
+
+function verifySignedAccessToken(
+  mediaId: string,
+  viewerId: string,
+  variant: 'original' | 'thumbnail' | 'poster',
+  token: string,
+) {
+  let decoded = '';
+
+  try {
+    decoded = Buffer.from(token, 'base64url').toString('utf8');
+  } catch {
+    throw new HttpError(403, 'Invalid media access token');
+  }
+
+  const parts = decoded.split('.');
+  if (parts.length !== 5) {
+    throw new HttpError(403, 'Invalid media access token');
+  }
+
+  const [tokenMediaId, tokenViewerId, tokenVariant, expiresAtRaw, signature] = parts;
+  const expiresAt = Number(expiresAtRaw);
+
+  if (
+    tokenMediaId !== mediaId ||
+    tokenViewerId !== viewerId ||
+    tokenVariant !== variant ||
+    !Number.isFinite(expiresAt)
+  ) {
+    throw new HttpError(403, 'Invalid media access token');
+  }
+
+  if (expiresAt * 1000 < Date.now()) {
+    throw new HttpError(403, 'Media access token has expired');
+  }
+
+  const expected = crypto
+    .createHmac('sha256', accessSecret())
+    .update(`${tokenMediaId}.${tokenViewerId}.${tokenVariant}.${expiresAt}`)
+    .digest('hex');
+
+  if (signature !== expected) {
+    throw new HttpError(403, 'Invalid media access token');
+  }
+}
+
+export function createSignedMediaDeliveryUrl(
+  media: Pick<ProfileMediaDocument, 'id'>,
+  viewerId: string,
+  variant: 'original' | 'thumbnail' | 'poster' = 'original',
+) {
+  const expiresAt = Math.floor(Date.now() / 1000) + ACCESS_TTL_SECONDS;
+  const token = signAccessToken(media.id, viewerId, variant, expiresAt);
+  const url = `${mediaVariantPath(media.id)}?variant=${variant}&mediaAccessToken=${encodeURIComponent(token)}`;
+
+  return {
+    url,
+    token,
+    expiresAt: new Date(expiresAt * 1000).toISOString(),
+  };
 }
 
 function publicMedia(media: ProfileMediaDocument) {
@@ -76,6 +209,8 @@ function publicMedia(media: ProfileMediaDocument) {
     profileId: media.profileId.toString(),
     assetUrl: media.assetUrl,
     storageKey: media.storageKey,
+    uploadProvider: media.uploadProvider,
+    uploadExpiresAt: media.uploadExpiresAt,
     mediaType: media.mediaType,
     category: media.category,
     uploadStatus: media.uploadStatus,
@@ -84,6 +219,9 @@ function publicMedia(media: ProfileMediaDocument) {
     originalFilename: media.originalFilename,
     width: media.width,
     height: media.height,
+    thumbnailUrl: media.thumbnailUrl,
+    videoPosterUrl: media.videoPosterUrl,
+    durationSeconds: media.durationSeconds,
     visibility: media.visibility,
     approvalStatus: media.approvalStatus,
     moderationReason: media.moderationReason,
@@ -118,19 +256,177 @@ async function getOwnMediaOrFail(userId: Types.ObjectId, mediaId: string) {
   return media;
 }
 
+async function assertMediaCountLimit(profileId: Types.ObjectId, category: MediaCategory) {
+  const existingCount = await ProfileMediaModel.countDocuments({
+    profileId,
+    category,
+    isDeleted: false,
+    uploadStatus: { $ne: MediaUploadStatus.FAILED },
+  });
+
+  if (existingCount >= MEDIA_COUNT_LIMITS[category]) {
+    throw new HttpError(400, `Media limit reached for ${category.replaceAll('_', ' ').toLowerCase()}`);
+  }
+}
+
+function validateCompletionSize(media: ProfileMediaDocument, input: MediaCompleteUploadInput) {
+  if (input.bytes === undefined) {
+    return;
+  }
+
+  const limit = categoryByteLimit(media.category);
+  if (input.bytes > limit) {
+    throw new HttpError(
+      400,
+      media.category === MediaCategory.VIDEO_INTRO
+        ? 'Video intro files must be under 50MB'
+        : 'Image files must be under 10MB',
+    );
+  }
+}
+
+function assertProviderAssetUrl(media: ProfileMediaDocument, input: MediaCompleteUploadInput) {
+  if (!media.uploadProvider || !media.storageKey) {
+    throw new HttpError(400, 'Upload metadata is incomplete');
+  }
+
+  if (input.storageKey && input.storageKey !== media.storageKey) {
+    throw new HttpError(400, 'Upload storage key does not match the signed upload');
+  }
+
+  if (media.uploadProvider === 'gcs') {
+    if (isProductionEnv()) {
+      throw new HttpError(400, 'Mock storage uploads are not allowed in production');
+    }
+
+    const expectedUrl = localAssetUrl(media.storageKey);
+    if (input.assetUrl.split('?')[0] !== expectedUrl) {
+      throw new HttpError(400, 'Upload asset URL does not match the signed upload target');
+    }
+    return;
+  }
+
+  const cloudinary = requireCloudinaryConfig();
+  const parsed = new URL(input.assetUrl);
+  const hostOk = parsed.hostname === 'res.cloudinary.com' || parsed.hostname.endsWith('.cloudinary.com');
+  const decodedPath = decodeURIComponent(parsed.pathname);
+
+  if (
+    !hostOk ||
+    !decodedPath.includes(`/${cloudinary.cloudName}/`) ||
+    !decodedPath.includes(media.storageKey)
+  ) {
+    throw new HttpError(400, 'Upload asset URL does not match the signed Cloudinary upload');
+  }
+}
+
+async function ensurePrivateMediaAccess(viewerId: Types.ObjectId, media: ProfileMediaDocument) {
+  if (String(media.userId) === String(viewerId)) {
+    return;
+  }
+
+  const viewer = await UserModel.findById(viewerId).lean();
+  if (
+    viewer?.role === UserRole.ADMIN ||
+    viewer?.role === UserRole.SUPER_ADMIN ||
+    viewer?.role === UserRole.MODERATOR
+  ) {
+    return;
+  }
+
+  const now = new Date();
+  const activeGrant = await PhotoRequestModel.findOne({
+    requesterId: viewerId,
+    ownerId: media.userId,
+    status: 'ACCEPTED',
+    accessGrantedUntil: { $gt: now },
+    isDeleted: false,
+  }).lean();
+
+  if (!activeGrant) {
+    throw new HttpError(403, 'You do not have permission to view this private media');
+  }
+}
+
+function deliveryAssetForVariant(
+  media: ProfileMediaDocument,
+  variant: 'original' | 'thumbnail' | 'poster',
+) {
+  if (variant === 'thumbnail' && media.thumbnailUrl) {
+    return media.thumbnailUrl;
+  }
+
+  if (variant === 'poster' && media.videoPosterUrl) {
+    return media.videoPosterUrl;
+  }
+
+  return media.assetUrl;
+}
+
+export async function resolveMediaDelivery(
+  viewerId: Types.ObjectId,
+  mediaId: string,
+  mediaAccessToken: string,
+  variant: 'original' | 'thumbnail' | 'poster',
+) {
+  if (!Types.ObjectId.isValid(mediaId)) {
+    throw new HttpError(404, 'Media not found');
+  }
+
+  verifySignedAccessToken(mediaId, viewerId.toString(), variant, mediaAccessToken);
+
+  const media = await ProfileMediaModel.findOne({ _id: mediaId, isDeleted: false });
+  if (!media) {
+    throw new HttpError(404, 'Media not found');
+  }
+
+  if (media.uploadStatus !== MediaUploadStatus.UPLOADED) {
+    throw new HttpError(404, 'Media not available');
+  }
+
+  if (media.approvalStatus !== VerificationStatus.APPROVED) {
+    throw new HttpError(403, 'Media has not been approved');
+  }
+
+  if (media.visibility !== MediaVisibility.PRIVATE) {
+    throw new HttpError(400, 'Signed delivery is only available for private media');
+  }
+
+  await ensurePrivateMediaAccess(viewerId, media);
+
+  const assetUrl = deliveryAssetForVariant(media, variant);
+  if (media.uploadProvider === 'gcs' && media.storageKey) {
+    return {
+      mode: 'local' as const,
+      filePath: path.join(process.cwd(), 'uploads', media.storageKey),
+      mimeType: media.mimeType,
+    };
+  }
+
+  return {
+    mode: 'redirect' as const,
+    assetUrl,
+  };
+}
+
 export async function createSignedMediaUpload(userId: Types.ObjectId, input: MediaSignUploadInput) {
   const profile = await getOwnProfileOrFail(userId);
+  await assertMediaCountLimit(profile._id, input.category);
+
   const storageKey = storageKeyFor(userId, input.category);
   const visibility = input.visibility ?? defaultVisibility(input.category);
-  const cloudinary = cloudinaryConfig();
   const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
   const isVideo = input.category === MediaCategory.VIDEO_INTRO;
+  const cloudinary = isProductionEnv() ? requireCloudinaryConfig() : cloudinaryConfig();
 
+  const provider: 'cloudinary' | 'gcs' = cloudinary ? 'cloudinary' : 'gcs';
   const media = await ProfileMediaModel.create({
     userId,
     profileId: profile._id,
-    assetUrl: `${LOCAL_UPLOAD_BASE_URL}/api/media/${storageKey}`,
+    assetUrl: localAssetUrl(storageKey),
     storageKey,
+    uploadProvider: provider,
+    uploadExpiresAt: expiresAt,
     mediaType: isVideo ? 'VIDEO' : 'PHOTO',
     category: input.category,
     uploadStatus: MediaUploadStatus.SIGNED,
@@ -143,13 +439,12 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
   });
 
   if (!cloudinary) {
-    const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
     return {
       media: publicMedia(media),
       upload: {
-        provider: 'gcs',
-        method: 'PUT',
-        url: `${LOCAL_UPLOAD_BASE_URL}/api/mock-gcs-storage/${storageKey}`,
+        provider: 'gcs' as const,
+        method: 'PUT' as const,
+        url: localAssetUrl(storageKey),
         expiresAt: expiresAt.toISOString(),
         fields: {
           storageKey,
@@ -160,13 +455,11 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
 
   const timestamp = Math.floor(Date.now() / 1000);
   const folder = storageKey.split('/').slice(0, -1).join('/');
-  const publicId = storageKey.split('/').at(-1) ?? media.id;
-  const uploadType = visibility === MediaVisibility.PRIVATE ? 'authenticated' : 'upload';
+  const publicId = publicIdFromStorageKey(storageKey);
   const params = {
     folder,
     public_id: publicId,
     timestamp,
-    type: uploadType,
     context: `media_id=${media.id}|user_id=${userId.toString()}`,
   };
   const signature = signCloudinaryParams(params, cloudinary.apiSecret);
@@ -174,8 +467,8 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
   return {
     media: publicMedia(media),
     upload: {
-      provider: 'cloudinary',
-      method: 'POST',
+      provider: 'cloudinary' as const,
+      method: 'POST' as const,
       url: `https://api.cloudinary.com/v1_1/${cloudinary.cloudName}/${isVideo ? 'video' : 'image'}/upload`,
       expiresAt: expiresAt.toISOString(),
       fields: {
@@ -189,10 +482,29 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
 
 export async function completeMediaUpload(userId: Types.ObjectId, input: MediaCompleteUploadInput) {
   const media = await getOwnMediaOrFail(userId, input.mediaId);
-  media.assetUrl = input.assetUrl;
-  if (input.storageKey) {
-    media.storageKey = input.storageKey;
+
+  if (media.uploadStatus !== MediaUploadStatus.SIGNED) {
+    throw new HttpError(400, 'Media upload is not awaiting completion');
   }
+
+  if (!media.uploadExpiresAt || media.uploadExpiresAt.getTime() < Date.now()) {
+    throw new HttpError(400, 'Signed upload has expired');
+  }
+
+  validateCompletionSize(media, input);
+  assertProviderAssetUrl(media, input);
+
+  if (media.category === MediaCategory.VIDEO_INTRO) {
+    if (!input.durationSeconds) {
+      throw new HttpError(400, 'Video duration is required');
+    }
+    if (input.durationSeconds > VIDEO_MAX_DURATION_SECONDS) {
+      throw new HttpError(400, `Video intro must be ${VIDEO_MAX_DURATION_SECONDS} seconds or shorter`);
+    }
+    media.durationSeconds = input.durationSeconds;
+  }
+
+  media.assetUrl = input.assetUrl;
   media.uploadStatus = MediaUploadStatus.UPLOADED;
   media.fileSizeBytes = input.bytes ?? media.fileSizeBytes;
   if (input.width) {
@@ -200,6 +512,12 @@ export async function completeMediaUpload(userId: Types.ObjectId, input: MediaCo
   }
   if (input.height) {
     media.height = input.height;
+  }
+  media.thumbnailUrl = deriveThumbnailUrl(media.uploadProvider ?? 'gcs', input.assetUrl, media.mediaType);
+  if (media.mediaType === 'VIDEO') {
+    media.videoPosterUrl = deriveVideoPosterUrl(media.uploadProvider ?? 'gcs', input.assetUrl);
+  } else {
+    media.set('videoPosterUrl', undefined);
   }
   media.approvalStatus = VerificationStatus.PENDING;
   media.set('moderationReason', undefined);
@@ -259,43 +577,30 @@ export async function createMediaAccess(userId: Types.ObjectId, mediaId: string)
   }
 
   const media = await ProfileMediaModel.findOne({ _id: mediaId, isDeleted: false });
-
   if (!media) {
     throw new HttpError(404, 'Media not found');
-  }
-
-  if (String(media.userId) !== String(userId)) {
-    if (media.visibility === MediaVisibility.PRIVATE) {
-      // Check for ACCEPTED interest
-      const interest = await InterestModel.findOne({
-        $or: [
-          { senderId: userId, receiverId: media.userId },
-          { senderId: media.userId, receiverId: userId },
-        ],
-        status: InterestStatus.ACCEPTED,
-        isDeleted: false,
-      });
-
-      if (!interest) {
-        throw new HttpError(403, 'You do not have permission to view this private media. An accepted interest is required.');
-      }
-    }
   }
 
   if (media.uploadStatus !== MediaUploadStatus.UPLOADED) {
     throw new HttpError(400, 'Media has not been uploaded');
   }
 
-  const expiresAt = Math.floor(Date.now() / 1000) + ACCESS_TTL_SECONDS;
-  const token = signAccessToken(media.id, userId.toString(), expiresAt);
-  const separator = media.assetUrl.includes('?') ? '&' : '?';
+  if (media.visibility === MediaVisibility.PRIVATE) {
+    await ensurePrivateMediaAccess(userId, media);
+    const access = createSignedMediaDeliveryUrl(media, userId.toString());
+
+    return {
+      media: publicMedia(media),
+      access,
+    };
+  }
 
   return {
     media: publicMedia(media),
     access: {
-      expiresAt: new Date(expiresAt * 1000).toISOString(),
-      url: `${media.assetUrl}${separator}mediaAccessToken=${token}`,
-      token,
+      expiresAt: new Date(Date.now() + ACCESS_TTL_SECONDS * 1000).toISOString(),
+      url: media.assetUrl,
+      token: null,
     },
   };
 }

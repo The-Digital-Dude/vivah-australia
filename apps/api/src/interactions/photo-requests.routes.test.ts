@@ -6,7 +6,6 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   AccountStatus,
   Gender,
-  InterestStatus,
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
@@ -18,7 +17,6 @@ import { createTokenPair } from '../auth/token.service.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
-  InterestModel,
   PhotoRequestModel,
   ProfileApprovalStatus,
   ProfileMediaModel,
@@ -152,7 +150,7 @@ afterAll(async () => {
 });
 
 describe('photo requests & private gallery media access', () => {
-  it('denies access if no photo request or mutual accepted interest exists', async () => {
+  it('denies access if no accepted photo request exists', async () => {
     const requester = await createUser('requester@example.com');
     const owner = await createUser('owner@example.com');
     const ownerProfile = await createProfile(owner.user._id, 'VA400001', 'Priya', Gender.FEMALE);
@@ -170,7 +168,7 @@ describe('photo requests & private gallery media access', () => {
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(false);
   });
 
-  it('allows access and lists private photos if an accepted photo request exists', async () => {
+  it('allows access and returns signed private media URLs for an accepted photo request', async () => {
     const requester = await createUser('requester2@example.com');
     const owner = await createUser('owner2@example.com');
     const ownerProfile = await createProfile(owner.user._id, 'VA400002', 'Priya', Gender.FEMALE);
@@ -191,9 +189,11 @@ describe('photo requests & private gallery media access', () => {
       .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
-    const photos = bodyAs<{ photos: { assetUrl: string }[] }>(galleryRes).photos;
+    const photos = bodyAs<{ photos: { assetUrl: string; thumbnailUrl: string }[] }>(galleryRes).photos;
     expect(photos).toHaveLength(1);
-    expect(photos[0].assetUrl).toBe('https://cdn.example.com/priya-private.jpg');
+    expect(photos[0].assetUrl).toContain('/api/media/private/');
+    expect(photos[0].assetUrl).toContain('mediaAccessToken=');
+    expect(photos[0].thumbnailUrl).toContain('/api/media/private/');
 
     const statusRes = await request(app)
       .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
@@ -202,32 +202,42 @@ describe('photo requests & private gallery media access', () => {
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(true);
   });
 
-  it('allows access and lists private photos if a mutual accepted interest exists', async () => {
+  it('expires access after the 30-day grant window closes', async () => {
     const requester = await createUser('requester3@example.com');
     const owner = await createUser('owner3@example.com');
     const ownerProfile = await createProfile(owner.user._id, 'VA400003', 'Priya', Gender.FEMALE);
     await addPrivateMedia(owner.user._id, ownerProfile._id, 'https://cdn.example.com/priya-private.jpg');
 
-    // Create mutual accepted interest
-    await InterestModel.create({
-      senderId: requester.user._id,
-      receiverId: owner.user._id,
-      status: InterestStatus.ACCEPTED,
+    await PhotoRequestModel.create({
+      requesterId: requester.user._id,
+      ownerId: owner.user._id,
+      ownerProfileId: ownerProfile._id,
+      status: 'ACCEPTED',
+      accessGrantedUntil: new Date(Date.now() - 60_000),
     });
 
-    const galleryRes = await request(app)
+    await request(app)
       .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
-      .expect(200);
-    const photos = bodyAs<{ photos: { assetUrl: string }[] }>(galleryRes).photos;
-    expect(photos).toHaveLength(1);
-    expect(photos[0].assetUrl).toBe('https://cdn.example.com/priya-private.jpg');
+      .expect(403);
 
     const statusRes = await request(app)
       .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
       .set('Authorization', `Bearer ${requester.accessToken}`)
       .expect(200);
-    expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(true);
+    expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(false);
+  });
+
+  it('does not grant access from accepted interest alone', async () => {
+    const requester = await createUser('requester-interest@example.com');
+    const owner = await createUser('owner-interest@example.com');
+    const ownerProfile = await createProfile(owner.user._id, 'VA400099', 'Priya', Gender.FEMALE);
+    await addPrivateMedia(owner.user._id, ownerProfile._id, 'https://cdn.example.com/priya-private.jpg');
+
+    await request(app)
+      .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
+      .set('Authorization', `Bearer ${requester.accessToken}`)
+      .expect(403);
   });
 
   it('allows owner access to their own private gallery without restrictions', async () => {

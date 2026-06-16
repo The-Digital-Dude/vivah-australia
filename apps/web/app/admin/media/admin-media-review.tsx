@@ -9,6 +9,9 @@ import { AlertCircle, ShieldAlert, Check, X, FileImage } from 'lucide-react';
 interface ReviewMediaItem {
   _id: string;
   assetUrl: string;
+  thumbnailUrl?: string;
+  videoPosterUrl?: string;
+  mediaType?: string;
   originalFilename: string;
   category: string;
   visibility: string;
@@ -131,11 +134,20 @@ export default function AdminMediaReview() {
             {/* Image container */}
             <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-50 border-b border-neutral-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={item.assetUrl}
-                alt={item.originalFilename}
-                className="h-full w-full object-cover transition duration-300 hover:scale-105"
-              />
+              {item.mediaType === 'VIDEO' || item.category === 'VIDEO_INTRO' ? (
+                <video
+                  src={item.assetUrl}
+                  poster={item.videoPosterUrl ?? item.thumbnailUrl ?? item.assetUrl}
+                  className="h-full w-full object-cover transition duration-300 hover:scale-105"
+                  controls
+                />
+              ) : (
+                <img
+                  src={item.thumbnailUrl ?? item.assetUrl}
+                  alt={item.originalFilename}
+                  className="h-full w-full object-cover transition duration-300 hover:scale-105"
+                />
+              )}
               <div className="absolute left-3 top-3 flex items-center gap-1.5">
                 <span className="rounded-lg bg-black/60 px-2.5 py-1 text-[9px] font-bold text-white uppercase tracking-wider backdrop-blur-sm">
                   {item.visibility}
@@ -238,11 +250,20 @@ export default function AdminMediaReview() {
             <div className="mt-4 space-y-4">
               <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-neutral-100 border border-neutral-100 shadow-inner">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={reviewItem.item.assetUrl}
-                  alt={reviewItem.item.originalFilename}
-                  className="h-full w-full object-cover"
-                />
+                {reviewItem.item.mediaType === 'VIDEO' || reviewItem.item.category === 'VIDEO_INTRO' ? (
+                  <video
+                    src={reviewItem.item.assetUrl}
+                    poster={reviewItem.item.videoPosterUrl ?? reviewItem.item.thumbnailUrl ?? reviewItem.item.assetUrl}
+                    className="h-full w-full object-cover"
+                    controls
+                  />
+                ) : (
+                  <img
+                    src={reviewItem.item.assetUrl}
+                    alt={reviewItem.item.originalFilename}
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </div>
 
               {reviewItem.targetStatus === 'APPROVED' ? (

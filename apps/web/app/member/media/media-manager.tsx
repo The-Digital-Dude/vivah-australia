@@ -7,6 +7,8 @@ import { useMemberRequest, validationMessage } from '@/lib/member-api';
 interface MediaItem {
   id: string;
   assetUrl: string;
+  thumbnailUrl?: string;
+  videoPosterUrl?: string;
   category: string;
   uploadStatus: string;
   visibility: string;
@@ -15,6 +17,7 @@ interface MediaItem {
   isPrimary: boolean;
   moderationReason?: string;
   mediaType?: string;
+  durationSeconds?: number;
 }
 
 interface MediaListResponse {
@@ -24,8 +27,10 @@ interface MediaListResponse {
 interface SignedUploadResponse {
   media: MediaItem;
   upload: {
-    provider: 'cloudinary' | 'mock';
+    provider: 'cloudinary' | 'gcs';
+    method: 'POST' | 'PUT';
     url: string;
+    expiresAt: string;
     fields: Record<string, string>;
   };
 }
@@ -34,9 +39,30 @@ function dataAs<T>(data: unknown): T {
   return data as T;
 }
 
-function signedAssetUrl(response: SignedUploadResponse) {
-  const publicId = response.upload.fields.public_id;
-  return `http://localhost:4000/api/mock-storage/${publicId}`;
+function previewAssetUrl(item: MediaItem) {
+  if (item.mediaType === 'VIDEO' || item.category === 'VIDEO_INTRO') {
+    return item.videoPosterUrl ?? item.thumbnailUrl ?? item.assetUrl;
+  }
+
+  return item.thumbnailUrl ?? item.assetUrl;
+}
+
+async function getVideoDurationSeconds(file: File) {
+  const objectUrl = URL.createObjectURL(file);
+
+  try {
+    const durationSeconds = await new Promise<number>((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => resolve(video.duration);
+      video.onerror = () => reject(new Error('Could not read video duration'));
+      video.src = objectUrl;
+    });
+
+    return Math.ceil(durationSeconds);
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 export default function MediaManager() {
@@ -99,8 +125,9 @@ export default function MediaManager() {
     }
 
     const signedBody = dataAs<SignedUploadResponse>(signed.data);
-    let assetUrl = signedAssetUrl(signedBody);
-    let storageKey = signedBody.upload.fields.public_id;
+    let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
+    let storageKey = signedBody.upload.fields.storageKey;
+    let durationSeconds: number | undefined;
 
     if (signedBody.upload.provider === 'cloudinary') {
       const cloudinaryForm = new FormData();
@@ -126,6 +153,32 @@ export default function MediaManager() {
 
       assetUrl = uploadJson.secure_url;
       storageKey = uploadJson.public_id ?? storageKey;
+    } else if (signedBody.upload.provider === 'gcs') {
+      const uploadResponse = await fetch(signedBody.upload.url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        setMessage('Local upload failed.');
+        setPending(false);
+        return;
+      }
+
+      assetUrl = signedBody.upload.url.split('?')[0] ?? assetUrl;
+    }
+
+    if (parsed.data.category === 'VIDEO_INTRO') {
+      try {
+        durationSeconds = await getVideoDurationSeconds(file);
+      } catch {
+        setMessage('Could not read the selected video duration.');
+        setPending(false);
+        return;
+      }
     }
 
     const completed = await memberRequest('/api/me/media/complete', {
@@ -135,6 +188,7 @@ export default function MediaManager() {
         assetUrl,
         storageKey,
         bytes: file.size,
+        durationSeconds,
       },
     });
 
@@ -243,10 +297,15 @@ export default function MediaManager() {
           >
             <div className="aspect-[4/3] bg-neutral-100 flex items-center justify-center">
               {item.mediaType === 'VIDEO' || item.category === 'VIDEO_INTRO' ? (
-                <video src={item.assetUrl} controls className="size-full object-cover" />
+                <video
+                  src={item.assetUrl}
+                  poster={item.videoPosterUrl ?? item.thumbnailUrl ?? item.assetUrl}
+                  controls
+                  className="size-full object-cover"
+                />
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={item.assetUrl} alt={item.originalFilename} className="size-full object-cover" />
+                <img src={previewAssetUrl(item)} alt={item.originalFilename} className="size-full object-cover" />
               )}
             </div>
             <div className="p-3">

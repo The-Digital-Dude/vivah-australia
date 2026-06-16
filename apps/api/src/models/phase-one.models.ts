@@ -31,6 +31,8 @@ export interface ProfileMedia {
   profileId: ObjectId;
   assetUrl: string;
   storageKey?: string;
+  uploadProvider?: 'cloudinary' | 'gcs';
+  uploadExpiresAt?: Date;
   mediaType: 'PHOTO' | 'VIDEO';
   category: MediaCategoryType;
   uploadStatus: MediaUploadStatusType;
@@ -39,6 +41,9 @@ export interface ProfileMedia {
   originalFilename: string;
   width?: number;
   height?: number;
+  thumbnailUrl?: string;
+  videoPosterUrl?: string;
+  durationSeconds?: number;
   visibility: MediaVisibilityType;
   approvalStatus: VerificationStatusType;
   moderationReason?: string;
@@ -58,6 +63,8 @@ const profileMediaSchema = new Schema<ProfileMedia>(
     profileId: { type: Schema.Types.ObjectId, ref: 'Profile', required: true, index: true },
     assetUrl: { type: String, required: true },
     storageKey: { type: String },
+    uploadProvider: { type: String, enum: ['cloudinary', 'gcs'] },
+    uploadExpiresAt: { type: Date },
     mediaType: { type: String, enum: ['PHOTO', 'VIDEO'], default: 'PHOTO', required: true },
     category: {
       type: String,
@@ -78,6 +85,9 @@ const profileMediaSchema = new Schema<ProfileMedia>(
     originalFilename: { type: String, required: true, trim: true },
     width: { type: Number, min: 1 },
     height: { type: Number, min: 1 },
+    thumbnailUrl: { type: String, trim: true },
+    videoPosterUrl: { type: String, trim: true },
+    durationSeconds: { type: Number, min: 1, max: 600 },
     visibility: {
       type: String,
       enum: Object.values(MediaVisibility),

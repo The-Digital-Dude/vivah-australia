@@ -47,7 +47,9 @@ interface MediaResponseBody {
 interface SignResponseBody extends MediaResponseBody {
   upload: {
     provider: string;
+    method: string;
     url: string;
+    expiresAt: string;
     fields: Record<string, string>;
   };
 }
@@ -155,8 +157,9 @@ describe('media routes', () => {
 
     const body = bodyAs<SignResponseBody>(response);
 
-    expect(body.upload.provider).toBe('mock');
-    expect(body.upload.fields.signature).toEqual(expect.any(String));
+    expect(body.upload.provider).toBe('gcs');
+    expect(body.upload.method).toBe('PUT');
+    expect(body.upload.fields.storageKey).toEqual(expect.any(String));
     expect(body.media.category).toBe(MediaCategory.PROFILE_PHOTO);
     expect(body.media.visibility).toBe(MediaVisibility.PUBLIC);
     expect(body.media.uploadStatus).toBe(MediaUploadStatus.SIGNED);
@@ -212,8 +215,8 @@ describe('media routes', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         mediaId: signBody.media.id,
-        assetUrl: 'https://cdn.example.com/private.webp',
-        storageKey: 'vivah/profiles/private.webp',
+        assetUrl: signBody.upload.url,
+        storageKey: signBody.upload.fields.storageKey,
         bytes: 250000,
         width: 1200,
         height: 900,
@@ -230,6 +233,7 @@ describe('media routes', () => {
       .expect(200);
     const accessBody = bodyAs<AccessResponseBody>(accessResponse);
 
+    expect(accessBody.access.url).toContain('/api/media/private/');
     expect(accessBody.access.url).toContain('mediaAccessToken=');
     expect(accessBody.access.token).toEqual(expect.any(String));
   });
@@ -253,7 +257,7 @@ describe('media routes', () => {
     const body = bodyAs<SignResponseBody>(response);
     expect(body.media.category).toBe(MediaCategory.VIDEO_INTRO);
     expect(body.media.uploadStatus).toBe(MediaUploadStatus.SIGNED);
-    expect(body.upload.provider).toBe('mock');
+    expect(body.upload.provider).toBe('gcs');
   });
 
   it('rejects VIDEO_INTRO uploads with image mime type or files over 50MB', async () => {
@@ -320,5 +324,153 @@ describe('media routes', () => {
     const reviewBody = bodyAs<MediaResponseBody>(reviewResponse);
 
     expect(reviewBody.media.approvalStatus).toBe(VerificationStatus.APPROVED);
+  });
+
+  it('rejects completion after upload expiry, with mismatched URLs, and from the wrong state', async () => {
+    const { user, accessToken } = await createUser('completion-guard@example.com');
+    await createProfile(user._id);
+
+    const signResponse = await request(app)
+      .post('/api/me/media/sign-upload')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        category: MediaCategory.PUBLIC_GALLERY,
+        fileName: 'guard.jpg',
+        mimeType: 'image/jpeg',
+        fileSizeBytes: 150000,
+      })
+      .expect(201);
+    const signBody = bodyAs<SignResponseBody>(signResponse);
+
+    await request(app)
+      .post('/api/me/media/complete')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        mediaId: signBody.media.id,
+        assetUrl: 'http://localhost:4000/api/mock-gcs-storage/other-key',
+        storageKey: signBody.upload.fields.storageKey,
+        bytes: 150000,
+      })
+      .expect(400);
+
+    await ProfileMediaModel.updateOne(
+      { _id: signBody.media.id },
+      { $set: { uploadExpiresAt: new Date(Date.now() - 1000) } },
+    );
+
+    await request(app)
+      .post('/api/me/media/complete')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        mediaId: signBody.media.id,
+        assetUrl: signBody.upload.url,
+        storageKey: signBody.upload.fields.storageKey,
+        bytes: 150000,
+      })
+      .expect(400);
+
+    await ProfileMediaModel.updateOne(
+      { _id: signBody.media.id },
+      {
+        $set: {
+          uploadExpiresAt: new Date(Date.now() + 60_000),
+          uploadStatus: MediaUploadStatus.UPLOADED,
+        },
+      },
+    );
+
+    await request(app)
+      .post('/api/me/media/complete')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        mediaId: signBody.media.id,
+        assetUrl: signBody.upload.url,
+        storageKey: signBody.upload.fields.storageKey,
+        bytes: 150000,
+      })
+      .expect(400);
+  });
+
+  it('requires video duration and enforces the video completion limit', async () => {
+    const { user, accessToken } = await createUser('video-complete@example.com');
+    await createProfile(user._id);
+
+    const signResponse = await request(app)
+      .post('/api/me/media/sign-upload')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        category: MediaCategory.VIDEO_INTRO,
+        fileName: 'intro.mp4',
+        mimeType: 'video/mp4',
+        fileSizeBytes: 20 * 1024 * 1024,
+      })
+      .expect(201);
+    const signBody = bodyAs<SignResponseBody>(signResponse);
+
+    await request(app)
+      .post('/api/me/media/complete')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        mediaId: signBody.media.id,
+        assetUrl: signBody.upload.url,
+        storageKey: signBody.upload.fields.storageKey,
+        bytes: 20 * 1024 * 1024,
+      })
+      .expect(400);
+
+    await request(app)
+      .post('/api/me/media/complete')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        mediaId: signBody.media.id,
+        assetUrl: signBody.upload.url,
+        storageKey: signBody.upload.fields.storageKey,
+        bytes: 20 * 1024 * 1024,
+        durationSeconds: 130,
+      })
+      .expect(400);
+  });
+
+  it('fails fast in production without Cloudinary and does not mount mock storage', async () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    const previousCloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const previousCloudKey = process.env.CLOUDINARY_API_KEY;
+    const previousCloudSecret = process.env.CLOUDINARY_API_SECRET;
+
+    process.env.NODE_ENV = 'production';
+    delete process.env.CLOUDINARY_CLOUD_NAME;
+    delete process.env.CLOUDINARY_API_KEY;
+    delete process.env.CLOUDINARY_API_SECRET;
+
+    const productionApp = createApp({
+      corsOrigins: ['http://localhost:3000'],
+      auth: authConfig,
+    });
+
+    try {
+      const { user, accessToken } = await createUser('prod-media@example.com');
+      await createProfile(user._id);
+
+      await request(productionApp)
+        .post('/api/me/media/sign-upload')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          category: MediaCategory.PUBLIC_GALLERY,
+          fileName: 'prod.jpg',
+          mimeType: 'image/jpeg',
+          fileSizeBytes: 150000,
+        })
+        .expect(500);
+
+      await request(productionApp)
+        .put('/api/mock-gcs-storage/test-key')
+        .send('hello')
+        .expect(404);
+    } finally {
+      process.env.NODE_ENV = previousNodeEnv;
+      process.env.CLOUDINARY_CLOUD_NAME = previousCloudName;
+      process.env.CLOUDINARY_API_KEY = previousCloudKey;
+      process.env.CLOUDINARY_API_SECRET = previousCloudSecret;
+    }
   });
 });

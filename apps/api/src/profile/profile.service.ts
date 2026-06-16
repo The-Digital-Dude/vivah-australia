@@ -286,18 +286,22 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
       }).lean()
     ]);
 
-    visibleProfile.photoUrl = media[0]?.assetUrl;
+    visibleProfile.photoUrl = media[0]?.thumbnailUrl ?? media[0]?.assetUrl;
     visibleProfile.publicGallery = media.map((item) => ({
       id: String(item._id),
       assetUrl: item.assetUrl,
+      thumbnailUrl: item.thumbnailUrl ?? item.assetUrl,
+      videoPosterUrl: item.videoPosterUrl,
       isPrimary: item.isPrimary,
       category: item.category,
     }));
     visibleProfile.videoUrl = videoIntro?.assetUrl;
+    visibleProfile.videoPosterUrl = videoIntro?.videoPosterUrl ?? videoIntro?.thumbnailUrl;
   } else {
     visibleProfile.photoUrl = undefined;
     visibleProfile.publicGallery = [];
     visibleProfile.videoUrl = undefined;
+    visibleProfile.videoPosterUrl = undefined;
   }
 
   return visibleProfile;
@@ -454,7 +458,7 @@ export async function listProfileViewersReceived(userId: Types.ObjectId, isPaidM
   for (const m of media) {
     const key = String(m.profileId);
     if (!photoByProfileId.has(key)) {
-      photoByProfileId.set(key, m.assetUrl);
+      photoByProfileId.set(key, m.thumbnailUrl ?? m.assetUrl);
     }
   }
 

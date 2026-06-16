@@ -1238,13 +1238,16 @@ interface MediaResponseData {
 }
 
 interface UploadFields {
-  public_id: string;
+  public_id?: string;
+  storageKey?: string;
   [key: string]: string;
 }
 
 interface UploadData {
-  provider: string;
+  provider: 'cloudinary' | 'gcs';
+  method: 'POST' | 'PUT';
   url: string;
+  expiresAt: string;
   fields: UploadFields;
 }
 
@@ -1257,6 +1260,24 @@ interface CloudinaryUploadResponse {
   secure_url?: string;
   public_id?: string;
   message?: string;
+}
+
+async function getVideoDurationSeconds(file: File) {
+  const objectUrl = URL.createObjectURL(file);
+
+  try {
+    const durationSeconds = await new Promise<number>((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => resolve(video.duration);
+      video.onerror = () => reject(new Error('Could not read video duration'));
+      video.src = objectUrl;
+    });
+
+    return Math.ceil(durationSeconds);
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMemberRequest> }) {
@@ -1314,6 +1335,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
     const signedBody = signed.data as unknown as SignUploadResponse;
     let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
     let storageKey = signedBody.upload.fields.storageKey;
+    let durationSeconds: number | undefined;
 
     if (signedBody.upload.provider === 'cloudinary') {
       const cf = new FormData();
@@ -1346,9 +1368,19 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
       assetUrl = signedBody.upload.url?.split('?')[0] ?? '';
     }
 
+    if (parsed.data.category === 'VIDEO_INTRO') {
+      try {
+        durationSeconds = await getVideoDurationSeconds(file);
+      } catch {
+        setMsg({ text: 'Could not read the selected video duration.', ok: false });
+        setUploading(false);
+        return;
+      }
+    }
+
     const completed = await memberRequest('/api/me/media/complete', {
       method: 'POST',
-      body: { mediaId: signedBody.media.id, assetUrl, storageKey, bytes: file.size },
+      body: { mediaId: signedBody.media.id, assetUrl, storageKey, bytes: file.size, durationSeconds },
     });
     setMsg({ text: completed.message, ok: completed.ok });
     setUploading(false);

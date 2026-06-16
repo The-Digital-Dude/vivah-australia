@@ -2,7 +2,6 @@ import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import {
   BlockModel,
-  InterestModel,
   PhotoRequestModel,
   ProfileApprovalStatus,
   ProfileMediaModel,
@@ -10,7 +9,6 @@ import {
   UserModel,
 } from '../models/index.js';
 import {
-  InterestStatus,
   MediaCategory,
   MediaUploadStatus,
   MediaVisibility,
@@ -18,6 +16,7 @@ import {
   VerificationStatus,
 } from '@vivah/shared';
 import { createNotification } from '../notifications/notifications.service.js';
+import { createSignedMediaDeliveryUrl } from '../media/media.service.js';
 
 // Access grant lasts 30 days from acceptance
 const ACCESS_GRANT_DAYS = 30;
@@ -240,17 +239,7 @@ export async function hasPhotoAccess(
     return true;
   }
 
-  // Fallback: Check if there is an accepted interest between the two users
-  const interest = await InterestModel.findOne({
-    status: InterestStatus.ACCEPTED,
-    isDeleted: false,
-    $or: [
-      { senderId: requesterId, receiverId: ownerId },
-      { senderId: ownerId, receiverId: requesterId },
-    ],
-  }).lean();
-
-  return !!interest;
+  return false;
 }
 
 // ── Get the request status between two users ──────────────────────────────────
@@ -317,14 +306,23 @@ export async function getPrivateGalleryIfGranted(
     .sort({ createdAt: -1 })
     .lean();
 
-  return media.map((m) => ({
-    id: String(m._id),
-    assetUrl: m.assetUrl,
-    mediaType: m.mediaType,
-    category: m.category,
-    isPrimary: m.isPrimary,
-    createdAt: m.createdAt,
-  }));
+  return media.map((m) => {
+    const deliveryTarget = { id: String(m._id) } as { id: string };
+    const original = createSignedMediaDeliveryUrl(deliveryTarget, requesterId.toString(), 'original');
+    const thumbnail = createSignedMediaDeliveryUrl(deliveryTarget, requesterId.toString(), 'thumbnail');
+    const poster = createSignedMediaDeliveryUrl(deliveryTarget, requesterId.toString(), 'poster');
+
+    return {
+      id: String(m._id),
+      assetUrl: original.url,
+      thumbnailUrl: thumbnail.url,
+      videoPosterUrl: poster.url,
+      mediaType: m.mediaType,
+      category: m.category,
+      isPrimary: m.isPrimary,
+      createdAt: m.createdAt,
+    };
+  });
 }
 
 // ── List requests for the owner (incoming) ────────────────────────────────────

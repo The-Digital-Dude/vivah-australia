@@ -1,4 +1,5 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
+import fs from 'fs';
 import {
   mediaCompleteUploadSchema,
   mediaReviewSchema,
@@ -16,6 +17,7 @@ import {
   deleteOwnMedia,
   listMediaForReview,
   listOwnMedia,
+  resolveMediaDelivery,
   reviewMedia,
   updateOwnMedia,
 } from './media.service.js';
@@ -109,6 +111,45 @@ export function createMediaRouter(config: AuthConfig): Router {
 
       await deleteOwnMedia(auth.userId, mediaId);
       response.status(204).send();
+    }),
+  );
+
+  router.get(
+    '/media/private/:id',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const mediaId = request.params.id;
+      const token =
+        typeof request.query.mediaAccessToken === 'string' ? request.query.mediaAccessToken : '';
+      const variant = request.query.variant;
+
+      if (!mediaId) {
+        throw new HttpError(404, 'Media not found');
+      }
+
+      if (variant !== undefined && variant !== 'original' && variant !== 'thumbnail' && variant !== 'poster') {
+        throw new HttpError(400, 'Invalid media delivery variant');
+      }
+
+      const result = await resolveMediaDelivery(
+        auth.userId,
+        mediaId,
+        token,
+        variant ?? 'original',
+      );
+
+      if (result.mode === 'redirect') {
+        response.redirect(result.assetUrl);
+        return;
+      }
+
+      if (!fs.existsSync(result.filePath)) {
+        throw new HttpError(404, 'Media file not found');
+      }
+
+      response.type(result.mimeType);
+      response.sendFile(result.filePath);
     }),
   );
 
