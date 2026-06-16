@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
-import { VerificationStatus } from '@vivah/shared';
-import { ProfileModel, UserModel } from '../models/index.js';
+import { UserModel } from '../models/index.js';
 import { HttpError } from '../auth/auth-errors.js';
 
 /**
@@ -14,35 +13,9 @@ export async function initiateLivenessCheck(userId: Types.ObjectId) {
     throw new HttpError(404, 'User not found');
   }
 
-  // Generate a mock verification session URL
-  const mockSessionId = `kyc_sess_${Math.random().toString(36).substring(7)}`;
-  const verificationUrl = `https://mock-kyc-provider.com/verify/${mockSessionId}?userId=${userId}`;
-
-  return {
-    sessionId: mockSessionId,
-    url: verificationUrl,
-  };
+  throw new HttpError(503, 'Liveness verification is not available yet');
 }
 
-export async function processKycWebhook(payload: any) {
-  // Mock webhook processor
-  // In reality, verify the webhook signature here using provider secrets
-  
-  const { userId, status, providerId } = payload;
-  
-  if (!userId || !status) {
-    throw new HttpError(400, 'Invalid payload');
-  }
-
-  if (status === 'APPROVED') {
-    const profile = await ProfileModel.findOne({ userId, isDeleted: false });
-    if (profile) {
-      profile.verification.level = 'FULLY_VERIFIED';
-      await profile.save();
-    }
-  } else if (status === 'REJECTED') {
-    // Handle rejection logic, maybe send email
-  }
-
-  return { success: true };
+export async function processKycWebhook() {
+  throw new HttpError(503, 'KYC webhook is disabled until a real provider is configured');
 }

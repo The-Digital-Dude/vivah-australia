@@ -159,10 +159,17 @@ const verificationRequestSchema = new Schema<VerificationRequest>(
 );
 
 export interface VerificationDocument {
-  requestId: ObjectId;
+  requestId?: ObjectId;
   userId: ObjectId;
   documentType: string;
   storageKey: string;
+  assetUrl: string;
+  uploadProvider?: 'cloudinary' | 'gcs';
+  uploadExpiresAt?: Date;
+  uploadStatus: MediaUploadStatusType;
+  mimeType: string;
+  fileSizeBytes: number;
+  originalFilename: string;
   encrypted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -176,12 +183,24 @@ const verificationDocumentSchema = new Schema<VerificationDocument>(
     requestId: {
       type: Schema.Types.ObjectId,
       ref: 'VerificationRequest',
-      required: true,
       index: true,
     },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     documentType: { type: String, required: true, trim: true },
     storageKey: { type: String, required: true },
+    assetUrl: { type: String, required: true, trim: true },
+    uploadProvider: { type: String, enum: ['cloudinary', 'gcs'] },
+    uploadExpiresAt: { type: Date },
+    uploadStatus: {
+      type: String,
+      enum: Object.values(MediaUploadStatus),
+      default: MediaUploadStatus.SIGNED,
+      required: true,
+      index: true,
+    },
+    mimeType: { type: String, required: true, trim: true },
+    fileSizeBytes: { type: Number, required: true, min: 1 },
+    originalFilename: { type: String, required: true, trim: true },
     encrypted: { type: Boolean, default: true },
     ...auditedSchemaFields,
   },
@@ -189,6 +208,7 @@ const verificationDocumentSchema = new Schema<VerificationDocument>(
 );
 
 verificationRequestSchema.index({ status: 1, createdAt: -1 });
+verificationDocumentSchema.index({ userId: 1, uploadStatus: 1, createdAt: -1 });
 
 export interface Interest {
   senderId: ObjectId;

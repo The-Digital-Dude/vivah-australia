@@ -1,4 +1,5 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
+import fs from 'fs';
 import {
   auditLogQuerySchema,
   adminUserQuerySchema,
@@ -50,6 +51,7 @@ import {
   getRevenueAnalytics,
   getVerificationAnalytics,
 } from './admin.service.js';
+import { resolveVerificationDocumentPreview } from '../verification/verification-document.service.js';
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -456,7 +458,7 @@ export function createAdminRouter(config: AuthConfig): Router {
   );
 
   router.get(
-    '/admin/verifications/:id/documents/:documentId/preview',
+    '/admin/verifications/:id/documents/:documentId/access',
     requireAuth(config),
     requirePermission(AdminPermission.VERIFICATIONS_REVIEW),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
@@ -472,6 +474,35 @@ export function createAdminRouter(config: AuthConfig): Router {
           documentId,
         ),
       });
+    }),
+  );
+
+  router.get(
+    '/admin/verifications/:id/documents/:documentId/preview',
+    requireAuth(config),
+    requirePermission(AdminPermission.VERIFICATIONS_REVIEW),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const requestId = request.params.id;
+      const documentId = request.params.documentId;
+      const token = typeof request.query.token === 'string' ? request.query.token : '';
+      if (!requestId || !documentId) throw new HttpError(404, 'Verification document not found');
+      const result = await resolveVerificationDocumentPreview(
+        auth.userId,
+        auth.role,
+        requestId,
+        documentId,
+        token,
+      );
+      if (result.mode === 'redirect') {
+        response.redirect(result.assetUrl);
+        return;
+      }
+      if (!fs.existsSync(result.filePath)) {
+        throw new HttpError(404, 'Verification document file not found');
+      }
+      response.type(result.mimeType);
+      response.sendFile(result.filePath);
     }),
   );
 

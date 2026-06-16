@@ -22,6 +22,10 @@ interface VerificationDocument {
   _id: string;
   documentType: string;
   encrypted: boolean;
+  originalFilename?: string;
+  mimeType?: string;
+  fileSizeBytes?: number;
+  uploadStatus?: string;
   createdAt: string;
 }
 
@@ -98,7 +102,7 @@ export default function AdminVerificationsPage() {
 
   async function previewDocument(requestId: string, documentId: string) {
     const result = await memberRequest(
-      `/api/admin/verifications/${requestId}/documents/${documentId}/preview`,
+      `/api/admin/verifications/${requestId}/documents/${documentId}/access`,
     );
     if (!result.ok) {
       setMessage(result.message);
@@ -298,6 +302,12 @@ export default function AdminVerificationsPage() {
                           <p className="text-[9px] text-neutral-400 mt-0.5">
                             {doc.encrypted ? 'AES-256 Encrypted Storage' : 'Standard Secure Storage'}
                           </p>
+                          {doc.originalFilename ? (
+                            <p className="text-[9px] text-neutral-500 mt-1 truncate">
+                              {doc.originalFilename}
+                              {doc.fileSizeBytes ? ` · ${Math.ceil(doc.fileSizeBytes / 1024)} KB` : ''}
+                            </p>
+                          ) : null}
                         </div>
                         <button
                           type="button"

@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   verificationRequestCreateSchema,
+  verificationDocumentSignUploadSchema,
   mobileOtpRequestSchema,
   mobileOtpVerifySchema,
 } from '@vivah/shared';
@@ -17,6 +18,7 @@ import {
   Lock,
   FileText,
   Smartphone,
+  Loader2,
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { formString, optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
@@ -51,6 +53,17 @@ interface VerificationRequestItem {
   reviewReason?: string;
   createdAt: string;
   documentType?: string;
+}
+
+interface SignedVerificationDocumentResponse {
+  document: { id: string };
+  upload: {
+    provider: 'cloudinary' | 'gcs';
+    method: 'POST' | 'PUT';
+    url: string;
+    expiresAt: string;
+    fields: Record<string, string>;
+  };
 }
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -101,7 +114,7 @@ export default function MemberVerificationPage() {
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [simulatedUrl, setSimulatedUrl] = useState('');
+  const [uploadingDocument, setUploadingDocument] = useState(false);
 
   const [otpMessage, setOtpMessage] = useState<string | null>(null);
   const [otpStep, setOtpStep] = useState<'request' | 'verify'>('request');
@@ -173,11 +186,118 @@ export default function MemberVerificationPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const documentUrl = simulatedUrl || optionalString(form.get('documentUrl'));
+    const type = formString(form.get('type'));
+    const documentType = optionalString(form.get('documentType'));
+    const file = form.get('documentFile');
+    const requiresDocument = !['EMAIL', 'MOBILE'].includes(type);
+    let documentId: string | undefined;
+
+    if (requiresDocument) {
+      if (!(file instanceof File) || file.size === 0) {
+        setMessage('Please choose a verification document file first.');
+        setIsSuccess(false);
+        return;
+      }
+
+      const parsedUpload = verificationDocumentSignUploadSchema.safeParse({
+        documentType: documentType ?? '',
+        fileName: file.name,
+        mimeType: file.type,
+        fileSizeBytes: file.size,
+      });
+
+      if (!parsedUpload.success) {
+        setMessage(validationMessage(parsedUpload.error.issues));
+        setIsSuccess(false);
+        return;
+      }
+
+      setUploadingDocument(true);
+      const signed = await memberRequest('/api/me/verification-documents/sign-upload', {
+        method: 'POST',
+        body: parsedUpload.data,
+      });
+
+      if (!signed.ok || !signed.data) {
+        setUploadingDocument(false);
+        setMessage(signed.message);
+        setIsSuccess(false);
+        return;
+      }
+
+      const signedBody = signed.data as SignedVerificationDocumentResponse;
+      let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
+      let storageKey = signedBody.upload.fields.storageKey;
+
+      if (signedBody.upload.provider === 'cloudinary') {
+        const cloudinaryForm = new FormData();
+        Object.entries(signedBody.upload.fields).forEach(([key, value]) => {
+          cloudinaryForm.append(key, value);
+        });
+        cloudinaryForm.append('file', file);
+        const uploadResponse = await fetch(signedBody.upload.url, {
+          method: 'POST',
+          body: cloudinaryForm,
+        });
+        const uploadJson = (await uploadResponse.json()) as {
+          secure_url?: string;
+          public_id?: string;
+          message?: string;
+        };
+
+        if (!uploadResponse.ok || !uploadJson.secure_url) {
+          setUploadingDocument(false);
+          setMessage(uploadJson.message ?? 'Verification document upload failed.');
+          setIsSuccess(false);
+          return;
+        }
+
+        assetUrl = uploadJson.secure_url;
+        storageKey = uploadJson.public_id ?? storageKey;
+      } else {
+        const uploadResponse = await fetch(signedBody.upload.url, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          setUploadingDocument(false);
+          setMessage('Verification document upload failed.');
+          setIsSuccess(false);
+          return;
+        }
+
+        assetUrl = signedBody.upload.url.split('?')[0] ?? assetUrl;
+      }
+
+      const completed = await memberRequest('/api/me/verification-documents/complete', {
+        method: 'POST',
+        body: {
+          documentId: signedBody.document.id,
+          assetUrl,
+          storageKey,
+          bytes: file.size,
+        },
+      });
+
+      setUploadingDocument(false);
+
+      if (!completed.ok || !completed.data) {
+        setMessage(completed.message);
+        setIsSuccess(false);
+        return;
+      }
+
+      documentId = (completed.data as { document?: { id?: string } }).document?.id;
+    }
+
     const payload = {
-      type: formString(form.get('type')),
-      documentType: optionalString(form.get('documentType')),
-      documentUrls: documentUrl ? [documentUrl] : undefined,
+      type,
+      ...(documentType ? { documentType } : {}),
+      ...(documentId ? { documentId } : {}),
     };
     const parsed = verificationRequestCreateSchema.safeParse(payload);
     if (!parsed.success) {
@@ -197,7 +317,6 @@ export default function MemberVerificationPage() {
     setIsSuccess(result.ok);
     if (result.ok) {
       setFileName(null);
-      setSimulatedUrl('');
       event.currentTarget.reset();
       await load();
     }
@@ -211,9 +330,8 @@ export default function MemberVerificationPage() {
     const file = e.target.files?.[0];
     if (file) {
       setFileName(file.name);
-      setSimulatedUrl(
-        `https://secure.cdn.vivahaustralia.com/uploads/verifications/${Date.now()}-${file.name}`,
-      );
+    } else {
+      setFileName(null);
     }
   };
 
@@ -437,9 +555,10 @@ export default function MemberVerificationPage() {
                 </label>
               </div>
 
-              {/* Secure simulated uploader dropzone */}
+              {/* Secure uploader dropzone */}
               <div className="relative rounded-3xl border-2 border-dashed border-[#A10E4D]/15 bg-[#FFF9F5]/20 p-6 text-center hover:bg-[#FFF0F3]/10 transition duration-200">
                 <input
+                  name="documentFile"
                   type="file"
                   accept="image/*,application/pdf"
                   onChange={handleSimulatedFile}
@@ -450,9 +569,9 @@ export default function MemberVerificationPage() {
                   {fileName ? `Selected: ${fileName}` : 'Choose file or drag here'}
                 </h3>
                 <p className="mt-1.5 text-xs text-[#6B7280]">Supports PDF, PNG, JPG up to 10MB.</p>
-                {simulatedUrl && (
+                {fileName && (
                   <div className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full w-fit mx-auto">
-                    <CheckCircle2 className="size-4" /> Securely locked for upload
+                    <CheckCircle2 className="size-4" /> Ready for secure upload
                   </div>
                 )}
               </div>
@@ -480,7 +599,8 @@ export default function MemberVerificationPage() {
               ) : null}
 
               <PremiumButton type="submit" className="w-full">
-                Submit Document Request
+                {uploadingDocument ? <Loader2 className="size-4 animate-spin" /> : null}
+                {uploadingDocument ? 'Uploading document...' : 'Submit Document Request'}
               </PremiumButton>
             </form>
           </PremiumCard>

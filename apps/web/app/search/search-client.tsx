@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowRight,
-  CheckCircle,
   Filter,
   Heart,
   Loader2,
@@ -16,7 +15,7 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
-import { PublicHeader, PublicFooter, PremiumButton } from '@/app/components';
+import { PublicHeader, PublicFooter, PremiumButton, VerificationBadge } from '@/app/components';
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
@@ -65,7 +64,6 @@ function ProfileCard({ profile }: { profile: PublicProfile }) {
   const occupation = profile.employment?.occupation;
   const level = profile.verification?.level;
   const href = profile.slug ? `/profiles/${profile.slug}` : `/profiles/${profile.displayId}`;
-  const isVerified = level && level !== 'UNVERIFIED' && level !== 'NONE';
   const initial = name.charAt(0).toUpperCase();
 
   return (
@@ -87,8 +85,12 @@ function ProfileCard({ profile }: { profile: PublicProfile }) {
         <div className="text-center space-y-1">
           <div className="flex items-center justify-center gap-1.5">
             <span className="text-base font-bold text-brand-charcoal">{name}</span>
-            {isVerified && <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />}
           </div>
+          {level && level !== 'NONE' ? (
+            <div className="flex justify-center">
+              <VerificationBadge level={level} />
+            </div>
+          ) : null}
 
           {age && (
             <p className="text-sm font-medium text-gray-500">{age} years old</p>

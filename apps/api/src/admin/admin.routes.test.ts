@@ -18,6 +18,7 @@ import {
   ProfileModel,
   ReportModel,
   UserModel,
+  VerificationDocumentModel,
   VerificationRequestModel,
 } from '../models/index.js';
 
@@ -301,10 +302,42 @@ describe('admin production readiness routes', () => {
     profile.verification.mobileVerified = true;
     await profile.save();
 
+    const uploadResponse = await request(app)
+      .post('/api/me/verification-documents/sign-upload')
+      .set('Authorization', `Bearer ${member.accessToken}`)
+      .send({
+        documentType: 'Passport',
+        fileName: 'passport.jpg',
+        mimeType: 'image/jpeg',
+        fileSizeBytes: 100000,
+      })
+      .expect(201);
+    const signed = bodyAs<{
+      document: { id: string };
+      upload: { url: string; fields: Record<string, string> };
+    }>(uploadResponse);
+
+    await request(app)
+      .put(`/api/mock-gcs-storage/${signed.upload.fields.storageKey}`)
+      .set('Content-Type', 'image/jpeg')
+      .send('passport-bytes')
+      .expect(200);
+
+    await request(app)
+      .post('/api/me/verification-documents/complete')
+      .set('Authorization', `Bearer ${member.accessToken}`)
+      .send({
+        documentId: signed.document.id,
+        assetUrl: signed.upload.url,
+        storageKey: signed.upload.fields.storageKey,
+        bytes: 100000,
+      })
+      .expect(200);
+
     const createResponse = await request(app)
       .post('/api/me/verifications')
       .set('Authorization', `Bearer ${member.accessToken}`)
-      .send({ type: 'IDENTITY', documentType: 'Passport', storageKey: 'secure/passport.jpg' })
+      .send({ type: 'IDENTITY', documentType: 'Passport', documentId: signed.document.id })
       .expect(201);
 
     const created = bodyAs<{
@@ -333,7 +366,18 @@ describe('admin production readiness routes', () => {
     expect(documentId).toEqual(expect.any(String));
 
     await request(app)
-      .get(`/api/admin/verifications/${created.request._id}/documents/${documentId}/preview`)
+      .get(`/api/admin/verifications/${created.request._id}/documents/${documentId}/access`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    const preview = bodyAs<{ preview: { previewUrl: string } }>(
+      await request(app)
+        .get(`/api/admin/verifications/${created.request._id}/documents/${documentId}/access`)
+        .set('Authorization', `Bearer ${admin.accessToken}`)
+        .expect(200),
+    ).preview;
+
+    await request(app)
+      .get(new URL(preview.previewUrl).pathname + new URL(preview.previewUrl).search)
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .expect(200);
 
@@ -354,13 +398,15 @@ describe('admin production readiness routes', () => {
     expect(storedRequest?.providerReferenceId).toMatch(
       new RegExp(`^manual-identity-${created.request._id}-`),
     );
+    const storedDocument = await VerificationDocumentModel.findById(documentId).lean();
+    expect(String(storedDocument?.requestId)).toBe(created.request._id);
     expect(await ActivityLogModel.countDocuments({ event: 'VERIFICATION_REQUEST_CREATED' })).toBe(
       1,
     );
     expect(await NotificationModel.countDocuments({ type: 'VERIFICATION_REVIEWED' })).toBe(1);
     expect(await AuditLogModel.countDocuments({ action: 'VERIFICATION_REVIEWED' })).toBe(1);
     expect(await AuditLogModel.countDocuments({ action: 'VERIFICATION_DOCUMENT_PREVIEWED' })).toBe(
-      1,
+      2,
     );
 
     await request(app)

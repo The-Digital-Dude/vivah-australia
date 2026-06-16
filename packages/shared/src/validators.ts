@@ -559,9 +559,28 @@ export const verificationRequestCreateSchema = z.object({
     'POLICE_CLEARANCE',
     'FACIAL',
   ]),
-  documentUrls: z.array(z.string().trim().url()).max(10).default([]),
+  documentId: objectIdSchema.optional(),
   documentType: z.string().trim().min(2).max(120).optional(),
-  storageKey: z.string().trim().min(2).max(500).optional(),
+});
+
+export const verificationDocumentSignUploadSchema = z.object({
+  documentType: z.string().trim().min(2).max(120),
+  fileName: z.string().trim().min(1).max(180),
+  mimeType: z
+    .string()
+    .trim()
+    .regex(
+      /^(image\/(jpeg|png|webp)|application\/pdf)$/,
+      'Unsupported verification document type',
+    ),
+  fileSizeBytes: z.number().int().min(1).max(10 * 1024 * 1024),
+});
+
+export const verificationDocumentCompleteUploadSchema = z.object({
+  documentId: objectIdSchema,
+  assetUrl: z.string().trim().url(),
+  storageKey: z.string().trim().min(1).max(500).optional(),
+  bytes: z.number().int().min(1).max(10 * 1024 * 1024).optional(),
 });
 
 export const verificationReviewSchema = z.object({
@@ -933,6 +952,10 @@ export type AdminUserNoteInput = z.infer<typeof adminUserNoteSchema>;
 export type ProfileModerationQueryInput = z.infer<typeof profileModerationQuerySchema>;
 export type ProfileModerationReviewInput = z.infer<typeof profileModerationReviewSchema>;
 export type VerificationRequestCreateInput = z.infer<typeof verificationRequestCreateSchema>;
+export type VerificationDocumentSignUploadInput = z.infer<typeof verificationDocumentSignUploadSchema>;
+export type VerificationDocumentCompleteUploadInput = z.infer<
+  typeof verificationDocumentCompleteUploadSchema
+>;
 export type VerificationReviewInput = z.infer<typeof verificationReviewSchema>;
 export type NotificationListQueryInput = z.infer<typeof notificationListQuerySchema>;
 export type MobileOtpRequestInput = z.infer<typeof mobileOtpRequestSchema>;

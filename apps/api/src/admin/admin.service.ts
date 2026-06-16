@@ -1,6 +1,7 @@
 import {
   AccountStatus,
   CommunityPostStatus,
+  MediaUploadStatus,
   ReportStatus,
   SubscriptionStatus,
   UserRole,
@@ -24,6 +25,9 @@ import { listFraudEvents, reviewFraudEvent } from '../common/fraud.service.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import { assignVerificationProvider } from './verification-providers.js';
 import {
+  createVerificationDocumentPreviewAccess,
+} from '../verification/verification-document.service.js';
+import {
   AdminNoteModel,
   AuditLogModel,
   CommunityCommentModel,
@@ -41,6 +45,15 @@ import {
   VerificationRequestModel,
 } from '../models/index.js';
 import { calculateVerificationBadge } from '../verification/badge.js';
+
+const documentBackedVerificationTypes = new Set([
+  'IDENTITY',
+  'ADDRESS',
+  'EMPLOYMENT',
+  'VISA',
+  'POLICE_CLEARANCE',
+  'FACIAL',
+]);
 
 const roleRank: Record<string, number> = {
   [UserRole.USER]: 1,
@@ -709,6 +722,27 @@ export async function createVerificationRequest(
   input: VerificationRequestCreateInput,
 ) {
   const profile = await ProfileModel.findOne({ userId, isDeleted: false });
+  const requiresDocument = documentBackedVerificationTypes.has(input.type);
+  let document = null;
+
+  if (input.documentId) {
+    document = await VerificationDocumentModel.findOne({
+      _id: input.documentId,
+      userId,
+      isDeleted: false,
+      uploadStatus: MediaUploadStatus.UPLOADED,
+      requestId: { $exists: false },
+    });
+
+    if (!document) {
+      throw new HttpError(400, 'Verification document upload is missing or not complete');
+    }
+  }
+
+  if (requiresDocument && !document) {
+    throw new HttpError(400, 'A completed verification document upload is required for this request');
+  }
+
   const requestId = new Types.ObjectId();
   const submittedAt = new Date();
   const providerAssignment = await assignVerificationProvider(input.type, {
@@ -725,17 +759,15 @@ export async function createVerificationRequest(
     provider: providerAssignment.provider,
     providerReferenceId: providerAssignment.providerReferenceId,
     status: VerificationStatus.PENDING,
-    documentUrls: input.documentUrls,
+    documentUrls: document ? [document.assetUrl] : [],
     submittedAt,
   });
-  if (input.documentType && input.storageKey) {
-    await VerificationDocumentModel.create({
-      requestId: request._id,
-      userId,
-      documentType: input.documentType,
-      storageKey: input.storageKey,
-      encrypted: true,
-    });
+  if (document) {
+    document.requestId = request._id;
+    if (input.documentType) {
+      document.documentType = input.documentType;
+    }
+    await document.save();
   }
 
   await logActivity({
@@ -782,7 +814,7 @@ export async function getVerificationRequestDetail(requestId: string, actorId?: 
     requestId,
     isDeleted: false,
   })
-    .select('_id documentType encrypted createdAt updatedAt')
+    .select('_id documentType encrypted createdAt updatedAt originalFilename mimeType fileSizeBytes uploadStatus')
     .lean();
   if (actorId) {
     await logAudit({
@@ -809,12 +841,9 @@ export async function getVerificationDocumentPreview(
     _id: documentId,
     requestId: request._id,
     isDeleted: false,
-  }).lean();
+  });
   if (!document) throw new HttpError(404, 'Verification document not found');
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-  const previewToken = Buffer.from(
-    JSON.stringify({ documentId, requestId, exp: expiresAt.toISOString() }),
-  ).toString('base64url');
+  const preview = await createVerificationDocumentPreviewAccess(actorId, requestId, document);
   await logAudit({
     actorId,
     actorRole,
@@ -822,17 +851,9 @@ export async function getVerificationDocumentPreview(
     targetType: 'VERIFICATION_DOCUMENT',
     targetId: document._id,
     targetUserId: document.userId,
-    metadata: { requestId, documentType: document.documentType, expiresAt },
+    metadata: { requestId, documentType: document.documentType, expiresAt: preview.expiresAt },
   });
-  return {
-    document: {
-      id: String(document._id),
-      documentType: document.documentType,
-      encrypted: document.encrypted,
-    },
-    previewUrl: `/api/admin/verifications/${requestId}/documents/${documentId}/preview?token=${previewToken}`,
-    expiresAt,
-  };
+  return preview;
 }
 
 export async function recalculateVerificationBadges(actorId: Types.ObjectId, actorRole: string) {
