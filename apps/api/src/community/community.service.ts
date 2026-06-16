@@ -1,6 +1,5 @@
 import {
   CommunityPostStatus,
-  ReportStatus,
   type CommunityCommentCreateInput,
   type CommunityPostCreateInput,
   type CommunityPostStatusUpdateInput,
@@ -18,7 +17,6 @@ import {
   CommunityPostModel,
   CommunityReactionModel,
   CommunityRoomModel,
-  ReportModel,
 } from '../models/index.js';
 
 const defaultRooms: CommunityRoomInput[] = [
@@ -281,20 +279,6 @@ export async function toggleReaction(
     reaction: input.reaction,
   });
   return { active: true };
-}
-
-export async function reportCommunityPost(userId: Types.ObjectId, postId: string, reason: string) {
-  const post = await CommunityPostModel.findOne({ _id: toId(postId), isDeleted: false });
-  if (!post) throw new HttpError(404, 'Post not found');
-  return ReportModel.create({
-    reporterId: userId,
-    reportedUserId: post.authorId,
-    targetType: 'POST',
-    targetId: post._id,
-    reason,
-    status: ReportStatus.OPEN,
-    severity: 'MEDIUM',
-  });
 }
 
 export async function moderatePost(

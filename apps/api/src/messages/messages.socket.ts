@@ -4,11 +4,20 @@ import { Server } from 'socket.io';
 import { Types } from 'mongoose';
 import type { AuthConfig } from '../auth/auth-types.js';
 import { verifyAccessToken } from '../auth/token.service.js';
+import { AccountStatus } from '@vivah/shared';
+import { UserModel } from '../models/index.js';
 import { getConversationForUser, markConversationRead, sendMessage } from './messages.service.js';
+import {
+  registerMessageIo,
+  trackMessageSocket,
+  untrackMessageSocket,
+} from './messages.realtime.js';
 
 interface SocketData {
   userId: Types.ObjectId;
 }
+
+const TYPING_EVENT_THROTTLE_MS = 750;
 
 export function attachMessageSocketServer(
   httpServer: HttpServer,
@@ -26,29 +35,49 @@ export function attachMessageSocketServer(
   });
 
   io.use((socket, next) => {
-    const token =
-      typeof socket.handshake.auth.token === 'string'
-        ? socket.handshake.auth.token
-        : socket.handshake.headers.authorization?.startsWith('Bearer ')
-          ? socket.handshake.headers.authorization.slice('Bearer '.length)
-          : undefined;
+    void (async () => {
+      const token =
+        typeof socket.handshake.auth.token === 'string'
+          ? socket.handshake.auth.token
+          : socket.handshake.headers.authorization?.startsWith('Bearer ')
+            ? socket.handshake.headers.authorization.slice('Bearer '.length)
+            : undefined;
 
-    if (!token) {
-      next(new Error('Authentication required'));
-      return;
-    }
+      if (!token) {
+        next(new Error('Authentication required'));
+        return;
+      }
 
-    try {
-      const payload = verifyAccessToken(options.auth, token);
-      socket.data.userId = new Types.ObjectId(payload.sub);
-      next();
-    } catch (error) {
-      next(error instanceof Error ? error : new Error('Invalid access token'));
-    }
+      try {
+        const payload = verifyAccessToken(options.auth, token);
+        const userId = new Types.ObjectId(payload.sub);
+        const user = await UserModel.findOne({
+          _id: userId,
+          isDeleted: false,
+          status: AccountStatus.ACTIVE,
+        });
+
+        if (!user) {
+          next(new Error('Your account is not available for messaging'));
+          return;
+        }
+
+        socket.data.userId = userId;
+        next();
+      } catch (error) {
+        next(error instanceof Error ? error : new Error('Invalid access token'));
+      }
+    })();
   });
 
+  registerMessageIo(io);
+
   io.on('connection', (socket) => {
+    const joinedConversations = new Set<string>();
+    const lastTypingEventAt = new Map<string, number>();
+
     void socket.join(`user:${String(socket.data.userId)}`);
+    trackMessageSocket(socket.data.userId, socket);
 
     socket.on('conversation:join', (...args: unknown[]) => {
       void (async () => {
@@ -59,6 +88,7 @@ export function attachMessageSocketServer(
           const input = typingEventSchema.pick({ conversationId: true }).parse(payload);
           await getConversationForUser(socket.data.userId, input.conversationId);
           await socket.join(input.conversationId);
+          joinedConversations.add(input.conversationId);
           acknowledge?.({ ok: true });
         } catch (error) {
           acknowledge?.({
@@ -72,6 +102,16 @@ export function attachMessageSocketServer(
     socket.on('typing', async (payload: unknown) => {
       const input = typingEventSchema.parse(payload);
       await getConversationForUser(socket.data.userId, input.conversationId);
+      const throttleKey = `${input.conversationId}:${input.typing ? 'typing' : 'clear'}`;
+      const now = Date.now();
+      const lastEvent = lastTypingEventAt.get(throttleKey) ?? 0;
+
+      if (now - lastEvent < TYPING_EVENT_THROTTLE_MS) {
+        return;
+      }
+
+      lastTypingEventAt.set(throttleKey, now);
+      joinedConversations.add(input.conversationId);
       socket.to(input.conversationId).emit('typing', {
         conversationId: input.conversationId,
         userId: String(socket.data.userId),
@@ -126,6 +166,19 @@ export function attachMessageSocketServer(
           });
         }
       })();
+    });
+
+    socket.on('disconnect', () => {
+      for (const conversationId of joinedConversations) {
+        socket.to(conversationId).emit('typing', {
+          conversationId,
+          userId: String(socket.data.userId),
+          typing: false,
+        });
+      }
+      joinedConversations.clear();
+      lastTypingEventAt.clear();
+      untrackMessageSocket(socket.data.userId, socket);
     });
   });
 

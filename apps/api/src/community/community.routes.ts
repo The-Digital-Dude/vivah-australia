@@ -14,6 +14,7 @@ import { Router, type NextFunction, type Request, type Response } from 'express'
 import { HttpError } from '../auth/auth-errors.js';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
+import { createReport } from '../interactions/interactions.service.js';
 import {
   addComment,
   archiveRoom,
@@ -25,7 +26,6 @@ import {
   listPostsForRoom,
   listRooms,
   moderatePost,
-  reportCommunityPost,
   toggleReaction,
   updatePost,
   updateRoom,
@@ -184,7 +184,34 @@ export function createCommunityRouter(config: AuthConfig): Router {
       if (!postId) throw new HttpError(404, 'Post not found');
       const input = reportCreateSchema.pick({ reason: true }).parse(request.body);
       response.status(201).json({
-        report: await reportCommunityPost(auth.userId, postId, input.reason),
+        report: await createReport(auth.userId, {
+          targetType: 'POST',
+          targetId: postId,
+          reason: input.reason,
+          severity: 'MEDIUM',
+        }),
+        message: 'Report submitted',
+      });
+    }),
+  );
+
+  router.post(
+    '/community/comments/:id/report',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const commentId = request.params.id;
+      if (!commentId) {
+        throw new HttpError(404, 'Comment not found');
+      }
+      const input = reportCreateSchema.pick({ reason: true }).parse(request.body);
+      response.status(201).json({
+        report: await createReport(auth.userId, {
+          targetType: 'COMMENT',
+          targetId: commentId,
+          reason: input.reason,
+          severity: 'MEDIUM',
+        }),
         message: 'Report submitted',
       });
     }),

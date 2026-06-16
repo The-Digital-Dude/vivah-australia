@@ -8,12 +8,21 @@ import { AdminStatusBadge } from '../components/admin-status-badge';
 interface ReportItem {
   _id: string;
   targetType: string;
+  targetId?: string;
   reason: string;
   severity: string;
   status: string;
   reporterId?: string;
   reportedUserId?: string;
   createdAt: string;
+  reporter?: { email?: string; profile?: { firstName?: string; displayId?: string } | null } | null;
+  reportedMember?: {
+    email?: string;
+    status?: string;
+    profile?: { firstName?: string; displayId?: string; city?: string; state?: string } | null;
+  } | null;
+  assignedModerator?: { email?: string } | null;
+  evidence?: Record<string, unknown> | null;
 }
 
 export default function AdminReports() {
@@ -57,7 +66,11 @@ export default function AdminReports() {
       return;
     }
 
-    const result = await memberRequest(`/api/admin/reports/${id}`, {
+    const endpoint =
+      action === 'ASSIGN' || action === 'RESOLVE'
+        ? `/api/admin/reports/${id}`
+        : `/api/admin/moderation/reports/${id}/action`;
+    const result = await memberRequest(endpoint, {
       method: 'PATCH',
       body: { 
         action,
@@ -158,13 +171,24 @@ export default function AdminReports() {
               <div className="grid gap-3 sm:grid-cols-2 text-xs border-t border-neutral-100 pt-3 text-neutral-500 font-medium">
                 <div>
                   <span className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Reporter User ID</span>
-                  <span className="font-mono">{report.reporterId ?? 'Anonymous / Unknown'}</span>
+                  <span className="font-mono">{report.reporter?.profile?.firstName ?? report.reporter?.email ?? report.reporterId ?? 'Anonymous / Unknown'}</span>
                 </div>
                 <div>
                   <span className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Reported User ID</span>
-                  <span className="font-mono">{report.reportedUserId ?? 'Unknown Target'}</span>
+                  <span className="font-mono">{report.reportedMember?.profile?.firstName ?? report.reportedMember?.email ?? report.reportedUserId ?? 'Unknown Target'}</span>
                 </div>
               </div>
+
+              {report.evidence && (
+                <div className="space-y-2 border-t border-neutral-100 pt-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                    Evidence Snapshot
+                  </p>
+                  <pre className="overflow-x-auto rounded-xl border border-neutral-100 bg-neutral-50 p-3 text-[10px] leading-relaxed text-neutral-600">
+                    {JSON.stringify(report.evidence, null, 2)}
+                  </pre>
+                </div>
+              )}
 
               {report.status !== 'RESOLVED' && report.status !== 'DISMISSED' && (
                 <div className="flex flex-wrap gap-2 pt-3.5 border-t border-neutral-100">

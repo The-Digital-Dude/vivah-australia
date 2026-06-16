@@ -10,10 +10,18 @@ interface FraudEvent {
   _id: string;
   userId?: string;
   rule: string;
+  ruleLabel?: string;
   severity: string;
   status: string;
   score: number;
   metadata?: Record<string, unknown>;
+  evidence?: Record<string, unknown>;
+  reviewReason?: string;
+  affectedMember?: {
+    email?: string;
+    status?: string;
+    profile?: { firstName?: string; displayId?: string; city?: string; state?: string } | null;
+  } | null;
   createdAt: string;
 }
 
@@ -64,7 +72,7 @@ export default function AdminFraudPage() {
                   <ShieldAlert className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-neutral-800">{event.rule}</h2>
+                  <h2 className="text-sm font-bold text-neutral-800">{event.ruleLabel ?? event.rule}</h2>
                   <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
                     <span className="rounded-full bg-rose-50 border border-rose-250 px-2 py-0.5 text-[10px] font-bold text-rose-800 uppercase tracking-wider">
                       {event.severity} Severity
@@ -81,12 +89,37 @@ export default function AdminFraudPage() {
               </span>
             </div>
 
-            {event.metadata && (
+            {event.affectedMember && (
+              <div className="grid gap-3 rounded-xl border border-neutral-150 bg-neutral-50 p-4 text-xs text-neutral-600 sm:grid-cols-2">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Affected member</div>
+                  <div className="mt-1 font-semibold text-neutral-800">
+                    {event.affectedMember.profile?.firstName ?? event.affectedMember.email ?? 'Unknown'}
+                  </div>
+                  <div>{event.affectedMember.profile?.displayId ?? event.affectedMember.email ?? ''}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Profile context</div>
+                  <div className="mt-1">
+                    {[event.affectedMember.profile?.city, event.affectedMember.profile?.state].filter(Boolean).join(', ') || event.affectedMember.status || 'No profile context'}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(event.evidence ?? event.metadata) && (
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Event Metadata</h3>
                 <pre className="overflow-x-auto rounded-xl bg-neutral-50 border border-neutral-150 p-4 text-[10px] font-mono leading-relaxed text-neutral-600">
-                  {JSON.stringify(event.metadata, null, 2)}
+                  {JSON.stringify(event.evidence ?? event.metadata, null, 2)}
                 </pre>
+              </div>
+            )}
+
+            {event.reviewReason && (
+              <div className="rounded-xl border border-neutral-150 bg-neutral-50 p-4 text-xs text-neutral-600">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Review note</div>
+                <div className="mt-1">{event.reviewReason}</div>
               </div>
             )}
 

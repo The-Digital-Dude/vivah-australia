@@ -9,7 +9,7 @@ const socketDisconnectMock = vi.fn();
 
 vi.mock('@/app/auth-context', () => ({
   useAuth: () => ({
-    token: 'member-token',
+    token: 'cookie-based',
   }),
 }));
 
@@ -34,6 +34,20 @@ vi.mock('../profile-actions', () => ({
 }));
 
 vi.stubGlobal('fetch', vi.fn());
+vi.stubGlobal(
+  'IntersectionObserver',
+  class IntersectionObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+    readonly root = null;
+    readonly rootMargin = '0px';
+    readonly thresholds = [0];
+  },
+);
 
 describe('MessagesClient rendering', () => {
   beforeEach(() => {
@@ -43,6 +57,22 @@ describe('MessagesClient rendering', () => {
     socketDisconnectMock.mockReset();
 
     memberRequestMock.mockImplementation((url: string, options?: { method?: string }) => {
+      if (url === '/api/me/profile') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            profile: {
+              id: 'my-profile',
+              userId: 'member-1',
+              personal: {
+                firstName: 'Aarav',
+              },
+            },
+          },
+        });
+      }
+
       if (url === '/api/me/conversations') {
         return Promise.resolve({
           ok: true,
@@ -74,7 +104,7 @@ describe('MessagesClient rendering', () => {
         });
       }
 
-      if (url === '/api/me/conversations/conv-1/messages') {
+      if (url === '/api/me/conversations/conv-1/messages?limit=50') {
         return Promise.resolve({
           ok: true,
           message: '',
@@ -129,27 +159,48 @@ describe('MessagesClient rendering', () => {
     render(<MessagesClient />);
 
     await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/me/profile');
       expect(memberRequestMock).toHaveBeenCalledWith('/api/me/conversations');
-      expect(memberRequestMock).toHaveBeenCalledWith('/api/me/conversations/conv-1/messages');
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/me/conversations/conv-1/messages?limit=50');
     });
 
-    expect(screen.getByText('Anaya')).toBeTruthy();
+    expect(screen.getAllByText('Anaya').length).toBeGreaterThan(0);
     expect(screen.getByText('Melbourne • Engineer')).toBeTruthy();
     expect(screen.getByText('Anaya, 29')).toBeTruthy();
     expect(screen.getByText('Profile actions for profile-1')).toBeTruthy();
 
     expect(screen.getByText('Hello Anaya, I enjoyed reading your profile.')).toBeTruthy();
     expect(screen.getByText('Thanks! Here is the family intro.')).toBeTruthy();
+    expect(screen.getByText('Aarav')).toBeTruthy();
+    expect(screen.getAllByText('Anaya').length).toBeGreaterThan(1);
+    expect(screen.getByText('You')).toBeTruthy();
 
     const attachmentLink = screen.getByRole('link', { name: 'family-intro.pdf' });
     expect(attachmentLink).toBeTruthy();
     expect(attachmentLink.getAttribute('href')).toBe('https://files.example.com/intro.pdf');
 
-    expect(socketEmitMock).toHaveBeenCalledWith('conversation:join', { conversationId: 'conv-1' });
+    expect(socketOnMock).toHaveBeenCalledWith('message:new', expect.any(Function));
+    expect(socketOnMock).toHaveBeenCalledWith('typing', expect.any(Function));
   });
 
   it('renders the accepted-interest empty state when a conversation has no messages', async () => {
     memberRequestMock.mockImplementation((url: string, options?: { method?: string }) => {
+      if (url === '/api/me/profile') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            profile: {
+              id: 'my-profile',
+              userId: 'member-1',
+              personal: {
+                firstName: 'Aarav',
+              },
+            },
+          },
+        });
+      }
+
       if (url === '/api/me/conversations') {
         return Promise.resolve({
           ok: true,
@@ -171,7 +222,7 @@ describe('MessagesClient rendering', () => {
         });
       }
 
-      if (url === '/api/me/conversations/conv-empty/messages') {
+      if (url === '/api/me/conversations/conv-empty/messages?limit=50') {
         return Promise.resolve({
           ok: true,
           message: '',

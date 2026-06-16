@@ -9,18 +9,24 @@ import {
 import mongoose, { Types, type ClientSession, type HydratedDocument } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { recordRepeatedReports, syncReportedUserRiskCounter } from '../common/fraud.service.js';
+import { disconnectMessageSocketsForPair } from '../messages/messages.realtime.js';
 import {
   BlockModel,
+  CommunityCommentModel,
+  CommunityPostModel,
   ConversationModel,
   FavouriteModel,
   InterestModel,
   HiddenProfileModel,
+  MessageModel,
   PlanModel,
   MonthlyInterestCounterModel,
   ProfileApprovalStatus,
+  ProfileMediaModel,
   ProfileModel,
   ReportModel,
   SubscriptionModel,
+  UserModel,
   type Interest,
 } from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';
@@ -273,6 +279,205 @@ function publicProfile(profile: ProfileDocument) {
     country: profile.location.country,
     occupation: profile.employment.occupation,
     verificationLevel: profile.verification.level,
+  };
+}
+
+function reportableProfileSnapshot(profile: Awaited<ReturnType<typeof ProfileModel.findOne>>) {
+  if (!profile) {
+    return null;
+  }
+  return {
+    profileId: profile.id,
+    displayId: profile.displayId,
+    firstName: profile.personal.firstName,
+    lastName: profile.personal.lastName,
+    city: profile.location.city,
+    state: profile.location.state,
+    verificationLevel: profile.verification.level,
+    approvalStatus: profile.moderation.approvalStatus,
+  };
+}
+
+type ResolvedReportTarget = {
+  targetId: Types.ObjectId;
+  reportedUserId?: Types.ObjectId;
+  targetSnapshot: Record<string, unknown>;
+};
+
+async function resolveReportTarget(
+  userId: Types.ObjectId,
+  input: {
+    targetType: 'PROFILE' | 'MEDIA' | 'MESSAGE' | 'USER' | 'POST' | 'COMMENT';
+    targetId?: string;
+    profileId?: string;
+  },
+): Promise<ResolvedReportTarget> {
+  const requestedTargetId = input.profileId ?? input.targetId;
+  if (!requestedTargetId) {
+    throw new HttpError(400, 'A report target is required');
+  }
+  assertObjectId(requestedTargetId, 'Target not found');
+
+  if (input.targetType === 'PROFILE') {
+    const profile = await ProfileModel.findOne({ _id: requestedTargetId, isDeleted: false });
+    if (!profile) {
+      throw new HttpError(404, 'Profile not found');
+    }
+    assertNotSelf(userId, profile);
+    return {
+      targetId: profile._id,
+      reportedUserId: profile.userId,
+      targetSnapshot: {
+        type: 'PROFILE',
+        profile: reportableProfileSnapshot(profile),
+      },
+    };
+  }
+
+  if (input.targetType === 'USER') {
+    const user = await UserModel.findOne({ _id: requestedTargetId, isDeleted: false });
+    if (!user) {
+      throw new HttpError(404, 'User not found');
+    }
+    if (String(user._id) === String(userId)) {
+      throw new HttpError(400, 'You cannot report yourself');
+    }
+    const profile = await profileForUser(user._id);
+    return {
+      targetId: user._id,
+      reportedUserId: user._id,
+      targetSnapshot: {
+        type: 'USER',
+        user: {
+          id: user.id,
+          email: user.email,
+          status: user.status,
+        },
+        profile: reportableProfileSnapshot(profile),
+      },
+    };
+  }
+
+  if (input.targetType === 'MEDIA') {
+    const media = await ProfileMediaModel.findOne({ _id: requestedTargetId, isDeleted: false });
+    if (!media) {
+      throw new HttpError(404, 'Media not found');
+    }
+    if (String(media.userId) === String(userId)) {
+      throw new HttpError(400, 'You cannot report your own media');
+    }
+    const profile = await ProfileModel.findOne({ _id: media.profileId, isDeleted: false });
+    return {
+      targetId: media._id,
+      reportedUserId: media.userId,
+      targetSnapshot: {
+        type: 'MEDIA',
+        media: {
+          id: media.id,
+          category: media.category,
+          mediaType: media.mediaType,
+          mimeType: media.mimeType,
+          visibility: media.visibility,
+          approvalStatus: media.approvalStatus,
+          profileId: String(media.profileId),
+        },
+        profile: reportableProfileSnapshot(profile),
+      },
+    };
+  }
+
+  if (input.targetType === 'MESSAGE') {
+    const message = await MessageModel.findOne({ _id: requestedTargetId, isDeleted: false });
+    if (!message) {
+      throw new HttpError(404, 'Message not found');
+    }
+    const conversation = await ConversationModel.findOne({
+      _id: message.conversationId,
+      participantIds: userId,
+      isDeleted: false,
+      deletedFor: { $ne: userId },
+    });
+    if (!conversation) {
+      throw new HttpError(404, 'Message not found');
+    }
+    if (String(message.senderId) === String(userId)) {
+      throw new HttpError(400, 'You cannot report your own message');
+    }
+    const senderProfile = await profileForUser(message.senderId);
+    return {
+      targetId: message._id,
+      reportedUserId: message.senderId,
+      targetSnapshot: {
+        type: 'MESSAGE',
+        message: {
+          id: message.id,
+          conversationId: String(message.conversationId),
+          bodyExcerpt: typeof message.body === 'string' ? message.body.slice(0, 200) : '',
+          attachmentCount: message.attachmentIds?.length ?? 0,
+          createdAt: message.createdAt,
+        },
+        senderProfile: reportableProfileSnapshot(senderProfile),
+      },
+    };
+  }
+
+  if (input.targetType === 'POST') {
+    const post = await CommunityPostModel.findOne({ _id: requestedTargetId, isDeleted: false });
+    if (!post) {
+      throw new HttpError(404, 'Post not found');
+    }
+    if (String(post.authorId) === String(userId)) {
+      throw new HttpError(400, 'You cannot report your own post');
+    }
+    const authorProfile = await profileForUser(post.authorId);
+    return {
+      targetId: post._id,
+      reportedUserId: post.authorId,
+      targetSnapshot: {
+        type: 'POST',
+        post: {
+          id: post.id,
+          title: post.title,
+          bodyExcerpt: post.body.slice(0, 240),
+          status: post.status,
+          createdAt: post.createdAt,
+        },
+        authorProfile: reportableProfileSnapshot(authorProfile),
+      },
+    };
+  }
+
+  const comment = await CommunityCommentModel.findOne({ _id: requestedTargetId, isDeleted: false });
+  if (!comment) {
+    throw new HttpError(404, 'Comment not found');
+  }
+  if (String(comment.authorId) === String(userId)) {
+    throw new HttpError(400, 'You cannot report your own comment');
+  }
+  const [post, authorProfile] = await Promise.all([
+    CommunityPostModel.findOne({ _id: comment.postId, isDeleted: false }),
+    profileForUser(comment.authorId),
+  ]);
+  if (!post) {
+    throw new HttpError(404, 'Comment not found');
+  }
+  return {
+    targetId: comment._id,
+    reportedUserId: comment.authorId,
+    targetSnapshot: {
+      type: 'COMMENT',
+      comment: {
+        id: comment.id,
+        postId: String(comment.postId),
+        bodyExcerpt: comment.body.slice(0, 200),
+        createdAt: comment.createdAt,
+      },
+      post: {
+        id: post.id,
+        title: post.title,
+      },
+      authorProfile: reportableProfileSnapshot(authorProfile),
+    },
   };
 }
 
@@ -695,6 +900,8 @@ export async function blockProfile(userId: Types.ObjectId, profileId: string) {
       }
     });
 
+  disconnectMessageSocketsForPair(userId, profile.userId, 'blocked');
+
   return { id: block.id, profile: publicProfile(profile) };
 }
 
@@ -830,51 +1037,36 @@ export async function createReport(
     severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   },
 ) {
-  const profileId =
-    input.profileId ?? (input.targetType === 'PROFILE' ? input.targetId : undefined);
-  let reportedUserId: Types.ObjectId | undefined;
-
-  if (profileId) {
-    const profile = await ProfileModel.findOne({ _id: profileId, isDeleted: false });
-    if (!profile) {
-      throw new HttpError(404, 'Profile not found');
-    }
-    assertNotSelf(userId, profile);
-    reportedUserId = profile.userId;
-  }
-
-  const targetId = input.targetId ?? profileId;
-  if (targetId) {
-    assertObjectId(targetId, 'Target not found');
-  }
+  const resolved = await resolveReportTarget(userId, input);
 
   const reportPayload = {
     reporterId: userId,
     targetType: input.targetType,
     reason: input.reason,
     severity: input.severity,
-    ...(reportedUserId ? { reportedUserId } : {}),
-    ...(targetId ? { targetId } : {}),
+    ...(resolved.reportedUserId ? { reportedUserId: resolved.reportedUserId } : {}),
+    targetId: resolved.targetId,
+    targetSnapshot: resolved.targetSnapshot,
   };
   const report = new ReportModel(reportPayload);
   await report.save();
-  if (reportedUserId) {
-    await syncReportedUserRiskCounter(reportedUserId);
+  if (resolved.reportedUserId) {
+    await syncReportedUserRiskCounter(resolved.reportedUserId);
   }
 
   await notify(userId, 'REPORT_SUBMITTED', 'Report submitted', 'Our safety team will review it.');
 
   const reportCount = await ReportModel.countDocuments({
-    reporterId: userId,
-    createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    isDeleted: false,
+      reporterId: userId,
+      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      isDeleted: false,
   });
 
   if (reportCount >= 5) {
     await recordRepeatedReports({
       reporterId: userId,
       reportCount,
-      ...(targetId ? { targetId } : {}),
+      targetId: String(resolved.targetId),
     });
   }
 
@@ -888,7 +1080,67 @@ export async function createReport(
 }
 
 export async function listReports(status: ReportStatusType = ReportStatus.OPEN) {
-  return ReportModel.find({ status, isDeleted: false }).sort({ createdAt: -1 }).limit(100);
+  const reports = await ReportModel.find({ status, isDeleted: false }).sort({ createdAt: -1 }).limit(100);
+  const userIds = new Set<string>();
+  for (const report of reports) {
+    userIds.add(String(report.reporterId));
+    if (report.reportedUserId) {
+      userIds.add(String(report.reportedUserId));
+    }
+    if (report.assignedTo) {
+      userIds.add(String(report.assignedTo));
+    }
+  }
+
+  const [users, profiles] = await Promise.all([
+    UserModel.find({ _id: { $in: [...userIds].map((id) => new Types.ObjectId(id)) }, isDeleted: false }),
+    ProfileModel.find({ userId: { $in: [...userIds].map((id) => new Types.ObjectId(id)) }, isDeleted: false }),
+  ]);
+  const userById = new Map(users.map((user) => [String(user._id), user]));
+  const profileByUserId = new Map(profiles.map((profile) => [String(profile.userId), profile]));
+
+  return reports.map((report) => {
+    const reporter = userById.get(String(report.reporterId)) ?? null;
+    const reportedUser = report.reportedUserId ? userById.get(String(report.reportedUserId)) ?? null : null;
+    const assignedTo = report.assignedTo ? userById.get(String(report.assignedTo)) ?? null : null;
+
+    return {
+      _id: report.id,
+      targetType: report.targetType,
+      targetId: report.targetId ? String(report.targetId) : undefined,
+      reason: report.reason,
+      severity: report.severity,
+      status: report.status,
+      createdAt: report.createdAt,
+      updatedAt: report.updatedAt,
+      reporterId: String(report.reporterId),
+      reportedUserId: report.reportedUserId ? String(report.reportedUserId) : undefined,
+      assignedTo: report.assignedTo ? String(report.assignedTo) : undefined,
+      reporter: reporter
+        ? {
+            id: reporter.id,
+            email: reporter.email,
+            status: reporter.status,
+            profile: reportableProfileSnapshot(profileByUserId.get(String(reporter._id)) ?? null),
+          }
+        : null,
+      reportedMember: reportedUser
+        ? {
+            id: reportedUser.id,
+            email: reportedUser.email,
+            status: reportedUser.status,
+            profile: reportableProfileSnapshot(profileByUserId.get(String(reportedUser._id)) ?? null),
+          }
+        : null,
+      assignedModerator: assignedTo
+        ? {
+            id: assignedTo.id,
+            email: assignedTo.email,
+          }
+        : null,
+      evidence: report.targetSnapshot ?? null,
+    };
+  });
 }
 
 export async function reviewReport(

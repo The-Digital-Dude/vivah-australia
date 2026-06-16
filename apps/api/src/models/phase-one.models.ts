@@ -309,6 +309,7 @@ export interface Report {
   status: ReportStatusType;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   assignedTo?: ObjectId;
+  targetSnapshot?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -431,6 +432,7 @@ const reportSchema = new Schema<Report>(
     },
     severity: { type: String, enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], default: 'LOW' },
     assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
+    targetSnapshot: { type: Schema.Types.Mixed },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'reports' },
@@ -518,6 +520,7 @@ export interface FraudEvent {
   status: 'OPEN' | 'REVIEWED' | 'DISMISSED';
   score: number;
   metadata?: unknown;
+  reviewReason?: string;
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -543,6 +546,7 @@ const fraudEventSchema = new Schema<FraudEvent>(
     },
     score: { type: Number, default: 0, min: 0 },
     metadata: { type: Schema.Types.Mixed },
+    reviewReason: { type: String, trim: true, maxlength: 500 },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'fraud_events' },
@@ -553,6 +557,8 @@ export interface MessageAttachment {
   attachmentType: 'IMAGE' | 'DOCUMENT';
   assetUrl: string;
   storageKey?: string;
+  uploadProvider?: 'cloudinary' | 'mock';
+  uploadExpiresAt?: Date;
   uploadStatus: MediaUploadStatusType;
   fileName: string;
   mimeType: string;
@@ -570,6 +576,8 @@ const messageAttachmentSchema = new Schema<MessageAttachment>(
     attachmentType: { type: String, enum: ['IMAGE', 'DOCUMENT'], required: true, index: true },
     assetUrl: { type: String, required: true, trim: true },
     storageKey: { type: String, trim: true },
+    uploadProvider: { type: String, enum: ['cloudinary', 'mock'] },
+    uploadExpiresAt: { type: Date },
     uploadStatus: {
       type: String,
       enum: Object.values(MediaUploadStatus),

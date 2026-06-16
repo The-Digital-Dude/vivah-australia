@@ -3,12 +3,14 @@ import {
   messageAttachmentCompleteUploadSchema,
   messageAttachmentSignUploadSchema,
   messageCreateSchema,
+  reportCreateSchema,
 } from '@vivah/shared';
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import { HttpError } from '../auth/auth-errors.js';
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { rateLimit } from 'express-rate-limit';
+import { createReport } from '../interactions/interactions.service.js';
 import {
   createSignedMessageAttachmentUpload,
   deleteConversationForUser,
@@ -160,6 +162,28 @@ export function createMessagesRouter(config: AuthConfig): Router {
 
       await deleteMessageForUser(auth.userId, messageId);
       response.status(204).send();
+    }),
+  );
+
+  router.post(
+    '/me/messages/:id/report',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const messageId = request.params.id;
+
+      if (!messageId) {
+        throw new HttpError(404, 'Message not found');
+      }
+
+      const input = reportCreateSchema.pick({ reason: true, severity: true }).parse(request.body);
+      const report = await createReport(auth.userId, {
+        targetType: 'MESSAGE',
+        targetId: messageId,
+        reason: input.reason,
+        severity: input.severity,
+      });
+      response.status(201).json({ report, message: 'Report submitted' });
     }),
   );
 

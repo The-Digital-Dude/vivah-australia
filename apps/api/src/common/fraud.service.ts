@@ -2,6 +2,43 @@ import type { Types } from 'mongoose';
 import { ReportStatus } from '@vivah/shared';
 import { ReportModel, FraudEventModel } from '../models/index.js';
 
+const FRAUD_RULES = {
+  HIGH_VELOCITY_PROFILE_VIEWS: {
+    label: 'High velocity profile views',
+    dedupeWindowMs: 60 * 60 * 1000,
+    severityFor: (_viewCount: number) => 'MEDIUM',
+    scoreFor: (viewCount: number) => Math.min(100, viewCount * 2),
+  },
+  REPEATED_REPORT_SUBMISSIONS: {
+    label: 'Repeated report submissions',
+    dedupeWindowMs: 60 * 60 * 1000,
+    severityFor: (reportCount: number) => (reportCount >= 10 ? 'HIGH' : 'MEDIUM'),
+    scoreFor: (reportCount: number) => Math.min(100, reportCount * 10),
+  },
+  DUPLICATE_CONTACT_ATTEMPTS: {
+    label: 'Duplicate contact attempts',
+    dedupeWindowMs: 60 * 60 * 1000,
+    severityFor: (count: number) => (count >= 6 ? 'HIGH' : 'LOW'),
+    scoreFor: (count: number) => Math.min(100, count * 12),
+  },
+  UNUSUAL_MESSAGE_VOLUME: {
+    label: 'Unusual message volume',
+    dedupeWindowMs: 60 * 60 * 1000,
+    severityFor: (messageCount: number) => (messageCount >= 80 ? 'HIGH' : 'MEDIUM'),
+    scoreFor: (messageCount: number) => Math.min(100, messageCount * 2),
+  },
+  REPEATED_OTP_FAILURES: {
+    label: 'Repeated OTP failures',
+    dedupeWindowMs: 60 * 60 * 1000,
+    severityFor: (attempts: number) => (attempts >= 5 ? 'HIGH' : 'MEDIUM'),
+    scoreFor: (attempts: number) => Math.min(100, attempts * 18),
+  },
+  REPORTED_USER_RISK_SCORE: {
+    label: 'Reported user risk score',
+    dedupeWindowMs: 0,
+  },
+} as const;
+
 export async function recordFraudEvent(input: {
   userId?: Types.ObjectId;
   rule: string;
@@ -26,6 +63,7 @@ export async function reviewFraudEvent(
   eventId: string,
   status: 'REVIEWED' | 'DISMISSED',
   reviewerId: Types.ObjectId,
+  reviewReason?: string,
 ) {
   return FraudEventModel.findOneAndUpdate(
     { _id: eventId, isDeleted: false },
@@ -33,6 +71,7 @@ export async function reviewFraudEvent(
       $set: {
         status,
         updatedBy: reviewerId,
+        reviewReason: reviewReason?.trim() || undefined,
       },
     },
     { returnDocument: 'after' },
@@ -40,7 +79,7 @@ export async function reviewFraudEvent(
 }
 
 export async function recordHighVelocityProfileViews(userId: Types.ObjectId, viewCount: number) {
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const oneHourAgo = new Date(Date.now() - FRAUD_RULES.HIGH_VELOCITY_PROFILE_VIEWS.dedupeWindowMs);
   const existing = await FraudEventModel.countDocuments({
     userId,
     rule: 'HIGH_VELOCITY_PROFILE_VIEWS',
@@ -52,15 +91,16 @@ export async function recordHighVelocityProfileViews(userId: Types.ObjectId, vie
     await recordFraudEvent({
       userId,
       rule: 'HIGH_VELOCITY_PROFILE_VIEWS',
-      severity: 'MEDIUM',
-      score: Math.min(100, viewCount * 2),
+      severity: FRAUD_RULES.HIGH_VELOCITY_PROFILE_VIEWS.severityFor(viewCount),
+      score: FRAUD_RULES.HIGH_VELOCITY_PROFILE_VIEWS.scoreFor(viewCount),
       metadata: { window: '1h', viewCount },
     });
   }
 }
 
 async function recordDedupedFraudEvent(input: Parameters<typeof recordFraudEvent>[0]) {
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const dedupeWindowMs = FRAUD_RULES[input.rule as keyof typeof FRAUD_RULES]?.dedupeWindowMs ?? 60 * 60 * 1000;
+  const oneHourAgo = new Date(Date.now() - dedupeWindowMs);
   const existing = await FraudEventModel.countDocuments({
     ...(input.userId ? { userId: input.userId } : {}),
     rule: input.rule,
@@ -81,8 +121,8 @@ export async function recordRepeatedReports(input: {
   await recordDedupedFraudEvent({
     userId: input.reporterId,
     rule: 'REPEATED_REPORT_SUBMISSIONS',
-    severity: input.reportCount >= 10 ? 'HIGH' : 'MEDIUM',
-    score: Math.min(100, input.reportCount * 10),
+    severity: FRAUD_RULES.REPEATED_REPORT_SUBMISSIONS.severityFor(input.reportCount),
+    score: FRAUD_RULES.REPEATED_REPORT_SUBMISSIONS.scoreFor(input.reportCount),
     metadata: { window: '24h', reportCount: input.reportCount, targetId: input.targetId },
   });
 }
@@ -94,8 +134,8 @@ export async function recordDuplicateContactAttempts(input: {
 }) {
   await recordDedupedFraudEvent({
     rule: 'DUPLICATE_CONTACT_ATTEMPTS',
-    severity: input.count >= 6 ? 'HIGH' : 'LOW',
-    score: Math.min(100, input.count * 12),
+    severity: FRAUD_RULES.DUPLICATE_CONTACT_ATTEMPTS.severityFor(input.count),
+    score: FRAUD_RULES.DUPLICATE_CONTACT_ATTEMPTS.scoreFor(input.count),
     metadata: { window: '24h', email: input.email, phone: input.phone, count: input.count },
   });
 }
@@ -104,8 +144,8 @@ export async function recordUnusualMessageVolume(userId: Types.ObjectId, message
   await recordDedupedFraudEvent({
     userId,
     rule: 'UNUSUAL_MESSAGE_VOLUME',
-    severity: messageCount >= 80 ? 'HIGH' : 'MEDIUM',
-    score: Math.min(100, messageCount * 2),
+    severity: FRAUD_RULES.UNUSUAL_MESSAGE_VOLUME.severityFor(messageCount),
+    score: FRAUD_RULES.UNUSUAL_MESSAGE_VOLUME.scoreFor(messageCount),
     metadata: { window: '1h', messageCount },
   });
 }
@@ -118,10 +158,14 @@ export async function recordRepeatedOtpFailures(input: {
   await recordDedupedFraudEvent({
     userId: input.userId,
     rule: 'REPEATED_OTP_FAILURES',
-    severity: input.attempts >= 5 ? 'HIGH' : 'MEDIUM',
-    score: Math.min(100, input.attempts * 18),
+    severity: FRAUD_RULES.REPEATED_OTP_FAILURES.severityFor(input.attempts),
+    score: FRAUD_RULES.REPEATED_OTP_FAILURES.scoreFor(input.attempts),
     metadata: { mobile: input.mobile, attempts: input.attempts },
   });
+}
+
+export function fraudRuleLabel(rule: string) {
+  return FRAUD_RULES[rule as keyof typeof FRAUD_RULES]?.label ?? rule;
 }
 
 const reportedUserRiskStatuses = [ReportStatus.OPEN, ReportStatus.ASSIGNED] as const;

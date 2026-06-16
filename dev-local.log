@@ -2954,3 +2954,2227 @@
 [0]       "address": "::",
 [0]       "port": 4000
 [0]     }
+[0] 7:26:58 PM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:27:03.866 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:27:03.867 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:27:03.874 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:28:55 PM [tsx] change in ./src\messages\messages.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:29:00.109 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:29:00.109 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:29:00.122 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:29:18 PM [tsx] change in ./src\messages\messages.socket.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:29:22.040 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:29:22.041 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:29:22.047 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] [2026-06-16 19:30:09.857 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "dd79f41b-fe10-4701-a6c6-fcaaf399c02d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 156
+[0] [2026-06-16 19:30:09.925 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f2b89142-d259-4e99-9365-191be4fb5e20"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 191
+[0] [2026-06-16 19:30:10.207 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e640e4ea-d2cf-4fcd-9201-abfa457d51c3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 157
+[0] [2026-06-16 19:30:10.303 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a75fceed-0e4b-4da3-adf2-ef5916f94e2c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations/6a3014bb84088aa8ea035827/messages?limit=50"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 248
+[0] [2026-06-16 19:30:10.366 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a2ae83c1-a851-414e-ab0b-ff788ec35351"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 151
+[0] [2026-06-16 19:30:10.646 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "53ea5205-de32-445b-bc22-602e36a3233b"
+[0]     [35mmethod[39m: "POST"
+[0]     [35murl[39m: "/api/me/conversations/6a3014bb84088aa8ea035827/read"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 328
+[0] [2026-06-16 19:30:10.799 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "27f1a3b7-0c42-4ef6-a90b-26291b8e570e"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 148
+[0] [2026-06-16 19:34:08.122 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "83bd05ea-9bcf-40e0-a603-68b05c1951a2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 31
+[0] [2026-06-16 19:34:08.144 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5e8ba9a8-4e24-4b44-9178-3a99a695e9ef"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 5
+[0] [2026-06-16 19:34:08.154 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e38906c1-c1f6-4c47-92f1-e9bd9e8875e3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations/6a3014bb84088aa8ea035827/messages?limit=50"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 8
+[0] [2026-06-16 19:34:10.269 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5a35a550-5362-44f8-b315-e53e34c3bf13"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 211
+[0] [2026-06-16 19:34:15.453 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "42a246c5-b1bc-472c-8054-b61b4cd0501f"
+[0]     [35mmethod[39m: "POST"
+[0]     [35murl[39m: "/api/auth/login"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1080
+[0] [2026-06-16 19:34:15.602 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "22007342-1b52-407f-8d62-a148c64eadce"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 138
+[0] [2026-06-16 19:34:16.263 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "eef1af23-003f-4faf-8a4d-5807fa759838"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 102
+[0] [2026-06-16 19:34:16.315 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "acbc5513-eac1-4a60-b4b7-d3df27a96dab"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 183
+[0] [2026-06-16 19:34:16.355 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9fab640a-484d-4df4-8765-3e1093149d1a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 172
+[0] [2026-06-16 19:34:16.370 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "47432532-9882-448d-9315-269422e694f2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/boosts"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 98
+[0] [2026-06-16 19:34:16.382 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0c41ddb1-e30d-4f37-94b8-8617f93809a4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/subscription"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 184
+[0] [2026-06-16 19:34:16.470 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "51c2c5dd-7432-40d3-8ae2-47da225a3610"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 153
+[0] [2026-06-16 19:34:16.480 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b86dd05e-5107-4539-98d8-627d07b94ce1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 103
+[0] [2026-06-16 19:34:16.521 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8cf3a41d-fa98-4c8d-88c8-5e0f8b4f1d66"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=4"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 351
+[0] [2026-06-16 19:34:16.536 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "326024ed-bfaa-4aad-8ca5-c66d5b0903e8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 148
+[0] [2026-06-16 19:34:16.553 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "72a7285b-dc1f-4d68-8153-e7d19621bdaf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?limit=4&sort=RECENTLY_ACTIVE"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 375
+[0] [2026-06-16 19:34:16.607 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8207996e-012f-4b34-85ae-e47a2c8f0944"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/boosts"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 122
+[0] [2026-06-16 19:34:16.636 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4ccb425b-cabf-4ee7-8b1d-5ca8f5bbc6a4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 280
+[0] [2026-06-16 19:34:16.656 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e0a023aa-e45a-43ca-890f-54b972bbf6c3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 183
+[0] [2026-06-16 19:34:16.727 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0f344f9d-3452-4c41-945f-6af24c521cf7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 163
+[0] [2026-06-16 19:34:16.736 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6d34800b-a402-4a03-8c60-766833334632"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 180
+[0] [2026-06-16 19:34:16.770 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4ebfcb3f-701e-41f6-8b02-a373400a6b47"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/subscription"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 233
+[0] [2026-06-16 19:34:16.836 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5458e425-a965-4a45-b78f-39af16d458ef"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 98
+[0] [2026-06-16 19:34:16.976 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c4f3a136-e616-42f5-a0b3-c2f7645a057d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 259
+[0] [2026-06-16 19:34:16.995 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2d0942f8-1fbb-4187-953b-a6fad37c1a6c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=4"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 385
+[0] [2026-06-16 19:34:17.039 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9a76040b-3110-4353-adbe-2b79f28e1ca7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?limit=4&sort=RECENTLY_ACTIVE"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 402
+[0] 7:35:43 PM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c7:35:43 PM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c7:35:44 PM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:35:55.291 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:35:55.291 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:35:55.311 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:39:24 PM [tsx] change in ./src\messages\messages.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:39:31.969 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:39:31.975 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:39:32.044 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:39:56 PM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c7:39:56 PM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:40:02.499 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:40:02.499 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:40:02.507 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] [2026-06-16 19:46:42.619 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "77ddf683-bb7d-47af-a4d9-5b59c20a6ae2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 198
+[0] [2026-06-16 19:46:42.642 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4f38ff77-e763-4549-8594-33bf4559f890"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 407
+[0] [2026-06-16 19:46:42.736 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b8f54a70-6b81-4674-893f-179811eda649"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 106
+[0] [2026-06-16 19:46:42.816 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b4e9057b-e3da-477d-a31f-aee0b757bccf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 170
+[0] [2026-06-16 19:46:42.851 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "bd75ae12-ed9b-4855-8e9d-3ef5c4011c1b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 109
+[0] [2026-06-16 19:46:42.965 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d2ace22a-6e7b-40d6-9ff4-e6414a0fd312"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 112
+[0] [2026-06-16 19:46:48.797 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "20951344-7024-41a9-9260-4dee7dca8c4f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/priya-sharma-va100001"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 445
+[0] [2026-06-16 19:46:48.812 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ddcd3d37-bcb7-4e0f-8f10-d8e7c1a554ca"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/priya-sharma-va100001"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 300
+[0] [2026-06-16 19:46:49.677 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d67c42b3-6437-4fae-aa48-e4a3029bb34c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/priya-sharma-va100001"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 470
+[0] [2026-06-16 19:46:49.705 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "40fb9727-cf71-4f94-8022-ad526efd39b1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/priya-sharma-va100001"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 490
+[0] [2026-06-16 19:46:49.816 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4f9d0566-9044-4604-938d-a33d4ca43237"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 100
+[0] [2026-06-16 19:46:49.858 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2958ce78-ff38-4594-8914-a173f3df6961"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 56
+[0] [2026-06-16 19:46:49.978 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ff398d2c-9334-409d-b7ee-2aefcf2b08a7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/photo-requests/status/6a2569c663b065db85041ca3"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 4
+[0] [2026-06-16 19:46:49.989 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c9adf475-4008-482f-abe6-dae0fb5dcc28"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/photo-requests/status/6a2569c663b065db85041ca3"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 2
+[0] [2026-06-16 19:46:50.140 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "387aef78-94fe-4c97-a347-f04fb38edbc1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c663b065db85041ca3"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 156
+[0] [2026-06-16 19:46:50.294 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "cbcdd0a4-397c-442d-b8dc-fdf94e643fd8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c663b065db85041ca3"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 151
+[0] [2026-06-16 19:46:50.448 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "cb3697e1-fc2d-4029-a18b-d4d1257f2dd3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c663b065db85041ca3"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 152
+[0] [2026-06-16 19:46:50.609 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c3c7157d-2b8f-48b4-92cb-c0c4fcf87f9a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c663b065db85041ca3"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 160
+[0] [2026-06-16 19:47:08.763 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5f5fd4f8-b05d-46ab-b2d7-667fe13f2258"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/saved-searches"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 185
+[0] [2026-06-16 19:47:08.778 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4c6f8a3c-f1cb-4319-89b9-861c8834497d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 187
+[0] [2026-06-16 19:47:08.889 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e0c211fb-330d-4d88-b6d3-d8908093368e"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 277
+[0] [2026-06-16 19:47:08.917 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4f8b1d00-6c97-4470-8bad-cb79aa9c508d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/saved-searches"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 137
+[0] [2026-06-16 19:47:08.931 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5cd676da-a4fd-4a3e-ac08-7bcfd5b059e4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 111
+[0] [2026-06-16 19:47:09.152 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9ba57142-e582-44e4-a3c9-4dc83ccb9095"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=24"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 590
+[0] [2026-06-16 19:47:09.283 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0f02f673-f7cf-4f31-9593-b7cbb35719fe"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 678
+[0] [2026-06-16 19:47:09.319 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4fe70509-6d16-463d-86aa-dda4ead6a957"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 386
+[0] [2026-06-16 19:47:09.635 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0f736e03-4d70-4ad4-9c4e-58740fde662a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 725
+[0] [2026-06-16 19:47:10.068 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5a720239-5dea-42da-a0c9-792a9a6f5a34"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 487
+[0] [2026-06-16 19:47:10.144 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "dee13ef5-b483-4db5-ad81-e4e7984e3c75"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 433
+[0] [2026-06-16 19:47:10.163 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "54ec10e9-9646-4719-b12c-196f44a943f9"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 417
+[0] [2026-06-16 19:47:10.175 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ed48365a-8594-4a46-84ad-9128fb60a428"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccd"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 356
+[0] [2026-06-16 19:47:10.384 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5c281ab9-0d9c-4d14-8df4-fa4d3b22b4cf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=24"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 1091
+[0] [2026-06-16 19:47:10.503 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0b592cf0-96d5-4ed6-b133-f0e91d79966e"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 943
+[0] [2026-06-16 19:47:10.513 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f6f194ac-b99c-46c7-b9aa-862fa6614d66"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 364
+[0] [2026-06-16 19:47:10.526 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b7a549c0-a986-4cc0-8bb3-6707556ea84d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccd"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 341
+[0] [2026-06-16 19:47:10.537 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "34489813-e29d-40b9-a8f1-2eff0ec967fa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 359
+[0] [2026-06-16 19:47:25.208 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5aad7bf9-5fc3-4896-a72a-6b61090c8dd4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECENTLY_ACTIVE&recentlyActive=true"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 507
+[0] [2026-06-16 19:47:25.712 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8adc9b8e-d731-4201-ac61-9e0eb2a48521"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041ca5"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 215
+[0] [2026-06-16 19:47:25.725 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "149ca803-4dcf-49a1-a99f-356d81df74b5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041cab"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 210
+[0] [2026-06-16 19:47:25.729 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5f507920-6fdb-4e48-9ac3-c1820dc0e84e"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041ca7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 223
+[0] [2026-06-16 19:47:25.748 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "25ee832c-b5af-4adf-8ee7-6f73417dbeb7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 220
+[0] [2026-06-16 19:47:25.845 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "72fa672b-9bed-4415-9429-2d861cffab6f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041ca9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 336
+[0] [2026-06-16 19:47:25.867 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "75cf663b-91a1-4701-b0da-6e37588645f2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041caf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 344
+[0] [2026-06-16 19:47:26.047 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0cdfb3e8-c79e-4b6a-8cd1-0af07b6f8221"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041cad"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 293
+[0] [2026-06-16 19:47:26.062 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "72c6fbaa-b7b4-4e72-90b2-2e26254c775f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb3"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 283
+[0] [2026-06-16 19:47:26.072 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "46c307e7-6d65-415f-a691-93ac173f4ad4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb5"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 273
+[0] [2026-06-16 19:47:26.128 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7ce65779-7743-430d-985d-fcd29778b0b3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 257
+[0] [2026-06-16 19:47:26.155 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6e3e9cfb-0cbb-414b-953d-97e4bf547ddd"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 231
+[0] [2026-06-16 19:47:26.181 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f1ecc8d0-f07e-4e83-ae0d-a9f8d28f3926"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cbb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 244
+[0] [2026-06-16 19:47:26.264 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "72e0b439-eedf-4918-925d-dd8ef3788d2a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041ca5"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 190
+[0] [2026-06-16 19:47:26.293 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ced3f08d-b3fe-4e06-9f0b-e6435e47c918"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041cab"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 196
+[0] [2026-06-16 19:47:26.335 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "bd4bf429-f148-41f9-8c52-84794c16b05a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041ca7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 220
+[0] [2026-06-16 19:47:26.351 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b995ba74-053b-4ab0-8e41-768725659470"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 209
+[0] [2026-06-16 19:47:26.383 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9d3bf532-20c7-45be-b526-dc9964406fdb"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041ca9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 210
+[0] [2026-06-16 19:47:26.398 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "15d5e080-611c-4340-88c8-e32c0f58cb2b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041caf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 206
+[0] [2026-06-16 19:47:26.462 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "737d17d2-7e22-4a75-ad40-08825b8073e5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c763b065db85041cad"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 184
+[0] [2026-06-16 19:47:26.513 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1602cc04-3a17-48d2-8d51-04ba1bf7522b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb3"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 197
+[0] [2026-06-16 19:47:26.539 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0702314b-489a-4b18-8114-385cdb64b3d0"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb5"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 177
+[0] [2026-06-16 19:47:26.543 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1a9f3c04-7834-40bf-b75d-ec8df5051914"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c863b065db85041cb7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 178
+[0] [2026-06-16 19:47:26.584 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ea4408b5-9a51-4eec-bf0b-919c81750d94"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 196
+[0] [2026-06-16 19:47:26.586 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1e228672-4893-47e5-a35e-2ccc14470d31"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cbb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 174
+[0] [2026-06-16 19:47:47.590 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c1bbdff8-42a8-4ae2-9619-88f290737ded"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECENTLY_ACTIVE&city=Melbourne&recentlyActive=true"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 402
+[0] [2026-06-16 19:47:47.808 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "805c1a28-0cb8-4e06-8b97-e84f04d4c72b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 178
+[0] [2026-06-16 19:47:47.810 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "98309b71-cebc-4038-b103-c4857518fb2f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 167
+[0] [2026-06-16 19:47:47.827 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "57ce25c2-0d95-4dfd-bee0-2b4962f6f0fd"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 179
+[0] [2026-06-16 19:47:47.970 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "02dad671-1a5b-4e5a-a177-441636bbd8e1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 159
+[0] [2026-06-16 19:47:47.978 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "301443ea-6236-4260-bce9-099b133e953a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 163
+[0] [2026-06-16 19:47:47.980 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3c1e1222-a72b-4391-8111-a3c7620e0456"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 151
+[0] [2026-06-16 19:47:58.319 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "522fc264-585b-4685-a12a-c0c07791a204"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED&city=Melbourne&recentlyActive=true"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 580
+[0] [2026-06-16 19:47:58.889 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "59bee255-1d93-400e-9c00-b48d0ac7de45"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 493
+[0] [2026-06-16 19:47:58.906 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "72f6e3e5-474b-41f8-bce5-99d5a1545ad5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 516
+[0] [2026-06-16 19:47:58.925 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c23695e0-2cc5-450c-9d1b-851d461b5e3b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 549
+[0] [2026-06-16 19:47:59.061 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "964bd421-37e5-4118-a8f8-31905f71b913"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 167
+[0] [2026-06-16 19:47:59.135 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ca4ce802-5bfd-4958-af8e-eef5a23ebacd"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 226
+[0] [2026-06-16 19:47:59.157 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f2dc7158-0923-4730-ade1-98279314425b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 228
+[0] [2026-06-16 19:47:59.317 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "037fa7a6-76d0-4037-939f-ecc2275d3c14"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 84
+[0] [2026-06-16 19:47:59.326 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4d93391a-a2fe-4587-9fd5-faa0acb9915a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 69
+[0] [2026-06-16 19:48:07.239 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "76f75c03-bbb6-4904-b72b-e0bb47bc2de2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 101
+[0] [2026-06-16 19:48:07.254 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a69e5c1d-0d76-4cc3-92bb-63fdea67deea"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 130
+[0] [2026-06-16 19:48:07.277 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7d164f20-5bb3-46c5-a9ac-1dd743ddfec8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 137
+[0] [2026-06-16 19:48:07.298 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2befeef8-1579-4d11-8d60-79d54a30384b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/favourites"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 154
+[0] [2026-06-16 19:48:07.305 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c63b65c9-6ad4-4717-a921-e573faabdb68"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=sent"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 162
+[0] [2026-06-16 19:48:07.313 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "82814ca0-39f1-4dc1-b39f-7c0365118b56"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/recently-viewed"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 168
+[0] [2026-06-16 19:48:07.365 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1b9958d0-ce40-4d2b-a1db-82317e64e08e"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 87
+[0] [2026-06-16 19:48:07.390 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "39a0d9d0-c646-4f7c-aaaf-48b38c77514c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 135
+[0] [2026-06-16 19:48:07.462 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "eb91741c-af3d-437b-96a8-be7c10b2cfeb"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 148
+[0] [2026-06-16 19:48:07.463 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "467fe9d1-1250-4950-8583-402b424ebb77"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 156
+[0] [2026-06-16 19:48:07.474 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3c84eedd-f20f-40df-9063-9816990d1f77"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/favourites"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 156
+[0] [2026-06-16 19:48:07.485 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c9fd4c40-cb20-41f0-9d0a-90439914a858"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 241
+[0] [2026-06-16 19:48:07.537 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8aefeba9-054c-4282-ba38-5c9c073329b6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=sent"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 169
+[0] [2026-06-16 19:48:07.553 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "193ec3ec-cbbb-46f6-a958-d77442bc7cef"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/recently-viewed"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 162
+[0] [2026-06-16 19:48:07.638 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2b05d837-01fd-4571-bb3d-f309affc50b3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 175
+[0] [2026-06-16 19:48:07.754 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "333d04ba-4ae5-42eb-a1b1-dcd8be2aa989"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 268
+[0] [2026-06-16 19:48:08.478 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ac44b1b5-9c3a-48b7-b8a0-f715d9e114f8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 55
+[0] [2026-06-16 19:48:09.266 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "278e7548-4327-4852-a534-469144da612b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 711
+[0] [2026-06-16 19:48:09.279 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "32bd8002-710f-400f-ae3d-b91231135e8b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 708
+[0] [2026-06-16 19:48:09.368 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "39c6eacc-2597-44f7-a4f5-4cbf8e7f1786"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/photo-requests/status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 3
+[0] [2026-06-16 19:48:09.378 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "26840267-9ed3-45d8-b3b7-464de74ff82f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/photo-requests/status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 6
+[0] [2026-06-16 19:48:09.388 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "89c5a54c-b74f-4289-a227-a32e9ab70faa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 105
+[0] [2026-06-16 19:48:09.535 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "eb142e84-50a7-45b6-8816-c6ea36a44e30"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 167
+[0] [2026-06-16 19:48:09.744 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "00e029e6-5ac1-4f9d-abc5-b2bfd65628a3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 206
+[0] [2026-06-16 19:48:09.912 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "dc73c680-9260-4b27-a774-7ee72432aeb8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 164
+[0] [2026-06-16 19:48:10.071 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ea94e2c7-aaaa-4c75-b95a-b27453ca9241"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 156
+[0] [2026-06-16 19:48:52.793 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "72d391e6-e421-4aad-99b3-3db61e24e996"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 162
+[0] [2026-06-16 19:48:52.852 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a37d6fd8-fb96-46f3-86ad-4256a3b9a22e"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 230
+[0] [2026-06-16 19:48:52.919 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3a429cd8-8791-4349-bd6e-fbf9eca0537a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 256
+[0] [2026-06-16 19:48:52.960 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4debea06-39b9-4a45-a27a-d812476c7ea3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/boosts"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 163
+[0] [2026-06-16 19:48:52.976 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "004fe559-7a00-47a3-bd18-8d5c02336167"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/subscription"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 299
+[0] [2026-06-16 19:48:53.071 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ab7cddbc-cad6-4f7c-8df4-47f298d07758"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 216
+[0] [2026-06-16 19:48:53.123 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3dea7c57-dd7c-4999-9252-44d99063f0aa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 158
+[0] [2026-06-16 19:48:53.148 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5fde3dcf-c661-49b3-a914-8950d1e96328"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=4"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 496
+[0] [2026-06-16 19:48:53.195 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "890600d5-e180-4b9c-bfaf-44db72b2681c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?limit=4&sort=RECENTLY_ACTIVE"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 537
+[0] [2026-06-16 19:48:53.254 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d8f593e8-1267-4993-a595-fe8e824e9423"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 276
+[0] [2026-06-16 19:48:53.309 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "28694f4a-a31e-444d-81dd-553f2d9d4648"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/boosts"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 159
+[0] [2026-06-16 19:48:53.324 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6da02970-4490-4e70-9019-0bd986b0b327"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 252
+[0] [2026-06-16 19:48:53.393 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "67f38b3c-3600-491c-a82f-c80348548abd"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 460
+[0] [2026-06-16 19:48:53.462 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b25ee6ae-3cfe-4560-aa03-2d0bfe16ad7f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 263
+[0] [2026-06-16 19:48:53.471 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8e7b98ee-e4a1-4fba-bdd8-3e1e1826770f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 208
+[0] [2026-06-16 19:48:53.475 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c02d73de-99e5-44a9-b2a3-383f5253381d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/subscription"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 317
+[0] [2026-06-16 19:48:53.670 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "beb63837-9634-47de-802a-3dac13179556"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 194
+[0] [2026-06-16 19:48:53.878 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "69b65353-a4f3-46eb-9cd4-e3d73a86df3b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 467
+[0] [2026-06-16 19:48:53.891 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c0e45f33-084d-4792-b591-798b15ffacbc"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=4"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 573
+[0] [2026-06-16 19:48:53.930 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "be90d703-1bcd-4b30-a0ce-fa018eabfc2d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?limit=4&sort=RECENTLY_ACTIVE"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 603
+[0] [2026-06-16 19:48:57.104 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4d3f1dac-fc59-4e98-aaca-409574393a75"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 117
+[0] [2026-06-16 19:48:57.159 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9171a9bd-b75c-4a99-862f-e12d81ee983b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/saved-searches"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 135
+[0] [2026-06-16 19:48:57.215 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "806cb079-8a4d-43ce-9a8b-967d04af7f20"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 209
+[0] [2026-06-16 19:48:57.254 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "41da0a64-9928-4da0-960b-e4e8bcb09305"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 123
+[0] [2026-06-16 19:48:57.271 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4f6d6b0e-a37c-4468-bf5f-40f003a3bfcd"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/saved-searches"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 103
+[0] [2026-06-16 19:48:57.493 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "48256901-369d-415c-8e53-e1914a7daf50"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 459
+[0] [2026-06-16 19:48:57.501 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4127cc87-a3f8-4e55-802e-68c5b137d162"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=24"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 490
+[0] [2026-06-16 19:48:57.513 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f04bce2e-0939-4063-890c-c66aada3ad99"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 250
+[0] [2026-06-16 19:48:57.518 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "af165486-55b8-4e2f-a017-cc418f1f40cf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 292
+[0] [2026-06-16 19:48:57.671 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f2793357-83e1-47d0-a173-b8b319aa542c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 139
+[0] [2026-06-16 19:48:57.731 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f5e0e80c-1afd-43de-9171-abcfc3676ea5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 161
+[0] [2026-06-16 19:48:57.748 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d285ad63-c144-45b1-abaf-dc96916d6585"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccd"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 172
+[0] [2026-06-16 19:48:57.776 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a2ae10b4-5124-4e8b-aee8-133311bf4276"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 195
+[0] [2026-06-16 19:48:57.988 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "26d291d5-9c0d-480e-a573-c1fdbea016ed"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 466
+[0] [2026-06-16 19:48:58.027 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b5cce3e6-f39b-405e-8fce-60a1b71c25a9"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=24"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 499
+[0] [2026-06-16 19:48:58.057 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8735df90-6841-489e-a628-d9af6efb75e8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 322
+[0] [2026-06-16 19:48:58.062 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3a237824-85e5-4ebb-a220-71b68fbb5521"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccd"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 309
+[0] [2026-06-16 19:48:58.097 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5613e094-87ee-4bb2-b88a-768696782250"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 312
+[0] [2026-06-16 19:49:02.556 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8de035c9-e3e9-4e17-ae70-2bdf1accac15"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED&city=Melbourne"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 248
+[0] [2026-06-16 19:49:02.757 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e1fd9728-1b3c-4e1a-82fd-433fb7e4d0ca"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 163
+[0] [2026-06-16 19:49:02.775 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "bdcf3c5d-8620-4051-9830-2c728d1f1c34"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 171
+[0] [2026-06-16 19:49:02.782 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8b8d8810-5b2a-41da-a7c9-a0849902aa23"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 179
+[0] [2026-06-16 19:49:02.798 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "76097784-af0c-4c6b-81f1-6a76689443f1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 201
+[0] [2026-06-16 19:49:02.942 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ee789645-a114-4be0-a066-35f71e48822b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 180
+[0] [2026-06-16 19:49:02.955 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "aaaaf99f-ef74-4306-b65a-f3165faabe38"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 167
+[0] [2026-06-16 19:49:02.956 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3dd45323-f890-4b4b-b01e-c9e342503ff9"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 59
+[0] [2026-06-16 19:49:02.976 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d1e3ed5b-8d25-4861-b2a7-80ef95038032"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 175
+[0] [2026-06-16 19:49:03.005 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0e4dcbdc-d820-4f97-a9ec-223db2b6cad2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 195
+[0] [2026-06-16 19:49:03.024 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "83c9ac68-0599-4ff9-9eac-7cd030c41803"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 63
+[0] [2026-06-16 19:50:12.923 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "766a851a-99d6-4b16-86d7-eae9aa4a99d1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 105
+[0] [2026-06-16 19:50:13.107 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1694fd3e-dee4-4f29-9751-86af69f2c4de"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 64
+[0] [2026-06-16 19:50:13.116 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "11a1bfdf-c3cc-4cb7-b52a-840e93f5aabf"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 63
+[0] [2026-06-16 19:50:19.254 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "15a0e45e-6d70-4e39-8199-1fc1f8c69f65"
+[0]     [35mmethod[39m: "POST"
+[0]     [35murl[39m: "/api/auth/login"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1092
+[0] [2026-06-16 19:50:19.386 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ea545d89-ca7b-419b-8f3f-6a9ef01c8694"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 121
+[0] [2026-06-16 19:50:19.767 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "489f9df9-2e05-4cd1-8169-f23daa6b0412"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 54
+[0] [2026-06-16 19:50:19.944 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d0d83cf8-4234-40e2-b1f3-b99dcaf0caf1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 134
+[0] [2026-06-16 19:50:20.012 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1cb0f8b1-ea3c-402d-a97d-1ee074042db6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 217
+[0] [2026-06-16 19:50:20.077 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f3b98450-6b23-459b-b1ca-4134bad21846"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 223
+[0] [2026-06-16 19:50:20.151 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b6edcd69-e345-45b3-9a21-0e7f682e99be"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/boosts"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 187
+[0] [2026-06-16 19:50:20.186 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "95a25b5c-e956-44eb-970e-dff2e1dfb4d6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/subscription"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 338
+[0] [2026-06-16 19:50:20.474 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "fbf5d1da-0ab7-4c4b-89c1-202c6000ad80"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=4"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 653
+[0] [2026-06-16 19:50:20.516 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "03295007-f9d0-4fa1-abac-c6f1937169fa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 501
+[0] [2026-06-16 19:50:20.629 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "afba3ade-3207-4397-ad33-3a03cc268a6f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 440
+[0] [2026-06-16 19:50:20.745 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4d63dd77-69aa-4f3d-982b-6bd1e78f91e2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?limit=4&sort=RECENTLY_ACTIVE"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 919
+[0] [2026-06-16 19:50:20.795 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7707d008-dfd7-40c4-886f-4cb3d614aa97"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 483
+[0] [2026-06-16 19:50:20.879 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "295c9430-59ee-4fa1-bbfc-391dbebdb1e3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/boosts"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 228
+[0] [2026-06-16 19:50:20.904 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3e24d416-45eb-477b-be92-90d98a721dd0"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 749
+[0] [2026-06-16 19:50:20.987 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e94c4003-addf-43b3-b409-65015c3fac7f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 352
+[0] [2026-06-16 19:50:21.155 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1bb7e460-d711-4013-be6f-e429e1272f7b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/subscription"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 458
+[0] [2026-06-16 19:50:21.187 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2228bda9-e05d-4d6f-8b39-e0860cf54d49"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 268
+[0] [2026-06-16 19:50:21.225 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6a990c6d-9f99-4797-a338-d18c45ccbbc7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 392
+[0] [2026-06-16 19:50:21.402 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4ad51965-333b-4d38-9976-490b2aca2615"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=4"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 603
+[0] [2026-06-16 19:50:21.418 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "eba9c936-7bec-4e75-9145-fc6c3d7ea77f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 147
+[0] [2026-06-16 19:50:21.477 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "209126dc-241d-4bfc-939c-fe51609fd81f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 418
+[0] [2026-06-16 19:50:21.552 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "98feba82-dd84-40d9-9d71-3860b802033c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?limit=4&sort=RECENTLY_ACTIVE"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 561
+[0] [2026-06-16 19:50:26.390 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0e9aca3e-2f81-435e-a0b7-5b45d6062ff7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/saved-searches"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 99
+[0] [2026-06-16 19:50:26.407 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "37b602a3-1bd3-4bb0-b31b-dfd39b7ef5d4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 110
+[0] [2026-06-16 19:50:26.472 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8f68f66c-d113-48cf-9a8f-67e215187bfa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 167
+[0] [2026-06-16 19:50:26.487 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "03c84ef4-e7b9-4a61-a169-a78d807e6dfc"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/saved-searches"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 95
+[0] [2026-06-16 19:50:26.515 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "25ff5133-c430-43d1-8f11-d91cd53f5c24"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 105
+[0] [2026-06-16 19:50:26.564 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "89e0fec2-f756-4f78-a784-8df0a80aec69"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=24"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 280
+[0] [2026-06-16 19:50:26.644 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7a1c6276-f0fd-4405-9b3b-380111a64717"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 125
+[0] [2026-06-16 19:50:26.682 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "83c94226-8e69-406d-a4bb-d087be6b8e20"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 208
+[0] [2026-06-16 19:50:26.805 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f089ca2f-a744-4398-8188-50979bbcea23"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 503
+[0] [2026-06-16 19:50:27.024 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "3c021363-bb09-475b-915a-3b03afc31aa5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 197
+[0] [2026-06-16 19:50:27.078 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "edc2db86-ab9c-4cc7-af99-129ded5d139f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 432
+[0] [2026-06-16 19:50:27.088 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0977449d-e735-4c62-871b-c164001a7556"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 434
+[0] [2026-06-16 19:50:27.097 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a835a04d-cfc0-4723-8ddc-b3a053d5c427"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccd"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 434
+[0] [2026-06-16 19:50:27.205 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "80175021-4be0-48fb-aed7-c845db2edb1a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/recommended?limit=24"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 639
+[0] [2026-06-16 19:50:27.387 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "25a5b612-79ef-46b2-817d-56dcf1e45de8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 246
+[0] [2026-06-16 19:50:27.396 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5a660357-2c5b-4e62-b9aa-d1b2c88aa064"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccd"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 237
+[0] [2026-06-16 19:50:27.413 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f0a42c24-6ae9-4457-b398-743d4b169971"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccf"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 264
+[0] [2026-06-16 19:50:27.495 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "09c3f810-fcc8-400d-9e64-670b778a1259"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 635
+[0] [2026-06-16 19:50:30.943 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "501abb62-d211-44bb-bc8a-f372fb62173f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED&city=Melbourne"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 295
+[0] [2026-06-16 19:50:31.159 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c52ee160-99c8-473c-ada3-23841a9eacc4"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 175
+[0] [2026-06-16 19:50:31.174 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "00b4c1c3-3cc7-4b27-bfc8-99b48cb09f49"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 182
+[0] [2026-06-16 19:50:31.180 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "20d92a47-340c-4742-9398-c3ecd16e7539"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 183
+[0] [2026-06-16 19:50:31.363 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "23c16daa-1df8-4b6c-8e8a-2ad7d7faac9b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569ca63b065db85041cc1"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 200
+[0] [2026-06-16 19:50:31.373 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1fd727d4-648a-472e-a486-ce21c361e669"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cc63b065db85041cd7"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 188
+[0] [2026-06-16 19:50:31.393 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e3ddbd3a-4c9b-45f6-86eb-d98f153ff91a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569c963b065db85041cb9"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 196
+[0] [2026-06-16 19:50:31.468 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "feac5e36-17c4-4812-9f5d-fe7633663699"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 465
+[0] [2026-06-16 19:50:31.635 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "fbc16dc7-fb49-4214-9632-893828a9154f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 160
+[0] [2026-06-16 19:50:33.659 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "57823f2f-cbfe-4929-840a-fabd9eccd17a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 51
+[0] [2026-06-16 19:50:34.319 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4978dc77-f194-421e-84f2-8c7d0da9659d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 588
+[0] [2026-06-16 19:50:34.346 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5d35fbc5-b483-46c5-a425-fa1bd35e320a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/profiles/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 621
+[0] [2026-06-16 19:50:34.374 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "db475388-9e5a-4333-8757-49d318635a7b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/photo-requests/status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 2
+[0] [2026-06-16 19:50:34.384 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "cb176e5e-ccf7-4f0e-b7be-1136c94c6227"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/photo-requests/status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 401
+[0]     [35mdurationMs[39m: 3
+[0] [2026-06-16 19:50:34.438 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ba310843-b1ba-423d-90e1-0ca04fe68417"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 113
+[0] [2026-06-16 19:50:34.542 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8407a639-c911-461f-ba97-38b135ff0602"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 175
+[0] [2026-06-16 19:50:34.702 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5a2e7aec-ca88-473f-b676-70f1b80c4d90"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 157
+[0] [2026-06-16 19:50:34.876 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "27bc832e-5882-4dd0-8bb6-9d95d0b4cf2a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 168
+[0] [2026-06-16 19:50:35.035 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "71813576-80b6-441d-a81d-0a3605a11eef"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 156
+[0] [2026-06-16 19:50:52.608 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a4bd26c4-b59d-418b-9cd6-54ede36d645f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 138
+[0] [2026-06-16 19:50:52.698 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "58442324-29db-46b0-bba5-8dafff839783"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 177
+[0] [2026-06-16 19:50:52.708 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "1a3db273-6a21-490b-8cf5-5950749a1eb8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 230
+[0] [2026-06-16 19:50:52.775 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2eb32627-b365-4cb0-a44e-cee178b26402"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 150
+[0] [2026-06-16 19:50:52.914 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2c2ac2fb-682f-4c26-85d6-3e6806561726"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 180
+[0] [2026-06-16 19:50:52.924 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c6549bed-696a-4e5d-830b-1c0f52ee9f41"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 130
+[0] [2026-06-16 19:50:52.930 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9ba6ce03-8752-4ce6-92b4-f8b28818b827"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 210
+[0] [2026-06-16 19:50:53.015 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9031fe74-63c0-4a8d-9129-872e6d9c2a9f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 197
+[0] [2026-06-16 19:50:53.073 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f4b5af34-92c7-4af2-8838-77101bd8bfe3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 112
+[0] [2026-06-16 19:50:53.170 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2ba043e0-9d39-4402-a36a-d10a829b74e3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations/6a3014bb84088aa8ea035827/messages?limit=50"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 345
+[0] [2026-06-16 19:50:53.195 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8deb3672-ead7-4dd4-802e-019a8351c5f6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a300ed4c9d709029da54331"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 170
+[0] [2026-06-16 19:50:53.499 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "21f95afb-0d5d-416c-a6f4-e71a975e0b0f"
+[0]     [35mmethod[39m: "POST"
+[0]     [35murl[39m: "/api/me/conversations/6a3014bb84088aa8ea035827/read"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 322
+[0] [2026-06-16 19:50:53.665 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "52da4775-539d-4eb8-9180-6e4764132643"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 164
+[0] [2026-06-16 19:50:58.793 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "96ae6ad7-9b2e-4d55-8dbf-641b2fccf981"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interaction-status/6a2569cb63b065db85041ccb"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 156
+[0] [2026-06-16 19:50:58.897 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "62ee331d-67b8-4aa6-a66c-14641ae77229"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations/6a2569ded06c607273dcf6bd/messages?limit=50"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 267
+[0] [2026-06-16 19:50:59.229 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "fe75e0e5-14da-4871-8349-40eee5cf3055"
+[0]     [35mmethod[39m: "POST"
+[0]     [35murl[39m: "/api/me/conversations/6a2569ded06c607273dcf6bd/read"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 326
+[0] [2026-06-16 19:50:59.394 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f6dd2f2d-bcfd-4329-b6db-59c041637d56"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/conversations"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 157
+[0] [2026-06-16 19:51:27.328 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9fe2396b-00b8-4e2a-a8a8-47959efb8368"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 123
+[0] [2026-06-16 19:51:27.368 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6d4b8707-993b-47af-80aa-3f19e9e8eb39"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 172
+[0] [2026-06-16 19:51:27.399 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9f757881-556c-41f9-a2e8-e7895dc70532"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 181
+[0] [2026-06-16 19:51:27.431 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "30e50024-3d01-44ca-a39c-6fca2c8dc925"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/recently-viewed"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 192
+[0] [2026-06-16 19:51:27.479 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2e540dfe-dcba-4a8a-b6a5-ad8762c7782d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=sent"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 256
+[0] [2026-06-16 19:51:27.506 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ef39cffb-b8a6-4d02-884c-d8eafd012907"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/favourites"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 274
+[0] [2026-06-16 19:51:27.574 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f4583fbe-98b1-4d2c-85e1-fec853d326a6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 141
+[0] [2026-06-16 19:51:27.599 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "db891678-a8e5-4f6b-a58b-ffd44cec6bc6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 229
+[0] [2026-06-16 19:51:27.653 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "12276aa8-d9a0-4e0f-8e14-40db86daf6fc"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 145
+[0] [2026-06-16 19:51:27.696 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "502089cf-94e1-4c16-8872-f30e75db8011"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 358
+[0] [2026-06-16 19:51:27.713 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "68af4a0a-d1d7-4fdf-917e-1d3887d836f2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=received"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 186
+[0] [2026-06-16 19:51:27.719 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "facdaa6f-2394-4afe-9431-b77c636203f8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/recently-viewed"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 188
+[0] [2026-06-16 19:51:27.789 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "fdaa0678-d20e-473c-a503-5ccd1f2bd8d1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/interests?box=sent"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 207
+[0] [2026-06-16 19:51:27.820 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c9976c16-a14c-4484-a24c-812b0d5e67b7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/favourites"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 220
+[0] [2026-06-16 19:51:27.838 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "da9cbbe9-5079-43f7-8c99-0a967d46f351"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 182
+[0] [2026-06-16 19:51:28.007 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "000d74a0-3415-44d3-894c-5992f9d3c21b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile-viewers"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 288
+[0] [2026-06-16 19:52:17.518 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "fe22e511-8576-4859-b1c1-c214a23ca48a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 310
+[0] [2026-06-16 19:52:17.641 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7924a8fc-8c09-4445-af2c-29016ca1b29a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 1032
+[0] [2026-06-16 19:52:17.652 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "bf41b5bd-e99a-451c-98fb-a6ae769d250c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 425
+[0] [2026-06-16 19:52:17.714 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "90c3a128-bc03-4725-891c-9cfe7410d733"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 133
+[0] [2026-06-16 19:52:17.913 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b685a657-9cc6-4821-a740-da4245003136"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 247
+[0] [2026-06-16 19:52:17.918 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5fc2c4fc-1cd5-4bb1-a516-2de0bef60d27"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 239
+[0] [2026-06-16 19:52:23.507 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7be82882-d371-444a-9143-c37ebd57390a"
+[0]     [35mmethod[39m: "PATCH"
+[0]     [35murl[39m: "/api/me/notifications/read-all"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 222
+[0] [2026-06-16 19:52:23.682 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "eb79c54e-2b21-454d-ae85-6bd343b9a59d"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 163
+[0] [2026-06-16 19:52:33.696 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "613c56f2-e006-4699-b8f1-8e34d8d5de37"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 136
+[0] [2026-06-16 19:52:33.721 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f61a8cc0-f2d0-46ed-9a7f-97bcacb87431"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 171
+[0] [2026-06-16 19:52:33.824 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "82294ce8-2016-445e-8563-6e6e900b2018"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 124
+[0] [2026-06-16 19:52:33.888 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "46e15d51-94e5-4b03-816a-ceb3ba5d63ff"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 162
+[0] [2026-06-16 19:52:37.277 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c120a28c-7eb1-4eb3-8b09-e645b92549dc"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 111
+[0] [2026-06-16 19:52:37.308 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "77e86c7c-c3e4-44dc-a9d9-e40701ffd2e5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/verifications"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 130
+[0] [2026-06-16 19:52:37.319 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4d0a385f-abf5-4571-b6f0-16aa13207b8f"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 159
+[0] [2026-06-16 19:52:37.399 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c8d2a113-7b6b-4d16-b6ee-54e4d0bc211c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 120
+[0] [2026-06-16 19:52:37.410 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "03eaa0f1-4c11-4903-9037-c6c780d32821"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/verifications"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 98
+[0] [2026-06-16 19:52:37.488 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "636dcdb7-9fd9-49e9-912c-96c893d96717"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/notifications?unreadOnly=true"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 160
+[0] [2026-06-16 19:52:37.527 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8d52a30f-7b0b-4afc-a15a-e516c96f3ed3"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 125
+[0] [2026-06-16 19:52:37.679 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "97c1fe1e-ff3c-4ccc-96ed-c3eefac64d3a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/me/profile"
+[0]     [35mstatusCode[39m: 304
+[0]     [35mdurationMs[39m: 147
+[0] 7:52:54 PM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c7:52:58 PM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c7:53:03 PM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:53:06.944 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:53:06.945 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:53:06.967 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:53:24 PM [tsx] change in ./src\messages\messages.socket.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:53:31.944 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:53:31.946 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:53:31.961 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:53:46 PM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:53:49.940 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:53:49.941 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:53:49.963 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:53:54 PM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:53:57.024 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:53:57.025 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:53:57.031 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:54:26 PM [tsx] change in ./src\common\fraud.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:54:29.950 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:54:29.951 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:54:29.958 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:54:34 PM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:54:38.761 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:54:38.761 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:54:38.774 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:54:40 PM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:54:43.294 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:54:43.294 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:54:43.300 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:54:52 PM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:54:55.717 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:54:55.718 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:54:55.723 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:54:59 PM [tsx] change in ./src\admin\admin.routes.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:55:01.828 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:55:01.828 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:55:01.831 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:55:14 PM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:55:17.117 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:55:17.117 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:55:17.128 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:55:51 PM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:55:56.793 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:55:56.794 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:55:56.800 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:56:01 PM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:56:04.611 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:56:04.611 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:56:04.618 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:56:25 PM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:56:32.608 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:56:32.608 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:56:32.615 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:56:47 PM [tsx] change in ./src\community\community.routes.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:56:50.043 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:56:50.043 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:56:50.050 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 7:57:06 PM [tsx] change in ./src\messages\messages.routes.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:57:09.337 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:57:09.338 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:57:09.359 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:57:12 PM [tsx] change in ./src\messages\messages.routes.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:57:16.097 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:57:16.097 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:57:16.107 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 7:57:21 PM [tsx] change in ./src\community\community.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 19:57:28.570 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 19:57:28.571 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 19:57:28.576 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 8:01:33 PM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 20:01:44.033 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 20:01:44.034 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 20:01:44.046 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:61:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:85:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] 8:02:25 PM [tsx] change in ./src\common\fraud.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 20:02:32.532 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 20:02:32.532 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-16 20:02:32.537 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000

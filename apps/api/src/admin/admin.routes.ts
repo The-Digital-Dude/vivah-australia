@@ -167,14 +167,15 @@ export function createAdminRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const eventId = request.params.id;
-      const body = request.body as { status?: unknown };
+      const body = request.body as { status?: unknown; reviewReason?: unknown };
       const status = typeof body.status === 'string' ? body.status : '';
+      const reviewReason = typeof body.reviewReason === 'string' ? body.reviewReason : undefined;
       if (!eventId || (status !== 'REVIEWED' && status !== 'DISMISSED')) {
         throw new HttpError(400, 'Valid fraud review status is required');
       }
       response
         .status(200)
-        .json({ event: await updateFraudEventStatus(auth.userId, eventId, status) });
+        .json({ event: await updateFraudEventStatus(auth.userId, eventId, status, reviewReason) });
     }),
   );
 

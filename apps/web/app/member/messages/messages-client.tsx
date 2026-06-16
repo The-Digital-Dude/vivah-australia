@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import {
   BellOff,
@@ -113,12 +113,19 @@ function formatMessageDate(value: string) {
   });
 }
 
-function getUserIdFromToken(t: string | null): string | null {
-  if (!t || t === 'cookie-based') return null;
-  try {
-    const payload = JSON.parse(atob(t.split('.')[1] ?? '')) as { sub?: string; userId?: string };
-    return payload.sub ?? payload.userId ?? null;
-  } catch { return null; }
+interface ViewerProfileResponse {
+  profile?: {
+    id: string;
+    userId: string;
+    personal?: {
+      firstName?: string;
+    };
+  };
+}
+
+interface ViewerIdentity {
+  userId: string;
+  firstName?: string;
 }
 
 export default function MessagesClient() {
@@ -136,16 +143,50 @@ export default function MessagesClient() {
   const [writeLocked, setWriteLocked] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [viewer, setViewer] = useState<ViewerIdentity | null>(null);
 
   const selectedRef = useRef<Conversation | null>(null);
+  const pageRef = useRef(1);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     selectedRef.current = selected;
   }, [selected]);
 
   const selectedProfileId = selected?.otherProfile?.id;
-  const currentUserId = useMemo(() => getUserIdFromToken(token), [token]);
+  const currentUserId = viewer?.userId ?? null;
 
-  async function loadConversations() {
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
+
+  const clearTypingIndicator = useCallback(() => {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+    setTyping(null);
+  }, []);
+
+  const loadViewer = useCallback(async () => {
+    const result = await memberRequest('/api/me/profile');
+    if (!result.ok) {
+      setMessage(result.message);
+      return;
+    }
+
+    const profile = (result.data as ViewerProfileResponse).profile;
+    if (!profile?.userId) {
+      setMessage('Unable to load your member identity for messaging.');
+      return;
+    }
+
+    setViewer({
+      userId: profile.userId,
+      ...(profile.personal?.firstName ? { firstName: profile.personal.firstName } : {}),
+    });
+  }, [memberRequest]);
+
+  const loadConversations = useCallback(async () => {
     const result = await memberRequest('/api/me/conversations');
     if (!result.ok) {
       setMessage(result.message);
@@ -154,9 +195,9 @@ export default function MessagesClient() {
     const items = (result.data as { conversations?: Conversation[] }).conversations ?? [];
     setConversations(items);
     setSelected((current) => current ?? items[0] ?? null);
-  }
+  }, [memberRequest]);
 
-  async function loadMessages(conversationId: string, pageNum = 1, append = false) {
+  const loadMessages = useCallback(async (conversationId: string, pageNum = 1) => {
     const limit = 50;
     const result = await memberRequest(`/api/me/conversations/${conversationId}/messages?limit=${limit * pageNum}`);
     if (!result.ok) {
@@ -170,18 +211,22 @@ export default function MessagesClient() {
     setHasMore(newMessages.length >= limit * pageNum);
     await memberRequest(`/api/me/conversations/${conversationId}/read`, { method: 'POST' });
     void loadConversations();
-  }
+  }, [loadConversations, memberRequest]);
 
   async function loadMoreMessages() {
     if (!selected) return;
     const nextPage = page + 1;
     setPage(nextPage);
-    await loadMessages(selected.id, nextPage, true);
+    await loadMessages(selected.id, nextPage);
   }
 
   useEffect(() => {
+    if (!token) {
+      return;
+    }
+    void loadViewer();
     void loadConversations();
-  }, []);
+  }, [loadConversations, loadViewer, token]);
 
   useEffect(() => {
     if (!selected) {
@@ -192,9 +237,13 @@ export default function MessagesClient() {
     setWriteLocked(false);
     void loadMessages(selected.id, 1);
     if (socketRef.current) {
-      socketRef.current.emit('conversation:join', { conversationId: selected.id });
+      socketRef.current.emit('conversation:join', { conversationId: selected.id }, (response: { ok?: boolean; message?: string }) => {
+        if (response?.ok === false) {
+          setMessage(response.message ?? 'Unable to join this conversation.');
+        }
+      });
     }
-  }, [selected?.id]);
+  }, [loadMessages, selected?.id]);
 
   useEffect(() => {
     if (!token) {
@@ -207,6 +256,16 @@ export default function MessagesClient() {
     });
     socketRef.current = socket;
 
+    socket.on('connect', () => {
+      clearTypingIndicator();
+      const activeConversation = selectedRef.current;
+      if (activeConversation) {
+        socket.emit('conversation:join', { conversationId: activeConversation.id });
+        void loadMessages(activeConversation.id, pageRef.current);
+      }
+      void loadConversations();
+    });
+
     socket.on('message:new', (incoming: Message) => {
       if (selectedRef.current?.id === incoming.conversationId) {
         setMessages((current) =>
@@ -217,28 +276,35 @@ export default function MessagesClient() {
       void loadConversations();
     });
 
-    let typingTimer: NodeJS.Timeout;
-    socket.on('typing', (event: { conversationId: string; typing: boolean }) => {
+    socket.on('typing', (event: { conversationId: string; userId?: string; typing: boolean }) => {
       if (event.conversationId === selectedRef.current?.id) {
-        setTyping(event.typing ? 'Typing...' : null);
-        clearTimeout(typingTimer);
+        if (event.userId && event.userId === currentUserId) {
+          return;
+        }
+        clearTypingIndicator();
         if (event.typing) {
-          typingTimer = setTimeout(() => setTyping(null), 3000);
+          setTyping(`${selectedRef.current?.otherProfile?.firstName ?? 'Member'} is typing...`);
+          typingTimeoutRef.current = setTimeout(() => setTyping(null), 3000);
         }
       }
     });
 
     socket.on('message:read', () => {
       if (selectedRef.current?.id) {
-        void loadMessages(selectedRef.current.id, page);
+        void loadMessages(selectedRef.current.id, pageRef.current);
       }
     });
 
+    socket.on('disconnect', () => {
+      clearTypingIndicator();
+    });
+
     return () => {
+      clearTypingIndicator();
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [token]);
+  }, [clearTypingIndicator, currentUserId, loadConversations, loadMessages, memberRequest, token]);
 
   useEffect(() => {
     if (!messageListRef.current) return;
@@ -269,6 +335,8 @@ export default function MessagesClient() {
 
     return details ? `Based in ${details}` : 'Safe chat';
   }, [selected, typing]);
+
+  const viewerLabel = useMemo(() => viewer?.firstName?.trim() || 'You', [viewer]);
 
   async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -344,7 +412,7 @@ export default function MessagesClient() {
     }
 
     const signedBody = signed.data as SignedAttachmentUploadResponse;
-    let assetUrl = `http://localhost:4000/api/mock-storage/${signedBody.upload.fields.public_id}`;
+    let assetUrl = `${apiBaseUrl}/api/mock-storage/${signedBody.upload.fields.public_id}`;
     let storageKey = signedBody.upload.fields.public_id;
 
     if (signedBody.upload.provider === 'cloudinary') {
@@ -599,6 +667,9 @@ export default function MessagesClient() {
             {messages.map((item) => {
               const isMine = currentUserId != null && item.senderId === currentUserId;
               const otherInitial = (selected?.otherProfile?.firstName ?? 'V').slice(0, 1);
+              const senderLabel = isMine
+                ? viewerLabel
+                : selected?.otherProfile?.firstName ?? 'Member';
               return (
                 <div key={item.id} className={cx('flex items-end gap-2', isMine ? 'justify-end' : 'justify-start')}>
                   {!isMine && (
@@ -612,8 +683,11 @@ export default function MessagesClient() {
                       ? 'rounded-[20px] rounded-br-md bg-[linear-gradient(135deg,#A10E4D_0%,#7A0A3C_100%)] text-white'
                       : 'rounded-[20px] rounded-bl-md border border-[#F0D6DA] bg-white text-[#232323]',
                   )}>
+                    <p className={cx('text-[10px] font-semibold uppercase tracking-[0.12em]', isMine ? 'text-white/75' : 'text-[#A10E4D]')}>
+                      {senderLabel}
+                    </p>
                     {item.body ? (
-                      <p className={cx('text-sm leading-7', isMine ? 'text-white' : 'text-[#232323]')}>{item.body}</p>
+                      <p className={cx('mt-1 text-sm leading-7', isMine ? 'text-white' : 'text-[#232323]')}>{item.body}</p>
                     ) : null}
 
                     {item.attachments.length > 0 ? (
@@ -654,8 +728,8 @@ export default function MessagesClient() {
                     </div>
                   </article>
                   {isMine && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF8EC] text-xs font-bold text-[#D4A04C]">
-                      Me
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF8EC] px-2 text-[10px] font-bold text-[#D4A04C]">
+                      You
                     </div>
                   )}
                 </div>
@@ -721,9 +795,10 @@ export default function MessagesClient() {
                     onFocus={() =>
                       socketRef.current?.emit('typing', { conversationId: selected.id, typing: true })
                     }
-                    onBlur={() =>
-                      socketRef.current?.emit('typing', { conversationId: selected.id, typing: false })
-                    }
+                    onBlur={() => {
+                      clearTypingIndicator();
+                      socketRef.current?.emit('typing', { conversationId: selected.id, typing: false });
+                    }}
                     placeholder="Write a thoughtful, respectful message…"
                     className="w-full resize-none rounded-[20px] border border-[#E8D5D8] bg-[#FFF9F5] px-4 py-3 text-sm outline-none transition focus:border-[#A10E4D] focus:bg-white focus:ring-4 focus:ring-[#FFF0F3]"
                   />

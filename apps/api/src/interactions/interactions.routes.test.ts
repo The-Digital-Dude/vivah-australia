@@ -10,14 +10,18 @@ import type { AuthConfig } from '../auth/auth-types.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   BlockModel,
+  CommunityCommentModel,
+  CommunityPostModel,
   ConversationModel,
   FavouriteModel,
   FraudEventModel,
   HiddenProfileModel,
   InterestModel,
+  MessageModel,
   MonthlyInterestCounterModel,
   NotificationModel,
   PlanModel,
+  ProfileMediaModel,
   ProfileApprovalStatus,
   ProfileModel,
   ReportModel,
@@ -507,6 +511,129 @@ describe('interaction routes', () => {
     expect(riskEvent?.metadata).toMatchObject({ activeReportCount: 1, highestSeverity: 'HIGH' });
   });
 
+  it('blocks immediate resend after rejection for the same member pair', async () => {
+    const sender = await createUser('rejection-sender@example.com');
+    const receiver = await createUser('rejection-receiver@example.com');
+    await createProfile(sender.user._id, 'VA355001', 'Amit', Gender.MALE);
+    const receiverProfile = await createProfile(receiver.user._id, 'VA355002', 'Priya', Gender.FEMALE);
+
+    const sent = await request(app)
+      .post('/api/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: receiverProfile.id })
+      .expect(201);
+
+    await request(app)
+      .patch(`/api/interests/${bodyAs<{ interest: { id: string } }>(sent).interest.id}`)
+      .set('Authorization', `Bearer ${receiver.accessToken}`)
+      .send({ action: 'REJECT' })
+      .expect(200);
+
+    await request(app)
+      .post('/api/interests')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: receiverProfile.id })
+      .expect(409);
+  });
+
+  it('requires real report targets for message, comment, media, and user reports', async () => {
+    const reporter = await createUser('report-matrix-reporter@example.com');
+    const target = await createUser('report-matrix-target@example.com');
+    await createProfile(reporter.user._id, 'VA355101', 'Amit', Gender.MALE);
+    const targetProfile = await createProfile(target.user._id, 'VA355102', 'Priya', Gender.FEMALE);
+
+    const conversation = await ConversationModel.create({
+      participantIds: [reporter.user._id, target.user._id],
+      deletedFor: [],
+    });
+    const message = await MessageModel.create({
+      conversationId: conversation._id,
+      senderId: target.user._id,
+      body: 'Inappropriate message body',
+      attachmentIds: [],
+      readBy: [target.user._id],
+      deletedFor: [],
+      isDeleted: false,
+    });
+    const post = await CommunityPostModel.create({
+      roomId: new mongoose.Types.ObjectId(),
+      authorId: target.user._id,
+      title: 'Unsafe post',
+      body: 'Post body for moderation context',
+      status: 'PUBLISHED',
+    });
+    const comment = await CommunityCommentModel.create({
+      postId: post._id,
+      authorId: target.user._id,
+      body: 'Unsafe comment body',
+    });
+    const media = await ProfileMediaModel.create({
+      userId: target.user._id,
+      profileId: targetProfile._id,
+      assetUrl: 'https://example.com/private-media.jpg',
+      mediaType: 'PHOTO',
+      category: 'PRIVATE_GALLERY',
+      uploadStatus: 'COMPLETED',
+      mimeType: 'image/jpeg',
+      fileSizeBytes: 12345,
+      originalFilename: 'private.jpg',
+      visibility: 'PRIVATE',
+      approvalStatus: 'APPROVED',
+      isPrimary: false,
+    });
+
+    await request(app)
+      .post(`/api/me/messages/${message.id}/report`)
+      .set('Authorization', `Bearer ${reporter.accessToken}`)
+      .send({ reason: 'Harassing message', severity: 'HIGH' })
+      .expect(201);
+
+    await request(app)
+      .post(`/api/community/comments/${comment.id}/report`)
+      .set('Authorization', `Bearer ${reporter.accessToken}`)
+      .send({ reason: 'Abusive comment' })
+      .expect(201);
+
+    await request(app)
+      .post('/api/reports')
+      .set('Authorization', `Bearer ${reporter.accessToken}`)
+      .send({
+        targetType: 'MEDIA',
+        targetId: media.id,
+        reason: 'Private media misuse',
+        severity: 'MEDIUM',
+      })
+      .expect(201);
+
+    await request(app)
+      .post('/api/reports')
+      .set('Authorization', `Bearer ${reporter.accessToken}`)
+      .send({
+        targetType: 'USER',
+        targetId: target.user.id,
+        reason: 'Suspicious member',
+        severity: 'LOW',
+      })
+      .expect(201);
+
+    const reports = await ReportModel.find({ reporterId: reporter.user._id }).lean();
+    expect(reports).toHaveLength(4);
+    expect(reports.map((report) => report.targetType).sort()).toEqual(['COMMENT', 'MEDIA', 'MESSAGE', 'USER']);
+    expect(reports.every((report) => String(report.reportedUserId) === String(target.user._id))).toBe(true);
+    expect(reports.every((report) => report.targetSnapshot)).toBe(true);
+
+    await request(app)
+      .post('/api/reports')
+      .set('Authorization', `Bearer ${reporter.accessToken}`)
+      .send({
+        targetType: 'USER',
+        targetId: new mongoose.Types.ObjectId().toString(),
+        reason: 'Missing target',
+        severity: 'LOW',
+      })
+      .expect(404);
+  });
+
   it('allows admins to list, assign, resolve, and dismiss reports', async () => {
     const reporter = await createUser('admin-reporter@example.com');
     const target = await createUser('admin-reported@example.com');
@@ -530,6 +657,10 @@ describe('interaction routes', () => {
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .expect(200);
     expect(bodyAs<{ reports: unknown[] }>(list).reports).toHaveLength(1);
+    expect(bodyAs<{ reports: Array<{ evidence?: unknown; reportedMember?: unknown }> }>(list).reports[0]).toMatchObject({
+      evidence: expect.any(Object),
+      reportedMember: expect.any(Object),
+    });
 
     const assigned = await request(app)
       .patch(`/api/admin/reports/${reportId}`)

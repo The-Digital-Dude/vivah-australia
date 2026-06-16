@@ -50,8 +50,6 @@ async function createUploadedAttachment(
     fileName: string;
     mimeType: string;
     fileSizeBytes: number;
-    assetUrl: string;
-    storageKey: string;
   },
 ) {
   const signed = await request(app)
@@ -64,15 +62,24 @@ async function createUploadedAttachment(
       fileSizeBytes: input.fileSizeBytes,
     })
     .expect(201);
-  const attachmentId = bodyAs<{ attachment: { id: string } }>(signed).attachment.id;
+  const signedBody = bodyAs<{
+    attachment: { id: string };
+    upload: { provider: 'cloudinary' | 'mock'; fields?: { public_id?: string } };
+  }>(signed);
+  const attachmentId = signedBody.attachment.id;
+  const storageKey = signedBody.upload.fields?.public_id;
+
+  if (!storageKey) {
+    throw new Error('Expected signed upload to include a storage key');
+  }
 
   const completed = await request(app)
     .post('/api/me/message-attachments/complete')
     .set('Authorization', `Bearer ${accessToken}`)
     .send({
       attachmentId,
-      assetUrl: input.assetUrl,
-      storageKey: input.storageKey,
+      assetUrl: `http://localhost:4000/api/mock-storage/${storageKey}`,
+      storageKey,
       bytes: input.fileSizeBytes,
     })
     .expect(200);
@@ -110,6 +117,8 @@ async function createProfile(
 ) {
   return ProfileModel.create({
     userId,
+    userStatus: AccountStatus.ACTIVE,
+    userIsDeleted: false,
     displayId,
     completionPercentage: 100,
     personal: {
@@ -225,10 +234,10 @@ afterAll(async () => {
   await new Promise<void>((resolve) => httpServer.close(() => resolve()));
   await disconnectDatabase();
   await mongoServer?.stop();
-});
+}, 180000);
 
 describe('message routes and realtime server', () => {
-  it('requires accepted interest before creating a conversation', async () => {
+  it('does not expose a member route to create conversations directly', async () => {
     const viewer = await createUser('viewer@example.com');
     const target = await createUser('target@example.com');
     await createProfile(viewer.user._id, 'VA400001', 'Amit', Gender.MALE);
@@ -238,7 +247,7 @@ describe('message routes and realtime server', () => {
       .post('/api/me/conversations')
       .set('Authorization', `Bearer ${viewer.accessToken}`)
       .send({ profileId: targetProfile.id })
-      .expect(403);
+      .expect(404);
   });
 
   it('sends messages with attachments, marks read, and deletes for current user', async () => {
@@ -248,16 +257,12 @@ describe('message routes and realtime server', () => {
       fileName: 'photo.jpg',
       mimeType: 'image/jpeg',
       fileSizeBytes: 2048,
-      assetUrl: 'https://cdn.example.com/photo.jpg',
-      storageKey: 'vivah/messages/test/photo.jpg',
     });
     const documentAttachmentId = await createUploadedAttachment(sender.accessToken, {
       attachmentType: 'DOCUMENT',
       fileName: 'profile.pdf',
       mimeType: 'application/pdf',
       fileSizeBytes: 4096,
-      assetUrl: 'https://cdn.example.com/profile.pdf',
-      storageKey: 'vivah/messages/test/profile.pdf',
     });
 
     const response = await request(app)
@@ -271,13 +276,13 @@ describe('message routes and realtime server', () => {
         ],
       })
       .expect(201);
-    const body = bodyAs<{ message: { id: string; attachments: unknown[]; readBy: string[] } }>(
+    const body = bodyAs<{ data: { id: string; attachments: Array<{ assetUrl?: string }>; readBy: string[] } }>(
       response,
     );
 
-    expect(body.message.attachments).toHaveLength(2);
-    expect(body.message.attachments[0]?.assetUrl).toContain('attachmentAccessToken=');
-    expect(body.message.readBy).toContain(String(sender.user._id));
+    expect(body.data.attachments).toHaveLength(2);
+    expect(body.data.attachments[0]?.assetUrl).toContain('attachmentAccessToken=');
+    expect(body.data.readBy).toContain(String(sender.user._id));
     expect(await MessageAttachmentModel.countDocuments({ uploadedBy: sender.user._id })).toBe(2);
 
     await request(app)
@@ -285,11 +290,11 @@ describe('message routes and realtime server', () => {
       .set('Authorization', `Bearer ${receiver.accessToken}`)
       .expect(200);
 
-    const message = await MessageModel.findById(body.message.id).orFail();
+    const message = await MessageModel.findById(body.data.id).orFail();
     expect(message.readBy.map(String)).toContain(String(receiver.user._id));
 
     await request(app)
-      .delete(`/api/me/messages/${body.message.id}`)
+      .delete(`/api/me/messages/${body.data.id}`)
       .set('Authorization', `Bearer ${receiver.accessToken}`)
       .expect(204);
 
@@ -307,8 +312,6 @@ describe('message routes and realtime server', () => {
       fileName: 'not-yours.jpg',
       mimeType: 'image/jpeg',
       fileSizeBytes: 1024,
-      assetUrl: 'https://cdn.example.com/not-yours.jpg',
-      storageKey: 'vivah/messages/test/not-yours.jpg',
     });
 
     await request(app)
@@ -330,6 +333,41 @@ describe('message routes and realtime server', () => {
       .set('Authorization', `Bearer ${sender.accessToken}`)
       .send({ body: 'Can you see this?' })
       .expect(403);
+  });
+
+  it('disconnects active chat sockets immediately after a block is created', async () => {
+    const { sender, receiver, receiverProfile, conversation } = await createAcceptedConversation();
+    const senderSocket = connectSocket(sender.accessToken);
+    const receiverSocket = connectSocket(receiver.accessToken);
+
+    await Promise.all([waitForConnect(senderSocket), waitForConnect(receiverSocket)]);
+    await Promise.all([
+      new Promise<void>((resolve) => senderSocket.emit('conversation:join', { conversationId: conversation.id }, () => resolve())),
+      new Promise<void>((resolve) => receiverSocket.emit('conversation:join', { conversationId: conversation.id }, () => resolve())),
+    ]);
+
+    const senderDisconnect = new Promise<string>((resolve) =>
+      senderSocket.once('system:access-revoked', (payload: unknown) =>
+        resolve((payload as { reason: string }).reason),
+      ),
+    );
+    const receiverDisconnect = new Promise<string>((resolve) =>
+      receiverSocket.once('system:access-revoked', (payload: unknown) =>
+        resolve((payload as { reason: string }).reason),
+      ),
+    );
+
+    await request(app)
+      .post('/api/me/blocks')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ profileId: receiverProfile.id })
+      .expect(201);
+
+    await expect(senderDisconnect).resolves.toBe('blocked');
+    await expect(receiverDisconnect).resolves.toBe('blocked');
+
+    senderSocket.disconnect();
+    receiverSocket.disconnect();
   });
 
   it('authenticates sockets and delivers realtime message, typing, and read events', async () => {
@@ -397,6 +435,68 @@ describe('message routes and realtime server', () => {
 
     senderSocket.disconnect();
     receiverSocket.disconnect();
+  });
+
+  it('rejects socket room joins for non-participants', async () => {
+    const { sender, conversation } = await createAcceptedConversation();
+    const outsider = await createUser(`outsider-${Date.now()}@example.com`);
+    await createProfile(outsider.user._id, `VAO${Date.now()}`, 'Outsider', Gender.MALE);
+    const outsiderSocket = connectSocket(outsider.accessToken);
+
+    await waitForConnect(outsiderSocket);
+
+    const joinResult = await new Promise<{ ok: boolean; message?: string }>((resolve) => {
+      outsiderSocket.emit('conversation:join', { conversationId: conversation.id }, resolve);
+    });
+
+    expect(joinResult.ok).toBe(false);
+    expect(joinResult.message).toContain('Conversation not found');
+
+    outsiderSocket.disconnect();
+  });
+
+  it('blocks reading messages when the other member is no longer available', async () => {
+    const { sender, receiver, conversation, receiverProfile } = await createAcceptedConversation();
+    await ProfileModel.updateOne(
+      { _id: receiverProfile._id },
+      {
+        $set: {
+          userStatus: AccountStatus.SUSPENDED,
+        },
+      },
+    );
+
+    await request(app)
+      .get(`/api/me/conversations/${conversation.id}/messages`)
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .expect(403);
+  });
+
+  it('enforces the hourly message cap before persisting the 51st message', async () => {
+    const { sender, conversation } = await createAcceptedConversation();
+
+    await MessageModel.insertMany(
+      Array.from({ length: 50 }, (_, index) => ({
+        conversationId: conversation._id,
+        senderId: sender.user._id,
+        body: `Existing message ${index + 1}`,
+        attachmentIds: [],
+        readBy: [sender.user._id],
+        deletedFor: [],
+        isDeleted: false,
+      })),
+    );
+
+    const beforeCount = await MessageModel.countDocuments({ senderId: sender.user._id });
+
+    await request(app)
+      .post(`/api/me/conversations/${conversation.id}/messages`)
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .send({ body: 'This one should be blocked.' })
+      .expect(429);
+
+    const afterCount = await MessageModel.countDocuments({ senderId: sender.user._id });
+    expect(afterCount).toBe(beforeCount);
   });
 
   it('rejects unauthenticated sockets', async () => {

@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import {
+  AccountStatus,
   InterestStatus,
   MediaUploadStatus,
   ProfileVisibility,
@@ -25,6 +26,15 @@ import type { ConversationDocument, MessageDocument } from '../models/phase-one.
 const UPLOAD_TTL_SECONDS = 10 * 60;
 const ACCESS_TTL_SECONDS = 5 * 60;
 const LOCAL_UPLOAD_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:4000';
+const HOURLY_MESSAGE_LIMIT = 50;
+const ATTACHMENT_MIME_ALLOWLIST = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]);
 
 function envValue(name: string) {
   const value = process.env[name];
@@ -88,6 +98,8 @@ async function assertActiveProfile(userId: Types.ObjectId) {
   const profile = await ProfileModel.findOne({
     userId,
     isDeleted: false,
+    userStatus: AccountStatus.ACTIVE,
+    userIsDeleted: false,
     'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
     'visibility.status': { $in: [ProfileVisibility.PUBLIC, ProfileVisibility.MEMBERS_ONLY] },
   });
@@ -186,6 +198,10 @@ export async function createSignedMessageAttachmentUpload(
   userId: Types.ObjectId,
   input: MessageAttachmentSignUploadInput,
 ) {
+  if (!ATTACHMENT_MIME_ALLOWLIST.has(input.mimeType)) {
+    throw new HttpError(400, 'Unsupported attachment type');
+  }
+
   const maxSize = input.attachmentType === 'IMAGE' ? 10 * 1024 * 1024 : 25 * 1024 * 1024;
   if (input.fileSizeBytes > maxSize) {
     throw new HttpError(400, `File size exceeds the limit of ${maxSize / (1024 * 1024)}MB`);
@@ -203,6 +219,8 @@ export async function createSignedMessageAttachmentUpload(
     fileName: input.fileName,
     mimeType: input.mimeType,
     fileSizeBytes: input.fileSizeBytes,
+    uploadProvider: cloudinary ? 'cloudinary' : 'mock',
+    uploadExpiresAt: expiresAt,
   });
 
   if (!cloudinary) {
@@ -262,12 +280,55 @@ export async function completeMessageAttachmentUpload(
   const attachment = await getOwnMessageAttachmentOrFail(userId, input.attachmentId);
   const cloudinary = cloudinaryConfig();
 
+  if (attachment.uploadStatus !== MediaUploadStatus.SIGNED) {
+    throw new HttpError(400, 'Attachment upload is not awaiting completion');
+  }
+
+  if (!attachment.uploadExpiresAt || attachment.uploadExpiresAt.getTime() <= Date.now()) {
+    throw new HttpError(400, 'Attachment upload has expired');
+  }
+
+  if (input.storageKey && input.storageKey !== attachment.storageKey) {
+    throw new HttpError(400, 'Attachment storage key does not match the signed upload');
+  }
+
+  if (input.bytes !== undefined) {
+    const maxBytes = attachment.attachmentType === 'IMAGE' ? 10 * 1024 * 1024 : 25 * 1024 * 1024;
+    if (input.bytes > maxBytes) {
+      throw new HttpError(400, `File size exceeds the limit of ${maxBytes / (1024 * 1024)}MB`);
+    }
+  }
+
+  if (!ATTACHMENT_MIME_ALLOWLIST.has(attachment.mimeType)) {
+    throw new HttpError(400, 'Unsupported attachment type');
+  }
+
   if (cloudinary) {
-    if (!input.assetUrl.startsWith(`https://res.cloudinary.com/${cloudinary.cloudName}/`) || !input.assetUrl.includes(String(attachment.storageKey))) {
+    if (attachment.uploadProvider !== 'cloudinary') {
+      throw new HttpError(400, 'Attachment upload provider mismatch');
+    }
+
+    const expectedPublicId = String(attachment.storageKey).split('/').join('/');
+    const encodedPublicId = expectedPublicId
+      .split('/')
+      .map((segment) => encodeURIComponent(segment))
+      .join('/');
+    const cloudinaryBase = `https://res.cloudinary.com/${cloudinary.cloudName}/`;
+
+    if (
+      !input.assetUrl.startsWith(cloudinaryBase) ||
+      (!input.assetUrl.includes(`/upload/`) && !input.assetUrl.includes('/image/authenticated/')) ||
+      !input.assetUrl.includes(encodedPublicId)
+    ) {
       throw new HttpError(400, 'Invalid attachment asset URL');
     }
   } else {
-    if (!input.assetUrl.startsWith(`${LOCAL_UPLOAD_BASE_URL}/api/mock-storage/`) || !input.assetUrl.includes(String(attachment.storageKey))) {
+    if (attachment.uploadProvider !== 'mock') {
+      throw new HttpError(400, 'Attachment upload provider mismatch');
+    }
+
+    const expectedUrl = `${LOCAL_UPLOAD_BASE_URL}/api/mock-storage/${attachment.storageKey}`;
+    if (input.assetUrl !== expectedUrl) {
       throw new HttpError(400, 'Invalid attachment asset URL');
     }
   }
@@ -275,6 +336,7 @@ export async function completeMessageAttachmentUpload(
   attachment.assetUrl = input.assetUrl;
   attachment.uploadStatus = MediaUploadStatus.UPLOADED;
   attachment.fileSizeBytes = input.bytes ?? attachment.fileSizeBytes;
+  attachment.set('uploadExpiresAt', undefined);
   await attachment.save();
 
   return publicAttachment(attachment, userId);
@@ -315,6 +377,17 @@ export async function sendMessage(
   await assertAcceptedInterest(userId, otherUserId);
 
   const attachments = await resolveOwnedUploadedAttachments(userId, input);
+  const sentThisHour = await MessageModel.countDocuments({
+    senderId: userId,
+    createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
+    isDeleted: false,
+  });
+
+  if (sentThisHour >= HOURLY_MESSAGE_LIMIT) {
+    await recordUnusualMessageVolume(userId, sentThisHour);
+    throw new HttpError(429, 'Rate limit exceeded. Please try again later.');
+  }
+
   const message = await MessageModel.create({
     conversationId: conversation._id,
     senderId: userId,
@@ -329,17 +402,6 @@ export async function sendMessage(
   conversation.set(`unreadCounts.${otherUserId}`, (conversation.get(`unreadCounts.${otherUserId}`) || 0) + 1);
   conversation.deletedFor = [];
   await conversation.save();
-
-  const sentThisHour = await MessageModel.countDocuments({
-    senderId: userId,
-    createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
-    isDeleted: false,
-  });
-
-  if (sentThisHour >= 50) {
-    await recordUnusualMessageVolume(userId, sentThisHour);
-    throw new HttpError(429, 'Rate limit exceeded. Please try again later.');
-  }
 
   const lastNotif = await NotificationModel.findOne({ userId: otherUserId, type: 'NEW_MESSAGE' }).sort({ createdAt: -1 });
   if (!lastNotif || Date.now() - lastNotif.createdAt.getTime() > 60 * 60 * 1000) {
@@ -366,7 +428,7 @@ export async function listConversations(userId: Types.ObjectId) {
 }
 
 export async function listMessages(userId: Types.ObjectId, conversationId: string, limit = 50, beforeDate?: string) {
-  const conversation = await getConversationForUser(userId, conversationId, false);
+  const conversation = await getConversationForUser(userId, conversationId, true);
   const filter: any = {
     conversationId: conversation._id,
     isDeleted: false,
@@ -384,7 +446,7 @@ export async function listMessages(userId: Types.ObjectId, conversationId: strin
 }
 
 export async function markConversationRead(userId: Types.ObjectId, conversationId: string) {
-  const conversation = await getConversationForUser(userId, conversationId, false);
+  const conversation = await getConversationForUser(userId, conversationId, true);
   conversation.set(`unreadCounts.${userId}`, 0);
   await conversation.save();
   await MessageModel.updateMany(

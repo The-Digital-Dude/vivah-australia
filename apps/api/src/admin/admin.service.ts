@@ -22,7 +22,8 @@ import {
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
-import { listFraudEvents, reviewFraudEvent } from '../common/fraud.service.js';
+import { fraudRuleLabel, listFraudEvents, reviewFraudEvent } from '../common/fraud.service.js';
+import { disconnectMessageSocketsForUser } from '../messages/messages.realtime.js';
 import { createNotification } from '../notifications/notifications.service.js';
 import { assignVerificationProvider } from './verification-providers.js';
 import {
@@ -30,6 +31,7 @@ import {
 } from '../verification/verification-document.service.js';
 import {
   AdminNoteModel,
+  AuthTokenModel,
   AuditLogModel,
   CommunityCommentModel,
   CommunityPostModel,
@@ -70,6 +72,7 @@ const selfDestructiveStatuses = [
   AccountStatus.BANNED,
   AccountStatus.DELETED,
 ] as const;
+const accessRevokingStatuses = new Set<string>(selfDestructiveStatuses);
 
 function monthStart() {
   const now = new Date();
@@ -177,6 +180,22 @@ function publicProfileSummary(profile: Awaited<ReturnType<typeof ProfileModel.fi
     displayId: profile.displayId,
     firstName: profile.personal.firstName,
     lastName: profile.personal.lastName,
+    verificationLevel: profile.verification.level,
+    approvalStatus: profile.moderation.approvalStatus,
+  };
+}
+
+function profileCardSummary(profile: Awaited<ReturnType<typeof ProfileModel.findOne>>) {
+  if (!profile) {
+    return null;
+  }
+  return {
+    id: profile.id,
+    displayId: profile.displayId,
+    firstName: profile.personal.firstName,
+    lastName: profile.personal.lastName,
+    city: profile.location.city,
+    state: profile.location.state,
     verificationLevel: profile.verification.level,
     approvalStatus: profile.moderation.approvalStatus,
   };
@@ -517,15 +536,47 @@ export async function getAnalyticsCsv(input: DateRangeInput = {}) {
 }
 
 export async function getFraudEvents() {
-  return { events: await listFraudEvents() };
+  const events = await listFraudEvents();
+  const userIds = events
+    .map((event) => event.userId)
+    .filter((userId): userId is Types.ObjectId => Boolean(userId));
+  const [users, profiles] = await Promise.all([
+    UserModel.find({ _id: { $in: userIds }, isDeleted: false }),
+    ProfileModel.find({ userId: { $in: userIds }, isDeleted: false }),
+  ]);
+  const userById = new Map(users.map((user) => [String(user._id), user]));
+  const profileByUserId = new Map(profiles.map((profile) => [String(profile.userId), profile]));
+
+  return {
+    events: events.map((event) => {
+      const eventUserId = event.userId ? String(event.userId) : null;
+      const user = eventUserId ? userById.get(eventUserId) ?? null : null;
+      const profile = eventUserId ? profileByUserId.get(eventUserId) ?? null : null;
+      const metadata =
+        typeof event.metadata === 'object' && event.metadata ? (event.metadata as Record<string, unknown>) : {};
+
+      return {
+        ...event,
+        ruleLabel: fraudRuleLabel(event.rule),
+        affectedMember: user
+          ? {
+              ...publicUser(user),
+              profile: profileCardSummary(profile),
+            }
+          : null,
+        evidence: metadata,
+      };
+    }),
+  };
 }
 
 export async function updateFraudEventStatus(
   adminId: Types.ObjectId,
   eventId: string,
   status: 'REVIEWED' | 'DISMISSED',
+  reviewReason?: string,
 ) {
-  const event = await reviewFraudEvent(eventId, status, adminId);
+  const event = await reviewFraudEvent(eventId, status, adminId, reviewReason);
   if (!event) {
     throw new HttpError(404, 'Fraud event not found');
   }
@@ -534,7 +585,7 @@ export async function updateFraudEventStatus(
     action: 'FRAUD_EVENT_REVIEWED',
     targetType: 'FraudEvent',
     targetId: event._id,
-    metadata: { status, rule: event.rule },
+    metadata: { status, rule: event.rule, reviewReason },
   });
   return event;
 }
@@ -622,6 +673,8 @@ export async function updateUser(
     throw new HttpError(403, 'Admins cannot suspend, ban, or delete themselves');
   }
   enforceUserManagement(actorRole, user.role, input);
+  const nextStatus = input.status ?? user.status;
+  const shouldRevokeAccess = accessRevokingStatuses.has(nextStatus);
 
   if (input.status === AccountStatus.DELETED) {
     user.isDeleted = true;
@@ -629,7 +682,16 @@ export async function updateUser(
     user.deletedBy = actorId;
   }
   user.set(input);
+  if (shouldRevokeAccess) {
+    user.activeSessions = [];
+  }
   await user.save();
+  if (shouldRevokeAccess) {
+    await Promise.all([
+      AuthTokenModel.deleteMany({ userId: user._id }),
+      Promise.resolve(disconnectMessageSocketsForUser(user._id, `account_${nextStatus.toLowerCase()}`)),
+    ]);
+  }
   await logAudit({
     actorId,
     actorRole,

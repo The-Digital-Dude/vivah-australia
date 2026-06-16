@@ -10,6 +10,7 @@ import { createTokenPair } from '../auth/token.service.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   ActivityLogModel,
+  AuthTokenModel,
   AuditLogModel,
   CommunityPostModel,
   CommunityRoomModel,
@@ -239,6 +240,29 @@ describe('admin production readiness routes', () => {
     );
     expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_UPDATED' })).toBe(2);
     expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_NOTE_ADDED' })).toBe(1);
+  });
+
+  it('revokes active sessions and auth tokens when an admin suspends a user', async () => {
+    const admin = await createUser('admin-revoke@example.com', UserRole.ADMIN);
+    const member = await createUser('member-revoke@example.com');
+    member.user.activeSessions = ['refresh-session-1', 'refresh-session-2'];
+    await member.user.save();
+    await AuthTokenModel.create({
+      userId: member.user._id,
+      purpose: 'PASSWORD_RESET',
+      tokenHash: 'hashed-reset-token',
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    await request(app)
+      .patch(`/api/admin/users/${member.user.id}/status`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ status: AccountStatus.SUSPENDED })
+      .expect(200);
+
+    const updated = await UserModel.findById(member.user._id).orFail();
+    expect(updated.activeSessions).toHaveLength(0);
+    expect(await AuthTokenModel.countDocuments({ userId: member.user._id })).toBe(0);
   });
 
   it('protects role hierarchy and self-destructive status changes', async () => {
