@@ -612,18 +612,6 @@ export function MemberPageLayout({
   );
 }
 
-const homeMenuLinks = [
-  ['Classic Home', '/'],
-  ['Premium Home', '/homepage/premium'],
-  ['Search Home', '/homepage/search'],
-  ['Story Home', '/homepage/story'],
-  ['Slider Home', '/homepage/slider'],
-  ['Animated Home', '/homepage/animated'],
-  ['Comprehensive (Dark)', '/homepage/comprehensive'],
-  ['Comprehensive (Light)', '/homepage/comprehensive-light'],
-  ['Final Homepage', '/final-homepage'],
-] as const;
-
 const publicLinks = [
   ['About Us', '/about'],
   ['Success Stories', '/success-stories'],

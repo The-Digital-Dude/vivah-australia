@@ -116,3 +116,24 @@ The orphaned component search returned only self-definition matches, plus expect
 
 ## Total Lines Removed
 Approximately 2,404 lines of dead component/page/script code plus the dead `homeMenuLinks` array.
+
+## Cleanup Completed
+Completed: 2026-06-16
+
+## Verification
+| Check | Result |
+|-------|--------|
+| Residual import search | Passed - zero matches for removed components, dark route, or `homeMenuLinks` under `apps/web/app` |
+| `pnpm --filter @vivah/web typecheck` | Passed |
+| Focused ESLint on changed files | Passed |
+| `pnpm --filter @vivah/web build` | Passed |
+| Dev route `/` | Passed - HTTP 200 and rendered final homepage markers: ivory, maroon, gold, Vivah title, success slider |
+| Dev route `/final-homepage` | Passed - HTTP 307 redirect to `/` |
+| Dev route `/final-homepage-dark` | Passed - HTTP 404 |
+
+`pnpm --filter @vivah/web lint` could not run because `apps/web/package.json` has no `lint` script.
+The root `pnpm lint` command was also checked and remains blocked by existing repo-wide lint debt outside this cleanup, including API lint errors and unrelated web files.
+
+## Final Route Notes
+`/final-homepage` now redirects to `/`.
+`/final-homepage-dark` has no route file and resolves to 404 in dev.

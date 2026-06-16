@@ -8,7 +8,7 @@ import { reportCreateSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 
 interface InteractionStatus {
-  interestStatus: 'PENDING' | 'ACCEPTED' | 'DECLINED' | null;
+  interestStatus: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'WITHDRAWN' | null;
   interestId: string | null;
   isSender: boolean;
   isFavourited: boolean;
@@ -44,7 +44,7 @@ export default function ProfileActions({
     return () => window.clearTimeout(timeout);
   }, [feedback]);
 
-  async function action(label: string, path: string, body?: Record<string, unknown>, method: 'POST' | 'DELETE' = 'POST') {
+  async function action(label: string, path: string, body?: Record<string, unknown>, method: 'POST' | 'PATCH' | 'DELETE' = 'POST') {
     setPending(label);
     setFeedback(null);
     const result = await memberRequest(path, {
@@ -67,7 +67,7 @@ export default function ProfileActions({
     if (!status?.interestId) return;
     const result = await action('withdraw', `/api/interests/${status.interestId}`, { action: 'WITHDRAW' }, 'PATCH');
     if (result.ok) {
-      setStatus((prev) => prev ? { ...prev, interestStatus: 'WITHDRAWN' as any } : prev);
+      setStatus((prev) => prev ? { ...prev, interestStatus: 'WITHDRAWN' } : prev);
     }
   }
 
@@ -79,7 +79,10 @@ export default function ProfileActions({
       body: { profileId }
     });
     if (result.ok) {
-      router.push(`/member/messages/${(result.data as any).conversation.id}`);
+      const conversation = (result.data as { conversation?: { id?: string } }).conversation;
+      if (conversation?.id) {
+        router.push(`/member/messages/${conversation.id}`);
+      }
     } else {
       setPending(null);
       setFeedback({ message: result.message ?? 'Failed to open conversation', tone: 'error' });

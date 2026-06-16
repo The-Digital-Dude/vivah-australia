@@ -9,6 +9,7 @@ export interface MemberApiResult {
   ok: boolean;
   message: string;
   data?: unknown;
+  status?: number;
 }
 
 export function useMemberRequest() {
@@ -55,6 +56,7 @@ export function useMemberRequest() {
         ok: response.ok,
         message: data.message ?? (response.ok ? 'Saved' : 'Request failed'),
         data,
+        status: response.status,
       };
     },
     [refreshAccessToken, token],
@@ -95,6 +97,7 @@ export async function memberRequest(
     ok: response.ok,
     message: data.message ?? (response.ok ? 'Saved' : 'Request failed'),
     data,
+    status: response.status,
   };
 }
 
