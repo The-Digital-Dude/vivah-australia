@@ -25,8 +25,11 @@ import {
   StripeEventLogModel,
   SubscriptionModel,
   UsageCounterModel,
+  UserModel,
   type PlanDocument,
 } from '../models/index.js';
+import { sendTemplatedEmail } from '../common/email.service.js';
+import { logAudit } from '../common/audit.service.js';
 
 const stripe = env.STRIPE_SECRET_KEY
   ? new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2026-05-27.dahlia' })
@@ -313,6 +316,28 @@ export async function listInvoices(userId?: Types.ObjectId) {
   return invoices;
 }
 
+export async function getAdminPaymentDetail(paymentId: string) {
+  const payment = await PaymentModel.findOne({ _id: paymentId, isDeleted: false }).lean();
+  if (!payment) {
+    throw new HttpError(404, 'Payment not found');
+  }
+
+  const invoice = payment.providerPaymentId
+    ? await InvoiceModel.findOne({ paymentId: payment._id, isDeleted: false }).lean()
+    : null;
+
+  const subscription = payment.providerSubscriptionId
+    ? await SubscriptionModel.findOne({
+        providerSubscriptionId: payment.providerSubscriptionId,
+        isDeleted: false,
+      }).lean()
+    : null;
+
+  const user = await UserModel.findById(payment.userId).select('email role status').lean();
+
+  return { payment, invoice, subscription, user };
+}
+
 export async function listCoupons() {
   return CouponModel.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(100).lean();
 }
@@ -330,7 +355,7 @@ export async function listRefunds() {
   return RefundModel.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(100).lean();
 }
 
-export async function createRefund(input: RefundCreateInput) {
+export async function createRefund(input: RefundCreateInput, adminId?: Types.ObjectId) {
   const payment = await PaymentModel.findOne({ _id: input.paymentId, isDeleted: false });
   if (!payment) {
     throw new HttpError(404, 'Payment not found');
@@ -371,6 +396,20 @@ export async function createRefund(input: RefundCreateInput) {
       ? PaymentStatus.REFUNDED
       : PaymentStatus.PARTIALLY_REFUNDED;
   await payment.save();
+
+  if (adminId) {
+    await logAudit({
+      actorId: adminId,
+      actorRole: 'ADMIN',
+      action: 'ADMIN_REFUND_ISSUED',
+      targetId: payment._id,
+      targetType: 'PAYMENT',
+      metadata: {
+        amountCents,
+        reason: input.reason,
+      },
+    });
+  }
 
   return refund;
 }
@@ -628,10 +667,30 @@ export async function handleStripeEvent(event: Stripe.Event) {
     const subscriptionId =
       typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
     if (subscriptionId) {
-      await SubscriptionModel.findOneAndUpdate(
+      const subscription = await SubscriptionModel.findOneAndUpdate(
         { providerSubscriptionId: subscriptionId },
         { $set: { status: SubscriptionStatus.PAST_DUE } },
       );
+      if (subscription) {
+        const user = await UserModel.findById(subscription.userId).lean();
+        if (user && user.email) {
+          await sendTemplatedEmail({
+            to: user.email,
+            templateKey: 'PAYMENT_FAILED',
+            subjectFallback: 'Action Required: Payment Failed for Vivah Australia',
+            htmlFallback: `
+              <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #A10E4D;">Payment Failed</h2>
+                <p>We were unable to process the payment for your recent invoice. To maintain your premium access and avoid interruption, please update your payment method.</p>
+                <a href="{{ portalUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Update Payment Method</a>
+              </div>
+            `,
+            context: {
+              portalUrl: `${env.WEB_BASE_URL}/member/subscription`,
+            },
+          });
+        }
+      }
     }
   }
 }
@@ -691,12 +750,16 @@ export async function verifyCheckoutSession(userId: Types.ObjectId, sessionId: s
     return false;
   }
 
-  const existingSubscription = await SubscriptionModel.findOne({
-    providerSubscriptionId: typeof session.subscription === 'string' ? session.subscription : session.subscription?.id
-  });
+  let providerSubscriptionId: string | undefined;
+  if (session.subscription) {
+    providerSubscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
+  }
 
-  if (existingSubscription) {
-    return true; // Already verified by webhook
+  if (providerSubscriptionId) {
+    const existingSubscription = await SubscriptionModel.findOne({ providerSubscriptionId });
+    if (existingSubscription) {
+      return true; // Already verified by webhook
+    }
   }
 
   const plan = await PlanModel.findById(metadata.planId);
@@ -708,11 +771,9 @@ export async function verifyCheckoutSession(userId: Types.ObjectId, sessionId: s
   );
 
   let currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  let providerSubscriptionId;
-  if (session.subscription) {
-    providerSubscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id;
+  if (providerSubscriptionId) {
     try {
-      const sub = await stripe.subscriptions.retrieve(providerSubscriptionId);
+      const sub = await stripe.subscriptions.retrieve(providerSubscriptionId) as any;
       if (sub && typeof sub.current_period_end === 'number') {
         currentPeriodEnd = new Date(sub.current_period_end * 1000);
       }

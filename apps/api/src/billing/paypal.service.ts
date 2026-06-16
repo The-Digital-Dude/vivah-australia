@@ -33,7 +33,7 @@ export async function createPayPalOrder(amount: number, currency: string = 'AUD'
 
 export async function capturePayPalOrder(orderId: string) {
   const request = new paypal.orders.OrdersCaptureRequest(orderId);
-  request.requestBody({});
+  request.requestBody({} as any);
   const response = await paypalClient.execute(request);
   return response.result;
 }

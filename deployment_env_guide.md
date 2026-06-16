@@ -81,6 +81,21 @@ Handles user profile pictures, gallery photos, and verification document storage
 | `PAYPAL_CLIENT_ID` | (Backend) Client ID. | PayPal Developer Dashboard |
 | `PAYPAL_CLIENT_SECRET` | (Backend) Secret Key. | PayPal Developer Dashboard |
 
+### Testing & Webhooks (Stripe)
+When testing locally, use the Stripe CLI to forward events to your local API:
+`stripe listen --forward-to localhost:4000/api/webhooks/stripe`
+The CLI will output a webhook secret (`whsec_...`). Set this as `STRIPE_WEBHOOK_SECRET` in your `.env`. To simulate a failed payment for testing the failed-payment notification email:
+`stripe trigger invoice.payment_failed`
+
+### Production Readiness (Stripe)
+Before going live:
+1. Ensure your Stripe account is fully activated and verified.
+2. Toggle "Test mode" off in the Stripe dashboard to reveal your live API keys.
+3. Replace the test `STRIPE_SECRET_KEY` with your live secret key.
+4. Set up a live Webhook Endpoint in the Stripe dashboard pointing to `https://api.yourdomain.com.au/api/webhooks/stripe`. Ensure you select the events: `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, and `customer.subscription.deleted`.
+5. Use the live webhook signing secret for `STRIPE_WEBHOOK_SECRET`.
+6. Ensure your live Stripe Products and Prices are created, and update `STRIPE_PRICE_PREFIX` if necessary.
+
 ---
 
 ## 7. Notifications (Email, SMS, Push)

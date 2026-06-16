@@ -993,3 +993,22 @@ export async function performModerationAction(
   });
   return report;
 }
+
+export async function performBulkModerationAction(
+  actorId: Types.ObjectId,
+  actorRole: string,
+  reportIds: string[],
+  action: 'WARN' | 'SUSPEND' | 'BAN' | 'REMOVE_CONTENT' | 'DISMISS',
+) {
+  const results = [];
+  const errors = [];
+  for (const reportId of reportIds) {
+    try {
+      const result = await performModerationAction(actorId, actorRole, reportId, action);
+      results.push(result);
+    } catch (e: any) {
+      errors.push({ reportId, error: e.message || 'Unknown error' });
+    }
+  }
+  return { results, errors };
+}

@@ -691,7 +691,11 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
 
   if (cachedMatches.length > 0) {
     const profileIds = cachedMatches.map(m => m.recommendedProfileId);
-    const candidates = await ProfileModel.find({ _id: { $in: profileIds }, isDeleted: false });
+    const candidates = await ProfileModel.find({ 
+      _id: { $in: profileIds }, 
+      userId: { $nin: [...blockedUserIds, ...hiddenUserIds] },
+      isDeleted: false 
+    });
     
     // Convert to MatchCards
     const results = await toMatchCards(viewerProfile, candidates);

@@ -39,6 +39,7 @@ import {
   listUsers,
   listVerificationRequests,
   performModerationAction,
+  performBulkModerationAction,
   recalculateVerificationBadges,
   reviewProfile,
   reviewVerificationRequest,
@@ -169,6 +170,33 @@ export function createAdminRouter(config: AuthConfig): Router {
       response
         .status(200)
         .json({ event: await updateFraudEventStatus(auth.userId, eventId, status) });
+    }),
+  );
+
+  router.patch(
+    '/admin/moderation/reports/bulk-action',
+    requireAuth(config),
+    requirePermission(AdminPermission.MODERATION_MANAGE),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const body = request.body as { reportIds?: unknown; action?: unknown };
+      const action = typeof body.action === 'string' ? body.action : '';
+      if (!Array.isArray(body.reportIds) || body.reportIds.length === 0) {
+        throw new HttpError(400, 'Valid report IDs are required');
+      }
+      if (!['WARN', 'SUSPEND', 'BAN', 'REMOVE_CONTENT', 'DISMISS'].includes(action)) {
+        throw new HttpError(400, 'Valid moderation action is required');
+      }
+      const bulkResult = await performBulkModerationAction(
+        auth.userId,
+        auth.role,
+        body.reportIds,
+        action as 'WARN' | 'SUSPEND' | 'BAN' | 'REMOVE_CONTENT' | 'DISMISS',
+      );
+      response.status(200).json({
+        ...bulkResult,
+        message: `Processed ${bulkResult.results.length} actions with ${bulkResult.errors.length} errors`,
+      });
     }),
   );
 

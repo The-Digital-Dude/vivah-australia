@@ -14,7 +14,6 @@ import {
   FavouriteModel,
   InterestModel,
   HiddenProfileModel,
-  NotificationModel,
   PlanModel,
   MonthlyInterestCounterModel,
   ProfileApprovalStatus,
@@ -23,6 +22,7 @@ import {
   SubscriptionModel,
 } from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';
+import { createNotification } from '../notifications/notifications.service.js';
 
 const FREE_INTERESTS_PER_MONTH = 5;
 const PAID_INTERESTS_PER_MONTH = 50;
@@ -111,7 +111,15 @@ async function assertNotHidden(userId: Types.ObjectId, targetUserId: Types.Objec
 }
 
 async function notify(userId: Types.ObjectId, type: string, title: string, body?: string) {
-  await NotificationModel.create({ userId, type, title, ...(body ? { body } : {}) });
+  await createNotification({
+    userId,
+    type,
+    title,
+    ...(body ? { body } : {}),
+    emailSubject: title,
+    emailBody: body ?? title,
+    pushBody: body ?? title,
+  });
 }
 
 function monthStart() {
@@ -455,7 +463,6 @@ export async function blockProfile(userId: Types.ObjectId, profileId: string) {
   await InterestModel.updateMany(
     {
       isDeleted: false,
-      status: InterestStatus.PENDING,
       $or: [
         { senderId: userId, receiverId: profile.userId },
         { senderId: profile.userId, receiverId: userId },

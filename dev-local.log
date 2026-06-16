@@ -1350,3 +1350,237 @@
 [0] [2026-06-16 10:55:51.008 +0600] [32mINFO[39m: [36mAPI server started[39m
 [0]     [35murl[39m: "http://localhost:4000"
 [0]     [35mport[39m: 4000
+[0] 10:57:45 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 10:57:55.086 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 10:57:55.104 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] [2026-06-16 10:59:01.153 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ce2388ad-8259-4b91-a45c-9dedec35a962"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 337
+[0] [2026-06-16 10:59:01.155 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "452f4523-3de6-4a40-aee7-2c21a5f770fe"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 135
+[0] [2026-06-16 10:59:01.157 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0e8d6f2b-b10c-44de-8079-bf98af0fc89a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 133
+[0] [2026-06-16 10:59:01.158 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "2f0f7df9-62b9-4d9b-a23c-a58351104b2a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 129
+[0] [2026-06-16 10:59:01.163 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "29d2bf98-c904-4bdf-80d8-29a4cee5a04c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 127
+[0] [2026-06-16 10:59:01.167 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "6eb330ef-9aa3-43f2-8adc-352dab47abd1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 127
+[0] [2026-06-16 10:59:01.172 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "e84b050c-a486-4547-b7d0-28bc5d33b0dc"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 134
+[0] [2026-06-16 10:59:01.176 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "9d387fad-b983-4859-803f-14f29b0fc680"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 135
+[0] [2026-06-16 10:59:01.188 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "40a74c14-1010-44a5-8d6c-b05367f76447"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 143
+[0] [2026-06-16 10:59:01.191 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a8ab5145-1eed-45b3-bbb0-7bd1a76023f7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 139
+[0] [2026-06-16 10:59:01.199 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "7277ccbf-2b2d-48a8-8baa-5a60c5598b6a"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 143
+[0] [2026-06-16 10:59:01.208 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "c271f695-22cb-4295-a0ac-9cb3084c25f0"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 136
+[0] [2026-06-16 10:59:01.210 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "29570291-40a8-439d-916e-3230c25199a7"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 147
+[0] [2026-06-16 10:59:01.221 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "0f6fdebb-cc7b-4f58-bd38-bfcdf91d2766"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 146
+[0] [2026-06-16 10:59:01.222 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a3593278-d692-4ac8-9bc6-fda631779238"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 117
+[0] [2026-06-16 10:59:01.229 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "d3dea380-09ad-47b1-84c9-58bda5a90524"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/community-guidelines"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 130
+[0] [2026-06-16 10:59:01.237 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "cc75e6c6-0754-4480-ba1e-03d4864f7eff"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/blogs?limit=12"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 147
+[0] [2026-06-16 10:59:01.241 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "5daf4f0a-c9f6-4782-8c89-add45b45f2d8"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 139
+[0] [2026-06-16 10:59:01.245 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "46c720a0-4c77-4c79-827c-9a562f569cd2"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 142
+[0] [2026-06-16 10:59:01.249 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ff69d91f-e1aa-4c8e-aa61-2bd591b9edb0"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 135
+[0] [2026-06-16 10:59:01.253 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "f29bda7d-2e77-42d2-a252-92143428c4cb"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 132
+[0] [2026-06-16 10:59:01.256 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "31d9d67e-d7b4-403b-82c7-1045221f4831"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 137
+[0] [2026-06-16 10:59:01.260 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "060564bc-dfce-40d4-a1a5-7eae6d6c8869"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 140
+[0] [2026-06-16 10:59:01.661 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "fd663eb5-1a58-4469-aff0-e1a5de272fbd"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 550
+[0] [2026-06-16 10:59:01.683 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "4f87ffd5-7bd3-498b-bd04-52e3a55c792b"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 578
+[0] [2026-06-16 10:59:02.475 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "edd54b5f-aa3f-492b-9141-af751e248bda"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/help-centre"
+[0]     [35mstatusCode[39m: 404
+[0]     [35mdurationMs[39m: 52
+[0] [2026-06-16 10:59:02.619 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "b9c024aa-65ae-4a92-a4bc-785ef88a51fc"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/privacy-policy"
+[0]     [35mstatusCode[39m: 404
+[0]     [35mdurationMs[39m: 56
+[0] [2026-06-16 10:59:02.623 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "462b66a3-3f21-4f1a-ba6e-4120259c92c6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/faqs"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 56
+[0] [2026-06-16 10:59:02.626 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "548cbb29-3b0d-4fc1-80e1-18c14f121a81"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/faq"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 53
+[0] [2026-06-16 10:59:02.676 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "cb0cddc9-dc3a-44e4-a929-cd176ed67a89"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/refund-policy"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 49
+[0] [2026-06-16 10:59:02.934 +0600] [33mWARN[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "fe2506cd-a08f-4556-b285-4e4f3030b542"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/terms-and-conditions"
+[0]     [35mstatusCode[39m: 404
+[0]     [35mdurationMs[39m: 49
+[0] [2026-06-16 10:59:03.090 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "158d6571-0156-4902-948c-a1f3ad192e6c"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/pages/verification-policy"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 49
+[0] 11:04:47 AM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 11:04:53.190 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 11:04:53.213 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 11:05:30 AM [tsx] change in ./src\match\match.worker.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 11:05:35.064 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 11:05:35.068 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 11:05:39 AM [tsx] change in ./src\index.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 11:05:43.452 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 11:05:43.455 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 11:06:11 AM [tsx] change in ./src\interactions\photo-requests.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 11:06:15.452 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 11:06:15.460 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 11:06:57 AM [tsx] change in ./src\match\match.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 11:07:01.776 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 11:07:01.781 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 11:07:20 AM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] [2026-06-16 11:07:25.546 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-16 11:07:25.556 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000

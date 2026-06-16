@@ -41,6 +41,7 @@ export default function AdminModerationPage() {
   const memberRequest = useMemberRequest();
   const [dashboard, setDashboard] = useState<ModerationDashboard | null>(null);
   const [message, setMessage] = useState('');
+  const [selectedReportIds, setSelectedReportIds] = useState<Set<string>>(new Set());
 
   async function loadDashboard() {
     const result = await memberRequest('/api/admin/moderation/dashboard');
@@ -57,7 +58,46 @@ export default function AdminModerationPage() {
       body: { action },
     });
     setMessage(result.message);
-    if (result.ok) await loadDashboard();
+    if (result.ok) {
+      setSelectedReportIds((prev) => {
+        const next = new Set(prev);
+        next.delete(reportId);
+        return next;
+      });
+      await loadDashboard();
+    }
+  }
+
+  async function applyBulkAction(action: 'WARN' | 'SUSPEND' | 'BAN' | 'REMOVE_CONTENT' | 'DISMISS') {
+    if (selectedReportIds.size === 0) return;
+    const result = await memberRequest('/api/admin/moderation/reports/bulk-action', {
+      method: 'PATCH',
+      body: { reportIds: Array.from(selectedReportIds), action },
+    });
+    setMessage(result.message);
+    if (result.ok) {
+      setSelectedReportIds(new Set());
+      await loadDashboard();
+    }
+  }
+
+  function toggleReportSelection(reportId: string) {
+    setSelectedReportIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(reportId)) next.delete(reportId);
+      else next.add(reportId);
+      return next;
+    });
+  }
+
+  function selectAllReports() {
+    if (dashboard?.queues.reports) {
+      if (selectedReportIds.size === dashboard.queues.reports.length) {
+        setSelectedReportIds(new Set());
+      } else {
+        setSelectedReportIds(new Set(dashboard.queues.reports.map((r) => r._id)));
+      }
+    }
   }
 
   useEffect(() => {
@@ -122,21 +162,50 @@ export default function AdminModerationPage() {
         </Queue>
 
         <Queue title="Abuse Reports" href="/admin/reports">
+          {dashboard?.queues.reports && dashboard.queues.reports.length > 0 && (
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-neutral-100">
+              <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="rounded border-neutral-300 text-[#A10E4D] focus:ring-[#A10E4D]"
+                  checked={selectedReportIds.size === dashboard.queues.reports.length && dashboard.queues.reports.length > 0}
+                  onChange={selectAllReports}
+                />
+                Select All
+              </label>
+              {selectedReportIds.size > 0 && (
+                <div className="flex gap-1.5">
+                  <ModerationButton label="Warn All" action="WARN" onClick={() => void applyBulkAction('WARN')} />
+                  <ModerationButton label="Dismiss All" action="DISMISS" onClick={() => void applyBulkAction('DISMISS')} />
+                </div>
+              )}
+            </div>
+          )}
           {dashboard?.queues.reports.map((report) => (
-            <article key={report._id} className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3 shadow-sm">
-              <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-2">
-                <p className="text-xs font-bold text-neutral-850 truncate">
-                  {report.severity} {report.targetType}
-                </p>
-                <AdminStatusBadge status={report.status} />
+            <article key={report._id} className="rounded-xl border border-neutral-200 bg-white p-4 space-y-3 shadow-sm flex gap-3">
+              <div className="pt-0.5">
+                <input
+                  type="checkbox"
+                  className="rounded border-neutral-300 text-[#A10E4D] focus:ring-[#A10E4D]"
+                  checked={selectedReportIds.has(report._id)}
+                  onChange={() => toggleReportSelection(report._id)}
+                />
               </div>
-              <p className="line-clamp-2 text-xs text-neutral-500">{report.reason}</p>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <ModerationButton label="Warn" action="WARN" onClick={() => void applyAction(report._id, 'WARN')} />
-                <ModerationButton label="Suspend" action="SUSPEND" onClick={() => void applyAction(report._id, 'SUSPEND')} />
-                <ModerationButton label="Ban" action="BAN" onClick={() => void applyAction(report._id, 'BAN')} />
-                <ModerationButton label="Remove" action="REMOVE_CONTENT" onClick={() => void applyAction(report._id, 'REMOVE_CONTENT')} />
-                <ModerationButton label="Dismiss" action="DISMISS" onClick={() => void applyAction(report._id, 'DISMISS')} />
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center justify-between gap-4 border-b border-neutral-100 pb-2">
+                  <p className="text-xs font-bold text-neutral-850 truncate">
+                    {report.severity} {report.targetType}
+                  </p>
+                  <AdminStatusBadge status={report.status} />
+                </div>
+                <p className="line-clamp-2 text-xs text-neutral-500">{report.reason}</p>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <ModerationButton label="Warn" action="WARN" onClick={() => void applyAction(report._id, 'WARN')} />
+                  <ModerationButton label="Suspend" action="SUSPEND" onClick={() => void applyAction(report._id, 'SUSPEND')} />
+                  <ModerationButton label="Ban" action="BAN" onClick={() => void applyAction(report._id, 'BAN')} />
+                  <ModerationButton label="Remove" action="REMOVE_CONTENT" onClick={() => void applyAction(report._id, 'REMOVE_CONTENT')} />
+                  <ModerationButton label="Dismiss" action="DISMISS" onClick={() => void applyAction(report._id, 'DISMISS')} />
+                </div>
               </div>
             </article>
           ))}

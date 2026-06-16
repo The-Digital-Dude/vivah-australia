@@ -25,7 +25,7 @@ async function syncStripe() {
     // Create product
     const product = await stripe.products.create({
       name: plan.name,
-      description: plan.description,
+      ...(plan.description ? { description: plan.description } : {}),
       metadata: {
         code: plan.code
       }

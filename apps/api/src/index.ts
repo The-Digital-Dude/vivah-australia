@@ -5,7 +5,7 @@ import { logger } from './common/logger.js';
 import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
-import { matchCachingQueue, matchCachingWorker } from './match/match.worker.js';
+import { matchCachingQueue, matchCachingWorker, savedSearchNotifyQueue, savedSearchNotifyWorker } from './match/match.worker.js';
 
 const authConfig = {
   accessSecret: env.JWT_ACCESS_SECRET,
@@ -69,6 +69,13 @@ async function startServer() {
     });
   } else {
     logger.warn('Redis not available — match pre-caching disabled');
+  }
+
+  // Schedule daily saved search notifications
+  if (savedSearchNotifyQueue) {
+    await savedSearchNotifyQueue.add('notify-saved-searches', {}, {
+      repeat: { pattern: '0 8 * * *' }, // 8 AM everyday
+    });
   }
 }
 

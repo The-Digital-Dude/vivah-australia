@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   Bookmark,
@@ -431,6 +432,7 @@ export default function MatchDiscovery() {
   }
 
   function renderFilterForm() {
+    const advancedUnlocked = search?.limits?.advancedFilters ?? false;
     const queryValue = (key: string) =>
       typeof currentQuery[key] === 'string' ? String(currentQuery[key]) : undefined;
     const queryCsv = (key: string) =>
@@ -541,62 +543,79 @@ export default function MatchDiscovery() {
               placeholder="NEVER_MARRIED"
               defaultValue={queryCsv('maritalStatus')}
             />
-            <Field
-              label="Visa status"
-              name="visaStatus"
-              placeholder="Permanent Resident, Student Visa"
-              defaultValue={queryCsv('visaStatus')}
-            />
-            <Field
-              label="Height min"
-              name="heightMinCm"
-              type="number"
-              placeholder="155"
-              defaultValue={queryNumber('heightMinCm')}
-            />
-            <Field
-              label="Height max"
-              name="heightMaxCm"
-              type="number"
-              placeholder="185"
-              defaultValue={queryNumber('heightMaxCm')}
-            />
-            <Field
-              label="Income min"
-              name="incomeMin"
-              type="number"
-              placeholder="90000"
-              defaultValue={queryNumber('incomeMin')}
-            />
-            <Select
-              label="Verification level"
-              name="verificationLevel"
-              options={['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED']}
-              defaultValue={queryValue('verificationLevel')}
-            />
-            <label className="flex items-center gap-2.5 text-sm font-semibold text-[#2F2F2F]">
-              <input
-                name="recentlyActive"
-                type="checkbox"
-                defaultChecked={queryBoolean('recentlyActive')}
-                className="size-4 rounded accent-[#A10E4D]"
-              />
-              Recently active only
-            </label>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {visaStatusSuggestions.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() =>
-                  void applyQuickFilter({ ...currentQuery, page: 1, visaStatus: [value] })
-                }
-                className="rounded-full border border-[#D4A04C]/30 bg-white px-3 py-1 text-xs font-semibold text-[#A10E4D] transition hover:bg-[#FFF8EC]"
-              >
-                {value}
-              </button>
-            ))}
+            <div className="relative">
+              {!advancedUnlocked && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/60 backdrop-blur-[2px]">
+                  <Link
+                    href="/member/subscription"
+                    className="flex items-center gap-2 rounded-full bg-[#A10E4D] px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8B0C42]"
+                  >
+                    <ShieldCheck className="size-4" />
+                    Unlock Advanced Filters
+                  </Link>
+                </div>
+              )}
+              <div className={!advancedUnlocked ? 'pointer-events-none opacity-40' : ''}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field
+                    label="Visa status"
+                    name="visaStatus"
+                    placeholder="Permanent Resident, Student Visa"
+                    defaultValue={queryCsv('visaStatus')}
+                  />
+                  <Field
+                    label="Height min"
+                    name="heightMinCm"
+                    type="number"
+                    placeholder="155"
+                    defaultValue={queryNumber('heightMinCm')}
+                  />
+                  <Field
+                    label="Height max"
+                    name="heightMaxCm"
+                    type="number"
+                    placeholder="185"
+                    defaultValue={queryNumber('heightMaxCm')}
+                  />
+                  <Field
+                    label="Income min"
+                    name="incomeMin"
+                    type="number"
+                    placeholder="90000"
+                    defaultValue={queryNumber('incomeMin')}
+                  />
+                  <Select
+                    label="Verification level"
+                    name="verificationLevel"
+                    options={['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED']}
+                    defaultValue={queryValue('verificationLevel')}
+                  />
+                  <label className="flex items-center gap-2.5 text-sm font-semibold text-[#2F2F2F]">
+                    <input
+                      name="recentlyActive"
+                      type="checkbox"
+                      defaultChecked={queryBoolean('recentlyActive')}
+                      className="size-4 rounded accent-[#A10E4D]"
+                    />
+                    Recently active only
+                  </label>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {visaStatusSuggestions.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() =>
+                        void applyQuickFilter({ ...currentQuery, page: 1, visaStatus: [value] })
+                      }
+                      className="rounded-full border border-[#D4A04C]/30 bg-white px-3 py-1 text-xs font-semibold text-[#A10E4D] transition hover:bg-[#FFF8EC]"
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </details>
 

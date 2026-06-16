@@ -115,6 +115,8 @@ export async function sendPhotoRequest(
     body: `${requesterName} has requested to view your private photos.`,
     data: { photoRequestId: String(photoRequest?._id), requesterId: String(requesterId) },
     pushBody: `${requesterName} wants to see your private photos.`,
+    emailSubject: 'New photo access request',
+    emailBody: `${requesterName} has requested to view your private photos. Log in to Vivah Australia to respond.`
   });
 
   return photoRequest;
@@ -174,6 +176,8 @@ export async function respondToPhotoRequest(
       ownerProfileId: String(ownerProfile?._id ?? photoRequest.ownerProfileId),
     },
     pushBody: body,
+    emailSubject: title,
+    emailBody: body
   });
 
   return photoRequest;

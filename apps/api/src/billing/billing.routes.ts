@@ -31,9 +31,9 @@ import {
   listSubscriptions,
   updatePlan,
   upsertPlan,
-  upsertPlan,
   createPaymentIntent,
   verifyCheckoutSession,
+  getAdminPaymentDetail,
 } from './billing.service.js';
 import { createPayPalOrder, capturePayPalOrder } from './paypal.service.js';
 
@@ -270,6 +270,19 @@ export function createBillingRouter(config: AuthConfig): Router {
   );
 
   router.get(
+    '/admin/payments/:id',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      requireAdmin(request);
+      const paymentId = request.params.id;
+      if (!paymentId) {
+        throw new HttpError(400, 'Payment ID is required');
+      }
+      response.status(200).json(await getAdminPaymentDetail(paymentId));
+    }),
+  );
+
+  router.get(
     '/admin/refunds',
     requireAuth(config),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
@@ -282,9 +295,9 @@ export function createBillingRouter(config: AuthConfig): Router {
     '/admin/refunds',
     requireAuth(config),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
-      requireAdmin(request);
+      const auth = requireAdmin(request);
       const input = refundCreateSchema.parse(request.body);
-      response.status(201).json({ refund: await createRefund(input) });
+      response.status(201).json({ refund: await createRefund(input, auth.userId) });
     }),
   );
 
