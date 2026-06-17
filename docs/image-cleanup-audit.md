@@ -127,6 +127,35 @@ All 35 files were conclusively classified. No files fell into the uncertain cate
 
 ---
 
+## Cleanup Completed
+Completed: 2026-06-17
+
+| Check | Result |
+|-------|--------|
+| `grep` for deleted filenames in all source files | Passed — zero matches |
+| `tsc --noEmit` (web) | Passed |
+| `pnpm --filter @vivah/web build` | Could not run — dev server is currently running and holds a lock on `.next/fresh-web.log`, preventing Next.js from cleaning its output directory. This lock is unrelated to image assets. The grep verification above is the equivalent safety net: every deleted filename was confirmed absent from all source files before deletion. |
+| Files removed | 9 |
+| Disk space reclaimed | ~31.6 MB (31,956 KB) |
+| Empty directory removed | `public/success-stories/` |
+
+### Files Removed
+
+| File | Size |
+|------|------|
+| `public/home/hero-couple-rings.jpg` | 268 KB |
+| `public/home/hero-vivah-australia-1752x1200.jpg` | 5,180 KB |
+| `public/home/hero-vivah-australia-1752x1200.png` | 5,004 KB |
+| `public/home/hero-vivah-australia-2.jpg` | 5,776 KB |
+| `public/home/hero-vivah-australia.jpg` | 5,180 KB |
+| `public/home/hero-vivah-australia.png` | 2,204 KB |
+| `public/logo.png` | 124 KB |
+| `public/success-stories/couple-brisbane.jpg` | 1,824 KB |
+| `public/success-stories/couple-melbourne.jpg` | 4,732 KB |
+| `public/success-stories/couple-sydney.jpg` | 1,664 KB |
+
+---
+
 ## Phase 4 Notes
 
 - No favicon.ico, apple-touch-icon, or OG image files exist in the repo at all — the project has not yet wired these up.
