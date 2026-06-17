@@ -87,6 +87,16 @@ export interface Profile {
     fitnessInterests?: string[];
     religiousPractices?: string;
   };
+  compatibility: {
+    relationshipPace?: string;
+    familyInvolvement?: string;
+    relocationOpenness?: string;
+    communicationStyle?: string;
+    qualityTimeStyle?: string;
+    conflictApproach?: string;
+    valuesPrompt?: string;
+    relationshipVision?: string;
+  };
   about: {
     aboutMe?: string;
     hobbies?: string[];
@@ -231,6 +241,16 @@ const profileSchema = new Schema<Profile>(
       dietaryPreferences: { type: String, trim: true },
       fitnessInterests: { type: [String], default: [] },
       religiousPractices: { type: String, trim: true },
+    },
+    compatibility: {
+      relationshipPace: { type: String, trim: true },
+      familyInvolvement: { type: String, trim: true },
+      relocationOpenness: { type: String, trim: true },
+      communicationStyle: { type: String, trim: true },
+      qualityTimeStyle: { type: String, trim: true },
+      conflictApproach: { type: String, trim: true },
+      valuesPrompt: { type: String, trim: true, maxlength: 500 },
+      relationshipVision: { type: String, trim: true, maxlength: 500 },
     },
     about: {
       aboutMe: { type: String, trim: true, maxlength: 5000 },

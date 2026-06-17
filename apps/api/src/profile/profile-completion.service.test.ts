@@ -32,6 +32,7 @@ function baseProfile(overrides: Record<string, unknown> = {}) {
     employment: { annualIncomeVisibility: 'PRIVATE' },
     family: {},
     lifestyle: {},
+    compatibility: {},
     about: {},
     partnerPreference: {},
     verification: {
@@ -73,6 +74,12 @@ function completeProfile() {
     employment: { occupation: 'Accountant', annualIncomeVisibility: 'PRIVATE' },
     family: { familyValues: 'Close-knit and supportive' },
     lifestyle: { dietaryPreferences: 'Vegetarian' },
+    compatibility: {
+      relationshipPace: 'INTENTIONAL_AND_STEADY',
+      familyInvolvement: 'BALANCED',
+      communicationStyle: 'CALM_AND_THOUGHTFUL',
+      valuesPrompt: 'Kindness, trust, and emotional steadiness matter most to me.',
+    },
     about: {
       aboutMe: 'I am a committed professional looking for a serious long-term match.',
       partnerExpectations: 'I value kindness, family connection, and shared goals.',
@@ -145,6 +152,7 @@ describe('profile completion coaching', () => {
     expect(strength.percentage).toBe(0);
     expect(strength.nextAction?.key).toBe('profilePhoto');
     expect(strength.missing.map((item) => item.key)).toContain('aboutMe');
+    expect(strength.missing.map((item) => item.key)).toContain('compatibility');
   });
 
   it('returns 100% for a fully complete profile with photo and mobile verification', () => {
@@ -161,16 +169,23 @@ describe('profile completion coaching', () => {
     const profile = completeProfile();
     profile.about.aboutMe = undefined;
     profile.partnerPreference = {};
+    profile.compatibility = {};
 
     const strength = calculateProfileCompletionStrength(profile, {
       hasProfilePhoto: false,
     });
 
-    expect(strength.percentage).toBe(46);
+    expect(strength.percentage).toBe(42);
     expect(strength.missing.slice(0, 3).map((item) => item.key)).toEqual([
       'profilePhoto',
       'aboutMe',
       'partnerPreference',
+    ]);
+    expect(strength.missing.slice(0, 4).map((item) => item.key)).toEqual([
+      'profilePhoto',
+      'aboutMe',
+      'partnerPreference',
+      'compatibility',
     ]);
   });
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Globe, HelpCircle, Share2, Sliders, Home, Save, Search } from 'lucide-react';
+import { Globe, HelpCircle, Share2, Sliders, Home, Save, Search, ShieldCheck } from 'lucide-react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 
@@ -10,6 +10,140 @@ interface SystemSetting {
   key: string;
   value: unknown;
   description?: string;
+}
+
+type VerificationRuleKey =
+  | 'emailVerified'
+  | 'mobileVerified'
+  | 'identityVerified'
+  | 'addressVerified'
+  | 'employmentVerified'
+  | 'visaVerified'
+  | 'policeClearanceVerified'
+  | 'facialVerified';
+
+type VerificationTier =
+  | 'BASIC'
+  | 'SILVER'
+  | 'GOLD'
+  | 'PLATINUM'
+  | 'FULLY_VERIFIED';
+
+interface BadgeRuleGroup {
+  count: number;
+  from: VerificationRuleKey[];
+}
+
+interface BadgeTierRule {
+  allOf: VerificationRuleKey[];
+  atLeast?: BadgeRuleGroup[];
+}
+
+type VerificationBadgeRules = Record<VerificationTier, BadgeTierRule>;
+
+const VERIFICATION_BADGE_RULES_KEY = 'verificationBadgeRules';
+
+const VERIFICATION_FLAGS: Array<{ key: VerificationRuleKey; label: string }> = [
+  { key: 'emailVerified', label: 'Email' },
+  { key: 'mobileVerified', label: 'Mobile' },
+  { key: 'identityVerified', label: 'Identity' },
+  { key: 'addressVerified', label: 'Address' },
+  { key: 'employmentVerified', label: 'Employment' },
+  { key: 'visaVerified', label: 'Visa' },
+  { key: 'policeClearanceVerified', label: 'Police' },
+  { key: 'facialVerified', label: 'Facial' },
+];
+
+const VERIFICATION_TIERS: VerificationTier[] = [
+  'BASIC',
+  'SILVER',
+  'GOLD',
+  'PLATINUM',
+  'FULLY_VERIFIED',
+];
+
+const DEFAULT_BADGE_RULES: VerificationBadgeRules = {
+  BASIC: {
+    allOf: ['emailVerified', 'mobileVerified'],
+  },
+  SILVER: {
+    allOf: ['emailVerified', 'mobileVerified', 'identityVerified'],
+  },
+  GOLD: {
+    allOf: ['emailVerified', 'mobileVerified', 'identityVerified'],
+    atLeast: [{ count: 1, from: ['addressVerified', 'employmentVerified', 'visaVerified'] }],
+  },
+  PLATINUM: {
+    allOf: ['emailVerified', 'mobileVerified', 'identityVerified'],
+    atLeast: [
+      {
+        count: 2,
+        from: ['addressVerified', 'employmentVerified', 'visaVerified', 'policeClearanceVerified', 'facialVerified'],
+      },
+    ],
+  },
+  FULLY_VERIFIED: {
+    allOf: ['emailVerified', 'mobileVerified', 'identityVerified', 'addressVerified'],
+    atLeast: [
+      { count: 1, from: ['employmentVerified', 'visaVerified'] },
+      { count: 1, from: ['policeClearanceVerified', 'facialVerified'] },
+    ],
+  },
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeBadgeRules(value: unknown): VerificationBadgeRules {
+  if (!isRecord(value)) {
+    return DEFAULT_BADGE_RULES;
+  }
+
+  const nextRules = structuredClone(DEFAULT_BADGE_RULES);
+
+  for (const tier of VERIFICATION_TIERS) {
+    const tierValue = value[tier];
+    if (!isRecord(tierValue)) {
+      continue;
+    }
+
+    const allOf = Array.isArray(tierValue.allOf)
+      ? tierValue.allOf.filter((item): item is VerificationRuleKey =>
+          VERIFICATION_FLAGS.some((flag) => flag.key === item),
+        )
+      : nextRules[tier].allOf;
+
+    const atLeast = Array.isArray(tierValue.atLeast)
+      ? tierValue.atLeast
+          .map((group) => {
+            if (!isRecord(group) || typeof group.count !== 'number' || !Array.isArray(group.from)) {
+              return null;
+            }
+
+            const from = group.from.filter((item): item is VerificationRuleKey =>
+              VERIFICATION_FLAGS.some((flag) => flag.key === item),
+            );
+
+            if (from.length === 0) {
+              return null;
+            }
+
+            return {
+              count: Math.max(1, Math.min(group.count, from.length)),
+              from,
+            };
+          })
+          .filter((group): group is BadgeRuleGroup => Boolean(group))
+      : nextRules[tier].atLeast;
+
+    nextRules[tier] = {
+      allOf,
+      ...(atLeast && atLeast.length > 0 ? { atLeast } : {}),
+    };
+  }
+
+  return nextRules;
 }
 
 const SETTING_SCHEMAS = [
@@ -36,7 +170,10 @@ const SETTING_SCHEMAS = [
   { key: 'membershipEnabled', label: 'Paid Subscriptions System', group: 'platform', type: 'boolean', default: true, desc: 'Turn on premium upgrades pricing table and billing' },
   
   // HOMEPAGE
-  { key: 'homeStatsSnippet', label: 'Homepage Stats Summary', group: 'homepage', type: 'textarea', default: '10k+ | Verified Profiles\n100% | Privacy Controlled', desc: 'Lines formatted as: Number | Label' }
+  { key: 'homeStatsSnippet', label: 'Homepage Stats Summary', group: 'homepage', type: 'textarea', default: '10k+ | Verified Profiles\n100% | Privacy Controlled', desc: 'Lines formatted as: Number | Label' },
+
+  // VERIFICATION
+  { key: VERIFICATION_BADGE_RULES_KEY, label: 'Verification Badge Rules', group: 'verification', type: 'badgeRules', default: DEFAULT_BADGE_RULES, desc: 'Configure which verification checks determine each verification badge tier.' }
 ];
 
 export default function SettingsManagerPage() {
@@ -60,7 +197,12 @@ export default function SettingsManagerPage() {
       const initialValues: Record<string, unknown> = {};
       SETTING_SCHEMAS.forEach(schema => {
         const found = loaded.find(s => s.key === schema.key);
-        initialValues[schema.key] = found ? found.value : schema.default;
+        initialValues[schema.key] =
+          schema.key === VERIFICATION_BADGE_RULES_KEY
+            ? normalizeBadgeRules(found?.value)
+            : found
+              ? found.value
+              : schema.default;
       });
       setEditedValues(initialValues);
     } else {
@@ -140,8 +282,83 @@ export default function SettingsManagerPage() {
     { key: 'support', name: 'Support Details', icon: HelpCircle },
     { key: 'social', name: 'Social Handles', icon: Share2 },
     { key: 'platform', name: 'Platform Flags', icon: Sliders },
-    { key: 'homepage', name: 'Home Content', icon: Home }
+    { key: 'homepage', name: 'Home Content', icon: Home },
+    { key: 'verification', name: 'Verification Rules', icon: ShieldCheck },
   ];
+
+  const toggleBadgeRule = (tier: VerificationTier, key: VerificationRuleKey) => {
+    setEditedValues((prev) => {
+      const current = normalizeBadgeRules(prev[VERIFICATION_BADGE_RULES_KEY]);
+      const allOf = current[tier].allOf.includes(key)
+        ? current[tier].allOf.filter((item) => item !== key)
+        : [...current[tier].allOf, key];
+
+      return {
+        ...prev,
+        [VERIFICATION_BADGE_RULES_KEY]: {
+          ...current,
+          [tier]: {
+            ...current[tier],
+            allOf,
+          },
+        },
+      };
+    });
+  };
+
+  const updateBadgeGroupCount = (tier: VerificationTier, groupIndex: number, count: number) => {
+    setEditedValues((prev) => {
+      const current = normalizeBadgeRules(prev[VERIFICATION_BADGE_RULES_KEY]);
+      const groups = [...(current[tier].atLeast ?? [])];
+      const target = groups[groupIndex];
+      if (!target) return prev;
+      groups[groupIndex] = { ...target, count: Math.max(1, Math.min(count, target.from.length)) };
+      return {
+        ...prev,
+        [VERIFICATION_BADGE_RULES_KEY]: {
+          ...current,
+          [tier]: {
+            ...current[tier],
+            atLeast: groups,
+          },
+        },
+      };
+    });
+  };
+
+  const toggleBadgeGroupFlag = (tier: VerificationTier, groupIndex: number, key: VerificationRuleKey) => {
+    setEditedValues((prev) => {
+      const current = normalizeBadgeRules(prev[VERIFICATION_BADGE_RULES_KEY]);
+      const groups = [...(current[tier].atLeast ?? [])];
+      const target = groups[groupIndex];
+      if (!target) return prev;
+
+      const from = target.from.includes(key)
+        ? target.from.filter((item) => item !== key)
+        : [...target.from, key];
+
+      if (from.length === 0) {
+        return prev;
+      }
+
+      groups[groupIndex] = {
+        ...target,
+        from,
+        count: Math.min(target.count, from.length),
+      };
+
+      return {
+        ...prev,
+        [VERIFICATION_BADGE_RULES_KEY]: {
+          ...current,
+          [tier]: {
+            ...current[tier],
+            atLeast: groups,
+          },
+        },
+      };
+    });
+  };
 
   return (
     <AdminShell
@@ -254,6 +471,100 @@ export default function SettingsManagerPage() {
                           >
                             <Save className="size-3.5" />
                             <span>Save Changes</span>
+                          </button>
+                        </div>
+                      ) : setting.type === 'badgeRules' ? (
+                        <div className="space-y-4">
+                          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-800">
+                            Changes apply to future badge evaluations. Existing badges stay as they are until a member is re-reviewed or an admin manually runs badge recalculation.
+                          </div>
+
+                          <div className="space-y-4">
+                            {VERIFICATION_TIERS.map((tier) => {
+                              const rules = normalizeBadgeRules(editedValues[setting.key])[tier];
+                              return (
+                                <div key={tier} className="rounded-2xl border border-neutral-200 p-4">
+                                  <div className="mb-3">
+                                    <h4 className="text-sm font-bold text-neutral-900">{tier.replace('_', ' ')}</h4>
+                                    <p className="text-[11px] font-medium text-neutral-500">
+                                      Select the mandatory checks for this tier.
+                                    </p>
+                                  </div>
+
+                                  <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                                    {VERIFICATION_FLAGS.map((flag) => {
+                                      const checked = rules.allOf.includes(flag.key);
+                                      return (
+                                        <label key={`${tier}-${flag.key}`} className="flex items-center gap-2 rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-700">
+                                          <input
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() => toggleBadgeRule(tier, flag.key)}
+                                            className="h-4 w-4 rounded border-neutral-300 text-[#A10E4D] focus:ring-[#A10E4D]"
+                                          />
+                                          <span>{flag.label}</span>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {rules.atLeast?.length ? (
+                                    <div className="mt-4 space-y-3">
+                                      {rules.atLeast.map((group, groupIndex) => (
+                                        <div key={`${tier}-group-${groupIndex}`} className="rounded-xl bg-neutral-50 p-3">
+                                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                            <p className="text-xs font-bold text-neutral-800">
+                                              Additional group {groupIndex + 1}
+                                            </p>
+                                            <label className="flex items-center gap-2 text-xs font-semibold text-neutral-600">
+                                              <span>At least</span>
+                                              <input
+                                                type="number"
+                                                min={1}
+                                                max={group.from.length}
+                                                value={group.count}
+                                                onChange={(event) =>
+                                                  updateBadgeGroupCount(
+                                                    tier,
+                                                    groupIndex,
+                                                    Number(event.target.value),
+                                                  )
+                                                }
+                                                className="h-8 w-16 rounded-lg border border-neutral-250 px-2 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D]"
+                                              />
+                                              <span>checks</span>
+                                            </label>
+                                          </div>
+                                          <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                                            {VERIFICATION_FLAGS.map((flag) => (
+                                              <label key={`${tier}-${groupIndex}-${flag.key}`} className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-700">
+                                                <input
+                                                  type="checkbox"
+                                                  checked={group.from.includes(flag.key)}
+                                                  onChange={() => toggleBadgeGroupFlag(tier, groupIndex, flag.key)}
+                                                  className="h-4 w-4 rounded border-neutral-300 text-[#A10E4D] focus:ring-[#A10E4D]"
+                                                />
+                                                <span>{flag.label}</span>
+                                              </label>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => void handleSaveSetting(setting.key)}
+                            disabled={pending}
+                            className="rounded-lg bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2 text-xs font-bold text-white shadow-sm flex items-center gap-1.5"
+                          >
+                            <Save className="size-3.5" />
+                            <span>Save Badge Rules</span>
                           </button>
                         </div>
                       ) : (

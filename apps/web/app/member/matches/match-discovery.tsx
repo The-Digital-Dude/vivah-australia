@@ -385,12 +385,21 @@ export default function MatchDiscovery() {
     setActiveTab(tab);
 
     if (tab === 'recommended') {
+      setCurrentQuery(defaultFilters);
       await loadRecommended();
       return;
     }
 
     if (tab === 'active') {
-      await runSearch({ page: 1, pageSize: 12, sort: 'RECENTLY_ACTIVE', recentlyActive: true });
+      setLoading(true);
+      setMessage(null);
+      const result = await memberRequest('/api/matches/recommended?limit=24&mode=RECENTLY_ACTIVE');
+      setLoading(false);
+      if (!result.ok) {
+        setMessage(result.message);
+        return;
+      }
+      setRecommended((result.data as MatchResponse).results ?? []);
       return;
     }
 
@@ -400,20 +409,34 @@ export default function MatchDiscovery() {
     }
 
     if (tab === 'newest') {
-      await runSearch({ page: 1, pageSize: 12, sort: 'NEWEST' });
+      setLoading(true);
+      setMessage(null);
+      const result = await memberRequest('/api/matches/recommended?limit=24&mode=NEWLY_JOINED');
+      setLoading(false);
+      if (!result.ok) {
+        setMessage(result.message);
+        return;
+      }
+      setRecommended((result.data as MatchResponse).results ?? []);
       return;
     }
 
     if (tab === 'nearby') {
-      const city = profileLocation?.city;
-      const state = profileLocation?.state;
-      await runSearch({
-        page: 1,
-        pageSize: 12,
-        sort: 'RECOMMENDED',
-        ...(city ? { city: [city] } : {}),
-        ...(state ? { state: [state] } : {}),
-      });
+      if (!profileLocation?.city && !profileLocation?.state) {
+        setLoading(false);
+        setRecommended([]);
+        setMessage('Add your city or state in your profile to discover members local to you.');
+        return;
+      }
+      setLoading(true);
+      setMessage(null);
+      const result = await memberRequest('/api/matches/recommended?limit=24&mode=NEARBY');
+      setLoading(false);
+      if (!result.ok) {
+        setMessage(result.message);
+        return;
+      }
+      setRecommended((result.data as MatchResponse).results ?? []);
       return;
     }
 
@@ -706,8 +729,13 @@ export default function MatchDiscovery() {
   }
 
   async function refreshCurrentView() {
-    if (activeTab === 'recommended') {
-      await loadRecommended();
+    if (
+      activeTab === 'recommended' ||
+      activeTab === 'active' ||
+      activeTab === 'newest' ||
+      activeTab === 'nearby'
+    ) {
+      await applyPreset(activeTab);
       return;
     }
 
@@ -816,20 +844,22 @@ export default function MatchDiscovery() {
         </p>
       ) : null}
 
-      {(activeTab === 'search' || activeTab === 'active' || activeTab === 'verified' || activeTab === 'newest' || activeTab === 'nearby') && (
+      {(activeTab === 'search' || activeTab === 'verified') && (
         <section>
           {renderSearchResultsGrid()}
         </section>
       )}
 
-      {activeTab === 'recommended' && (
+      {(activeTab === 'recommended' || activeTab === 'active' || activeTab === 'newest' || activeTab === 'nearby') && (
         <section>
 
           {loading ? (
             <MatchGridSkeleton />
           ) : recommended.length === 0 ? (
             <EmptyState title="No recommendations available">
-              Update your partner preferences in your profile to unlock stronger recommendations.
+              {activeTab === 'nearby'
+                ? 'Complete your location details or broaden your preferences to discover members near you.'
+                : 'Update your partner preferences in your profile to unlock stronger recommendations.'}
             </EmptyState>
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

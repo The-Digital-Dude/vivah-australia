@@ -15,6 +15,10 @@ import { generateUnsubscribeToken, sendTemplatedEmail } from '../common/email.se
 import { recordDuplicateContactAttempts } from '../common/fraud.service.js';
 import { logAudit } from '../common/audit.service.js';
 import {
+  parseVerificationBadgeRulesSetting,
+  VERIFICATION_BADGE_RULES_SETTING_KEY,
+} from '../verification/badge.js';
+import {
   BlogPostModel,
   CmsPageModel,
   ContactInquiryModel,
@@ -577,11 +581,21 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       requireAdminRole(request);
       const body = request.body as Record<string, unknown>;
+      const key = request.params.key;
+      const value =
+        key === VERIFICATION_BADGE_RULES_SETTING_KEY
+          ? parseVerificationBadgeRulesSetting(body.value)
+          : body.value;
+
+      if (key === VERIFICATION_BADGE_RULES_SETTING_KEY && !value) {
+        throw new HttpError(400, 'Invalid verification badge rules');
+      }
+
       const setting = (await SystemSettingModel.findOneAndUpdate(
-        { key: request.params.key },
+        { key },
         {
-          key: request.params.key,
-          value: body.value,
+          key,
+          value,
           description: body.description,
           isDeleted: false,
         },

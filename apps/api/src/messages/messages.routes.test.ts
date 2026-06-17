@@ -338,6 +338,40 @@ describe('message routes and realtime server', () => {
       .expect(403);
   });
 
+  it('keeps blocked conversations visible and readable while marking them locked', async () => {
+    const { sender, receiver, conversation } = await createAcceptedConversation();
+    await MessageModel.create({
+      conversationId: conversation._id,
+      senderId: sender.user._id,
+      body: 'Existing history should remain readable.',
+      attachmentIds: [],
+      readBy: [sender.user._id],
+      deletedFor: [],
+      isDeleted: false,
+    });
+    await BlockModel.create({ blockerId: receiver.user._id, blockedId: sender.user._id });
+
+    const conversationsResponse = await request(app)
+      .get('/api/me/conversations')
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .expect(200);
+
+    expect(bodyAs<{ data: Array<{ id: string; isLocked?: boolean; lockReason?: string }> }>(conversationsResponse).data[0]).toMatchObject({
+      id: conversation.id,
+      isLocked: true,
+      lockReason: 'blocked',
+    });
+
+    const messagesResponse = await request(app)
+      .get(`/api/me/conversations/${conversation.id}/messages`)
+      .set('Authorization', `Bearer ${sender.accessToken}`)
+      .expect(200);
+
+    expect(bodyAs<{ messages: Array<{ body?: string }> }>(messagesResponse).messages[0]?.body).toBe(
+      'Existing history should remain readable.',
+    );
+  });
+
   it('disconnects active chat sockets immediately after a block is created', async () => {
     const { sender, receiver, receiverProfile, conversation } = await createAcceptedConversation();
     const senderSocket = connectSocket(sender.accessToken);

@@ -116,6 +116,16 @@ interface ProfileDetail {
     fitnessInterests?: string[];
     religiousPractices?: string;
   };
+  compatibility?: {
+    relationshipPace?: string;
+    familyInvolvement?: string;
+    relocationOpenness?: string;
+    communicationStyle?: string;
+    qualityTimeStyle?: string;
+    conflictApproach?: string;
+    valuesPrompt?: string;
+    relationshipVision?: string;
+  };
   about?: {
     aboutMe?: string;
     hobbies?: string[];
@@ -1822,6 +1832,33 @@ function ProfileDetailView({
                 <DetailField label="Mother tongue" value={profile.religion?.motherTongue} />
                 <DetailField label="Based in" value={profile.location?.city ?? profile.location?.state} />
               </div>
+
+              {(profile.compatibility?.valuesPrompt ||
+                profile.compatibility?.relationshipVision ||
+                profile.compatibility?.relationshipPace ||
+                profile.compatibility?.familyInvolvement) && (
+                <div className="mt-6 rounded-[24px] border border-brand-maroon/10 bg-white p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                    Compatibility cues
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <DetailField label="Relationship pace" value={formatEnum(profile.compatibility?.relationshipPace)} />
+                    <DetailField label="Family involvement" value={formatEnum(profile.compatibility?.familyInvolvement)} />
+                    <DetailField label="Communication style" value={formatEnum(profile.compatibility?.communicationStyle)} />
+                    <DetailField label="Conflict approach" value={formatEnum(profile.compatibility?.conflictApproach)} />
+                  </div>
+                  {profile.compatibility?.valuesPrompt ? (
+                    <p className="mt-4 text-sm leading-7 text-brand-charcoal">
+                      <span className="font-semibold">Values:</span> {profile.compatibility.valuesPrompt}
+                    </p>
+                  ) : null}
+                  {profile.compatibility?.relationshipVision ? (
+                    <p className="mt-3 text-sm leading-7 text-brand-charcoal">
+                      <span className="font-semibold">Relationship vision:</span> {profile.compatibility.relationshipVision}
+                    </p>
+                  ) : null}
+                </div>
+              )}
 
               {/* Video intro — only if recorded */}
               {profile.videoUrl && (

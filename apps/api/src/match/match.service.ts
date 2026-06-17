@@ -7,6 +7,7 @@ import {
   SubscriptionStatus,
   VerificationStatus,
   type ProfileSearchQueryInput,
+  type RecommendedMatchModeInput,
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
@@ -84,6 +85,8 @@ export interface ScoredMatch {
   score: number;
   reasons: string[];
 }
+
+type RecommendationMode = RecommendedMatchModeInput | 'DEFAULT';
 
 const VERIFIED_LEVELS = ['BASIC', 'SILVER', 'GOLD', 'PLATINUM', 'FULLY_VERIFIED'] as const;
 
@@ -525,6 +528,48 @@ export function calculateMatchScore(
     addScore(result, 6, 'Shared hobbies');
   }
 
+  if (
+    viewer.compatibility?.relationshipPace &&
+    candidate.compatibility?.relationshipPace === viewer.compatibility.relationshipPace
+  ) {
+    addScore(result, 6, 'Similar relationship pace');
+  }
+
+  if (
+    viewer.compatibility?.familyInvolvement &&
+    candidate.compatibility?.familyInvolvement === viewer.compatibility.familyInvolvement
+  ) {
+    addScore(result, 6, 'Shared family involvement style');
+  }
+
+  if (
+    viewer.compatibility?.communicationStyle &&
+    candidate.compatibility?.communicationStyle === viewer.compatibility.communicationStyle
+  ) {
+    addScore(result, 5, 'Communication style aligns');
+  }
+
+  if (
+    viewer.compatibility?.qualityTimeStyle &&
+    candidate.compatibility?.qualityTimeStyle === viewer.compatibility.qualityTimeStyle
+  ) {
+    addScore(result, 4, 'Quality-time preferences align');
+  }
+
+  if (
+    viewer.compatibility?.conflictApproach &&
+    candidate.compatibility?.conflictApproach === viewer.compatibility.conflictApproach
+  ) {
+    addScore(result, 4, 'Conflict approach feels compatible');
+  }
+
+  if (
+    viewer.compatibility?.relocationOpenness &&
+    candidate.compatibility?.relocationOpenness === viewer.compatibility.relocationOpenness
+  ) {
+    addScore(result, 3, 'Relocation expectations align');
+  }
+
   if (candidate.verification.level !== 'NONE') {
     addScore(result, 10, `${candidate.verification.level.replaceAll('_', ' ')} verification`);
   }
@@ -615,6 +660,140 @@ async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]
     };
   });
 }
+
+function recommendationComparator(
+  profileById: Map<string, ProfileDocument>,
+  mode: RecommendationMode,
+  viewerProfile?: ProfileDocument,
+) {
+  return (left: MatchCard, right: MatchCard) => {
+    if (left.isBoosted && !right.isBoosted) return -1;
+    if (!left.isBoosted && right.isBoosted) return 1;
+
+    const leftProfile = profileById.get(left.id);
+    const rightProfile = profileById.get(right.id);
+
+    if (!leftProfile || !rightProfile) {
+      return right.matchScore - left.matchScore;
+    }
+
+    if (mode === 'RECENTLY_ACTIVE') {
+      const activityDelta =
+        (rightProfile.stats.lastActiveAt?.getTime() ?? 0) -
+        (leftProfile.stats.lastActiveAt?.getTime() ?? 0);
+      return activityDelta || right.matchScore - left.matchScore || rightProfile.createdAt.getTime() - leftProfile.createdAt.getTime();
+    }
+
+    if (mode === 'NEWLY_JOINED') {
+      const createdDelta = rightProfile.createdAt.getTime() - leftProfile.createdAt.getTime();
+      return createdDelta || right.matchScore - left.matchScore;
+    }
+
+    if (mode === 'HIGHLY_COMPATIBLE') {
+      return (
+        right.matchScore - left.matchScore ||
+        recencyPriority(rightProfile.stats.lastActiveAt) - recencyPriority(leftProfile.stats.lastActiveAt) ||
+        verificationPriority(rightProfile.verification.level) - verificationPriority(leftProfile.verification.level)
+      );
+    }
+
+    if (mode === 'NEARBY') {
+      const sameCityLeft =
+        Boolean(viewerProfile?.location.city) && leftProfile.location.city === viewerProfile?.location.city;
+      const sameCityRight =
+        Boolean(viewerProfile?.location.city) && rightProfile.location.city === viewerProfile?.location.city;
+      if (sameCityLeft !== sameCityRight) {
+        return sameCityRight ? 1 : -1;
+      }
+
+      const sameStateLeft =
+        Boolean(viewerProfile?.location.state) && leftProfile.location.state === viewerProfile?.location.state;
+      const sameStateRight =
+        Boolean(viewerProfile?.location.state) && rightProfile.location.state === viewerProfile?.location.state;
+      if (sameStateLeft !== sameStateRight) {
+        return sameStateRight ? 1 : -1;
+      }
+    }
+
+    return discoveryPriority(rightProfile, right) - discoveryPriority(leftProfile, left);
+  };
+}
+
+function buildNearbyEligibilityFilter(
+  viewerProfile: ProfileDocument,
+  excludedUserIds: Types.ObjectId[],
+): ProfileFilter | null {
+  const city = viewerProfile.location.city?.trim();
+  const state = viewerProfile.location.state?.trim();
+
+  if (!city && !state) {
+    return null;
+  }
+
+  const filter = buildBaseVisibilityFilter(viewerProfile, excludedUserIds);
+  if (city) {
+    filter['location.city'] = city;
+  } else if (state) {
+    filter['location.state'] = state;
+  }
+
+  return filter;
+}
+
+async function fetchRecommendedCandidates(
+  viewerProfile: ProfileDocument,
+  excludedUserIds: Types.ObjectId[],
+  mode: RecommendationMode,
+) {
+  if (mode === 'NEARBY') {
+    const nearbyFilter = buildNearbyEligibilityFilter(viewerProfile, excludedUserIds);
+    if (!nearbyFilter) {
+      return [];
+    }
+
+    let candidates = await ProfileModel.find(nearbyFilter)
+      .sort({ 'stats.lastActiveAt': -1, createdAt: -1 })
+      .select(MATCH_SELECT)
+      .limit(RECOMMENDED_CANDIDATE_LIMIT);
+
+    if (candidates.length < 6 && viewerProfile.location.state?.trim()) {
+      const stateFallbackFilter = buildBaseVisibilityFilter(viewerProfile, excludedUserIds);
+      stateFallbackFilter['location.state'] = viewerProfile.location.state.trim();
+      candidates = await ProfileModel.find(stateFallbackFilter)
+        .sort({ 'stats.lastActiveAt': -1, createdAt: -1 })
+        .select(MATCH_SELECT)
+        .limit(RECOMMENDED_CANDIDATE_LIMIT);
+    }
+
+    return candidates;
+  }
+
+  const preference = viewerProfile.partnerPreference ?? {};
+  const filter = buildBaseVisibilityFilter(viewerProfile, excludedUserIds);
+
+  if (viewerProfile.personal.gender === 'MALE') {
+    filter['personal.gender'] = 'FEMALE';
+  } else if (viewerProfile.personal.gender === 'FEMALE') {
+    filter['personal.gender'] = 'MALE';
+  }
+
+  if (preference.ageMin !== undefined || preference.ageMax !== undefined) {
+    filter['personal.age'] = {
+      ...(preference.ageMin !== undefined ? { $gte: preference.ageMin } : {}),
+      ...(preference.ageMax !== undefined ? { $lte: preference.ageMax } : {}),
+    };
+  }
+
+  const sort =
+    mode === 'NEWLY_JOINED'
+      ? ({ createdAt: -1, 'stats.lastActiveAt': -1 } as const)
+      : ({ 'stats.lastActiveAt': -1, createdAt: -1 } as const);
+
+  return ProfileModel.find(filter).sort(sort).select(MATCH_SELECT).limit(RECOMMENDED_CANDIDATE_LIMIT);
+}
+
+const MATCH_SELECT =
+  'displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto compatibility createdAt';
 
 async function fetchProfilesByOrderedIds(profileIds: Types.ObjectId[], matchSelect: string) {
   if (profileIds.length === 0) {
@@ -783,7 +962,11 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
   };
 }
 
-export async function recommendedMatches(userId: Types.ObjectId, requestedLimit: number) {
+export async function recommendedMatches(
+  userId: Types.ObjectId,
+  requestedLimit: number,
+  requestedMode: RecommendationMode = 'DEFAULT',
+) {
   const [viewerProfile, blockedUserIds, hiddenUserIds, limits] = await Promise.all([
     getViewerProfile(userId),
     getBlockedUserIds(userId),
@@ -791,93 +974,50 @@ export async function recommendedMatches(userId: Types.ObjectId, requestedLimit:
     getSubscriptionLimits(userId),
   ]);
   const limit = Math.min(requestedLimit, limits.recommendationLimit);
+  const mode = requestedMode ?? 'DEFAULT';
 
-  // Try to use cached recommendations
-  const cachedMatches = await MatchRecommendationModel.find({ userId })
-    .sort({ score: -1 })
-    .limit(limit)
-    .lean();
+  if (mode === 'DEFAULT') {
+    const cachedMatches = await MatchRecommendationModel.find({ userId })
+      .sort({ score: -1 })
+      .limit(limit)
+      .lean();
 
-  if (cachedMatches.length > 0) {
-    const profileIds = cachedMatches.map((match) => match.recommendedProfileId);
-    const candidates = await ProfileModel.find(
-      buildRecommendationEligibilityFilter(
-        viewerProfile,
-        [...blockedUserIds, ...hiddenUserIds],
-        profileIds,
-      ),
-    );
+    if (cachedMatches.length > 0) {
+      const profileIds = cachedMatches.map((match) => match.recommendedProfileId);
+      const candidates = await ProfileModel.find(
+        buildRecommendationEligibilityFilter(
+          viewerProfile,
+          [...blockedUserIds, ...hiddenUserIds],
+          profileIds,
+        ),
+      ).select(MATCH_SELECT);
 
-    const results = await toMatchCards(viewerProfile, candidates);
+      const results = await toMatchCards(viewerProfile, candidates);
 
-    const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
-    const cachedById = new Map(cachedMatches.map((cache) => [String(cache.recommendedProfileId), cache]));
-    for (const res of results) {
-      const cache = cachedById.get(String(res.id));
-      if (cache) {
-        res.matchScore = cache.score;
-        res.matchReasons = cache.reasons;
+      const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
+      const cachedById = new Map(cachedMatches.map((cache) => [String(cache.recommendedProfileId), cache]));
+      for (const res of results) {
+        const cache = cachedById.get(String(res.id));
+        if (cache) {
+          res.matchScore = cache.score;
+          res.matchReasons = cache.reasons;
+        }
       }
+
+      results.sort(recommendationComparator(profileById, mode, viewerProfile));
+      return { results, limits };
     }
-
-    results.sort((left, right) => {
-      if (left.isBoosted && !right.isBoosted) return -1;
-      if (!left.isBoosted && right.isBoosted) return 1;
-      const leftProfile = profileById.get(left.id);
-      const rightProfile = profileById.get(right.id);
-
-      if (leftProfile && rightProfile) {
-        return discoveryPriority(rightProfile, right) - discoveryPriority(leftProfile, left);
-      }
-
-      return right.matchScore - left.matchScore;
-    });
-
-    return { results, limits };
   }
 
-  // Fallback to on-the-fly computation
-  const preference = viewerProfile.partnerPreference ?? {};
-  const filter = buildBaseVisibilityFilter(viewerProfile, [
+  const candidates = await fetchRecommendedCandidates(viewerProfile, [
     ...blockedUserIds,
     ...hiddenUserIds,
-  ]);
-
-  if (viewerProfile.personal.gender === 'MALE') {
-    filter['personal.gender'] = 'FEMALE';
-  } else if (viewerProfile.personal.gender === 'FEMALE') {
-    filter['personal.gender'] = 'MALE';
-  }
-
-  if (preference.ageMin !== undefined || preference.ageMax !== undefined) {
-    filter['personal.age'] = {
-      ...(preference.ageMin !== undefined ? { $gte: preference.ageMin } : {}),
-      ...(preference.ageMax !== undefined ? { $lte: preference.ageMax } : {}),
-    };
-  }
-
-  const matchSelect = 'displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto';
-
-  const candidates = await ProfileModel.find(filter)
-    .sort({ 'stats.lastActiveAt': -1, createdAt: -1 })
-    .select(matchSelect)
-    .limit(RECOMMENDED_CANDIDATE_LIMIT);
+  ], mode);
   const profileById = new Map(candidates.map((candidate) => [candidate.id, candidate] as const));
 
   const results = (await toMatchCards(viewerProfile, candidates))
     .filter((profile) => profile.matchScore > 0)
-    .sort((left, right) => {
-      if (left.isBoosted && !right.isBoosted) return -1;
-      if (!left.isBoosted && right.isBoosted) return 1;
-      const leftProfile = profileById.get(left.id);
-      const rightProfile = profileById.get(right.id);
-
-      if (leftProfile && rightProfile) {
-        return discoveryPriority(rightProfile, right) - discoveryPriority(leftProfile, left);
-      }
-
-      return right.matchScore - left.matchScore;
-    })
+    .sort(recommendationComparator(profileById, mode, viewerProfile))
     .slice(0, limit);
 
   return { results, limits };

@@ -78,6 +78,16 @@ describe('ProfileForm draft saving', () => {
         });
       }
 
+      if (url === '/api/me/media') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            media: [],
+          },
+        });
+      }
+
       return Promise.resolve({
         ok: false,
         message: `Unexpected request: ${url}`,
@@ -214,5 +224,59 @@ describe('ProfileForm draft saving', () => {
     ]);
 
     expect(screen.getByText('Step 3 of 10')).toBeTruthy();
+  });
+
+  it('supports video intro uploads and shows pending approval media on the photos step', async () => {
+    memberRequestMock.mockImplementation((url: string, options?: { method?: string }) => {
+      if (url === '/api/me/profile' && !options) {
+        return Promise.resolve(createProfileResponse());
+      }
+
+      if (url === '/api/me/media') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            media: [
+              {
+                id: 'media-video-1',
+                assetUrl: 'https://cdn.example.com/intro.mp4',
+                videoPosterUrl: 'https://cdn.example.com/intro-poster.jpg',
+                category: 'VIDEO_INTRO',
+                isPrimary: false,
+                approvalStatus: 'PENDING',
+                mediaType: 'VIDEO',
+                originalFilename: 'intro.mp4',
+                durationSeconds: 45,
+              },
+            ],
+          },
+        });
+      }
+
+      return Promise.resolve({
+        ok: true,
+        message: '',
+        data: {},
+      });
+    });
+
+    render(<ProfileForm mode="edit" />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('First name')).toBeTruthy();
+    });
+
+    for (let index = 0; index < 7; index += 1) {
+      fireEvent.click(screen.getByRole('button', { name: 'Save & continue' }));
+    }
+
+    await waitFor(() => {
+      expect(screen.getByText('Upload your profile photos and video intro')).toBeTruthy();
+    });
+
+    expect(screen.getByRole('option', { name: 'Video intro' })).toBeTruthy();
+    expect(screen.getByText('Pending approval before this media appears on your profile.')).toBeTruthy();
+    expect(document.querySelector('video')).toBeTruthy();
   });
 });

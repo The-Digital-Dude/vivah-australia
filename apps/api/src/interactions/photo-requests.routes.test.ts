@@ -234,6 +234,40 @@ describe('photo requests & private gallery media access', () => {
     expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(false);
   });
 
+  it('keeps access blocked after a requester withdraws a pending request that carries a stale future grant timestamp', async () => {
+    const requester = await createUser('requester-withdraw@example.com');
+    const owner = await createUser('owner-withdraw@example.com');
+    const ownerProfile = await createProfile(owner.user._id, 'VA400003A', 'Priya', Gender.FEMALE);
+    await addPrivateMedia(owner.user._id, ownerProfile._id, 'https://cdn.example.com/priya-private.jpg');
+
+    const photoRequest = await PhotoRequestModel.create({
+      requesterId: requester.user._id,
+      ownerId: owner.user._id,
+      ownerProfileId: ownerProfile._id,
+      status: 'PENDING',
+      accessGrantedUntil: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    await request(app)
+      .delete(`/api/me/photo-requests/${photoRequest.id}`)
+      .set('Authorization', `Bearer ${requester.accessToken}`)
+      .expect(200);
+
+    const storedRequest = await PhotoRequestModel.findById(photoRequest._id).orFail();
+    expect(storedRequest.status).toBe('WITHDRAWN');
+
+    await request(app)
+      .get(`/api/profiles/${ownerProfile._id.toString()}/private-gallery`)
+      .set('Authorization', `Bearer ${requester.accessToken}`)
+      .expect(403);
+
+    const statusRes = await request(app)
+      .get(`/api/me/photo-requests/status/${ownerProfile._id.toString()}`)
+      .set('Authorization', `Bearer ${requester.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ hasAccess: boolean }>(statusRes).hasAccess).toBe(false);
+  });
+
   it('does not grant access from accepted interest alone', async () => {
     const requester = await createUser('requester-interest@example.com');
     const owner = await createUser('owner-interest@example.com');

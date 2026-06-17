@@ -1,5 +1,5 @@
-import crypto from 'crypto';
 import path from 'path';
+import crypto from 'crypto';
 import {
   MediaCategory,
   MediaUploadStatus,
@@ -125,6 +125,22 @@ function deriveVideoPosterUrl(provider: 'cloudinary' | 'gcs', assetUrl: string) 
 
 function categoryByteLimit(category: MediaCategory) {
   return category === MediaCategory.VIDEO_INTRO ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
+}
+
+function watermarkFallbackForViewer(viewerId: Types.ObjectId) {
+  return `Member ${viewerId.toString().slice(-8).toUpperCase()}`;
+}
+
+function encodeCloudinaryTextOverlay(value: string) {
+  return encodeURIComponent(value).replace(/%20/g, '%2520');
+}
+
+function buildPrivatePhotoWatermarkTransform(viewerDisplayId: string) {
+  const text = encodeCloudinaryTextOverlay(viewerDisplayId);
+  return [
+    `l_text:Arial_64_bold:${text},co_rgb:FFFFFF,o_45,a_45,g_north_west,x_60,y_80`,
+    `l_text:Arial_64_bold:${text},co_rgb:FFFFFF,o_45,a_45,g_south_east,x_60,y_80`,
+  ].join('/');
 }
 
 function mediaVariantPath(mediaId: string) {
@@ -363,6 +379,44 @@ function deliveryAssetForVariant(
   return media.assetUrl;
 }
 
+function shouldWatermarkPrivateOriginal(
+  media: ProfileMediaDocument,
+  variant: 'original' | 'thumbnail' | 'poster',
+) {
+  return (
+    isProductionEnv() &&
+    media.uploadProvider === 'cloudinary' &&
+    media.category === MediaCategory.PRIVATE_GALLERY &&
+    media.mediaType === 'PHOTO' &&
+    variant === 'original'
+  );
+}
+
+async function resolveViewerWatermarkText(viewerId: Types.ObjectId) {
+  const viewerProfile = await ProfileModel.findOne({ userId: viewerId, isDeleted: false })
+    .select('displayId')
+    .lean();
+
+  return viewerProfile?.displayId?.trim() || watermarkFallbackForViewer(viewerId);
+}
+
+async function resolveDeliveryAssetUrl(
+  viewerId: Types.ObjectId,
+  media: ProfileMediaDocument,
+  variant: 'original' | 'thumbnail' | 'poster',
+) {
+  const assetUrl = deliveryAssetForVariant(media, variant);
+  if (!shouldWatermarkPrivateOriginal(media, variant)) {
+    return assetUrl;
+  }
+
+  const viewerWatermarkText = await resolveViewerWatermarkText(viewerId);
+  return insertCloudinaryTransform(
+    assetUrl,
+    buildPrivatePhotoWatermarkTransform(viewerWatermarkText),
+  );
+}
+
 export async function resolveMediaDelivery(
   viewerId: Types.ObjectId,
   mediaId: string,
@@ -394,8 +448,9 @@ export async function resolveMediaDelivery(
 
   await ensurePrivateMediaAccess(viewerId, media);
 
-  const assetUrl = deliveryAssetForVariant(media, variant);
+  const assetUrl = await resolveDeliveryAssetUrl(viewerId, media, variant);
   if (media.uploadProvider === 'gcs' && media.storageKey) {
+    // Local/mock storage intentionally stays unwatermarked in this first pass.
     return {
       mode: 'local' as const,
       filePath: path.join(process.cwd(), 'uploads', media.storageKey),

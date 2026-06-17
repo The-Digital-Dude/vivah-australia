@@ -86,7 +86,7 @@ export function attachMessageSocketServer(
           typeof ack === 'function' ? (ack as (response: unknown) => void) : undefined;
         try {
           const input = typingEventSchema.pick({ conversationId: true }).parse(payload);
-          await getConversationForUser(socket.data.userId, input.conversationId);
+          await getConversationForUser(socket.data.userId, input.conversationId, false);
           await socket.join(input.conversationId);
           joinedConversations.add(input.conversationId);
           acknowledge?.({ ok: true });

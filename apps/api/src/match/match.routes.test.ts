@@ -462,6 +462,79 @@ describe('match routes', () => {
     expect(body.limits.recommendationLimit).toBe(6);
   });
 
+  it('supports recommendation modes for recently active, newly joined, and nearby', async () => {
+    const viewer = await createUser('recommend-modes@example.com');
+    const active = await createUser('recommend-active@example.com');
+    const newest = await createUser('recommend-newest@example.com');
+    const nearby = await createUser('recommend-nearby@example.com');
+
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA230101',
+      firstName: 'Viewer',
+      gender: Gender.MALE,
+      age: 32,
+      city: 'Melbourne',
+      state: 'VIC',
+    });
+    const activeProfile = await createProfile({
+      userId: active.user._id,
+      displayId: 'VA230102',
+      firstName: 'Active Priya',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Sydney',
+      state: 'NSW',
+      lastActiveAt: new Date(),
+    });
+    const newestProfile = await createProfile({
+      userId: newest.user._id,
+      displayId: 'VA230103',
+      firstName: 'Newest Neha',
+      gender: Gender.FEMALE,
+      age: 28,
+      city: 'Melbourne',
+      state: 'VIC',
+      lastActiveAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    });
+    await ProfileModel.collection.updateOne(
+      { _id: (newestProfile as unknown as { _id: mongoose.Types.ObjectId })._id },
+      { $set: { createdAt: new Date(Date.now() + 24 * 60 * 60 * 1000) } },
+    );
+    await createProfile({
+      userId: nearby.user._id,
+      displayId: 'VA230104',
+      firstName: 'Local Meera',
+      gender: Gender.FEMALE,
+      age: 30,
+      city: 'Melbourne',
+      state: 'VIC',
+      lastActiveAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    });
+    await ProfileModel.collection.updateOne(
+      { _id: (activeProfile as unknown as { _id: mongoose.Types.ObjectId })._id },
+      { $set: { createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) } },
+    );
+
+    const activeResponse = await request(app)
+      .get('/api/matches/recommended?limit=12&mode=RECENTLY_ACTIVE')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    expect(bodyAs<MatchResponseBody>(activeResponse).results[0]?.firstName).toBe('Active Priya');
+
+    const newestResponse = await request(app)
+      .get('/api/matches/recommended?limit=12&mode=NEWLY_JOINED')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    expect(bodyAs<MatchResponseBody>(newestResponse).results.map((profile) => profile.firstName)).toContain('Newest Neha');
+
+    const nearbyResponse = await request(app)
+      .get('/api/matches/recommended?limit=12&mode=NEARBY')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    expect(bodyAs<MatchResponseBody>(nearbyResponse).results[0]?.city).toBe('Melbourne');
+  });
+
   it('filters cached recommendations using the same eligibility rules as live discovery', async () => {
     const viewer = await createUser('cached-viewer@example.com');
     const approved = await createUser('cached-approved@example.com');

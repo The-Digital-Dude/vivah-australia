@@ -395,6 +395,13 @@ function csvQueryParam(maxItems = 20) {
 }
 
 export const matchSortSchema = z.enum(['RECOMMENDED', 'NEWEST', 'RECENTLY_ACTIVE', 'VERIFIED']);
+export const recommendedMatchModeSchema = z.enum([
+  'DEFAULT',
+  'HIGHLY_COMPATIBLE',
+  'RECENTLY_ACTIVE',
+  'NEWLY_JOINED',
+  'NEARBY',
+]);
 
 export const profileSearchQuerySchema = z
   .object({
@@ -467,6 +474,7 @@ export const profileSearchQuerySchema = z
 
 export const recommendedMatchesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(30).default(12),
+  mode: recommendedMatchModeSchema.optional(),
 });
 
 export const savedSearchCreateSchema = z.object({
@@ -882,6 +890,18 @@ export const profileDraftSchema = z.object({
       religiousPractices: z.string().trim().max(200).optional(),
     })
     .optional(),
+  compatibility: z
+    .object({
+      relationshipPace: z.string().trim().max(80).optional(),
+      familyInvolvement: z.string().trim().max(80).optional(),
+      relocationOpenness: z.string().trim().max(80).optional(),
+      communicationStyle: z.string().trim().max(80).optional(),
+      qualityTimeStyle: z.string().trim().max(80).optional(),
+      conflictApproach: z.string().trim().max(80).optional(),
+      valuesPrompt: z.string().trim().max(500).optional(),
+      relationshipVision: z.string().trim().max(500).optional(),
+    })
+    .optional(),
   about: z
     .object({
       aboutMe: z.string().trim().min(20).max(5000).optional(),
@@ -961,6 +981,7 @@ export type MediaUpdateInput = z.infer<typeof mediaUpdateSchema>;
 export type MediaReviewInput = z.infer<typeof mediaReviewSchema>;
 export type ProfileSearchQueryInput = z.infer<typeof profileSearchQuerySchema>;
 export type RecommendedMatchesQueryInput = z.infer<typeof recommendedMatchesQuerySchema>;
+export type RecommendedMatchModeInput = z.infer<typeof recommendedMatchModeSchema>;
 export type SavedSearchCreateInput = z.infer<typeof savedSearchCreateSchema>;
 export type ProfileTargetInput = z.infer<typeof profileTargetSchema>;
 export type InterestRespondInput = z.infer<typeof interestRespondSchema>;

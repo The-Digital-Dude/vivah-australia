@@ -124,6 +124,8 @@ interface ConversationItem {
   id: string;
   participantIds: string[];
   otherUserId?: string;
+  isLocked?: boolean;
+  lockReason?: string;
   otherProfile?: {
     id: string;
     firstName?: string;
@@ -176,7 +178,7 @@ export default function MemberDashboardPage() {
       const results = await Promise.all([
         memberRequest('/api/me/profile'),
         memberRequest('/api/matches/recommended?limit=4'),
-        memberRequest('/api/matches/search?limit=4&sort=RECENTLY_ACTIVE'),
+        memberRequest('/api/matches/recommended?limit=4&mode=RECENTLY_ACTIVE'),
         memberRequest('/api/me/interests?box=received'),
         memberRequest('/api/me/boosts'),
         memberRequest('/api/me/conversations'),
@@ -220,7 +222,7 @@ export default function MemberDashboardPage() {
 
       if (convRes.ok && convRes.data) {
         setConversations(
-          (convRes.data as { conversations: ConversationItem[] }).conversations ?? [],
+          (convRes.data as { data?: ConversationItem[] }).data ?? [],
         );
       }
 

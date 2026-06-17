@@ -1101,7 +1101,7 @@ export async function recalculateVerificationBadges(actorId: Types.ObjectId, act
   const profiles = await ProfileModel.find({ isDeleted: false }).select('_id userId verification');
   let changed = 0;
   for (const profile of profiles) {
-    const nextLevel = calculateVerificationBadge(profile);
+    const nextLevel = await calculateVerificationBadge(profile);
     if (profile.verification.level !== nextLevel) {
       profile.verification.level = nextLevel;
       await profile.save();
@@ -1146,12 +1146,12 @@ export async function reviewVerificationRequest(
     }
     if (profile && path) {
       profile.set(path, true);
-      profile.verification.level = calculateVerificationBadge(profile);
+      profile.verification.level = await calculateVerificationBadge(profile);
       await profile.save();
     }
   } else if (profile && path) {
     profile.set(path, false);
-    profile.verification.level = calculateVerificationBadge(profile);
+    profile.verification.level = await calculateVerificationBadge(profile);
     await profile.save();
   }
 

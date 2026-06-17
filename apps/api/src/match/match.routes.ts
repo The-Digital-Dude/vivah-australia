@@ -55,7 +55,7 @@ export function createMatchRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const input = recommendedMatchesQuerySchema.parse(request.query);
-      const result = await recommendedMatches(auth.userId, input.limit);
+      const result = await recommendedMatches(auth.userId, input.limit, input.mode ?? 'DEFAULT');
       response.status(200).json(result);
     }),
   );

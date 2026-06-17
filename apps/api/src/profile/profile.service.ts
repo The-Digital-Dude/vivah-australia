@@ -48,6 +48,8 @@ const COMPLETION_FIELDS = [
   'employment.occupation',
   'about.aboutMe',
   'about.partnerExpectations',
+  'compatibility.relationshipPace',
+  'compatibility.familyInvolvement',
 ] as const;
 
 const PROFILE_STRENGTH_THRESHOLD = 80;
@@ -87,6 +89,7 @@ const SENSITIVE_UPDATE_PREFIXES = [
   'location.',
   'education.',
   'employment.',
+  'compatibility.',
 ];
 
 function getPathValue(source: unknown, path: string): unknown {
@@ -154,6 +157,27 @@ const PROFILE_COMPLETION_RULES: ProfileCompletionRule[] = [
         'partnerPreference.educationLevels',
         'partnerPreference.occupations',
         'partnerPreference.maritalStatuses',
+      ]),
+  },
+  {
+    key: 'compatibility',
+    label: 'Answer compatibility prompts',
+    description: 'A few values and relationship-style answers help us surface more aligned introductions.',
+    actionLabel: 'Add compatibility',
+    section: 'compatibility',
+    href: '/member/profile/edit?section=compatibility',
+    priority: 35,
+    weight: 10,
+    isComplete: (profile) =>
+      hasAnyMeaningfulPath(profile, [
+        'compatibility.relationshipPace',
+        'compatibility.familyInvolvement',
+        'compatibility.relocationOpenness',
+        'compatibility.communicationStyle',
+        'compatibility.qualityTimeStyle',
+        'compatibility.conflictApproach',
+        'compatibility.valuesPrompt',
+        'compatibility.relationshipVision',
       ]),
   },
   {

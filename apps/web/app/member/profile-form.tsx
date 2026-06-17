@@ -33,10 +33,11 @@ const STEPS = [
   { id: 4, label: 'Education & Career', shortLabel: '4' },
   { id: 5, label: 'Family', shortLabel: '5' },
   { id: 6, label: 'Lifestyle', shortLabel: '6' },
-  { id: 7, label: 'About Me', shortLabel: '7' },
-  { id: 8, label: 'Photos', shortLabel: '8' },
-  { id: 9, label: 'Partner Preferences', shortLabel: '9' },
-  { id: 10, label: 'Verification', shortLabel: '10' },
+  { id: 7, label: 'Compatibility', shortLabel: '7' },
+  { id: 8, label: 'About Me', shortLabel: '8' },
+  { id: 9, label: 'Photos', shortLabel: '9' },
+  { id: 10, label: 'Partner Preferences', shortLabel: '10' },
+  { id: 11, label: 'Verification', shortLabel: '11' },
 ] as const;
 
 const SECTION_TO_STEP: Record<string, number> = {
@@ -46,10 +47,11 @@ const SECTION_TO_STEP: Record<string, number> = {
   career: 3,
   family: 4,
   lifestyle: 5,
-  about: 6,
-  photos: 7,
-  preferences: 8,
-  verification: 9,
+  compatibility: 6,
+  about: 7,
+  photos: 8,
+  preferences: 9,
+  verification: 10,
 };
 
 // ─── Draft state shape ────────────────────────────────────────────────────────
@@ -109,6 +111,16 @@ interface ProfileDraft {
     dietaryPreferences: string;
     fitnessInterests: string;
     religiousPractices: string;
+  };
+  compatibility: {
+    relationshipPace: string;
+    familyInvolvement: string;
+    relocationOpenness: string;
+    communicationStyle: string;
+    qualityTimeStyle: string;
+    conflictApproach: string;
+    valuesPrompt: string;
+    relationshipVision: string;
   };
   about: {
     aboutMe: string;
@@ -194,6 +206,16 @@ function emptyDraft(): ProfileDraft {
       fitnessInterests: '',
       religiousPractices: '',
     },
+    compatibility: {
+      relationshipPace: '',
+      familyInvolvement: '',
+      relocationOpenness: '',
+      communicationStyle: '',
+      qualityTimeStyle: '',
+      conflictApproach: '',
+      valuesPrompt: '',
+      relationshipVision: '',
+    },
     about: {
       aboutMe: '',
       personalGoals: '',
@@ -234,6 +256,7 @@ interface ApiProfile {
   employment?: ApiSection;
   family?: ApiSection;
   lifestyle?: ApiSection;
+  compatibility?: ApiSection;
   about?: ApiSection;
   partnerPreference?: ApiSection & {
     religions?: string[];
@@ -341,6 +364,15 @@ function apiToDraft(data: Record<string, unknown>): ProfileDraft {
   d.lifestyle.fitnessInterests = apiArr(p.lifestyle, 'fitnessInterests');
   d.lifestyle.religiousPractices = apiStr(p.lifestyle, 'religiousPractices');
 
+  d.compatibility.relationshipPace = apiStr(p.compatibility, 'relationshipPace');
+  d.compatibility.familyInvolvement = apiStr(p.compatibility, 'familyInvolvement');
+  d.compatibility.relocationOpenness = apiStr(p.compatibility, 'relocationOpenness');
+  d.compatibility.communicationStyle = apiStr(p.compatibility, 'communicationStyle');
+  d.compatibility.qualityTimeStyle = apiStr(p.compatibility, 'qualityTimeStyle');
+  d.compatibility.conflictApproach = apiStr(p.compatibility, 'conflictApproach');
+  d.compatibility.valuesPrompt = apiStr(p.compatibility, 'valuesPrompt');
+  d.compatibility.relationshipVision = apiStr(p.compatibility, 'relationshipVision');
+
   d.about.aboutMe = apiStr(p.about, 'aboutMe');
   d.about.personalGoals = apiStr(p.about, 'personalGoals');
   d.about.hobbies = apiArr(p.about, 'hobbies');
@@ -443,6 +475,16 @@ function draftToPayload(draft: ProfileDraft) {
       dietaryPreferences: str(draft.lifestyle.dietaryPreferences),
       fitnessInterests: csv(draft.lifestyle.fitnessInterests),
       religiousPractices: str(draft.lifestyle.religiousPractices),
+    },
+    compatibility: {
+      relationshipPace: str(draft.compatibility.relationshipPace),
+      familyInvolvement: str(draft.compatibility.familyInvolvement),
+      relocationOpenness: str(draft.compatibility.relocationOpenness),
+      communicationStyle: str(draft.compatibility.communicationStyle),
+      qualityTimeStyle: str(draft.compatibility.qualityTimeStyle),
+      conflictApproach: str(draft.compatibility.conflictApproach),
+      valuesPrompt: str(draft.compatibility.valuesPrompt),
+      relationshipVision: str(draft.compatibility.relationshipVision),
     },
     about: {
       aboutMe: str(draft.about.aboutMe),
@@ -1163,6 +1205,120 @@ function StepLifestyle({
 }
 
 // Step 7: About Me
+function StepCompatibility({
+  draft,
+  onChange,
+  errors,
+}: {
+  draft: ProfileDraft;
+  onChange: (patch: Partial<ProfileDraft['compatibility']>) => void;
+  errors: StepErrors;
+}) {
+  const c = draft.compatibility;
+  return (
+    <div className="grid gap-4">
+      <SectionTitle icon="💞" title="Compatibility & Personality" />
+      <p className="text-sm leading-6 text-[#6B7280]">
+        These cues help us frame introductions around values, pace, and day-to-day fit, not just
+        filters.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SelectField
+          label="Relationship pace"
+          value={c.relationshipPace}
+          onChange={(v) => onChange({ relationshipPace: v })}
+          error={errors.relationshipPace}
+          options={[
+            { value: 'INTENTIONAL_AND_STEADY', label: 'Intentional and steady' },
+            { value: 'FAMILY_LED_AND_STRUCTURED', label: 'Family-led and structured' },
+            { value: 'WARM_AND_NATURAL', label: 'Warm and natural' },
+          ]}
+        />
+        <SelectField
+          label="Family involvement"
+          value={c.familyInvolvement}
+          onChange={(v) => onChange({ familyInvolvement: v })}
+          error={errors.familyInvolvement}
+          options={[
+            { value: 'VERY_IMPORTANT', label: 'Very important' },
+            { value: 'BALANCED', label: 'Balanced' },
+            { value: 'MOSTLY_COUPLE_LED', label: 'Mostly couple-led' },
+          ]}
+        />
+        <SelectField
+          label="Relocation openness"
+          optional
+          value={c.relocationOpenness}
+          onChange={(v) => onChange({ relocationOpenness: v })}
+          error={errors.relocationOpenness}
+          options={[
+            { value: 'OPEN_TO_RELOCATE', label: 'Open to relocate' },
+            { value: 'PREFER_SAME_CITY', label: 'Prefer same city' },
+            { value: 'ONLY_IF_STRONG_MATCH', label: 'Only for a strong match' },
+          ]}
+        />
+        <SelectField
+          label="Communication style"
+          optional
+          value={c.communicationStyle}
+          onChange={(v) => onChange({ communicationStyle: v })}
+          error={errors.communicationStyle}
+          options={[
+            { value: 'DIRECT_AND_CLEAR', label: 'Direct and clear' },
+            { value: 'CALM_AND_THOUGHTFUL', label: 'Calm and thoughtful' },
+            { value: 'AFFECTIONATE_AND_EXPRESSIVE', label: 'Affectionate and expressive' },
+          ]}
+        />
+        <SelectField
+          label="Quality time style"
+          optional
+          value={c.qualityTimeStyle}
+          onChange={(v) => onChange({ qualityTimeStyle: v })}
+          error={errors.qualityTimeStyle}
+          options={[
+            { value: 'QUIET_HOME_TIME', label: 'Quiet home time' },
+            { value: 'SOCIAL_AND_OUTDOORS', label: 'Social and outdoors' },
+            { value: 'MIX_OF_BOTH', label: 'Mix of both' },
+          ]}
+        />
+        <SelectField
+          label="Conflict approach"
+          optional
+          value={c.conflictApproach}
+          onChange={(v) => onChange({ conflictApproach: v })}
+          error={errors.conflictApproach}
+          options={[
+            { value: 'TALK_EARLY', label: 'Talk early and resolve' },
+            { value: 'TAKE_SPACE_THEN_TALK', label: 'Take space then talk' },
+            { value: 'FAMILY_MEDIATION_OK', label: 'Family mediation is okay' },
+          ]}
+        />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <TextAreaField
+          label="Values that matter most"
+          optional
+          rows={4}
+          placeholder="Kindness, emotional steadiness, family values, deen/faith, humour..."
+          value={c.valuesPrompt}
+          onChange={(v) => onChange({ valuesPrompt: v })}
+          error={errors.valuesPrompt}
+        />
+        <TextAreaField
+          label="Your relationship vision"
+          optional
+          rows={4}
+          placeholder="Describe the kind of marriage or partnership you hope to build."
+          value={c.relationshipVision}
+          onChange={(v) => onChange({ relationshipVision: v })}
+          error={errors.relationshipVision}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Step 8: About Me
 function StepAbout({
   draft,
   onChange,
@@ -1229,9 +1385,14 @@ function StepAbout({
 interface MediaItem {
   id: string;
   assetUrl: string;
+  thumbnailUrl?: string;
+  videoPosterUrl?: string;
   category: string;
   isPrimary: boolean;
   approvalStatus: string;
+  mediaType?: string;
+  originalFilename?: string;
+  durationSeconds?: number;
 }
 
 interface MediaResponseData {
@@ -1283,6 +1444,7 @@ async function getVideoDurationSeconds(file: File) {
 
 function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMemberRequest> }) {
   const [uploading, setUploading] = useState(false);
+  const [uploadPhase, setUploadPhase] = useState<'signing' | 'uploading' | 'finalizing' | null>(null);
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -1303,10 +1465,11 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
   async function handleUpload() {
     const file = fileRef.current?.files?.[0];
     if (!file) {
-      setMsg({ text: 'Please choose an image file first.', ok: false });
+      setMsg({ text: 'Please choose a media file first.', ok: false });
       return;
     }
     setUploading(true);
+    setUploadPhase('signing');
     setMsg(null);
 
     const payload = {
@@ -1337,6 +1500,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
     let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
     let storageKey = signedBody.upload.fields.storageKey;
     let durationSeconds: number | undefined;
+    setUploadPhase('uploading');
 
     if (signedBody.upload.provider === 'cloudinary') {
       const cf = new FormData();
@@ -1375,19 +1539,35 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
       } catch {
         setMsg({ text: 'Could not read the selected video duration.', ok: false });
         setUploading(false);
+        setUploadPhase(null);
         return;
       }
     }
 
+    setUploadPhase('finalizing');
     const completed = await memberRequest('/api/me/media/complete', {
       method: 'POST',
       body: { mediaId: signedBody.media.id, assetUrl, storageKey, bytes: file.size, durationSeconds },
     });
     setMsg({ text: completed.message, ok: completed.ok });
     setUploading(false);
+    setUploadPhase(null);
     if (fileRef.current) fileRef.current.value = '';
     await loadMedia();
   }
+
+  const accept = category === 'VIDEO_INTRO'
+    ? 'video/mp4,video/webm,video/ogg,video/quicktime'
+    : 'image/jpeg,image/png,image/webp';
+
+  const uploadStatusText =
+    uploadPhase === 'signing'
+      ? 'Preparing secure upload...'
+      : uploadPhase === 'uploading'
+        ? 'Uploading media...'
+        : uploadPhase === 'finalizing'
+          ? 'Finalizing and sending for approval...'
+          : null;
 
   return (
     <div className="grid gap-3">
@@ -1400,11 +1580,11 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
         </div>
         <div className="max-w-md">
           <p className="font-semibold text-sm text-[#2F2F2F]">
-            Upload your profile and gallery photos
+            Upload your profile photos and video intro
           </p>
           <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">
-            Please choose a recent, clear face photo. Uploaded files require automatic admin
-            moderation before publication.
+            Choose recent, clear photos or a short introduction video. Uploaded files require
+            moderation approval before publication.
           </p>
         </div>
 
@@ -1419,6 +1599,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
               <option value="PROFILE_PHOTO">Profile photo</option>
               <option value="PUBLIC_GALLERY">Public gallery</option>
               <option value="PRIVATE_GALLERY">Private gallery</option>
+              <option value="VIDEO_INTRO">Video intro</option>
             </select>
           </label>
           <label className="grid gap-1.5 text-xs font-bold text-[#2F2F2F]">
@@ -1438,7 +1619,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
             <input
               ref={fileRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept={accept}
               className="h-10 rounded-xl border border-[#A10E4D]/15 bg-white px-2 py-1.5 text-[10px] outline-none"
             />
           </label>
@@ -1453,6 +1634,10 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
           {uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
           {uploading ? 'Uploading...' : 'Upload Media File'}
         </button>
+
+        {uploadStatusText ? (
+          <p className="text-xs font-semibold text-[#7A1E3A]">{uploadStatusText}</p>
+        ) : null}
       </div>
 
       {msg ? (
@@ -1469,7 +1654,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
         </div>
       ) : null}
 
-      {/* Grid of uploaded images */}
+      {/* Grid of uploaded media */}
       {mediaList.length > 0 ? (
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 mt-4">
           {mediaList.map((item) => (
@@ -1477,12 +1662,21 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
               key={item.id}
               className="relative group overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white shadow-sm hover:shadow-md transition"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={item.assetUrl}
-                alt="Matrimonial Photo"
-                className="aspect-square w-full object-cover"
-              />
+              {item.mediaType === 'VIDEO' || item.category === 'VIDEO_INTRO' ? (
+                <video
+                  src={item.assetUrl}
+                  poster={item.videoPosterUrl ?? item.thumbnailUrl ?? item.assetUrl}
+                  controls
+                  className="aspect-square w-full object-cover bg-black"
+                />
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={item.thumbnailUrl ?? item.assetUrl}
+                  alt={item.originalFilename ?? 'Matrimonial media'}
+                  className="aspect-square w-full object-cover"
+                />
+              )}
               <div className="p-2 border-t border-[#A10E4D]/5 bg-[#FFF9F5]/50">
                 <div className="flex flex-wrap gap-1">
                   <span className="rounded bg-white border border-[#A10E4D]/10 px-1.5 py-0.5 text-[9px] font-bold text-[#A10E4D]">
@@ -1504,6 +1698,11 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
                     </span>
                   )}
                 </div>
+                {item.approvalStatus !== 'APPROVED' ? (
+                  <p className="mt-1 text-[10px] font-semibold text-amber-700">
+                    Pending approval before this media appears on your profile.
+                  </p>
+                ) : null}
               </div>
             </div>
           ))}
@@ -1511,9 +1710,9 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
       ) : (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[#A10E4D]/20 py-12 text-center bg-[#FFF9F5]/30">
           <ImagePlus className="mb-3 size-8 text-[#A10E4D]/20" />
-          <p className="text-sm font-semibold text-[#6B7280]">No photo media uploaded yet</p>
+          <p className="text-sm font-semibold text-[#6B7280]">No media uploaded yet</p>
           <p className="mt-1 text-xs text-[#9CA3AF]">
-            A complete profile with a primary photo attracts 3x more interests.
+            A complete profile with great photos and a short intro video attracts more interest.
           </p>
         </div>
       )}
@@ -1953,6 +2152,13 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
 
   function validateStep6(): StepErrors {
     const errs: StepErrors = {};
+    if (!draft.compatibility.relationshipPace) errs.relationshipPace = 'Choose the pace that fits you best';
+    if (!draft.compatibility.familyInvolvement) errs.familyInvolvement = 'Choose the family style that fits you best';
+    return errs;
+  }
+
+  function validateStep7(): StepErrors {
+    const errs: StepErrors = {};
     if (!draft.about.aboutMe.trim()) errs.aboutMe = 'About Me is required';
     if (!draft.about.partnerExpectations.trim()) errs.partnerExpectations = 'Partner expectations are required';
     return errs;
@@ -1964,6 +2170,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     if (step === 2) return validateStep2();
     if (step === 3) return validateStep3();
     if (step === 6) return validateStep6();
+    if (step === 7) return validateStep7();
     return {};
   }
 
@@ -2072,6 +2279,11 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   const patchLifestyle = useCallback(
     (patch: Partial<ProfileDraft['lifestyle']>) =>
       setDraft((d) => ({ ...d, lifestyle: { ...d.lifestyle, ...patch } })),
+    [],
+  );
+  const patchCompatibility = useCallback(
+    (patch: Partial<ProfileDraft['compatibility']>) =>
+      setDraft((d) => ({ ...d, compatibility: { ...d.compatibility, ...patch } })),
     [],
   );
   const patchAbout = useCallback(
@@ -2193,12 +2405,15 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
           )}
           {step === 4 && <StepFamily draft={draft} onChange={patchFamily} errors={errors} />}
           {step === 5 && <StepLifestyle draft={draft} onChange={patchLifestyle} errors={errors} />}
-          {step === 6 && <StepAbout draft={draft} onChange={patchAbout} errors={errors} />}
-          {step === 7 && <StepPhotos memberRequest={memberRequest} />}
-          {step === 8 && (
+          {step === 6 && (
+            <StepCompatibility draft={draft} onChange={patchCompatibility} errors={errors} />
+          )}
+          {step === 7 && <StepAbout draft={draft} onChange={patchAbout} errors={errors} />}
+          {step === 8 && <StepPhotos memberRequest={memberRequest} />}
+          {step === 9 && (
             <StepPartnerPrefs draft={draft} onChange={patchPartnerPreference} errors={errors} />
           )}
-          {step === 9 && (
+          {step === 10 && (
             <StepVerification
               onSaveDraft={() => void saveDraft()}
               onSubmit={() => void handleSubmit()}

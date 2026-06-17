@@ -1,5 +1,7 @@
 import request from 'supertest';
-import type { Response } from 'supertest';
+import request, { type Response } from 'supertest';
+import fs from 'fs';
+import path from 'path';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -47,6 +49,8 @@ interface MediaResponseBody {
     uploadStatus: string;
     approvalStatus: string;
     assetUrl: string;
+    videoPosterUrl?: string;
+    durationSeconds?: number;
     isPrimary: boolean;
   };
 }
@@ -464,6 +468,88 @@ describe('media routes', () => {
       .expect(400);
   });
 
+  it('completes a valid video intro upload and stores duration plus poster metadata', async () => {
+    const { user, accessToken } = await createUser('video-success@example.com');
+    await createProfile(user._id);
+
+    const signResponse = await request(app)
+      .post('/api/me/media/sign-upload')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        category: MediaCategory.VIDEO_INTRO,
+        fileName: 'intro.mp4',
+        mimeType: 'video/mp4',
+        fileSizeBytes: 20 * 1024 * 1024,
+      })
+      .expect(201);
+    const signBody = bodyAs<SignResponseBody>(signResponse);
+
+    const completeResponse = await request(app)
+      .post('/api/me/media/complete')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        mediaId: signBody.media.id,
+        assetUrl: signBody.upload.url,
+        storageKey: signBody.upload.fields.storageKey,
+        bytes: 20 * 1024 * 1024,
+        durationSeconds: 75,
+      })
+      .expect(200);
+
+    const completeBody = bodyAs<MediaResponseBody>(completeResponse);
+    expect(completeBody.media.uploadStatus).toBe(MediaUploadStatus.UPLOADED);
+    expect(completeBody.media.category).toBe(MediaCategory.VIDEO_INTRO);
+    expect(completeBody.media.durationSeconds).toBe(75);
+    expect(completeBody.media.videoPosterUrl).toBeTruthy();
+
+    const stored = await ProfileMediaModel.findById(signBody.media.id).orFail();
+    expect(stored.mediaType).toBe('VIDEO');
+    expect(stored.durationSeconds).toBe(75);
+    expect(stored.videoPosterUrl).toBeTruthy();
+  });
+
+  it('allows admin review actions for uploaded video media', async () => {
+    const owner = await createUser('owner-video-review@example.com');
+    const admin = await createUser('admin-video-review@example.com', UserRole.ADMIN);
+    const profile = await createProfile(owner.user._id);
+    const media = await ProfileMediaModel.create({
+      userId: owner.user._id,
+      profileId: profile._id,
+      assetUrl: 'https://cdn.example.com/video-intro.mp4',
+      storageKey: 'vivah/video-intro.mp4',
+      mediaType: 'VIDEO',
+      category: MediaCategory.VIDEO_INTRO,
+      uploadStatus: MediaUploadStatus.UPLOADED,
+      mimeType: 'video/mp4',
+      fileSizeBytes: 12_000_000,
+      originalFilename: 'video-intro.mp4',
+      thumbnailUrl: 'https://cdn.example.com/video-intro-thumb.jpg',
+      videoPosterUrl: 'https://cdn.example.com/video-intro-poster.jpg',
+      durationSeconds: 62,
+      visibility: MediaVisibility.PUBLIC,
+      approvalStatus: VerificationStatus.PENDING,
+      isPrimary: false,
+    });
+
+    const reviewResponse = await request(app)
+      .patch(`/api/admin/media/${media.id}/review`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ approvalStatus: VerificationStatus.APPROVED })
+      .expect(200);
+    const reviewBody = bodyAs<MediaResponseBody>(reviewResponse);
+    expect(reviewBody.media.approvalStatus).toBe(VerificationStatus.APPROVED);
+
+    await request(app)
+      .patch(`/api/admin/media/${media.id}/review`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ approvalStatus: VerificationStatus.NEEDS_RESUBMISSION, reason: 'Please trim the video intro.' })
+      .expect(200);
+
+    const updated = await ProfileMediaModel.findById(media.id).orFail();
+    expect(updated.approvalStatus).toBe(VerificationStatus.NEEDS_RESUBMISSION);
+    expect(updated.moderationReason).toBe('Please trim the video intro.');
+  });
+
   it('fails fast in production without Cloudinary and does not mount mock storage', async () => {
     const previousNodeEnv = process.env.NODE_ENV;
     const previousCloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -564,6 +650,214 @@ describe('media routes', () => {
     expect(body.access.token).toEqual(expect.any(String));
   });
 
+  it('watermarks Cloudinary-backed private photo originals with the viewer display ID in production', async () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    const previousCloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const previousCloudKey = process.env.CLOUDINARY_API_KEY;
+    const previousCloudSecret = process.env.CLOUDINARY_API_SECRET;
+    process.env.NODE_ENV = 'production';
+    process.env.CLOUDINARY_CLOUD_NAME = 'vivah-test';
+    process.env.CLOUDINARY_API_KEY = 'cloud-key';
+    process.env.CLOUDINARY_API_SECRET = 'cloud-secret';
+
+    try {
+      const owner = await createUser('media-owner-watermark@example.com');
+      const viewer = await createUser('media-viewer-watermark@example.com');
+      const ownerProfile = await createProfile(owner.user._id);
+      const viewerProfile = await createProfile(viewer.user._id);
+      const media = await ProfileMediaModel.create({
+        userId: owner.user._id,
+        profileId: ownerProfile._id,
+        assetUrl: 'https://res.cloudinary.com/vivah-test/image/upload/v123/vivah/profiles/private-photo.jpg',
+        storageKey: 'vivah/profiles/private-photo',
+        uploadProvider: 'cloudinary',
+        mediaType: 'PHOTO',
+        category: MediaCategory.PRIVATE_GALLERY,
+        uploadStatus: MediaUploadStatus.UPLOADED,
+        mimeType: 'image/jpeg',
+        fileSizeBytes: 180000,
+        originalFilename: 'private-photo.jpg',
+        visibility: MediaVisibility.PRIVATE,
+        approvalStatus: VerificationStatus.APPROVED,
+        isPrimary: false,
+      });
+
+      await PhotoRequestModel.create({
+        requesterId: viewer.user._id,
+        ownerId: owner.user._id,
+        ownerProfileId: ownerProfile._id,
+        status: 'ACCEPTED',
+        accessGrantedUntil: new Date(Date.now() + 60 * 60 * 1000),
+      });
+
+      const accessResponse = await request(app)
+        .get(`/api/media/${media.id}/access`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .expect(200);
+      const accessBody = bodyAs<AccessResponseBody>(accessResponse);
+
+      const privateUrl = new URL(accessBody.access.url);
+      const deliveryResponse = await request(app)
+        .get(`${privateUrl.pathname}${privateUrl.search}`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .redirects(0)
+        .expect(302);
+
+      expect(deliveryResponse.headers.location).toContain('/upload/');
+      expect(deliveryResponse.headers.location).toContain('l_text:Arial_64_bold');
+      expect(deliveryResponse.headers.location).toContain(viewerProfile.displayId);
+      expect(deliveryResponse.headers.location).toContain('a_45');
+    } finally {
+      process.env.NODE_ENV = previousNodeEnv;
+      process.env.CLOUDINARY_CLOUD_NAME = previousCloudName;
+      process.env.CLOUDINARY_API_KEY = previousCloudKey;
+      process.env.CLOUDINARY_API_SECRET = previousCloudSecret;
+    }
+  });
+
+  it('does not watermark private thumbnails even when production watermarking is active', async () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    const previousCloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const previousCloudKey = process.env.CLOUDINARY_API_KEY;
+    const previousCloudSecret = process.env.CLOUDINARY_API_SECRET;
+    process.env.NODE_ENV = 'production';
+    process.env.CLOUDINARY_CLOUD_NAME = 'vivah-test';
+    process.env.CLOUDINARY_API_KEY = 'cloud-key';
+    process.env.CLOUDINARY_API_SECRET = 'cloud-secret';
+
+    try {
+      const owner = await createUser('media-owner-unwatermarked@example.com');
+      const viewer = await createUser('media-viewer-unwatermarked@example.com');
+      const ownerProfile = await createProfile(owner.user._id);
+      ownerProfile.moderation.approvalStatus = 'APPROVED';
+      await ownerProfile.save();
+      const media = await createPrivateUploadedMedia(
+        owner.user._id,
+        ownerProfile._id,
+        'https://res.cloudinary.com/vivah-test/image/upload/v123/vivah/profiles/private-photo-2.jpg',
+      );
+      media.uploadProvider = 'cloudinary';
+      media.storageKey = 'vivah/profiles/private-photo-2';
+      media.thumbnailUrl =
+        'https://res.cloudinary.com/vivah-test/image/upload/f_auto,q_auto,w_640,c_limit/v123/vivah/profiles/private-photo-2.jpg';
+      await media.save();
+
+      await PhotoRequestModel.create({
+        requesterId: viewer.user._id,
+        ownerId: owner.user._id,
+        ownerProfileId: ownerProfile._id,
+        status: 'ACCEPTED',
+        accessGrantedUntil: new Date(Date.now() + 60 * 60 * 1000),
+      });
+
+      const galleryResponse = await request(app)
+        .get(`/api/profiles/${ownerProfile.id}/private-gallery`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .expect(200);
+      const galleryPhotos = bodyAs<{ photos: Array<{ thumbnailUrl: string }> }>(galleryResponse).photos;
+      const thumbnailUrl = new URL(galleryPhotos[0]?.thumbnailUrl ?? '');
+
+      const thumbnailResponse = await request(app)
+        .get(`${thumbnailUrl.pathname}${thumbnailUrl.search}`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .redirects(0)
+        .expect(302);
+
+      expect(thumbnailResponse.headers.location).toBe(media.thumbnailUrl);
+      expect(thumbnailResponse.headers.location).not.toContain('l_text:Arial_64_bold');
+    } finally {
+      process.env.NODE_ENV = previousNodeEnv;
+      process.env.CLOUDINARY_CLOUD_NAME = previousCloudName;
+      process.env.CLOUDINARY_API_KEY = previousCloudKey;
+      process.env.CLOUDINARY_API_SECRET = previousCloudSecret;
+    }
+  });
+
+  it('keeps local/mock-storage private originals successful and unwatermarked', async () => {
+    const { user, accessToken } = await createUser('private-local-media@example.com');
+    const profile = await createProfile(user._id);
+    const media = await createPrivateUploadedMedia(
+      user._id,
+      profile._id,
+      'http://localhost:4000/api/mock-gcs-storage/vivah/private/local-private.webp',
+    );
+    media.uploadProvider = 'gcs';
+    media.storageKey = 'vivah/private/local-private.webp';
+    media.mimeType = 'image/webp';
+    await media.save();
+
+    const uploadDir = path.join(process.cwd(), 'uploads', 'vivah', 'private');
+    fs.mkdirSync(uploadDir, { recursive: true });
+    fs.writeFileSync(path.join(uploadDir, 'local-private.webp'), 'local-private-image-bytes');
+
+    const accessResponse = await request(app)
+      .get(`/api/me/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+    const accessBody = bodyAs<AccessResponseBody>(accessResponse);
+    const privateUrl = new URL(accessBody.access.url);
+
+    const deliveryResponse = await request(app)
+      .get(`${privateUrl.pathname}${privateUrl.search}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(deliveryResponse.headers['content-type']).toContain('image/webp');
+  });
+
+  it('falls back to a deterministic member watermark when the viewer has no profile', async () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
+    try {
+      const owner = await createUser('media-owner-fallback@example.com');
+      const viewer = await createUser('media-viewer-fallback@example.com');
+      const ownerProfile = await createProfile(owner.user._id);
+      const media = await ProfileMediaModel.create({
+        userId: owner.user._id,
+        profileId: ownerProfile._id,
+        assetUrl: 'https://res.cloudinary.com/vivah-test/image/upload/v123/vivah/profiles/private-photo-fallback.jpg',
+        storageKey: 'vivah/profiles/private-photo-fallback',
+        uploadProvider: 'cloudinary',
+        mediaType: 'PHOTO',
+        category: MediaCategory.PRIVATE_GALLERY,
+        uploadStatus: MediaUploadStatus.UPLOADED,
+        mimeType: 'image/jpeg',
+        fileSizeBytes: 180000,
+        originalFilename: 'private-photo.jpg',
+        visibility: MediaVisibility.PRIVATE,
+        approvalStatus: VerificationStatus.APPROVED,
+        isPrimary: false,
+      });
+
+      await PhotoRequestModel.create({
+        requesterId: viewer.user._id,
+        ownerId: owner.user._id,
+        ownerProfileId: ownerProfile._id,
+        status: 'ACCEPTED',
+        accessGrantedUntil: new Date(Date.now() + 60 * 60 * 1000),
+      });
+
+      const accessResponse = await request(app)
+        .get(`/api/media/${media.id}/access`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .expect(200);
+      const accessBody = bodyAs<AccessResponseBody>(accessResponse);
+      const privateUrl = new URL(accessBody.access.url);
+
+      const deliveryResponse = await request(app)
+        .get(`${privateUrl.pathname}${privateUrl.search}`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .redirects(0)
+        .expect(302);
+
+      expect(deliveryResponse.headers.location).toContain('Member');
+      expect(deliveryResponse.headers.location).toContain(viewer.user.id.slice(-8).toUpperCase());
+    } finally {
+      process.env.NODE_ENV = previousNodeEnv;
+    }
+  });
+
   it('denies a viewer with an expired accepted photo request grant', async () => {
     const owner = await createUser('media-owner-expired@example.com');
     const viewer = await createUser('media-viewer-expired@example.com');
@@ -614,6 +908,30 @@ describe('media routes', () => {
         'You do not have permission to view this private media',
       );
     }
+  });
+
+  it('ignores a withdrawn request from a later cycle and still requires a currently accepted grant', async () => {
+    const owner = await createUser('media-owner-withdraw-cycle@example.com');
+    const viewer = await createUser('media-viewer-withdraw-cycle@example.com');
+    const profile = await createProfile(owner.user._id);
+    const media = await createPrivateUploadedMedia(owner.user._id, profile._id);
+
+    await PhotoRequestModel.create({
+      requesterId: viewer.user._id,
+      ownerId: owner.user._id,
+      ownerProfileId: profile._id,
+      status: 'WITHDRAWN',
+      accessGrantedUntil: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    const response = await request(app)
+      .get(`/api/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(403);
+
+    expect(bodyAs<{ message: string }>(response).message).toBe(
+      'You do not have permission to view this private media',
+    );
   });
 
   it('denies a viewer with no photo request record at all', async () => {
