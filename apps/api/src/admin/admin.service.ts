@@ -626,6 +626,7 @@ export async function listUsers(input: AdminUserQueryInput) {
   const filter: Record<string, unknown> = {
     isDeleted: input.status === AccountStatus.DELETED ? true : false,
   };
+  const userIdSets: string[][] = [];
   if (input.role) filter.role = input.role;
   if (input.status) filter.status = input.status;
   if (input.q) {
@@ -648,7 +649,29 @@ export async function listUsers(input: AdminUserQueryInput) {
       isDeleted: false,
       'verification.level': input.verificationLevel,
     }).select('userId');
-    filter._id = { $in: matchingProfiles.map((profile) => profile.userId) };
+    userIdSets.push(matchingProfiles.map((profile) => String(profile.userId)));
+  }
+  if (input.planId) {
+    const matchingSubscriptions = await SubscriptionModel.find({
+      planId: input.planId,
+      status: SubscriptionStatus.ACTIVE,
+      isDeleted: false,
+    }).select('userId');
+    userIdSets.push(matchingSubscriptions.map((subscription) => String(subscription.userId)));
+  }
+  if (input.joinedFrom || input.joinedTo) {
+    filter.createdAt = {
+      ...(input.joinedFrom ? { $gte: input.joinedFrom } : {}),
+      ...(input.joinedTo ? { $lte: input.joinedTo } : {}),
+    };
+  }
+  if (userIdSets.length > 0) {
+    const matchingUserIds = userIdSets.reduce<string[]>((intersection, ids) => {
+      if (intersection.length === 0) return [...new Set(ids)];
+      const allowed = new Set(ids);
+      return intersection.filter((id) => allowed.has(id));
+    }, []);
+    filter._id = { $in: matchingUserIds };
   }
   const skip = (input.page - 1) * input.pageSize;
   const [users, total] = await Promise.all([

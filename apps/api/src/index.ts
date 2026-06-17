@@ -5,6 +5,7 @@ import { logger } from './common/logger.js';
 import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
+import { subscriptionExpiryQueue } from './billing/subscription-expiry.worker.js';
 import { matchCachingQueue, savedSearchNotifyQueue } from './match/match.worker.js';
 import { profileCompletionNudgeQueue } from './profile/profile-completion.worker.js';
 
@@ -98,6 +99,14 @@ async function startServer() {
     });
   } else {
     logger.warn('Redis not available — profile completion nudges disabled');
+  }
+
+  if (subscriptionExpiryQueue) {
+    await subscriptionExpiryQueue.add('revoke-expired-subscriptions', {}, {
+      repeat: { pattern: '0 1 * * *' },
+    });
+  } else {
+    logger.warn('Redis not available — subscription expiry safety net disabled');
   }
 }
 

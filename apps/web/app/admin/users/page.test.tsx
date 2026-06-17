@@ -35,6 +35,19 @@ describe('AdminUsersPage table loading and filtering', () => {
   beforeEach(() => {
     memberRequestMock.mockReset();
     memberRequestMock.mockImplementation((url: string) => {
+      if (url === '/api/plans') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            plans: [
+              { id: 'plan-gold', code: 'GOLD', name: 'Gold' },
+              { id: 'plan-premium', code: 'PREMIUM', name: 'Premium' },
+            ],
+          },
+        });
+      }
+
       if (url === '/api/admin/users?page=1&pageSize=10') {
         return Promise.resolve({
           ok: true,
@@ -76,7 +89,7 @@ describe('AdminUsersPage table loading and filtering', () => {
 
       if (
         url ===
-        '/api/admin/users?page=1&pageSize=10&q=rahul&role=ADMIN&status=SUSPENDED&verificationLevel=SILVER'
+        '/api/admin/users?page=1&pageSize=10&q=rahul&role=ADMIN&status=SUSPENDED&verificationLevel=SILVER&planId=plan-premium&joinedFrom=2025-02-01T00%3A00%3A00.000Z&joinedTo=2025-02-28T23%3A59%3A59.999Z'
       ) {
         return Promise.resolve({
           ok: true,
@@ -115,6 +128,9 @@ describe('AdminUsersPage table loading and filtering', () => {
     await waitFor(() => {
       expect(memberRequestMock).toHaveBeenCalledWith('/api/admin/users?page=1&pageSize=10');
     });
+    await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/plans');
+    });
 
     expect(screen.getByText('Alice Sharma')).toBeTruthy();
     expect(screen.getByText('Rahul Patel')).toBeTruthy();
@@ -133,12 +149,21 @@ describe('AdminUsersPage table loading and filtering', () => {
     fireEvent.change(screen.getByDisplayValue('All Account Statuses'), {
       target: { value: 'SUSPENDED' },
     });
+    fireEvent.change(screen.getByDisplayValue('All Subscription Tiers'), {
+      target: { value: 'plan-premium' },
+    });
+    fireEvent.change(screen.getByLabelText('Joined from'), {
+      target: { value: '2025-02-01' },
+    });
+    fireEvent.change(screen.getByLabelText('Joined to'), {
+      target: { value: '2025-02-28' },
+    });
 
     fireEvent.click(screen.getByRole('button', { name: 'Search' }));
 
     await waitFor(() => {
       expect(memberRequestMock).toHaveBeenCalledWith(
-        '/api/admin/users?page=1&pageSize=10&q=rahul&role=ADMIN&status=SUSPENDED&verificationLevel=SILVER',
+        '/api/admin/users?page=1&pageSize=10&q=rahul&role=ADMIN&status=SUSPENDED&verificationLevel=SILVER&planId=plan-premium&joinedFrom=2025-02-01T00%3A00%3A00.000Z&joinedTo=2025-02-28T23%3A59%3A59.999Z',
       );
     });
 

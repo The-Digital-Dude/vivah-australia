@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { useMemberRequest } from '@/lib/member-api';
+import { useEntitlement } from '@/lib/use-entitlement';
 import { useAuth } from '@/app/auth-context';
 import UpgradeModal from '../upgrade-modal';
 
@@ -26,24 +27,6 @@ interface Plan {
   currency: string;
   interval: 'MONTH' | 'YEAR';
   limits: Record<string, number>;
-}
-
-interface SubscriptionOverview {
-  plan?: {
-    name: string;
-    code: string;
-    priceCents: number;
-    currency: string;
-    interval: string;
-    limits: Record<string, number>;
-  } | null;
-  subscription?: {
-    status: string;
-    currentPeriodEnd?: string;
-    cancelAtPeriodEnd: boolean;
-    endsAt?: string;
-  } | null;
-  usage: Array<{ key: string; count: number }>;
 }
 
 interface Payment {
@@ -131,10 +114,11 @@ function UsageBar({ used, limit, label }: { used: number; limit: number; label: 
 function SubscriptionPageContent() {
   const memberRequest = useMemberRequest();
   const { initialized } = useAuth();
+  const entitlement = useEntitlement();
+  const refreshEntitlement = entitlement.refresh;
   const router = useRouter();
   const searchParams = useSearchParams();
   const checkoutParam = searchParams.get('checkout');
-  const [overview, setOverview] = useState<SubscriptionOverview | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [message, setMessage] = useState('');
@@ -148,14 +132,10 @@ function SubscriptionPageContent() {
 
   async function load() {
     setLoading(true);
-    const [subscriptionResult, paymentResult, plansResponse] = await Promise.all([
-      memberRequest('/api/me/subscription'),
+    const [paymentResult, plansResponse] = await Promise.all([
       memberRequest('/api/me/payments'),
       fetch(`${apiBaseUrl}/api/plans`, { cache: 'no-store' }),
     ]);
-    if (subscriptionResult.ok) {
-      setOverview(subscriptionResult.data as SubscriptionOverview);
-    }
     if (paymentResult.ok) {
       const data = paymentResult.data as { payments?: Payment[] };
       setPayments(data.payments ?? []);
@@ -187,7 +167,7 @@ function SubscriptionPageContent() {
         }
         setMessage('Your subscription is now active. Welcome to your new plan!');
         setMessageType('success');
-        await load();
+        await Promise.all([load(), refreshEntitlement()]);
       } else if (checkoutParam === 'cancelled') {
         setMessage('Payment was not completed. Your current plan has not changed.');
         setMessageType('info');
@@ -196,7 +176,7 @@ function SubscriptionPageContent() {
     }
 
     void handleCheckoutResult();
-    }, [checkoutParam, initialized]);
+    }, [checkoutParam, initialized, memberRequest, refreshEntitlement, router, searchParams]);
 
   async function activateBoost() {
     setBoostLoading(true);
@@ -206,7 +186,7 @@ function SubscriptionPageContent() {
     });
     setMessage(result.message ?? (result.ok ? 'Boost activated!' : 'Could not activate boost.'));
     setMessageType(result.ok ? 'success' : 'error');
-    if (result.ok) await load();
+    if (result.ok) await Promise.all([load(), refreshEntitlement()]);
     setBoostLoading(false);
   }
 
@@ -217,7 +197,7 @@ function SubscriptionPageContent() {
       const data = result.data as { message?: string };
       setMessage(data.message ?? 'Subscription cancelled.');
       setMessageType('info');
-      await load();
+      await Promise.all([load(), refreshEntitlement()]);
     } else {
       setMessage(result.message ?? 'Could not cancel subscription.');
       setMessageType('error');
@@ -246,14 +226,14 @@ function SubscriptionPageContent() {
     setPortalLoading(false);
   }
 
-  const status = overview?.subscription?.status ?? 'FREE';
+  const status = entitlement.subscription?.status ?? 'FREE';
   const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES['FREE']!;
-  const planName = overview?.plan?.name ?? 'Free';
-  const isFree = !overview?.plan || overview.plan.code === 'FREE';
-  const isPaid = !isFree;
-  const cancelAtPeriodEnd = overview?.subscription?.cancelAtPeriodEnd === true;
-  const periodEnd = overview?.subscription?.currentPeriodEnd;
-  const limits = overview?.plan?.limits ?? {};
+  const planName = entitlement.plan?.name ?? 'Free';
+  const isFree = !entitlement.plan || entitlement.plan.code === 'FREE';
+  const isPaid = entitlement.isPaid;
+  const cancelAtPeriodEnd = entitlement.subscription?.cancelAtPeriodEnd === true;
+  const periodEnd = entitlement.subscription?.currentPeriodEnd;
+  const limits = entitlement.plan?.limits ?? {};
   const availablePlans = plans
     .filter((plan) => plan.code !== 'FREE')
     .sort((left, right) => left.priceCents - right.priceCents);
@@ -333,7 +313,7 @@ function SubscriptionPageContent() {
         </div>
       )}
 
-      {loading ? (
+      {loading || (initialized && entitlement.loading && !entitlement.data) ? (
         <div className="grid gap-4 animate-pulse">
           <div className="h-40 rounded-2xl bg-[#f0ebe2]" />
           <div className="h-32 rounded-2xl bg-[#f0ebe2]" />
@@ -451,7 +431,7 @@ function SubscriptionPageContent() {
                   </div>
                 ) : (
                   availablePlans.map((plan) => {
-                    const isCurrentPlan = overview?.plan?.code === plan.code;
+                    const isCurrentPlan = entitlement.plan?.code === plan.code;
                     const billingLabel =
                       plan.interval === 'YEAR'
                         ? 'Annual billing'
@@ -544,7 +524,7 @@ function SubscriptionPageContent() {
                 <h3 className="mt-1 text-lg font-semibold text-[#241c15]">This billing period</h3>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {Object.entries(limits).map(([key, limit]) => {
-                    const used = overview?.usage.find((item) => item.key === key)?.count ?? 0;
+                    const used = entitlement.usage.find((item) => item.key === key)?.count ?? 0;
                     return (
                       <UsageBar
                         key={key}

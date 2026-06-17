@@ -346,6 +346,47 @@ export async function getSubscriptionOverview(userId: Types.ObjectId) {
   };
 }
 
+export async function revokeExpiredSubscriptions(now = new Date()) {
+  const expirationCutoff = new Date(now.getTime() - 5 * 60 * 1000);
+
+  const staleSubscriptions = await SubscriptionModel.find({
+    status: SubscriptionStatus.ACTIVE,
+    currentPeriodEnd: { $lt: expirationCutoff },
+    isDeleted: false,
+  })
+    .select('_id currentPeriodEnd')
+    .lean();
+
+  if (staleSubscriptions.length === 0) {
+    return { expiredCount: 0 };
+  }
+
+  const operations = await Promise.all(
+    staleSubscriptions.map(async (subscription) => {
+      const result = await SubscriptionModel.updateOne(
+        {
+          _id: subscription._id,
+          status: SubscriptionStatus.ACTIVE,
+          currentPeriodEnd: { $lt: expirationCutoff },
+          isDeleted: false,
+        },
+        {
+          $set: {
+            status: SubscriptionStatus.EXPIRED,
+            endsAt: subscription.currentPeriodEnd ?? now,
+          },
+        },
+      );
+
+      return result.modifiedCount;
+    }),
+  );
+
+  return {
+    expiredCount: operations.reduce((sum, count) => sum + count, 0),
+  };
+}
+
 export async function listPayments(userId?: Types.ObjectId) {
   const payments = await PaymentModel.find({ ...(userId ? { userId } : {}), isDeleted: false })
     .sort({ createdAt: -1 })

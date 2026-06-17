@@ -525,6 +525,9 @@ export const adminUserQuerySchema = z.object({
   role: userRoleSchema.optional(),
   status: accountStatusSchema.optional(),
   verificationLevel: verificationLevelSchema.optional(),
+  planId: objectIdSchema.optional(),
+  joinedFrom: z.coerce.date().optional(),
+  joinedTo: z.coerce.date().optional(),
   q: z.string().trim().max(120).optional(),
 });
 

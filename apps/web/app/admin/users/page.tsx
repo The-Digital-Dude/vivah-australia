@@ -35,13 +35,23 @@ interface UserDetail {
   notes?: Array<{ id: string; note: string; authorId: string; createdAt: string }>;
 }
 
+interface PlanOption {
+  id: string;
+  code: string;
+  name: string;
+}
+
 export default function AdminUsersPage() {
   const memberRequest = useMemberRequest();
   const [users, setUsers] = useState<UserItem[]>([]);
+  const [plans, setPlans] = useState<PlanOption[]>([]);
   const [query, setQuery] = useState('');
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('');
   const [verificationLevel, setVerificationLevel] = useState('');
+  const [planId, setPlanId] = useState('');
+  const [joinedFrom, setJoinedFrom] = useState('');
+  const [joinedTo, setJoinedTo] = useState('');
   const [page, setPage] = useState(1);
   const [detail, setDetail] = useState<UserDetail | null>(null);
   const [message, setMessage] = useState('');
@@ -51,6 +61,14 @@ export default function AdminUsersPage() {
   const [noteUser, setNoteUser] = useState<UserItem | null>(null);
   const [noteContent, setNoteContent] = useState('');
 
+  function startOfDayIso(value: string) {
+    return new Date(`${value}T00:00:00.000Z`).toISOString();
+  }
+
+  function endOfDayIso(value: string) {
+    return new Date(`${value}T23:59:59.999Z`).toISOString();
+  }
+
   function path(nextPage = page) {
     const params = new URLSearchParams();
     params.set('page', String(nextPage));
@@ -59,6 +77,9 @@ export default function AdminUsersPage() {
     if (role) params.set('role', role);
     if (status) params.set('status', status);
     if (verificationLevel) params.set('verificationLevel', verificationLevel);
+    if (planId) params.set('planId', planId);
+    if (joinedFrom) params.set('joinedFrom', startOfDayIso(joinedFrom));
+    if (joinedTo) params.set('joinedTo', endOfDayIso(joinedTo));
     const suffix = params.toString();
     return `/api/admin/users${suffix ? `?${suffix}` : ''}`;
   }
@@ -126,6 +147,26 @@ export default function AdminUsersPage() {
   useEffect(() => {
     void load();
   }, [page]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPlans() {
+      const result = await memberRequest('/api/plans');
+      if (!result.ok) {
+        if (!cancelled) setMessage(result.message);
+        return;
+      }
+      const data = result.data as { plans?: PlanOption[] };
+      if (!cancelled) setPlans(data.plans ?? []);
+    }
+
+    void loadPlans();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memberRequest]);
 
   const columns: Column<UserItem>[] = [
     {
@@ -206,7 +247,7 @@ export default function AdminUsersPage() {
       {/* FILTER TOOLBAR */}
       <form
         onSubmit={submitFilters}
-        className="grid gap-3 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-[1.5fr_1fr_1fr_1fr_auto]"
+        className="grid gap-3 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-3 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1fr_1fr_1fr_auto]"
       >
         <input
           value={query}
@@ -250,6 +291,32 @@ export default function AdminUsersPage() {
             </option>
           ))}
         </select>
+        <select
+          value={planId}
+          onChange={(event) => setPlanId(event.target.value)}
+          className="h-9 rounded-lg border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
+        >
+          <option value="">All Subscription Tiers</option>
+          {plans.map((plan) => (
+            <option key={plan.id} value={plan.id}>
+              {plan.name}
+            </option>
+          ))}
+        </select>
+        <input
+          type="date"
+          value={joinedFrom}
+          onChange={(event) => setJoinedFrom(event.target.value)}
+          className="h-9 rounded-lg border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
+          aria-label="Joined from"
+        />
+        <input
+          type="date"
+          value={joinedTo}
+          onChange={(event) => setJoinedTo(event.target.value)}
+          className="h-9 rounded-lg border border-neutral-250 bg-white px-3 text-sm text-neutral-700"
+          aria-label="Joined to"
+        />
         <button className="h-9 rounded-lg bg-[#A10E4D] hover:bg-[#890B40] px-6 text-sm font-bold text-white shadow-sm transition">
           Search
         </button>

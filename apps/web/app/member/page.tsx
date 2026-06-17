@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MemberShell from './member-shell';
 import { useMemberRequest } from '@/lib/member-api';
+import { useEntitlement } from '@/lib/use-entitlement';
 import ProfileStrengthMeter, { type ProfileStrength } from './profile-strength-meter';
 import {
   EmptyState,
@@ -111,25 +112,6 @@ interface ProfileData {
   };
 }
 
-interface SubscriptionPlan {
-  name: string;
-  code: string;
-  limits?: {
-    interestsMonthly?: number;
-    advancedFilters?: boolean;
-    profileBoostsMonthly?: number;
-  };
-}
-
-interface SubscriptionOverview {
-  subscription?: {
-    status: string;
-    endsAt?: string;
-  } | null;
-  plan?: SubscriptionPlan | null;
-  usage?: Array<{ key: string; count: number }>;
-}
-
 interface BoostItem {
   id: string;
   startsAt: string;
@@ -174,13 +156,13 @@ function formatDate(value?: string) {
 export default function MemberDashboardPage() {
   const router = useRouter();
   const memberRequest = useMemberRequest();
+  const entitlement = useEntitlement();
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [recommended, setRecommended] = useState<MatchCard[]>([]);
   const [recentlyActive, setRecentlyActive] = useState<MatchCard[]>([]);
   const [interests, setInterests] = useState<InterestItem[]>([]);
-  const [subscriptionData, setSubscriptionData] = useState<SubscriptionOverview | null>(null);
   const [boosts, setBoosts] = useState<BoostItem[]>([]);
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [profileViewersTotal, setProfileViewersTotal] = useState<number | null>(null);
@@ -196,7 +178,6 @@ export default function MemberDashboardPage() {
         memberRequest('/api/matches/recommended?limit=4'),
         memberRequest('/api/matches/search?limit=4&sort=RECENTLY_ACTIVE'),
         memberRequest('/api/me/interests?box=received'),
-        memberRequest('/api/me/subscription'),
         memberRequest('/api/me/boosts'),
         memberRequest('/api/me/conversations'),
         memberRequest('/api/me/profile-viewers'),
@@ -206,10 +187,9 @@ export default function MemberDashboardPage() {
       const recRes = results[1];
       const activeRes = results[2];
       const interestsRes = results[3];
-      const subRes = results[4];
-      const boostsRes = results[5];
-      const convRes = results[6];
-      const viewersRes = results[7];
+      const boostsRes = results[4];
+      const convRes = results[5];
+      const viewersRes = results[6];
 
       if (profileRes.ok && profileRes.data) {
         const rawProfile = (profileRes.data as { profile: ProfileData }).profile;
@@ -232,10 +212,6 @@ export default function MemberDashboardPage() {
 
       if (interestsRes.ok && interestsRes.data) {
         setInterests((interestsRes.data as { interests: InterestItem[] }).interests ?? []);
-      }
-
-      if (subRes.ok && subRes.data) {
-        setSubscriptionData(subRes.data);
       }
 
       if (boostsRes.ok && boostsRes.data) {
@@ -278,7 +254,7 @@ export default function MemberDashboardPage() {
       });
       setBoostMessage(result.message);
       if (result.ok) {
-        await loadDashboardData();
+        await Promise.all([loadDashboardData(), entitlement.refresh()]);
       }
     } catch {
       setBoostMessage('Failed to activate profile boost. Please try again.');
@@ -292,9 +268,9 @@ export default function MemberDashboardPage() {
     ? Math.ceil((new Date(activeBoost.endsAt).getTime() - Date.now()) / (1000 * 60 * 60))
     : 0;
 
-  const boostLimit = subscriptionData?.plan?.limits?.profileBoostsMonthly ?? 0;
+  const boostLimit = entitlement.plan?.limits?.profileBoostsMonthly ?? 0;
   const boostUsed =
-    subscriptionData?.usage?.find((entry) => entry.key === 'profileBoostsMonthly')?.count ?? 0;
+    entitlement.usage.find((entry) => entry.key === 'profileBoostsMonthly')?.count ?? 0;
   const boostsRemaining = boostLimit === -1 ? Infinity : Math.max(0, boostLimit - boostUsed);
 
   const completionPercentage = profile?.completionPercentage ?? 0;
@@ -312,7 +288,7 @@ export default function MemberDashboardPage() {
     { label: 'Profile views', value: String(profileViewsCount), description: '', icon: Eye, href: '/member/profile-viewers' },
   ];
 
-  const membershipName = subscriptionData?.plan?.name ?? 'Free';
+  const membershipName = entitlement.plan?.name ?? 'Free';
 
   const heroHighlights = [
     { label: 'Profile', value: `${strengthPercentage}%`, icon: CheckCircle2 },

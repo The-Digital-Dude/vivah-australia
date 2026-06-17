@@ -15,9 +15,11 @@ import {
   CommunityPostModel,
   CommunityRoomModel,
   NotificationModel,
+  PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
   ReportModel,
+  SubscriptionModel,
   UserModel,
   VerificationDocumentModel,
   VerificationRequestModel,
@@ -246,6 +248,114 @@ describe('admin production readiness routes', () => {
     );
     expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_UPDATED' })).toBe(2);
     expect(await AuditLogModel.countDocuments({ action: 'ADMIN_USER_NOTE_ADDED' })).toBe(1);
+  });
+
+  it('filters users by active subscription tier and joined date range', async () => {
+    const admin = await createUser('admin-filters@example.com', UserRole.ADMIN);
+    const included = await createUser('plan-included@example.com');
+    const excludedByPlan = await createUser('plan-excluded@example.com');
+    const excludedByDate = await createUser('date-excluded@example.com');
+
+    const includedProfile = await createProfile(included.user._id);
+    await ProfileModel.updateOne(
+      { _id: includedProfile._id },
+      { $set: { 'verification.level': 'SILVER' } },
+    );
+    const excludedByPlanProfile = await createProfile(excludedByPlan.user._id);
+    await ProfileModel.updateOne(
+      { _id: excludedByPlanProfile._id },
+      { $set: { 'verification.level': 'SILVER' } },
+    );
+    const excludedByDateProfile = await createProfile(excludedByDate.user._id);
+    await ProfileModel.updateOne(
+      { _id: excludedByDateProfile._id },
+      { $set: { 'verification.level': 'SILVER' } },
+    );
+
+    const goldPlan = await PlanModel.create({
+      code: 'gold-admin-filter',
+      name: 'Gold',
+      description: 'Gold tier',
+      priceCents: 4900,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: ['Priority support'],
+      limits: { interestsMonthly: -1 },
+      stripePriceId: 'price_gold_admin_filter',
+      sortOrder: 1,
+      active: true,
+    });
+    const silverPlan = await PlanModel.create({
+      code: 'silver-admin-filter',
+      name: 'Silver',
+      description: 'Silver tier',
+      priceCents: 2900,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: ['Extra views'],
+      limits: { interestsMonthly: 25 },
+      stripePriceId: 'price_silver_admin_filter',
+      sortOrder: 2,
+      active: true,
+    });
+
+    await SubscriptionModel.create([
+      {
+        userId: included.user._id,
+        planId: goldPlan._id,
+        status: 'ACTIVE',
+        startsAt: new Date('2025-02-01T00:00:00.000Z'),
+        currentPeriodStart: new Date('2025-02-01T00:00:00.000Z'),
+        currentPeriodEnd: new Date('2025-03-01T00:00:00.000Z'),
+        cancelAtPeriodEnd: false,
+      },
+      {
+        userId: excludedByPlan.user._id,
+        planId: silverPlan._id,
+        status: 'ACTIVE',
+        startsAt: new Date('2025-02-01T00:00:00.000Z'),
+        currentPeriodStart: new Date('2025-02-01T00:00:00.000Z'),
+        currentPeriodEnd: new Date('2025-03-01T00:00:00.000Z'),
+        cancelAtPeriodEnd: false,
+      },
+      {
+        userId: excludedByDate.user._id,
+        planId: goldPlan._id,
+        status: 'ACTIVE',
+        startsAt: new Date('2024-12-01T00:00:00.000Z'),
+        currentPeriodStart: new Date('2024-12-01T00:00:00.000Z'),
+        currentPeriodEnd: new Date('2025-01-01T00:00:00.000Z'),
+        cancelAtPeriodEnd: false,
+      },
+    ]);
+
+    await UserModel.collection.updateOne(
+      { _id: included.user._id },
+      { $set: { createdAt: new Date('2025-02-10T09:00:00.000Z') } },
+    );
+    await UserModel.collection.updateOne(
+      { _id: excludedByPlan.user._id },
+      { $set: { createdAt: new Date('2025-02-12T09:00:00.000Z') } },
+    );
+    await UserModel.collection.updateOne(
+      { _id: excludedByDate.user._id },
+      { $set: { createdAt: new Date('2024-12-20T09:00:00.000Z') } },
+    );
+
+    const response = await request(app)
+      .get('/api/admin/users')
+      .query({
+        planId: String(goldPlan._id),
+        verificationLevel: 'SILVER',
+        joinedFrom: '2025-02-01T00:00:00.000Z',
+        joinedTo: '2025-02-28T23:59:59.999Z',
+      })
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+
+    const body = bodyAs<{ users: Array<{ id: string }> }>(response);
+    expect(body.users).toHaveLength(1);
+    expect(body.users[0]?.id).toBe(included.user.id);
   });
 
   it('revokes active sessions and auth tokens when an admin suspends a user', async () => {

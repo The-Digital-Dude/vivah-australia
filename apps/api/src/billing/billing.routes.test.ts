@@ -7,6 +7,7 @@ import { AccountStatus, Gender, PaymentStatus, SubscriptionStatus, UserRole } fr
 import { createApp } from '../app.js';
 import { createTokenPair } from '../auth/token.service.js';
 import type { AuthConfig } from '../auth/auth-types.js';
+import { isPaidMember, revokeExpiredSubscriptions } from './billing.service.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   InvoiceModel,
@@ -394,6 +395,45 @@ describe('billing routes and webhooks', () => {
       .expect(403);
 
     expect(await ProfileBoostModel.countDocuments({ userId: user.user._id })).toBe(0);
+  });
+
+  it('revokes stale active subscriptions when the expiry safety-net runs', async () => {
+    const user = await createUser('expiry-job@example.com');
+    const plan = await PlanModel.create({
+      code: 'SAFETY_NET_GOLD',
+      name: 'Safety Net Gold',
+      priceCents: 9900,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: [],
+      limits: { profileBoostsMonthly: 2 },
+      active: true,
+    });
+
+    await SubscriptionModel.create({
+      userId: user.user._id,
+      planId: plan._id,
+      status: SubscriptionStatus.ACTIVE,
+      startsAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
+      currentPeriodEnd: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      provider: 'stripe',
+      cancelAtPeriodEnd: false,
+    });
+
+    expect(await isPaidMember(user.user._id)).toBe(true);
+
+    const firstRun = await revokeExpiredSubscriptions();
+    expect(firstRun.expiredCount).toBe(1);
+
+    const expiredSubscription = await SubscriptionModel.findOne({ userId: user.user._id }).orFail();
+    expect(expiredSubscription.status).toBe(SubscriptionStatus.EXPIRED);
+    expect(await isPaidMember(user.user._id)).toBe(false);
+
+    const secondRun = await revokeExpiredSubscriptions();
+    expect(secondRun.expiredCount).toBe(0);
+
+    const unchangedSubscription = await SubscriptionModel.findOne({ userId: user.user._id }).orFail();
+    expect(unchangedSubscription.status).toBe(SubscriptionStatus.EXPIRED);
   });
 
   it('enforces production safety guardrails when NODE_ENV is production', async () => {

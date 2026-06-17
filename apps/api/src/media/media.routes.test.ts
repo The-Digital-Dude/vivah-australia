@@ -14,6 +14,7 @@ import {
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
+  PhotoRequestModel,
   ProfileMediaModel,
   ProfileModel,
   UserModel,
@@ -133,6 +134,28 @@ async function createProfile(userId: mongoose.Types.ObjectId) {
     moderation: { approvalStatus: 'PENDING' },
   });
   return profile;
+}
+
+async function createPrivateUploadedMedia(
+  userId: mongoose.Types.ObjectId,
+  profileId: mongoose.Types.ObjectId,
+  assetUrl = 'https://cdn.example.com/private-photo.jpg',
+) {
+  return ProfileMediaModel.create({
+    userId,
+    profileId,
+    assetUrl,
+    storageKey: `vivah/private/${userId.toString()}.jpg`,
+    mediaType: 'PHOTO',
+    category: MediaCategory.PRIVATE_GALLERY,
+    uploadStatus: MediaUploadStatus.UPLOADED,
+    mimeType: 'image/jpeg',
+    fileSizeBytes: 180000,
+    originalFilename: 'private-photo.jpg',
+    visibility: MediaVisibility.PRIVATE,
+    approvalStatus: VerificationStatus.APPROVED,
+    isPrimary: false,
+  });
 }
 
 beforeAll(async () => {
@@ -482,5 +505,130 @@ describe('media routes', () => {
       process.env.CLOUDINARY_API_KEY = previousCloudKey;
       process.env.CLOUDINARY_API_SECRET = previousCloudSecret;
     }
+  });
+
+  it('allows an owner to access their own private media without a photo request grant', async () => {
+    const owner = await createUser('media-owner@example.com');
+    const profile = await createProfile(owner.user._id);
+    const media = await createPrivateUploadedMedia(owner.user._id, profile._id);
+
+    const response = await request(app)
+      .get(`/api/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${owner.accessToken}`)
+      .expect(200);
+
+    const body = bodyAs<AccessResponseBody>(response);
+    expect(body.access.url).toContain('/api/media/private/');
+    expect(body.access.token).toEqual(expect.any(String));
+  });
+
+  it('allows admin and moderator roles to access any private media', async () => {
+    const owner = await createUser('media-owner-admin@example.com');
+    const admin = await createUser('media-admin@example.com', UserRole.ADMIN);
+    const moderator = await createUser('media-moderator@example.com', UserRole.MODERATOR);
+    const profile = await createProfile(owner.user._id);
+    const media = await createPrivateUploadedMedia(owner.user._id, profile._id);
+
+    await request(app)
+      .get(`/api/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+
+    await request(app)
+      .get(`/api/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${moderator.accessToken}`)
+      .expect(200);
+  });
+
+  it('allows a viewer with an accepted non-expired photo request grant', async () => {
+    const owner = await createUser('media-owner-grant@example.com');
+    const viewer = await createUser('media-viewer-grant@example.com');
+    const profile = await createProfile(owner.user._id);
+    const media = await createPrivateUploadedMedia(owner.user._id, profile._id);
+
+    await PhotoRequestModel.create({
+      requesterId: viewer.user._id,
+      ownerId: owner.user._id,
+      ownerProfileId: profile._id,
+      status: 'ACCEPTED',
+      accessGrantedUntil: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    const response = await request(app)
+      .get(`/api/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const body = bodyAs<AccessResponseBody>(response);
+    expect(body.access.url).toContain('/api/media/private/');
+    expect(body.access.token).toEqual(expect.any(String));
+  });
+
+  it('denies a viewer with an expired accepted photo request grant', async () => {
+    const owner = await createUser('media-owner-expired@example.com');
+    const viewer = await createUser('media-viewer-expired@example.com');
+    const profile = await createProfile(owner.user._id);
+    const media = await createPrivateUploadedMedia(owner.user._id, profile._id);
+
+    await PhotoRequestModel.create({
+      requesterId: viewer.user._id,
+      ownerId: owner.user._id,
+      ownerProfileId: profile._id,
+      status: 'ACCEPTED',
+      accessGrantedUntil: new Date(Date.now() - 60 * 1000),
+    });
+
+    const response = await request(app)
+      .get(`/api/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(403);
+
+    expect(bodyAs<{ message: string }>(response).message).toBe(
+      'You do not have permission to view this private media',
+    );
+  });
+
+  it('denies pending, rejected, and withdrawn photo requests even if they still carry a future grant timestamp', async () => {
+    const scenarios = ['PENDING', 'REJECTED', 'WITHDRAWN'] as const;
+
+    for (const status of scenarios) {
+      const owner = await createUser(`media-owner-${status.toLowerCase()}@example.com`);
+      const viewer = await createUser(`media-viewer-${status.toLowerCase()}@example.com`);
+      const profile = await createProfile(owner.user._id);
+      const media = await createPrivateUploadedMedia(owner.user._id, profile._id);
+
+      await PhotoRequestModel.create({
+        requesterId: viewer.user._id,
+        ownerId: owner.user._id,
+        ownerProfileId: profile._id,
+        status,
+        accessGrantedUntil: new Date(Date.now() + 60 * 60 * 1000),
+      });
+
+      const response = await request(app)
+        .get(`/api/media/${media.id}/access`)
+        .set('Authorization', `Bearer ${viewer.accessToken}`)
+        .expect(403);
+
+      expect(bodyAs<{ message: string }>(response).message).toBe(
+        'You do not have permission to view this private media',
+      );
+    }
+  });
+
+  it('denies a viewer with no photo request record at all', async () => {
+    const owner = await createUser('media-owner-no-request@example.com');
+    const viewer = await createUser('media-viewer-no-request@example.com');
+    const profile = await createProfile(owner.user._id);
+    const media = await createPrivateUploadedMedia(owner.user._id, profile._id);
+
+    const response = await request(app)
+      .get(`/api/media/${media.id}/access`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(403);
+
+    expect(bodyAs<{ message: string }>(response).message).toBe(
+      'You do not have permission to view this private media',
+    );
   });
 });
