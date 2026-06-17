@@ -2063,7 +2063,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
         if (localDraft) {
           const parsed: unknown = JSON.parse(localDraft);
           if (isProfileDraft(parsed)) {
-            setDraft(parsed);
+            setDraft({ ...emptyDraft(), ...parsed });
           }
         }
       } catch {

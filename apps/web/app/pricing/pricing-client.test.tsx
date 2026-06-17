@@ -24,6 +24,7 @@ vi.mock('framer-motion', () => ({
           delete domProps.exit;
           delete domProps.transition;
           delete domProps.whileHover;
+          delete domProps.whileTap;
           delete domProps.whileInView;
           delete domProps.viewport;
           delete domProps.variants;
@@ -32,6 +33,11 @@ vi.mock('framer-motion', () => ({
     },
   ),
   AnimatePresence: ({ children }: { children?: ReactNode }) => <>{children}</>,
+}));
+
+vi.mock('@paypal/react-paypal-js', () => ({
+  PayPalScriptProvider: ({ children }: { children?: ReactNode }) => <>{children}</>,
+  PayPalButtons: () => <div>PayPal Buttons</div>,
 }));
 
 vi.mock('@/app/components', () => ({
@@ -69,6 +75,13 @@ vi.mock('@/app/components/ui/badge', () => ({
 
 vi.mock('@/lib/analytics', () => ({
   track: (...args: unknown[]) => trackMock(...args) as unknown,
+}));
+
+vi.mock('@/app/auth-context', () => ({
+  useAuth: () => ({
+    token: 'member-token',
+    user: { id: 'member-1', email: 'member@example.com', role: 'MEMBER' },
+  }),
 }));
 
 vi.mock('@/lib/member-api', async () => {
@@ -144,7 +157,7 @@ describe('PricingClient checkout flow', () => {
         return Promise.resolve({
           ok: true,
           message: '',
-          data: { checkoutUrl: 'https://checkout.stripe.test/session_123' },
+          data: {},
         });
       }
 
@@ -178,7 +191,7 @@ describe('PricingClient checkout flow', () => {
       expect(screen.getByText('Upgrade to Gold')).toBeTruthy();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Continue to Checkout' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Pay with Card (Stripe)' }));
 
     await waitFor(() => {
       expect(memberRequestMock).toHaveBeenCalledWith('/api/me/subscription/checkout', {

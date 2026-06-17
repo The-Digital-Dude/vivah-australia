@@ -887,11 +887,13 @@ function PrivateGalleryAccessCard({
   const [feedback, setFeedback] = useState<string | null>(null);
 
   async function authFetch(path: string, options?: RequestInit) {
+    const isCookieBased = token === 'cookie-based';
     return fetch(`${apiBaseUrl}${path}`, {
       ...options,
+      credentials: isCookieBased ? 'include' : 'same-origin',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(!isCookieBased && token ? { Authorization: `Bearer ${token}` } : {}),
         ...(options?.headers ?? {}),
       },
     });

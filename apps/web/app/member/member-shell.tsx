@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import {
   Bell,
+  Camera,
   ChevronRight,
   Crown,
   Grid2x2,
@@ -17,9 +18,11 @@ import {
   MessageSquare,
   Search,
   Settings,
+  ShieldAlert,
   ShieldCheck,
   UserCircle2,
   Users,
+  Users2,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
@@ -124,8 +127,19 @@ const navGroups: NavGroup[] = [
           '/member/recently-viewed',
           '/member/profile-viewers',
           '/member/notifications',
-          '/member/photo-requests',
         ],
+      },
+      {
+        label: 'Photo Requests',
+        href: '/member/photo-requests',
+        icon: Camera,
+        matches: ['/member/photo-requests'],
+      },
+      {
+        label: 'Community',
+        href: '/member/community',
+        icon: Users2,
+        matches: ['/member/community'],
       },
     ],
   },
@@ -154,7 +168,13 @@ const navGroups: NavGroup[] = [
         label: 'Settings',
         href: '/member/settings',
         icon: Settings,
-        matches: ['/member/settings', '/member/safety'],
+        matches: ['/member/settings'],
+      },
+      {
+        label: 'Safety',
+        href: '/member/safety',
+        icon: ShieldAlert,
+        matches: ['/member/safety'],
       },
       {
         label: 'Help & support',

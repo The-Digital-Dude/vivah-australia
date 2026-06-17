@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { clearEntitlementCache, useEntitlement } from './use-entitlement';
 
@@ -208,6 +208,140 @@ describe('useEntitlement', () => {
       expect(screen.getByText('plan:FREE')).toBeTruthy();
     });
 
+    expect(memberRequestMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('refreshes entitlement data when the document becomes visible again', async () => {
+    memberRequestMock
+      .mockResolvedValueOnce({
+        ok: true,
+        message: '',
+        data: {
+          plan: {
+            code: 'PREMIUM',
+            name: 'Premium',
+            priceCents: 4900,
+            currency: 'AUD',
+            interval: 'MONTH',
+            limits: {
+              profileBoostsMonthly: 1,
+              monthlyInterests: 25,
+            },
+          },
+          subscription: {
+            id: 'sub-3',
+            status: 'ACTIVE',
+            startsAt: '2026-06-01T00:00:00.000Z',
+            currentPeriodEnd: '2026-07-01T00:00:00.000Z',
+            cancelAtPeriodEnd: false,
+          },
+          usage: [],
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        message: '',
+        data: {
+          plan: {
+            code: 'FREE',
+            name: 'Free',
+            priceCents: 0,
+            currency: 'AUD',
+            interval: 'MONTH',
+            limits: {
+              profileBoostsMonthly: 0,
+              monthlyInterests: 0,
+            },
+          },
+          subscription: null,
+          usage: [],
+        },
+      });
+
+    render(<Harness />);
+
+    await waitFor(() => {
+      expect(screen.getByText('plan:PREMIUM')).toBeTruthy();
+    });
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    await waitFor(() => {
+      expect(screen.getByText('plan:FREE')).toBeTruthy();
+    });
+
+    expect(memberRequestMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('revalidates shortly after currentPeriodEnd passes', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-18T10:00:00.000Z'));
+
+    memberRequestMock
+      .mockResolvedValueOnce({
+        ok: true,
+        message: '',
+        data: {
+          plan: {
+            code: 'GOLD',
+            name: 'Gold',
+            priceCents: 9900,
+            currency: 'AUD',
+            interval: 'MONTH',
+            limits: {
+              profileBoostsMonthly: 2,
+              monthlyInterests: 50,
+            },
+          },
+          subscription: {
+            id: 'sub-expiring',
+            status: 'ACTIVE',
+            startsAt: '2026-06-01T00:00:00.000Z',
+            currentPeriodEnd: '2026-06-18T10:00:05.000Z',
+            cancelAtPeriodEnd: false,
+          },
+          usage: [],
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        message: '',
+        data: {
+          plan: {
+            code: 'FREE',
+            name: 'Free',
+            priceCents: 0,
+            currency: 'AUD',
+            interval: 'MONTH',
+            limits: {
+              profileBoostsMonthly: 0,
+              monthlyInterests: 0,
+            },
+          },
+          subscription: null,
+          usage: [],
+        },
+      });
+
+    await act(async () => {
+      render(<Harness />);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText('plan:GOLD')).toBeTruthy();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(20_000);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText('plan:FREE')).toBeTruthy();
     expect(memberRequestMock).toHaveBeenCalledTimes(2);
   });
 });
