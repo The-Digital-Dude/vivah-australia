@@ -15,6 +15,7 @@ import {
   searchProfiles,
 } from './match.service.js';
 
+
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
 ) {
@@ -49,6 +50,21 @@ export function createMatchRouter(config: AuthConfig): Router {
     }),
   );
 
+  /**
+   * GET /matches/recommended
+   *
+   * Returns personalised match cards for the authenticated member.
+   *
+   * Query params:
+   *   limit  – number of results to return (default 12, max capped by plan)
+   *   mode   – recommendation mode (default: DEFAULT)
+   *            • DEFAULT          – cached ML score + discovery priority
+   *            • NEWLY_JOINED     – newest members first (sorted by createdAt desc)
+   *            • RECENTLY_ACTIVE  – most recently active members first
+   *            • HIGHLY_COMPATIBLE – highest match score first
+   *            • NEARBY           – same city → same state fallback
+   *                                 (prefer /matches/nearby for this mode)
+   */
   router.get(
     '/matches/recommended',
     requireAuth(config),
@@ -56,6 +72,29 @@ export function createMatchRouter(config: AuthConfig): Router {
       const auth = requireRequestAuth(request);
       const input = recommendedMatchesQuerySchema.parse(request.query);
       const result = await recommendedMatches(auth.userId, input.limit, input.mode ?? 'DEFAULT');
+      response.status(200).json(result);
+    }),
+  );
+
+  /**
+   * GET /matches/nearby
+   *
+   * Returns members in the same city as the viewer, falling back to the same
+   * state if fewer than 6 city results exist. Uses text-based proximity
+   * (location.city / location.state) — no geospatial index required.
+   *
+   * Query params:
+   *   limit – number of results to return (default 12, max capped by plan)
+   */
+  router.get(
+    '/matches/nearby',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const { limit: rawLimit } = recommendedMatchesQuerySchema
+        .pick({ limit: true })
+        .parse(request.query);
+      const result = await recommendedMatches(auth.userId, rawLimit, 'NEARBY');
       response.status(200).json(result);
     }),
   );

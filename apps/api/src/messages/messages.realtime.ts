@@ -61,11 +61,31 @@ export function disconnectMessageSocketsForPair(
   leftUserId: Types.ObjectId,
   rightUserId: Types.ObjectId,
   reason = 'blocked',
+  conversationId?: string,
 ) {
+  if (conversationId) {
+    emitConversationLockedForPair(leftUserId, rightUserId, conversationId, reason);
+  }
   const disconnectedLeft = disconnectMessageSocketsForUser(leftUserId, reason);
   const disconnectedRight = disconnectMessageSocketsForUser(rightUserId, reason);
   return disconnectedLeft + disconnectedRight;
 }
+
+/**
+ * Emits a `conversation:locked` event to both participants of a conversation.
+ * Called before socket disconnection so the frontend receives a graceful signal
+ * and can immediately lock the conversation UI on both sides.
+ */
+export function emitConversationLockedForPair(
+  leftUserId: Types.ObjectId,
+  rightUserId: Types.ObjectId,
+  conversationId: string,
+  lockReason = 'blocked',
+) {
+  emitUserNotification(leftUserId, 'conversation:locked', { conversationId, lockReason });
+  emitUserNotification(rightUserId, 'conversation:locked', { conversationId, lockReason });
+}
+
 
 export function emitConversationAccessRevoked(userId: Types.ObjectId, conversationId: string, reason = 'blocked') {
   if (!messageIo) {

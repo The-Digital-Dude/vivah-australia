@@ -904,10 +904,25 @@ export async function blockProfile(userId: Types.ObjectId, profileId: string) {
       return nextBlock;
     });
 
-  disconnectMessageSocketsForPair(userId, profile.userId, 'blocked');
+  // Look up the shared conversation (if any) so we can emit conversation:locked
+  // to both parties before cutting their sockets.
+  const sharedConversation = await ConversationModel.findOne({
+    participantIds: { $all: [userId, profile.userId] },
+    isDeleted: false,
+  })
+    .select('_id')
+    .lean();
+
+  disconnectMessageSocketsForPair(
+    userId,
+    profile.userId,
+    'blocked',
+    sharedConversation ? String(sharedConversation._id) : undefined,
+  );
 
   return { id: block.id, profile: publicProfile(profile) };
 }
+
 
 export async function getInterestQuotaSummary(userId: Types.ObjectId) {
   const [limit, used] = await Promise.all([

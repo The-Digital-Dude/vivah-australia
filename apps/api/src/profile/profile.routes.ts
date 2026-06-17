@@ -137,6 +137,86 @@ export function createProfileRouter(config: AuthConfig): Router {
     }),
   );
 
+  /**
+   * GET /me/compatibility-prompts
+   *
+   * Returns the 6 structured compatibility quiz prompts shown during onboarding.
+   * The values align with the `profile.compatibility` subdocument fields used in
+   * match scoring. This endpoint is intentionally static — no DB query needed.
+   */
+  router.get(
+    '/me/compatibility-prompts',
+    requireAuth(config),
+    asyncHandler(async (_request: AuthenticatedRequest, response) => {
+      const prompts = [
+        {
+          key: 'relationshipPace',
+          label: 'Relationship pace',
+          question: 'How do you prefer to approach a relationship?',
+          options: [
+            { value: 'SLOW_AND_STEADY', label: 'Slow & steady' },
+            { value: 'MODERATE', label: 'Moderate' },
+            { value: 'READY_WHEN_IT_FEELS_RIGHT', label: 'Ready when it feels right' },
+          ],
+        },
+        {
+          key: 'familyInvolvement',
+          label: 'Family involvement',
+          question: 'How involved would you like families to be in the relationship?',
+          options: [
+            { value: 'HEAVILY_INVOLVED', label: 'Heavily involved' },
+            { value: 'MODERATELY_INVOLVED', label: 'Moderately involved' },
+            { value: 'PRIVATE', label: 'Privately between partners' },
+          ],
+        },
+        {
+          key: 'relocationOpenness',
+          label: 'Relocation openness',
+          question: 'Are you open to relocating for the right match?',
+          options: [
+            { value: 'YES', label: 'Yes, open to relocating' },
+            { value: 'OPEN_TO_DISCUSSION', label: 'Open to discussion' },
+            { value: 'NO', label: 'Prefer to stay where I am' },
+          ],
+        },
+        {
+          key: 'communicationStyle',
+          label: 'Communication style',
+          question: 'How would you describe your communication style?',
+          options: [
+            { value: 'OPEN_AND_EXPRESSIVE', label: 'Open & expressive' },
+            { value: 'CALM_AND_MEASURED', label: 'Calm & measured' },
+            { value: 'RESERVED', label: 'Reserved — I open up over time' },
+            { value: 'DIRECT', label: 'Direct & to the point' },
+          ],
+        },
+        {
+          key: 'qualityTimeStyle',
+          label: 'Quality time style',
+          question: 'How do you prefer to spend quality time together?',
+          options: [
+            { value: 'ADVENTURES_AND_ACTIVITIES', label: 'Adventures & activities' },
+            { value: 'QUIET_TIME_AT_HOME', label: 'Quiet time at home' },
+            { value: 'SOCIAL_GATHERINGS', label: 'Social gatherings' },
+            { value: 'MIX_OF_EVERYTHING', label: 'Mix of everything' },
+          ],
+        },
+        {
+          key: 'conflictApproach',
+          label: 'Conflict approach',
+          question: 'How do you typically handle disagreements?',
+          options: [
+            { value: 'TALK_IT_OUT_IMMEDIATELY', label: 'Talk it out straight away' },
+            { value: 'TAKE_SPACE_THEN_DISCUSS', label: 'Take space, then discuss' },
+            { value: 'WRITTEN_COMMUNICATION', label: 'Prefer written communication' },
+            { value: 'SEEK_MEDIATOR', label: 'Prefer to involve a trusted third party' },
+          ],
+        },
+      ];
+      response.status(200).json({ prompts });
+    }),
+  );
+
   router.get(
     '/me/recently-viewed',
     requireAuth(config),
