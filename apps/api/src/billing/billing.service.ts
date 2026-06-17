@@ -484,6 +484,39 @@ export async function listRefunds() {
   return RefundModel.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(100).lean();
 }
 
+async function releaseRefundReservation(paymentId: Types.ObjectId, amountCents: number) {
+  await PaymentModel.findOneAndUpdate(
+    { _id: paymentId, isDeleted: false },
+    [
+      {
+        $set: {
+          refundedAmountCents: {
+            $max: [{ $subtract: ['$refundedAmountCents', amountCents] }, 0],
+          },
+        },
+      },
+      {
+        $set: {
+          status: {
+            $cond: [
+              { $lte: ['$refundedAmountCents', 0] },
+              PaymentStatus.SUCCEEDED,
+              {
+                $cond: [
+                  { $gte: ['$refundedAmountCents', '$amountCents'] },
+                  PaymentStatus.REFUNDED,
+                  PaymentStatus.PARTIALLY_REFUNDED,
+                ],
+              },
+            ],
+          },
+        },
+      },
+    ],
+    { updatePipeline: true },
+  );
+}
+
 export async function createRefund(input: RefundCreateInput, adminId?: Types.ObjectId) {
   const payment = await PaymentModel.findOne({ _id: input.paymentId, isDeleted: false });
   if (!payment) {
@@ -492,35 +525,18 @@ export async function createRefund(input: RefundCreateInput, adminId?: Types.Obj
 
   const remaining = payment.amountCents - payment.refundedAmountCents;
   const amountCents = input.amountCents ?? remaining;
+  if (amountCents <= 0) {
+    throw new HttpError(400, 'Refund amount must be greater than zero');
+  }
   if (amountCents > remaining) {
     throw new HttpError(400, 'Refund exceeds remaining payment amount');
   }
 
-  const refund = new RefundModel({
-    userId: payment.userId,
-    paymentId: payment._id,
-    amountCents,
-    currency: payment.currency,
-    status: stripe && payment.providerPaymentId ? RefundStatus.PENDING : RefundStatus.SUCCEEDED,
-    provider: payment.provider,
-    ...(input.reason ? { reason: input.reason } : {}),
-  });
-  await refund.save();
-
-  if (stripe && payment.providerPaymentId) {
-    const stripeRefund = await stripe.refunds.create({
-      payment_intent: payment.providerPaymentId,
-      amount: amountCents,
-      metadata: { refundId: refund.id },
-    });
-    refund.providerRefundId = stripeRefund.id;
-    refund.status =
-      stripeRefund.status === 'succeeded' ? RefundStatus.SUCCEEDED : RefundStatus.PENDING;
-  }
-  await runInTransaction(async (session) => {
+  const refund = await runInTransaction(async (session) => {
     const updatedPayment = await PaymentModel.findOneAndUpdate(
       {
         _id: payment._id,
+        isDeleted: false,
         refundedAmountCents: { $lte: payment.amountCents - amountCents },
       },
       [
@@ -533,7 +549,7 @@ export async function createRefund(input: RefundCreateInput, adminId?: Types.Obj
           $set: {
             status: {
               $cond: [
-                { $gte: ['$refundedAmountCents', payment.amountCents] },
+                { $gte: ['$refundedAmountCents', '$amountCents'] },
                 PaymentStatus.REFUNDED,
                 PaymentStatus.PARTIALLY_REFUNDED,
               ],
@@ -541,14 +557,52 @@ export async function createRefund(input: RefundCreateInput, adminId?: Types.Obj
           },
         },
       ],
-      { returnDocument: 'after', ...(session ? { session } : {}) },
+      { returnDocument: 'after', updatePipeline: true, ...(session ? { session } : {}) },
     );
     if (!updatedPayment) {
       throw new HttpError(409, 'Refund exceeds remaining payment amount');
     }
 
-    await refund.save(session ? { session } : undefined);
+    const [createdRefund] = await RefundModel.create(
+      [
+        {
+          userId: payment.userId,
+          paymentId: payment._id,
+          amountCents,
+          currency: payment.currency,
+          status: stripe && payment.providerPaymentId ? RefundStatus.PENDING : RefundStatus.SUCCEEDED,
+          provider: payment.provider,
+          ...(input.reason ? { reason: input.reason } : {}),
+        },
+      ],
+      session ? { session } : undefined,
+    );
+    if (!createdRefund) {
+      throw new Error('Refund reservation did not create a refund record');
+    }
+
+    return createdRefund;
   });
+
+  if (stripe && payment.providerPaymentId) {
+    try {
+      const stripeRefund = await stripe.refunds.create({
+        payment_intent: payment.providerPaymentId,
+        amount: amountCents,
+        metadata: { refundId: refund.id },
+      });
+      refund.providerRefundId = stripeRefund.id;
+      refund.status =
+        stripeRefund.status === 'succeeded' ? RefundStatus.SUCCEEDED : RefundStatus.PENDING;
+    } catch (error) {
+      await releaseRefundReservation(payment._id, amountCents);
+      refund.status = RefundStatus.FAILED;
+      await refund.save();
+      throw error;
+    }
+
+    await refund.save();
+  }
 
   if (adminId) {
     await logAudit({
