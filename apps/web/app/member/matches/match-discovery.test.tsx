@@ -211,4 +211,48 @@ describe('MatchDiscovery filters', () => {
     expect(screen.getByText('Local: Sydney, Parramatta')).toBeTruthy();
     expect(screen.getByText('Visa: Student Visa, Work Visa')).toBeTruthy();
   });
+
+  it('surfaces the best-fit preset through the highly compatible recommendation mode', async () => {
+    render(<MatchDiscovery />);
+
+    await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/matches/search?page=1&pageSize=12&sort=RECOMMENDED');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Best fit' }));
+
+    await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/matches/recommended?limit=24&mode=HIGHLY_COMPATIBLE');
+    });
+  });
+
+  it('shows the nearby guidance message when the viewer has no saved location', async () => {
+    memberRequestMock.mockImplementation((url: string) => {
+      if (url === '/api/me/profile') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            profile: {
+              location: {},
+            },
+          },
+        });
+      }
+
+      return createMemberRequestResponse(url);
+    });
+
+    render(<MatchDiscovery />);
+
+    await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/me/profile');
+    });
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Local to you' })[1]!);
+
+    await waitFor(() => {
+      expect(screen.getByText('Add your city or state in your profile to discover members local to you.')).toBeTruthy();
+    });
+  });
 });

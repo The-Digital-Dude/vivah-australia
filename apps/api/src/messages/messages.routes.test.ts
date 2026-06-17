@@ -407,6 +407,56 @@ describe('message routes and realtime server', () => {
     receiverSocket.disconnect();
   });
 
+  it('keeps blocked conversations readable but rejects typing and sending over sockets', async () => {
+    const { sender, receiver, conversation } = await createAcceptedConversation();
+    await BlockModel.create({ blockerId: receiver.user._id, blockedId: sender.user._id });
+
+    const senderSocket = connectSocket(sender.accessToken);
+    const receiverSocket = connectSocket(receiver.accessToken);
+
+    await Promise.all([waitForConnect(senderSocket), waitForConnect(receiverSocket)]);
+
+    await new Promise<void>((resolve, reject) => {
+      senderSocket.emit(
+        'conversation:join',
+        { conversationId: conversation.id },
+        (response: unknown) => {
+          const result = response as { ok: boolean; message?: string };
+          if (result.ok) {
+            resolve();
+            return;
+          }
+          reject(new Error(result.message ?? 'join failed'));
+        },
+      );
+    });
+
+    const typingResponse = await new Promise<{ ok: boolean; message?: string }>((resolve) => {
+      senderSocket.emit('typing', { conversationId: conversation.id, typing: true });
+      setTimeout(() => resolve({ ok: true }), 150);
+      senderSocket.once('system:access-revoked', () => resolve({ ok: false, message: 'Unexpected access revoked' }));
+    });
+    expect(typingResponse.ok).toBe(true);
+
+    const receiverTypingSpy = new Promise<unknown>((resolve) => {
+      receiverSocket.once('typing', resolve);
+      setTimeout(() => resolve('no-event'), 150);
+    });
+    expect(await receiverTypingSpy).toBe('no-event');
+
+    const sendAck = await new Promise<{ ok: boolean; message?: string }>((resolve) => {
+      senderSocket.emit(
+        'message:send',
+        { conversationId: conversation.id, message: { body: 'Blocked realtime hello' } },
+        (response: unknown) => resolve(response as { ok: boolean; message?: string }),
+      );
+    });
+    expect(sendAck).toMatchObject({ ok: false, message: 'Messaging is blocked for this member' });
+
+    senderSocket.disconnect();
+    receiverSocket.disconnect();
+  });
+
   it('authenticates sockets and delivers realtime message, typing, and read events', async () => {
     const { sender, receiver, conversation } = await createAcceptedConversation();
     const senderSocket = connectSocket(sender.accessToken);

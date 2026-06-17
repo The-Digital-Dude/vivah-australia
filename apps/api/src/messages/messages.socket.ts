@@ -99,24 +99,31 @@ export function attachMessageSocketServer(
       })();
     });
 
-    socket.on('typing', async (payload: unknown) => {
-      const input = typingEventSchema.parse(payload);
-      await getConversationForUser(socket.data.userId, input.conversationId);
-      const throttleKey = `${input.conversationId}:${input.typing ? 'typing' : 'clear'}`;
-      const now = Date.now();
-      const lastEvent = lastTypingEventAt.get(throttleKey) ?? 0;
+    socket.on('typing', (...args: unknown[]) => {
+      void (async () => {
+        try {
+          const [payload] = args;
+          const input = typingEventSchema.parse(payload);
+          await getConversationForUser(socket.data.userId, input.conversationId);
+          const throttleKey = `${input.conversationId}:${input.typing ? 'typing' : 'clear'}`;
+          const now = Date.now();
+          const lastEvent = lastTypingEventAt.get(throttleKey) ?? 0;
 
-      if (now - lastEvent < TYPING_EVENT_THROTTLE_MS) {
-        return;
-      }
+          if (now - lastEvent < TYPING_EVENT_THROTTLE_MS) {
+            return;
+          }
 
-      lastTypingEventAt.set(throttleKey, now);
-      joinedConversations.add(input.conversationId);
-      socket.to(input.conversationId).emit('typing', {
-        conversationId: input.conversationId,
-        userId: String(socket.data.userId),
-        typing: input.typing,
-      });
+          lastTypingEventAt.set(throttleKey, now);
+          joinedConversations.add(input.conversationId);
+          socket.to(input.conversationId).emit('typing', {
+            conversationId: input.conversationId,
+            userId: String(socket.data.userId),
+            typing: input.typing,
+          });
+        } catch {
+          // Typing is a best-effort signal; blocked or unavailable conversations should fail quietly.
+        }
+      })();
     });
 
     socket.on('message:send', (...args: unknown[]) => {

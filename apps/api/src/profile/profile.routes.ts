@@ -147,7 +147,7 @@ export function createProfileRouter(config: AuthConfig): Router {
   router.get(
     '/me/compatibility-prompts',
     requireAuth(config),
-    asyncHandler(async (_request: AuthenticatedRequest, response) => {
+    asyncHandler((_request: AuthenticatedRequest, response) => {
       const prompts = [
         {
           key: 'relationshipPace',

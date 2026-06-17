@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   Bookmark,
   Clock3,
+  HeartHandshake,
   MapPin,
   Search,
   ShieldCheck,
@@ -76,7 +77,7 @@ interface ProfileLocation {
   state?: string;
 }
 
-type DiscoveryTab = 'recommended' | 'active' | 'verified' | 'newest' | 'nearby' | 'search' | 'saved';
+type DiscoveryTab = 'recommended' | 'best-fit' | 'active' | 'verified' | 'newest' | 'nearby' | 'search' | 'saved';
 
 const defaultFilters = {
   page: 1,
@@ -387,6 +388,19 @@ export default function MatchDiscovery() {
     if (tab === 'recommended') {
       setCurrentQuery(defaultFilters);
       await loadRecommended();
+      return;
+    }
+
+    if (tab === 'best-fit') {
+      setLoading(true);
+      setMessage(null);
+      const result = await memberRequest('/api/matches/recommended?limit=24&mode=HIGHLY_COMPATIBLE');
+      setLoading(false);
+      if (!result.ok) {
+        setMessage(result.message);
+        return;
+      }
+      setRecommended((result.data as MatchResponse).results ?? []);
       return;
     }
 
@@ -731,6 +745,7 @@ export default function MatchDiscovery() {
   async function refreshCurrentView() {
     if (
       activeTab === 'recommended' ||
+      activeTab === 'best-fit' ||
       activeTab === 'active' ||
       activeTab === 'newest' ||
       activeTab === 'nearby'
@@ -819,6 +834,7 @@ export default function MatchDiscovery() {
       <div className="flex gap-1 overflow-x-auto scrollbar-none">
         {[
           { key: 'recommended', label: 'Recommended', icon: Sparkles },
+          { key: 'best-fit', label: 'Best fit', icon: HeartHandshake },
           { key: 'active', label: 'Active', icon: Clock3 },
           { key: 'verified', label: 'Verified', icon: ShieldCheck },
           { key: 'newest', label: 'New', icon: UserPlus },
@@ -850,7 +866,7 @@ export default function MatchDiscovery() {
         </section>
       )}
 
-      {(activeTab === 'recommended' || activeTab === 'active' || activeTab === 'newest' || activeTab === 'nearby') && (
+      {(activeTab === 'recommended' || activeTab === 'best-fit' || activeTab === 'active' || activeTab === 'newest' || activeTab === 'nearby') && (
         <section>
 
           {loading ? (

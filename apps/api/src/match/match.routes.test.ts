@@ -98,6 +98,7 @@ async function createProfile({
   verificationLevel = 'BASIC',
   lastActiveAt = new Date(),
   activeBoostEndsAt,
+  compatibility,
 }: {
   userId: mongoose.Types.ObjectId;
   displayId: string;
@@ -112,6 +113,16 @@ async function createProfile({
   verificationLevel?: string;
   lastActiveAt?: Date;
   activeBoostEndsAt?: Date;
+  compatibility?: {
+    relationshipPace?: string;
+    familyInvolvement?: string;
+    relocationOpenness?: string;
+    communicationStyle?: string;
+    qualityTimeStyle?: string;
+    conflictApproach?: string;
+    valuesPrompt?: string;
+    relationshipVision?: string;
+  };
 }) {
   const profile: ProfileDocument = await ProfileModel.create({
     userId,
@@ -150,6 +161,17 @@ async function createProfile({
       hobbies: ['Travel', 'Cooking'],
       interests: ['Music', 'Hiking'],
       partnerExpectations: 'Looking for a serious family-oriented match.',
+    },
+    compatibility: {
+      relationshipPace: 'INTENTIONAL_AND_STEADY',
+      familyInvolvement: 'BALANCED',
+      communicationStyle: 'CALM_AND_THOUGHTFUL',
+      qualityTimeStyle: 'MIX_OF_BOTH',
+      conflictApproach: 'TALK_EARLY',
+      relocationOpenness: 'ONLY_IF_STRONG_MATCH',
+      valuesPrompt: 'Kindness and steadiness matter most.',
+      relationshipVision: 'A calm partnership built on trust.',
+      ...compatibility,
     },
     partnerPreference: {
       ageMin: 25,
@@ -462,11 +484,12 @@ describe('match routes', () => {
     expect(body.limits.recommendationLimit).toBe(6);
   });
 
-  it('supports recommendation modes for recently active, newly joined, and nearby', async () => {
+  it('supports recommendation modes for highly compatible, recently active, newly joined, and nearby', async () => {
     const viewer = await createUser('recommend-modes@example.com');
     const active = await createUser('recommend-active@example.com');
     const newest = await createUser('recommend-newest@example.com');
     const nearby = await createUser('recommend-nearby@example.com');
+    const compatible = await createUser('recommend-compatible@example.com');
 
     await createProfile({
       userId: viewer.user._id,
@@ -476,6 +499,14 @@ describe('match routes', () => {
       age: 32,
       city: 'Melbourne',
       state: 'VIC',
+      compatibility: {
+        relationshipPace: 'INTENTIONAL_AND_STEADY',
+        familyInvolvement: 'VERY_IMPORTANT',
+        communicationStyle: 'CALM_AND_THOUGHTFUL',
+        qualityTimeStyle: 'QUIET_HOME_TIME',
+        conflictApproach: 'TALK_EARLY',
+        relocationOpenness: 'PREFER_SAME_CITY',
+      },
     });
     const activeProfile = await createProfile({
       userId: active.user._id,
@@ -486,6 +517,15 @@ describe('match routes', () => {
       city: 'Sydney',
       state: 'NSW',
       lastActiveAt: new Date(),
+      completionPercentage: 68,
+      compatibility: {
+        relationshipPace: 'WARM_AND_NATURAL',
+        familyInvolvement: 'MOSTLY_COUPLE_LED',
+        communicationStyle: 'AFFECTIONATE_AND_EXPRESSIVE',
+        qualityTimeStyle: 'SOCIAL_AND_OUTDOORS',
+        conflictApproach: 'TAKE_SPACE_THEN_TALK',
+        relocationOpenness: 'OPEN_TO_RELOCATE',
+      },
     });
     const newestProfile = await createProfile({
       userId: newest.user._id,
@@ -496,10 +536,28 @@ describe('match routes', () => {
       city: 'Melbourne',
       state: 'VIC',
       lastActiveAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      completionPercentage: 72,
+      compatibility: {
+        relationshipPace: 'WARM_AND_NATURAL',
+        familyInvolvement: 'MOSTLY_COUPLE_LED',
+        communicationStyle: 'DIRECT_AND_CLEAR',
+        qualityTimeStyle: 'SOCIAL_AND_OUTDOORS',
+        conflictApproach: 'TAKE_SPACE_THEN_TALK',
+        relocationOpenness: 'OPEN_TO_RELOCATE',
+      },
     });
     await ProfileModel.collection.updateOne(
       { _id: (newestProfile as unknown as { _id: mongoose.Types.ObjectId })._id },
-      { $set: { createdAt: new Date(Date.now() + 24 * 60 * 60 * 1000) } },
+      {
+        $set: {
+          createdAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          'personal.age': 37,
+          'location.city': 'Brisbane',
+          'location.state': 'QLD',
+          'about.interests': ['Reading'],
+          'about.hobbies': ['Gardening'],
+        },
+      },
     );
     await createProfile({
       userId: nearby.user._id,
@@ -510,11 +568,44 @@ describe('match routes', () => {
       city: 'Melbourne',
       state: 'VIC',
       lastActiveAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      compatibility: {
+        relationshipPace: 'WARM_AND_NATURAL',
+        familyInvolvement: 'BALANCED',
+        communicationStyle: 'DIRECT_AND_CLEAR',
+        qualityTimeStyle: 'SOCIAL_AND_OUTDOORS',
+        conflictApproach: 'TAKE_SPACE_THEN_TALK',
+        relocationOpenness: 'OPEN_TO_RELOCATE',
+      },
+    });
+    await createProfile({
+      userId: compatible.user._id,
+      displayId: 'VA230105',
+      firstName: 'Best Fit Bhavna',
+      gender: Gender.FEMALE,
+      age: 30,
+      city: 'Melbourne',
+      state: 'VIC',
+      lastActiveAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
+      verificationLevel: 'FULLY_VERIFIED',
+      compatibility: {
+        relationshipPace: 'INTENTIONAL_AND_STEADY',
+        familyInvolvement: 'VERY_IMPORTANT',
+        communicationStyle: 'CALM_AND_THOUGHTFUL',
+        qualityTimeStyle: 'QUIET_HOME_TIME',
+        conflictApproach: 'TALK_EARLY',
+        relocationOpenness: 'PREFER_SAME_CITY',
+      },
     });
     await ProfileModel.collection.updateOne(
       { _id: (activeProfile as unknown as { _id: mongoose.Types.ObjectId })._id },
       { $set: { createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) } },
     );
+
+    const highlyCompatibleResponse = await request(app)
+      .get('/api/matches/recommended?limit=12&mode=HIGHLY_COMPATIBLE')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+    expect(bodyAs<MatchResponseBody>(highlyCompatibleResponse).results[0]?.firstName).toBe('Best Fit Bhavna');
 
     const activeResponse = await request(app)
       .get('/api/matches/recommended?limit=12&mode=RECENTLY_ACTIVE')
@@ -533,6 +624,37 @@ describe('match routes', () => {
       .set('Authorization', `Bearer ${viewer.accessToken}`)
       .expect(200);
     expect(bodyAs<MatchResponseBody>(nearbyResponse).results[0]?.city).toBe('Melbourne');
+  });
+
+  it('returns an empty nearby result set when the viewer has no city or state on profile', async () => {
+    const viewer = await createUser('recommend-nearby-empty@example.com');
+    const nearby = await createUser('recommend-nearby-empty-candidate@example.com');
+
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA230201',
+      firstName: 'Viewer',
+      gender: Gender.MALE,
+      age: 31,
+      city: '',
+      state: '',
+    });
+    await createProfile({
+      userId: nearby.user._id,
+      displayId: 'VA230202',
+      firstName: 'Nearby Nisha',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+      state: 'VIC',
+    });
+
+    const response = await request(app)
+      .get('/api/matches/recommended?limit=12&mode=NEARBY')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    expect(bodyAs<MatchResponseBody>(response).results).toEqual([]);
   });
 
   it('filters cached recommendations using the same eligibility rules as live discovery', async () => {
