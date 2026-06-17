@@ -1,11 +1,26 @@
 import mongoose, { type ClientSession } from 'mongoose';
 
+const unsupportedTransactionMessage =
+  'Transaction numbers are only allowed on a replica set member or mongos';
+
+function nestedOriginalError(error: Error): unknown {
+  if (!('originalError' in error)) {
+    return undefined;
+  }
+
+  return (error as { originalError?: unknown }).originalError;
+}
+
 function isUnsupportedTransactionError(error: unknown) {
-  return (
-    error instanceof Error &&
-    (error.message.includes('Transaction numbers are only allowed on a replica set member or mongos') ||
-      error.message.toLowerCase().includes('transaction'))
-  );
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  if (error.message.includes(unsupportedTransactionMessage)) {
+    return true;
+  }
+
+  return isUnsupportedTransactionError(nestedOriginalError(error));
 }
 
 export async function runInTransaction<T>(work: (session?: ClientSession) => Promise<T>) {
