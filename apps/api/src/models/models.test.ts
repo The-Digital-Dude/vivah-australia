@@ -7,7 +7,7 @@ function hasIndex(indexes: Array<[Record<string, unknown>, Record<string, unknow
 
 describe('database models', () => {
   it('registers every Phase 1 collection model', () => {
-    expect(phaseOneModels).toHaveLength(48);
+    expect(phaseOneModels).toHaveLength(49);
   });
 
   it('defines required user indexes', () => {
