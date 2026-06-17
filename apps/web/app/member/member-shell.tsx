@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { io, type Socket } from 'socket.io-client';
 import {
   Bell,
   ChevronRight,
@@ -24,6 +25,10 @@ import {
 import { useAuth } from '@/app/auth-context';
 import { PublicHeader } from '@/app/components';
 import { useMemberRequest } from '@/lib/member-api';
+import {
+  dispatchNotificationRealtimeEvent,
+  type RealtimeNotificationItem,
+} from '@/lib/notification-realtime';
 
 interface ShellProfileData {
   moderation?: { approvalStatus: string };
@@ -161,6 +166,8 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
@@ -280,6 +287,66 @@ export default function MemberShell({
       }
     })();
   }, [initialized, memberRequest, token]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    const socket: Socket = io(apiBaseUrl, {
+      auth: { token },
+      transports: ['websocket'],
+    });
+
+    socket.on('notification:new', (payload: { notification?: RealtimeNotificationItem }) => {
+      setUnreadCount((current) => current + 1);
+      if (payload.notification) {
+        dispatchNotificationRealtimeEvent({
+          type: 'notification:new',
+          notification: payload.notification,
+        });
+      }
+    });
+
+    socket.on('notification:updated', (payload: { notification?: RealtimeNotificationItem }) => {
+      if (payload.notification) {
+        dispatchNotificationRealtimeEvent({
+          type: 'notification:updated',
+          notification: payload.notification,
+        });
+      }
+    });
+
+    socket.on('notification:deleted', (payload: { notificationId?: string }) => {
+      if (payload.notificationId) {
+        dispatchNotificationRealtimeEvent({
+          type: 'notification:deleted',
+          notificationId: payload.notificationId,
+        });
+      }
+    });
+
+    socket.on('notification:all-read', (payload: { readAt?: string }) => {
+      const readAt = payload.readAt ?? new Date().toISOString();
+      dispatchNotificationRealtimeEvent({
+        type: 'notification:all-read',
+        readAt,
+      });
+    });
+
+    socket.on('notification:unread-count', (payload: { unreadCount?: number }) => {
+      const nextUnreadCount = payload.unreadCount ?? 0;
+      setUnreadCount(nextUnreadCount);
+      dispatchNotificationRealtimeEvent({
+        type: 'notification:unread-count',
+        unreadCount: nextUnreadCount,
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token]);
 
   const visiblePrimary = useMemo(() => primaryNav, []);
   const visibleGroups = useMemo(() => navGroups, []);

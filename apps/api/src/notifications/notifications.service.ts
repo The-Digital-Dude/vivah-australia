@@ -1,4 +1,5 @@
 import type { Types } from 'mongoose';
+import { Types as MongooseTypes } from 'mongoose';
 import crypto from 'crypto';
 import { VerificationStatus, type PushSubscriptionInput } from '@vivah/shared';
 import { sendPush } from '../common/push.service.js';
@@ -6,6 +7,7 @@ import { sendSms } from '../common/sms.service.js';
 import { sendEmail, sendTemplatedEmail } from '../common/email.service.js';
 import { logActivity } from '../common/audit.service.js';
 import { recordRepeatedOtpFailures } from '../common/fraud.service.js';
+import { emitUserNotification } from '../messages/messages.realtime.js';
 import {
   MobileOtpModel,
   NotificationModel,
@@ -42,6 +44,52 @@ function decodeCursor(cursor?: string) {
   }
 }
 
+function publicNotification(
+  notification:
+    | {
+        _id?: unknown;
+        id?: string;
+        userId?: unknown;
+        type: string;
+        title: string;
+        body?: string;
+        data?: unknown;
+        readAt?: Date | string;
+        createdAt: Date | string;
+        updatedAt?: Date | string;
+      }
+    | null,
+) {
+  if (!notification) {
+    return null;
+  }
+
+  const notificationId =
+    typeof notification.id === 'string'
+      ? notification.id
+      : notification._id instanceof MongooseTypes.ObjectId
+        ? notification._id.toHexString()
+        : undefined;
+  const userId =
+    notification.userId instanceof MongooseTypes.ObjectId
+      ? notification.userId.toHexString()
+      : typeof notification.userId === 'string'
+        ? notification.userId
+        : undefined;
+
+  return {
+    ...(notificationId ? { _id: notificationId } : {}),
+    ...(userId ? { userId } : {}),
+    type: notification.type,
+    title: notification.title,
+    ...(notification.body ? { body: notification.body } : {}),
+    ...(notification.data !== undefined ? { data: notification.data } : {}),
+    ...(notification.readAt ? { readAt: notification.readAt } : {}),
+    createdAt: notification.createdAt,
+    ...(notification.updatedAt ? { updatedAt: notification.updatedAt } : {}),
+  };
+}
+
 export async function createNotification(input: {
   userId: Types.ObjectId;
   type: string;
@@ -69,7 +117,7 @@ export async function createNotification(input: {
     const user = await UserModel.findById(input.userId);
     const prefs = user?.notificationPreferences;
     const emailAllowed = input.isMarketing
-      ? (prefs?.marketingNotifications ?? false)
+      ? Boolean(user?.marketingConsent) && (prefs?.marketingNotifications ?? false)
       : (prefs?.emailNotifications ?? true);
 
     if (user?.email && emailAllowed) {
@@ -103,7 +151,7 @@ export async function createNotification(input: {
   if (input.smsBody) {
     const user = await UserModel.findById(input.userId);
     const mobile = user?.mobile;
-    if (mobile && (user.notificationPreferences?.smsNotifications ?? false)) {
+    if (mobile && user?.mobileVerified && (user.notificationPreferences?.smsNotifications ?? false)) {
       await sendSms({ to: mobile, message: input.smsBody });
     }
   }
@@ -134,6 +182,13 @@ export async function createNotification(input: {
     actorId: input.userId,
     event: 'NOTIFICATION_CREATED',
     metadata: { type: input.type },
+  });
+
+  emitUserNotification(input.userId, 'notification:new', {
+    notification: publicNotification(notification.toObject()),
+  });
+  emitUserNotification(input.userId, 'notification:unread-count', {
+    unreadCount: await unreadNotificationCount(input.userId),
   });
 
   return notification;
@@ -296,6 +351,14 @@ export async function markNotificationRead(userId: Types.ObjectId, notificationI
     { $set: { readAt: new Date() } },
     { returnDocument: 'after' },
   );
+  if (notification) {
+    emitUserNotification(userId, 'notification:updated', {
+      notification: publicNotification(notification.toObject()),
+    });
+    emitUserNotification(userId, 'notification:unread-count', {
+      unreadCount: await unreadNotificationCount(userId),
+    });
+  }
   return notification;
 }
 
@@ -304,6 +367,10 @@ export async function markAllNotificationsRead(userId: Types.ObjectId) {
     { userId, isDeleted: false, readAt: { $exists: false } },
     { $set: { readAt: new Date() } },
   );
+  emitUserNotification(userId, 'notification:all-read', {
+    readAt: new Date().toISOString(),
+  });
+  emitUserNotification(userId, 'notification:unread-count', { unreadCount: 0 });
   return result.modifiedCount;
 }
 
@@ -313,5 +380,13 @@ export async function deleteNotification(userId: Types.ObjectId, notificationId:
     { $set: { isDeleted: true, deletedAt: new Date(), deletedBy: userId } },
     { returnDocument: 'after' },
   );
+  if (notification) {
+    emitUserNotification(userId, 'notification:deleted', {
+      notificationId: String(notification._id),
+    });
+    emitUserNotification(userId, 'notification:unread-count', {
+      unreadCount: await unreadNotificationCount(userId),
+    });
+  }
   return notification;
 }

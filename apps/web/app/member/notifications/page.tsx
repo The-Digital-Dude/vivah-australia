@@ -12,6 +12,10 @@ import {
 } from 'lucide-react';
 import MemberShell from '../member-shell';
 import { useMemberRequest } from '@/lib/member-api';
+import {
+  subscribeToNotificationRealtimeEvents,
+  type RealtimeNotificationItem,
+} from '@/lib/notification-realtime';
 import { PremiumButton, PremiumCard } from '@/app/components';
 
 interface NotificationItem {
@@ -21,6 +25,23 @@ interface NotificationItem {
   body?: string;
   readAt?: string;
   createdAt: string;
+  updatedAt?: string;
+}
+
+function toNotificationItem(notification: RealtimeNotificationItem): NotificationItem | null {
+  if (!notification._id) {
+    return null;
+  }
+
+  return {
+    _id: notification._id,
+    type: notification.type,
+    title: notification.title,
+    ...(notification.body ? { body: notification.body } : {}),
+    ...(notification.readAt ? { readAt: notification.readAt } : {}),
+    createdAt: notification.createdAt,
+    ...(notification.updatedAt ? { updatedAt: notification.updatedAt } : {}),
+  };
 }
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -73,6 +94,53 @@ export default function MemberNotificationsPage() {
 
   useEffect(() => {
     void load();
+  }, []);
+
+  useEffect(() => {
+    return subscribeToNotificationRealtimeEvents((event) => {
+      if (event.type === 'notification:new') {
+        const notification = toNotificationItem(event.notification);
+        if (!notification) {
+          return;
+        }
+        setNotifications((current) => {
+          if (current.some((item) => item._id === notification._id)) {
+            return current;
+          }
+          return [notification, ...current];
+        });
+        return;
+      }
+
+      if (event.type === 'notification:updated') {
+        const notification = toNotificationItem(event.notification);
+        if (!notification) {
+          return;
+        }
+        setNotifications((current) =>
+          current.map((item) =>
+            item._id === notification._id ? { ...item, ...notification } : item,
+          ),
+        );
+        return;
+      }
+
+      if (event.type === 'notification:deleted') {
+        setNotifications((current) =>
+          current.filter((item) => item._id !== event.notificationId),
+        );
+        return;
+      }
+
+      if (event.type === 'notification:all-read') {
+        setNotifications((current) =>
+          current.map((item) => ({
+            ...item,
+            readAt: item.readAt ?? event.readAt,
+          })),
+        );
+      }
+    });
   }, []);
 
   // Helpers to categorize notifications

@@ -68,6 +68,8 @@ function resolveLimit(plan: EntitlementPlan | null | undefined, key: string) {
   return limit;
 }
 
+const MAX_TIMEOUT_MS = 2_147_000_000;
+
 async function loadEntitlement(
   token: string,
   memberRequest: (path: string) => Promise<MemberApiResult>,
@@ -191,6 +193,55 @@ export function useEntitlement() {
       active = false;
     };
   }, [memberRequest, token]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refresh();
+      }
+    };
+
+    const handleFocus = () => {
+      void refresh();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [refresh, token]);
+
+  useEffect(() => {
+    if (!token || !data?.subscription?.currentPeriodEnd) {
+      return;
+    }
+
+    const periodEnd = new Date(data.subscription.currentPeriodEnd).getTime();
+    if (Number.isNaN(periodEnd)) {
+      return;
+    }
+
+    const delayMs = periodEnd - Date.now() + 15 * 1000;
+    if (delayMs <= 0) {
+      void refresh();
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      void refresh();
+    }, Math.min(delayMs, MAX_TIMEOUT_MS));
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [data?.subscription?.currentPeriodEnd, refresh, token]);
 
   const usageByKey = useMemo(() => {
     const usage = new Map<string, number>();

@@ -86,11 +86,28 @@ function periodFor(date = new Date()) {
 
 async function activeSubscription(userId: Types.ObjectId) {
   const now = new Date();
+  await SubscriptionModel.updateMany(
+    {
+      userId,
+      status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
+      currentPeriodEnd: { $lt: now },
+      isDeleted: false,
+    },
+    {
+      $set: {
+        status: SubscriptionStatus.EXPIRED,
+        endsAt: now,
+      },
+    },
+  );
   return SubscriptionModel.findOne({
     userId,
     status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
     startsAt: { $lte: now },
     isDeleted: false,
+    $and: [
+      { $or: [{ currentPeriodEnd: { $exists: false } }, { currentPeriodEnd: { $gt: now } }] },
+    ],
     $or: [{ endsAt: { $exists: false } }, { endsAt: { $gt: now } }],
   }).sort({ createdAt: -1 });
 }

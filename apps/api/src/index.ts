@@ -5,6 +5,7 @@ import { logger } from './common/logger.js';
 import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
+import { onboardingDripQueue } from './notifications/onboarding-drip.worker.js';
 import { subscriptionExpiryQueue } from './billing/subscription-expiry.worker.js';
 import { matchCachingQueue, savedSearchNotifyQueue } from './match/match.worker.js';
 import { profileCompletionNudgeQueue } from './profile/profile-completion.worker.js';
@@ -99,6 +100,14 @@ async function startServer() {
     });
   } else {
     logger.warn('Redis not available — profile completion nudges disabled');
+  }
+
+  if (onboardingDripQueue) {
+    await onboardingDripQueue.add('send-onboarding-drip', {}, {
+      repeat: { pattern: '0 10 * * *' },
+    });
+  } else {
+    logger.warn('Redis not available — onboarding drip disabled');
   }
 
   if (subscriptionExpiryQueue) {

@@ -11,6 +11,7 @@ import {
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { recordUnusualMessageVolume } from '../common/fraud.service.js';
+import { createNotification } from '../notifications/notifications.service.js';
 import {
   BlockModel,
   ConversationModel,
@@ -121,6 +122,25 @@ async function assertNoBlock(userId: Types.ObjectId, otherUserId: Types.ObjectId
   if (block) {
     throw new HttpError(403, 'Messaging is blocked for this member');
   }
+}
+
+async function conversationLockState(userId: Types.ObjectId, otherUserId: Types.ObjectId) {
+  const block = await BlockModel.findOne({
+    isDeleted: false,
+    $or: [
+      { blockerId: userId, blockedId: otherUserId },
+      { blockerId: otherUserId, blockedId: userId },
+    ],
+  }).lean();
+
+  if (!block) {
+    return { isLocked: false, lockReason: undefined as string | undefined };
+  }
+
+  return {
+    isLocked: true,
+    lockReason: 'blocked',
+  };
 }
 
 async function assertActiveProfile(userId: Types.ObjectId) {
@@ -417,6 +437,14 @@ export async function sendMessage(
     throw new HttpError(429, 'Rate limit exceeded. Please try again later.');
   }
 
+  const lastNotif = await NotificationModel.findOne({
+    userId: otherUserId,
+    type: 'NEW_MESSAGE',
+    isDeleted: false,
+  }).sort({ createdAt: -1 });
+  const shouldNotifyRecipient =
+    !lastNotif || Date.now() - lastNotif.createdAt.getTime() > 60 * 60 * 1000;
+
   const message = await runInTransaction(async (session) => {
     const createdMessage = new MessageModel({
       conversationId: conversation._id,
@@ -446,27 +474,25 @@ export async function sendMessage(
       session ? { session } : {},
     );
 
-    const lastNotifQuery = NotificationModel.findOne({
-      userId: otherUserId,
-      type: 'NEW_MESSAGE',
-      isDeleted: false,
-    }).sort({ createdAt: -1 });
-    if (session) {
-      lastNotifQuery.session(session);
-    }
-    const lastNotif = await lastNotifQuery;
-    if (!lastNotif || Date.now() - lastNotif.createdAt.getTime() > 60 * 60 * 1000) {
-      const notification = new NotificationModel({
-        userId: otherUserId,
-        type: 'NEW_MESSAGE',
-        title: 'New message received',
-        body: 'You have received a new message.',
-      });
-      await notification.save(session ? { session } : undefined);
-    }
-
     return createdMessage;
   });
+  if (shouldNotifyRecipient) {
+    await createNotification({
+      userId: otherUserId,
+      type: 'NEW_MESSAGE',
+      title: 'New message received',
+      body: 'You have received a new message.',
+      emailTemplateKey: 'NOTIFICATION_NEW_MESSAGE',
+      emailTemplateContext: {
+        conversationId: String(conversation._id),
+        messageUrl: `${process.env.WEB_BASE_URL ?? 'http://localhost:3000'}/member/messages`,
+      },
+      emailSubject: 'You have a new message on Vivah Australia',
+      emailBody: 'You have received a new message on Vivah Australia. Log in to continue the conversation.',
+      pushBody: 'You have received a new message.',
+      smsBody: 'You have a new message on Vivah Australia. Log in to reply.',
+    });
+  }
   await message.populate('attachmentIds');
   return publicMessage(message, userId);
 }
@@ -502,7 +528,11 @@ export async function listConversations(userId: Types.ObjectId, cursor?: string,
 }
 
 export async function listMessages(userId: Types.ObjectId, conversationId: string, limit = 50, beforeDate?: string) {
-  const conversation = await getConversationForUser(userId, conversationId, true);
+  const conversation = await getConversationForUser(userId, conversationId, false);
+  const otherUserId = otherParticipant(conversation.participantIds, userId);
+  if (otherUserId) {
+    await assertActiveProfile(otherUserId);
+  }
   const filter: Record<string, unknown> = {
     conversationId: conversation._id,
     isDeleted: false,
@@ -520,7 +550,11 @@ export async function listMessages(userId: Types.ObjectId, conversationId: strin
 }
 
 export async function markConversationRead(userId: Types.ObjectId, conversationId: string) {
-  const conversation = await getConversationForUser(userId, conversationId, true);
+  const conversation = await getConversationForUser(userId, conversationId, false);
+  const otherUserId = otherParticipant(conversation.participantIds, userId);
+  if (otherUserId) {
+    await assertActiveProfile(otherUserId);
+  }
   conversation.set(`unreadCounts.${String(userId)}`, 0);
   await conversation.save();
   await MessageModel.updateMany(
@@ -556,6 +590,9 @@ export async function deleteMessageForUser(userId: Types.ObjectId, messageId: st
 
 async function publicConversation(conversation: ConversationDocument, userId: Types.ObjectId) {
   const otherUserId = otherParticipant(conversation.participantIds, userId);
+  const lockState = otherUserId
+    ? await conversationLockState(userId, otherUserId)
+    : { isLocked: false, lockReason: undefined as string | undefined };
   const otherProfile = otherUserId ? await profileForUser(otherUserId) : undefined;
   const otherUser = otherUserId ? await UserModel.findById(otherUserId).lean() : null;
   const otherProfilePayload =
@@ -590,6 +627,8 @@ async function publicConversation(conversation: ConversationDocument, userId: Ty
     lastMessagePreview: conversation.lastMessagePreview,
     unreadCount,
     updatedAt: conversation.updatedAt,
+    isLocked: lockState.isLocked,
+    lockReason: lockState.lockReason,
   };
 }
 

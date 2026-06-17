@@ -1067,6 +1067,27 @@ notificationSchema.index({ userId: 1, isDeleted: 1, readAt: 1, createdAt: -1 });
 notificationSchema.index({ userId: 1, type: 1, isDeleted: 1, createdAt: -1 });
 notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 90 });
 
+export interface MemberEmailDripProgress {
+  userId: ObjectId;
+  stepKey: string;
+  sentAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+}
+
+const memberEmailDripProgressSchema = new Schema<MemberEmailDripProgress>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    stepKey: { type: String, required: true, trim: true, index: true },
+    sentAt: { type: Date, required: true, index: true },
+    ...auditedSchemaFields,
+  },
+  { ...timestampedSchemaOptions, collection: 'member_email_drip_progress' },
+);
+memberEmailDripProgressSchema.index({ userId: 1, stepKey: 1 }, { unique: true });
+memberEmailDripProgressSchema.index({ userId: 1, sentAt: -1 });
+
 export interface AuditLog {
   actorId?: ObjectId;
   actorRole?: string;
@@ -1460,6 +1481,10 @@ export type MatchRecommendationDocument = HydratedDocument<MatchRecommendation>;
 export const MatchRecommendationModel = getOrCreateModel<MatchRecommendation>('MatchRecommendation', matchRecommendationSchema);
 export const ProfileBoostModel = getOrCreateModel<ProfileBoost>('ProfileBoost', profileBoostSchema);
 export const NotificationModel = getOrCreateModel<Notification>('Notification', notificationSchema);
+export const MemberEmailDripProgressModel = getOrCreateModel<MemberEmailDripProgress>(
+  'MemberEmailDripProgress',
+  memberEmailDripProgressSchema,
+);
 export const AuditLogModel = getOrCreateModel<AuditLog>('AuditLog', auditLogSchema);
 export const ActivityLogModel = getOrCreateModel<ActivityLog>('ActivityLog', activityLogSchema);
 export const CmsPageModel = getOrCreateModel('CmsPage', cmsPageSchema);
@@ -1514,6 +1539,7 @@ export const phaseOneSchemas = {
   refundSchema,
   profileBoostSchema,
   notificationSchema,
+  memberEmailDripProgressSchema,
   auditLogSchema,
   activityLogSchema,
   cmsPageSchema,
@@ -1566,6 +1592,7 @@ export const phaseOneModels = [
   RefundModel,
   ProfileBoostModel,
   NotificationModel,
+  MemberEmailDripProgressModel,
   AuditLogModel,
   ActivityLogModel,
   CmsPageModel,

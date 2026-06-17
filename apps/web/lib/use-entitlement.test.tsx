@@ -37,6 +37,7 @@ describe('useEntitlement', () => {
   beforeEach(() => {
     memberRequestMock.mockReset();
     clearEntitlementCache();
+    vi.useRealTimers();
   });
 
   it('returns paid state and available usage for a paid plan', async () => {
@@ -146,5 +147,67 @@ describe('useEntitlement', () => {
     expect(screen.getByText('paid:true')).toBeTruthy();
     expect(screen.getByText('boost:false')).toBeTruthy();
     expect(screen.getByText('interests:true')).toBeTruthy();
+  });
+
+  it('refreshes entitlement data when the window regains focus', async () => {
+    memberRequestMock
+      .mockResolvedValueOnce({
+        ok: true,
+        message: '',
+        data: {
+          plan: {
+            code: 'GOLD',
+            name: 'Gold',
+            priceCents: 9900,
+            currency: 'AUD',
+            interval: 'MONTH',
+          limits: {
+            profileBoostsMonthly: 2,
+            monthlyInterests: 50,
+          },
+        },
+        subscription: {
+          id: 'sub-1',
+          status: 'ACTIVE',
+          startsAt: '2026-06-01T00:00:00.000Z',
+          currentPeriodEnd: '2026-07-01T00:00:00.000Z',
+          cancelAtPeriodEnd: false,
+        },
+        usage: [],
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        message: '',
+        data: {
+          plan: {
+            code: 'FREE',
+            name: 'Free',
+            priceCents: 0,
+            currency: 'AUD',
+            interval: 'MONTH',
+            limits: {
+              profileBoostsMonthly: 0,
+              monthlyInterests: 0,
+            },
+          },
+          subscription: null,
+          usage: [],
+        },
+      });
+
+    render(<Harness />);
+
+    await waitFor(() => {
+      expect(screen.getByText('plan:GOLD')).toBeTruthy();
+    });
+
+    window.dispatchEvent(new Event('focus'));
+
+    await waitFor(() => {
+      expect(screen.getByText('plan:FREE')).toBeTruthy();
+    });
+
+    expect(memberRequestMock).toHaveBeenCalledTimes(2);
   });
 });

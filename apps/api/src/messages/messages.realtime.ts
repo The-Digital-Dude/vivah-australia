@@ -76,3 +76,10 @@ export function emitConversationAccessRevoked(userId: Types.ObjectId, conversati
     reason,
   });
 }
+
+export function emitUserNotification(userId: Types.ObjectId, event: string, payload: unknown) {
+  if (!messageIo) {
+    return;
+  }
+  messageIo.to(`user:${String(userId)}`).emit(event, payload);
+}

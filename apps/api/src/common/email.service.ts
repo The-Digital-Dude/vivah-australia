@@ -269,7 +269,63 @@ const DEFAULT_HTML_TEMPLATES: Record<string, string> = {
       <p>You have a new interest on your profile. Log in to see who it is and decide if you'd like to connect.</p>
       <a href="{{ link }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">View Your Match</a>
     </div>
-  `
+  `,
+  NOTIFICATION_NEW_MESSAGE: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">You have a new message</h2>
+      <p>A member has sent you a new message on Vivah Australia.</p>
+      <a href="{{ messageUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Open messages</a>
+    </div>
+  `,
+  NOTIFICATION_INTEREST_RECEIVED: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">You have a new interest</h2>
+      <p>Someone has shown interest in your profile on Vivah Australia.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Review interest</a>
+    </div>
+  `,
+  NOTIFICATION_INTEREST_ACCEPTED: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Your interest was accepted</h2>
+      <p>Great news. You can now start a conversation on Vivah Australia.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Open messages</a>
+    </div>
+  `,
+  ONBOARDING_DRIP_DAY_0: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Welcome to Vivah Australia</h2>
+      <p>Hi {{ firstName }}, complete your profile so serious matches can get a real sense of you.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Complete profile</a>
+    </div>
+  `,
+  ONBOARDING_DRIP_DAY_3: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Add the details members look for first</h2>
+      <p>A clear photo, thoughtful profile text, and your core details make a big difference.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Update profile</a>
+    </div>
+  `,
+  ONBOARDING_DRIP_DAY_7: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Start exploring your matches</h2>
+      <p>Browse recommended profiles and send thoughtful interests to members you genuinely connect with.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">Discover matches</a>
+    </div>
+  `,
+  ONBOARDING_DRIP_DAY_10: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Build trust with verification</h2>
+      <p>Verified members tend to get more attention and stronger replies. A few quick steps can help your profile stand out.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">View verification</a>
+    </div>
+  `,
+  ONBOARDING_DRIP_DAY_14: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Keep your momentum going</h2>
+      <p>Consistent activity, profile strength, and thoughtful outreach help you get the most from Vivah Australia.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">See your dashboard</a>
+    </div>
+  `,
 };
 
 export async function sendTemplatedEmail(input: TemplatedEmail): Promise<void> {

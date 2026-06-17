@@ -397,6 +397,57 @@ describe('billing routes and webhooks', () => {
     expect(await ProfileBoostModel.countDocuments({ userId: user.user._id })).toBe(0);
   });
 
+  it('revokes stale active subscriptions when loading the subscription overview', async () => {
+    const user = await createUser('stale-subscription@example.com');
+    await createProfile(user.user._id);
+    const freePlan = await PlanModel.create({
+      code: 'FREE',
+      name: 'Free',
+      priceCents: 0,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: [],
+      limits: {},
+      active: true,
+    });
+    const stalePlan = await PlanModel.create({
+      code: 'STALE_GOLD',
+      name: 'Stale Gold',
+      priceCents: 9900,
+      currency: 'AUD',
+      interval: 'MONTH',
+      features: [],
+      limits: { profileBoostsMonthly: 2 },
+      active: true,
+    });
+
+    await SubscriptionModel.create({
+      userId: user.user._id,
+      planId: stalePlan._id,
+      status: SubscriptionStatus.ACTIVE,
+      startsAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
+      currentPeriodEnd: new Date(Date.now() - 10 * 60 * 1000),
+      provider: 'stripe',
+      cancelAtPeriodEnd: false,
+    });
+
+    const response = await request(app)
+      .get('/api/me/subscription')
+      .set('Authorization', `Bearer ${user.accessToken}`)
+      .expect(200);
+
+    const body = bodyAs<{
+      plan: { code: string } | null;
+      subscription: { status: string } | null;
+    }>(response);
+
+    expect(body.plan?.code).toBe(freePlan.code);
+    expect(body.subscription).toBeNull();
+    expect((await SubscriptionModel.findOne({ userId: user.user._id }).orFail()).status).toBe(
+      SubscriptionStatus.EXPIRED,
+    );
+  });
+
   it('revokes stale active subscriptions when the expiry safety-net runs', async () => {
     const user = await createUser('expiry-job@example.com');
     const plan = await PlanModel.create({
@@ -419,8 +470,6 @@ describe('billing routes and webhooks', () => {
       provider: 'stripe',
       cancelAtPeriodEnd: false,
     });
-
-    expect(await isPaidMember(user.user._id)).toBe(true);
 
     const firstRun = await revokeExpiredSubscriptions();
     expect(firstRun.expiredCount).toBe(1);

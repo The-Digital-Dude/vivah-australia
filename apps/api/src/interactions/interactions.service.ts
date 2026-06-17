@@ -124,13 +124,44 @@ async function assertNotHidden(userId: Types.ObjectId, targetUserId: Types.Objec
 }
 
 async function notify(userId: Types.ObjectId, type: string, title: string, body?: string) {
+  const webBaseUrl = process.env.WEB_BASE_URL ?? 'http://localhost:3000';
+  const configByType: Record<
+    string,
+    {
+      emailTemplateKey?: string;
+      emailTemplateContext?: Record<string, unknown>;
+      emailSubject?: string;
+      emailBody?: string;
+      smsBody?: string;
+    }
+  > = {
+    INTEREST_RECEIVED: {
+      emailTemplateKey: 'NOTIFICATION_INTEREST_RECEIVED',
+      emailTemplateContext: { actionUrl: `${webBaseUrl}/member/activity` },
+      emailSubject: 'You have a new interest on Vivah Australia',
+      emailBody: 'A member has sent you an interest on Vivah Australia. Log in to review it.',
+      smsBody: 'You have a new interest on Vivah Australia. Log in to review it.',
+    },
+    INTEREST_ACCEPTED: {
+      emailTemplateKey: 'NOTIFICATION_INTEREST_ACCEPTED',
+      emailTemplateContext: { actionUrl: `${webBaseUrl}/member/messages` },
+      emailSubject: 'Your interest was accepted on Vivah Australia',
+      emailBody: 'Your interest was accepted on Vivah Australia. You can now start the conversation.',
+      smsBody: 'Your interest was accepted on Vivah Australia. You can now start the conversation.',
+    },
+  };
+  const config = configByType[type] ?? {};
+
   await createNotification({
     userId,
     type,
     title,
     ...(body ? { body } : {}),
-    emailSubject: title,
-    emailBody: body ?? title,
+    ...(config.emailTemplateKey ? { emailTemplateKey: config.emailTemplateKey } : {}),
+    ...(config.emailTemplateContext ? { emailTemplateContext: config.emailTemplateContext } : {}),
+    emailSubject: config.emailSubject ?? title,
+    emailBody: config.emailBody ?? body ?? title,
+    ...(config.smsBody ? { smsBody: config.smsBody } : {}),
     pushBody: body ?? title,
   });
 }
