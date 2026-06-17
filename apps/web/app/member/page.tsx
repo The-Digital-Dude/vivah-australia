@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MemberShell from './member-shell';
 import { useMemberRequest } from '@/lib/member-api';
+import ProfileStrengthMeter, { type ProfileStrength } from './profile-strength-meter';
 import {
   EmptyState,
   PremiumButton,
@@ -102,6 +103,7 @@ interface ProfileData {
   employment?: { occupation?: string };
   about?: { aboutMe?: string; partnerExpectations?: string };
   completionPercentage: number;
+  profileStrength?: ProfileStrength;
   verification?: ProfileVerification;
   stats?: ProfileStats;
   moderation?: {
@@ -296,6 +298,8 @@ export default function MemberDashboardPage() {
   const boostsRemaining = boostLimit === -1 ? Infinity : Math.max(0, boostLimit - boostUsed);
 
   const completionPercentage = profile?.completionPercentage ?? 0;
+  const profileStrength = profile?.profileStrength ?? null;
+  const strengthPercentage = profileStrength?.percentage ?? completionPercentage;
   const newMatchesCount = recommended.length + recentlyActive.length;
   const receivedInterestCount = profile?.stats?.interestsReceived ?? interests.length;
   const unreadMessagesCount = conversations.length;
@@ -311,7 +315,7 @@ export default function MemberDashboardPage() {
   const membershipName = subscriptionData?.plan?.name ?? 'Free';
 
   const heroHighlights = [
-    { label: 'Profile', value: `${completionPercentage}%`, icon: CheckCircle2 },
+    { label: 'Profile', value: `${strengthPercentage}%`, icon: CheckCircle2 },
     { label: 'Verification', value: profile?.verification?.level?.replaceAll('_', ' ') ?? 'Unverified', icon: ShieldCheck },
     { label: 'Plan', value: membershipName, icon: Crown },
   ];
@@ -382,6 +386,26 @@ export default function MemberDashboardPage() {
             </div>
           </div>
         </PremiumCard>
+
+        {profileStrength && strengthPercentage < 80 ? (
+          <PremiumCard className="rounded-2xl border border-[#D4A04C]/25 bg-[#FFF8EC] p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-sm font-bold text-[#2F2F2F]">
+                  Complete your profile to get more matches
+                </p>
+                <p className="mt-1 text-xs text-[#6B7280]">
+                  Stronger profiles help members and families feel confident before they connect.
+                </p>
+              </div>
+              {profileStrength.nextAction ? (
+                <PremiumButton href={profileStrength.nextAction.href} className="text-sm">
+                  {profileStrength.nextAction.actionLabel}
+                </PremiumButton>
+              ) : null}
+            </div>
+          </PremiumCard>
+        ) : null}
 
         {/* 4 summary stat cards */}
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -505,6 +529,8 @@ export default function MemberDashboardPage() {
 
           {/* Sidebar */}
           <div className="grid gap-4 self-start">
+            <ProfileStrengthMeter strength={profileStrength} compact />
+
             {/* Quick actions */}
             <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
               <p className="mb-3 text-sm font-bold text-[#2F2F2F]">Quick actions</p>

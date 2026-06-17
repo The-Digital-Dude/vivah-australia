@@ -10,7 +10,7 @@ import {
 import { Types } from 'mongoose';
 import { recordHighVelocityProfileViews } from '../common/fraud.service.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
-import { sendEmail } from '../common/email.service.js';
+import { sendEmail, sendTemplatedEmail } from '../common/email.service.js';
 import { HttpError } from '../auth/auth-errors.js';
 import { isPaidMember, cancelSubscription } from '../billing/billing.service.js';
 import {
@@ -50,6 +50,37 @@ const COMPLETION_FIELDS = [
   'about.partnerExpectations',
 ] as const;
 
+const PROFILE_STRENGTH_THRESHOLD = 80;
+const PROFILE_COMPLETION_NUDGE_AFTER_DAYS = 3;
+const PROFILE_COMPLETION_NUDGE_COOLDOWN_DAYS = 14;
+
+export interface ProfileCompletionMissingItem {
+  key: string;
+  label: string;
+  description: string;
+  actionLabel: string;
+  section: string;
+  href: string;
+  priority: number;
+}
+
+export interface ProfileCompletionStrength {
+  percentage: number;
+  completedWeight: number;
+  totalWeight: number;
+  missing: ProfileCompletionMissingItem[];
+  nextAction: ProfileCompletionMissingItem | null;
+}
+
+interface ProfileCompletionRule extends ProfileCompletionMissingItem {
+  weight: number;
+  isComplete: (profile: ProfileDocument, context: ProfileCompletionContext) => boolean;
+}
+
+interface ProfileCompletionContext {
+  hasProfilePhoto: boolean;
+}
+
 const SENSITIVE_UPDATE_PREFIXES = [
   'personal.',
   'religion.',
@@ -76,6 +107,149 @@ function hasMeaningfulValue(value: unknown): boolean {
   return value !== undefined && value !== null && value !== '';
 }
 
+function hasAnyMeaningfulPath(profile: ProfileDocument, paths: readonly string[]) {
+  return paths.some((path) => hasMeaningfulValue(getPathValue(profile, path)));
+}
+
+const PROFILE_COMPLETION_RULES: ProfileCompletionRule[] = [
+  {
+    key: 'profilePhoto',
+    label: 'Add a profile photo',
+    description: 'Profiles with a clear photo are easier for families and matches to trust.',
+    actionLabel: 'Upload photo',
+    section: 'photos',
+    href: '/member/media',
+    priority: 10,
+    weight: 18,
+    isComplete: (_profile, context) => context.hasProfilePhoto,
+  },
+  {
+    key: 'aboutMe',
+    label: 'Write your About Me',
+    description: 'Tell serious matches who you are, what you value, and what life with you feels like.',
+    actionLabel: 'Write About Me',
+    section: 'about',
+    href: '/member/profile/edit?section=about',
+    priority: 20,
+    weight: 14,
+    isComplete: (profile) => hasMeaningfulValue(getPathValue(profile, 'about.aboutMe')),
+  },
+  {
+    key: 'partnerPreference',
+    label: 'Set partner preferences',
+    description: 'Help us recommend members who fit your expectations and family priorities.',
+    actionLabel: 'Set preferences',
+    section: 'preferences',
+    href: '/member/profile/edit?section=preferences',
+    priority: 30,
+    weight: 12,
+    isComplete: (profile) =>
+      hasAnyMeaningfulPath(profile, [
+        'partnerPreference.ageMin',
+        'partnerPreference.ageMax',
+        'partnerPreference.religions',
+        'partnerPreference.communities',
+        'partnerPreference.countries',
+        'partnerPreference.cities',
+        'partnerPreference.educationLevels',
+        'partnerPreference.occupations',
+        'partnerPreference.maritalStatuses',
+      ]),
+  },
+  {
+    key: 'mobileVerified',
+    label: 'Verify your mobile number',
+    description: 'Mobile verification gives your profile a stronger trust signal.',
+    actionLabel: 'Verify mobile',
+    section: 'verification',
+    href: '/member/verification',
+    priority: 40,
+    weight: 8,
+    isComplete: (profile) => profile.verification.mobileVerified,
+  },
+  {
+    key: 'partnerExpectations',
+    label: 'Describe your ideal partner',
+    description: 'Share the qualities and values you hope to find in a long-term match.',
+    actionLabel: 'Add expectations',
+    section: 'about',
+    href: '/member/profile/edit?section=about',
+    priority: 50,
+    weight: 8,
+    isComplete: (profile) => hasMeaningfulValue(getPathValue(profile, 'about.partnerExpectations')),
+  },
+  {
+    key: 'education',
+    label: 'Add education details',
+    description: 'Education helps members understand your background and life path.',
+    actionLabel: 'Add education',
+    section: 'career',
+    href: '/member/profile/edit?section=career',
+    priority: 60,
+    weight: 8,
+    isComplete: (profile) => hasMeaningfulValue(getPathValue(profile, 'education.highestQualification')),
+  },
+  {
+    key: 'occupation',
+    label: 'Add occupation',
+    description: 'Career details make your profile feel current and complete.',
+    actionLabel: 'Add occupation',
+    section: 'career',
+    href: '/member/profile/edit?section=career',
+    priority: 70,
+    weight: 8,
+    isComplete: (profile) => hasMeaningfulValue(getPathValue(profile, 'employment.occupation')),
+  },
+  {
+    key: 'family',
+    label: 'Add family background',
+    description: 'Family context matters in matrimonial conversations and helps matches understand you.',
+    actionLabel: 'Add family details',
+    section: 'family',
+    href: '/member/profile/edit?section=family',
+    priority: 80,
+    weight: 8,
+    isComplete: (profile) =>
+      hasAnyMeaningfulPath(profile, [
+        'family.fatherDetails',
+        'family.motherDetails',
+        'family.siblingDetails',
+        'family.familyValues',
+        'family.familyType',
+      ]),
+  },
+  {
+    key: 'coreProfile',
+    label: 'Complete basic profile details',
+    description: 'Core biodata, location, religion, and community details power your matches.',
+    actionLabel: 'Complete basics',
+    section: 'basic',
+    href: '/member/profile/edit?section=basic',
+    priority: 90,
+    weight: 10,
+    isComplete: (profile) =>
+      COMPLETION_FIELDS.every((field) => hasMeaningfulValue(getPathValue(profile, field))),
+  },
+  {
+    key: 'lifestyle',
+    label: 'Add lifestyle details',
+    description: 'Lifestyle cues help members see day-to-day compatibility.',
+    actionLabel: 'Add lifestyle',
+    section: 'lifestyle',
+    href: '/member/profile/edit?section=lifestyle',
+    priority: 100,
+    weight: 6,
+    isComplete: (profile) =>
+      hasAnyMeaningfulPath(profile, [
+        'lifestyle.smokingHabits',
+        'lifestyle.drinkingHabits',
+        'lifestyle.dietaryPreferences',
+        'lifestyle.fitnessInterests',
+        'lifestyle.religiousPractices',
+      ]),
+  },
+];
+
 function flattenKeys(input: Record<string, unknown>, prefix = ''): string[] {
   return Object.entries(input).flatMap(([key, value]) => {
     const path = prefix ? `${prefix}.${key}` : key;
@@ -98,6 +272,58 @@ export function calculateProfileCompletion(profile: ProfileDocument): number {
     hasMeaningfulValue(getPathValue(profile, field)),
   ).length;
   return Math.round((completed / COMPLETION_FIELDS.length) * 100);
+}
+
+export function calculateProfileCompletionStrength(
+  profile: ProfileDocument,
+  context: ProfileCompletionContext = { hasProfilePhoto: false },
+): ProfileCompletionStrength {
+  const totalWeight = PROFILE_COMPLETION_RULES.reduce((sum, item) => sum + item.weight, 0);
+  const missing = PROFILE_COMPLETION_RULES.filter((item) => !item.isComplete(profile, context))
+    .sort((left, right) => left.priority - right.priority)
+    .map(({ weight: _weight, isComplete: _isComplete, ...item }) => item);
+  const missingKeys = new Set(missing.map((item) => item.key));
+  const completedWeight = PROFILE_COMPLETION_RULES.reduce(
+    (sum, item) => (missingKeys.has(item.key) ? sum : sum + item.weight),
+    0,
+  );
+
+  return {
+    percentage: Math.round((completedWeight / totalWeight) * 100),
+    completedWeight,
+    totalWeight,
+    missing,
+    nextAction: missing[0] ?? null,
+  };
+}
+
+async function hasApprovedProfilePhoto(profile: ProfileDocument) {
+  const count = await ProfileMediaModel.countDocuments({
+    userId: profile.userId,
+    profileId: profile._id,
+    uploadStatus: MediaUploadStatus.UPLOADED,
+    approvalStatus: VerificationStatus.APPROVED,
+    mediaType: 'PHOTO',
+    category: MediaCategory.PROFILE_PHOTO,
+    isDeleted: false,
+  });
+
+  return count > 0;
+}
+
+export async function getProfileCompletionStrength(profile: ProfileDocument) {
+  return calculateProfileCompletionStrength(profile, {
+    hasProfilePhoto: await hasApprovedProfilePhoto(profile),
+  });
+}
+
+export async function serializeOwnProfile(profile: ProfileDocument) {
+  const profileStrength = await getProfileCompletionStrength(profile);
+  return {
+    ...profile.toObject(),
+    id: profile.id,
+    profileStrength,
+  };
 }
 
 export function calculateAge(dateOfBirth: Date, asOf = new Date()): number {
@@ -572,6 +798,81 @@ export async function updateNotificationPreferences(
   user.notificationPreferences = preferences;
   await user.save();
   return user.notificationPreferences;
+}
+
+export async function sendProfileCompletionNudges(now = new Date()) {
+  const eligibleCreatedBefore = new Date(
+    now.getTime() - PROFILE_COMPLETION_NUDGE_AFTER_DAYS * 24 * 60 * 60 * 1000,
+  );
+  const resendBefore = new Date(
+    now.getTime() - PROFILE_COMPLETION_NUDGE_COOLDOWN_DAYS * 24 * 60 * 60 * 1000,
+  );
+  let sent = 0;
+  let skipped = 0;
+
+  const profiles = ProfileModel.find({
+    isDeleted: false,
+    userIsDeleted: false,
+    userStatus: AccountStatus.ACTIVE,
+    createdAt: { $lte: eligibleCreatedBefore },
+    'stats.interestsReceived': 0,
+    $or: [
+      { lastCompletionNudgeSentAt: { $exists: false } },
+      { lastCompletionNudgeSentAt: { $lte: resendBefore } },
+    ],
+  }).cursor();
+
+  for await (const profile of profiles) {
+    const strength = await getProfileCompletionStrength(profile);
+    if (strength.percentage >= PROFILE_STRENGTH_THRESHOLD || !strength.nextAction) {
+      skipped += 1;
+      continue;
+    }
+
+    const user = await UserModel.findOne({
+      _id: profile.userId,
+      isDeleted: false,
+      status: AccountStatus.ACTIVE,
+      marketingConsent: true,
+      'notificationPreferences.emailNotifications': true,
+      'notificationPreferences.marketingNotifications': true,
+    }).lean();
+
+    if (!user?.email) {
+      skipped += 1;
+      continue;
+    }
+
+    await sendTemplatedEmail({
+      to: user.email,
+      recipientUserId: profile.userId,
+      isMarketing: true,
+      templateKey: 'PROFILE_COMPLETION_NUDGE',
+      subjectFallback: 'Complete your Vivah Australia profile to get more matches',
+      context: {
+        firstName: profile.personal?.firstName ?? 'there',
+        completionPercentage: strength.percentage,
+        nextAction: strength.nextAction.label,
+        actionUrl: `${process.env.WEB_BASE_URL ?? 'http://localhost:3000'}${strength.nextAction.href}`,
+      },
+      htmlFallback: `
+        <div style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto;padding:20px;">
+          <h2 style="color:#A10E4D;">Complete your profile to get more matches</h2>
+          <p>Hi {{ firstName }}, your profile is {{ completionPercentage }}% complete.</p>
+          <p>Your next best step is: <strong>{{ nextAction }}</strong>.</p>
+          <a href="{{ actionUrl }}" style="display:inline-block;background:#A10E4D;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;">Update your profile</a>
+        </div>
+      `,
+      textFallback:
+        'Hi {{ firstName }}, your profile is {{ completionPercentage }}% complete. Your next best step is: {{ nextAction }}. Update your profile: {{ actionUrl }}',
+    });
+
+    profile.lastCompletionNudgeSentAt = now;
+    await profile.save();
+    sent += 1;
+  }
+
+  return { sent, skipped };
 }
 
 export async function deactivateOwnAccount(userId: Types.ObjectId) {

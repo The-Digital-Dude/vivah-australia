@@ -9399,3 +9399,1500 @@
 [0]     [35murl[39m: "/api/public/matrimony"
 [0]     [35mstatusCode[39m: 200
 [0]     [35mdurationMs[39m: 91
+[0] 1:51:18 AM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c1:51:24 AM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:51:28.156 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:51:28.156 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:51:28.163 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 1:51:49 AM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:51:54.016 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:51:54.016 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:51:54.022 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:31372) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] 1:51:55 AM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:51:58.950 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:51:58.951 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:51:58.956 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:10572) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:10572) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:52:01 AM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:52:05.179 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:52:05.180 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:52:05.187 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:5128) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:5128) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:52:08 AM [tsx] change in ./src\models\phase-one.models.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:52:11.818 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:52:11.819 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:52:11.825 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:15844) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:15844) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:52:21 AM [tsx] change in ./src\models\profile.model.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:52:24.561 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:52:24.561 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:52:24.567 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:31952) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:31952) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:52:43 AM [tsx] change in ./src\notifications\notifications.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:52:47.235 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:52:47.238 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:52:47.274 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:20664) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:20664) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:53:20 AM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:53:24.653 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:53:24.654 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:53:24.658 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:30844) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:30844) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:53:43 AM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:53:48.238 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:53:48.238 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:53:48.247 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:27352) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:27352) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:54:02 AM [tsx] change in ./src\interactions\interactions.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:54:05.820 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:54:05.821 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:54:05.827 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:26288) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:26288) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:54:58 AM [tsx] change in ./src\messages\messages.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:55:02.801 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:55:02.801 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:55:02.807 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:26036) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:26036) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:55:37 AM [tsx] change in ./src\notifications\notifications.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:55:41.129 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:55:41.130 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:55:41.137 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:9656) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:9656) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:55:57 AM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:56:00.509 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:56:00.509 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:56:00.514 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:6232) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:6232) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:56:38 AM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:56:42.311 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:56:42.312 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:56:42.317 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:15056) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:15056) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:56:53 AM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:56:56.619 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:56:56.620 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:56:56.631 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:7664) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:7664) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:57:04 AM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:57:08.630 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:57:08.633 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:57:08.664 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:32492) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:32492) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:57:11 AM [tsx] change in ./src\verification\verification-document.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:57:15.428 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:57:15.429 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:57:15.434 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:2480) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:2480) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:57:25 AM [tsx] change in ./src\profile\profile.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:57:32.333 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:57:32.334 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:57:32.358 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:27516) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:27516) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:57:43 AM [tsx] change in ./src\profile\profile.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:57:46.879 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:57:46.881 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:57:46.903 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] 1:57:47 AM [tsx] change in ./src\profile\profile.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:57:50.290 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:57:50.290 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:57:50.296 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:29632) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:29632) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:58:16 AM [tsx] change in ./src\billing\billing.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:58:23.209 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:58:23.209 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:58:23.221 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:9904) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:9904) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:58:40 AM [tsx] change in ./src\billing\billing.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:58:44.920 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:58:44.922 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:58:44.943 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:11228) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:11228) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:58:48 AM [tsx] change in ./src\billing\billing.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 01:58:52.573 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 01:58:52.573 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 01:58:52.585 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:25836) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:25836) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 1:58:59 AM [tsx] change in ./src\admin\admin.routes.ts Restarting...
+[0] cD:\AI\Vivah Australia\apps\api\src\messages\messages.routes.ts:2
+[0]   conversationListQuerySchema,
+[0]   ^
+[0] SyntaxError: The requested module '@vivah/shared' does not provide an export named 'conversationListQuerySchema'
+[0]     at ModuleJob._instantiate (node:internal/modules/esm/module_job:226:21)
+[0]     at async ModuleJob.run (node:internal/modules/esm/module_job:335:5)
+[0]     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+[0]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[0] 
+[0] Node.js v22.22.1
+[0] 1:59:53 AM [tsx] change in ./..\..\packages\shared\dist\index.js Rerunning...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 02:00:00.069 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 02:00:00.069 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 02:00:00.095 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:16972) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:16972) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 2:00:36 AM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 02:00:41.084 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 02:00:41.084 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 02:00:41.091 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:29900) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:29900) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 2:00:53 AM [tsx] change in ./src\messages\messages.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 02:00:57.216 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 02:00:57.217 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 02:00:57.237 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:22816) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:22816) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 2:01:09 AM [tsx] change in ./src\billing\billing.service.ts Restarting...
+[0] c
+[0] node:internal/modules/run_main:123
+[0]     triggerUncaughtException(
+[0]     ^
+[0] Error [TransformError]: Transform failed with 1 error:
+[0] D:\AI\Vivah Australia\apps\api\src\billing\billing.service.ts:531:6: ERROR: Unexpected "]"
+[0]     at failureErrorWithLog (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1748:15)
+[0]     at D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1017:50
+[0]     at responseCallbacks.<computed> (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:884:9)
+[0]     at handleIncomingPacket (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:939:12)
+[0]     at Socket.readFromStdout (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:862:7)
+[0]     at Socket.emit (node:events:519:28)
+[0]     at addChunk (node:internal/streams/readable:561:12)
+[0]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[0]     at Readable.push (node:internal/streams/readable:392:5)
+[0]     at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[0] 
+[0] Node.js v22.22.1
+[0] 2:01:15 AM [tsx] change in ./src\interactions\interactions.service.ts Rerunning...
+[0] c
+[0] node:internal/modules/run_main:123
+[0]     triggerUncaughtException(
+[0]     ^
+[0] Error [TransformError]: Transform failed with 1 error:
+[0] D:\AI\Vivah Australia\apps\api\src\billing\billing.service.ts:531:6: ERROR: Unexpected "]"
+[0]     at failureErrorWithLog (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1748:15)
+[0]     at D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1017:50
+[0]     at responseCallbacks.<computed> (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:884:9)
+[0]     at handleIncomingPacket (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:939:12)
+[0]     at Socket.readFromStdout (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:862:7)
+[0]     at Socket.emit (node:events:519:28)
+[0]     at addChunk (node:internal/streams/readable:561:12)
+[0]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[0]     at Readable.push (node:internal/streams/readable:392:5)
+[0]     at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[0] 
+[0] Node.js v22.22.1
+[0] 2:01:37 AM [tsx] change in ./..\..\packages\shared\dist\index.js Rerunning...
+[0] c
+[0] node:internal/modules/run_main:123
+[0]     triggerUncaughtException(
+[0]     ^
+[0] Error [TransformError]: Transform failed with 1 error:
+[0] D:\AI\Vivah Australia\apps\api\src\billing\billing.service.ts:531:6: ERROR: Unexpected "]"
+[0]     at failureErrorWithLog (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1748:15)
+[0]     at D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:1017:50
+[0]     at responseCallbacks.<computed> (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:884:9)
+[0]     at handleIncomingPacket (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:939:12)
+[0]     at Socket.readFromStdout (D:\AI\Vivah Australia\node_modules\.pnpm\esbuild@0.28.0\node_modules\esbuild\lib\main.js:862:7)
+[0]     at Socket.emit (node:events:519:28)
+[0]     at addChunk (node:internal/streams/readable:561:12)
+[0]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[0]     at Readable.push (node:internal/streams/readable:392:5)
+[0]     at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[0] 
+[0] Node.js v22.22.1
+[0] 2:01:51 AM [tsx] change in ./src\billing\billing.service.ts Rerunning...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 02:01:58.359 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 02:01:58.360 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 02:01:58.366 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:30692) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:30692) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 2:01:59 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c2:01:59 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 02:02:04.858 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 02:02:04.860 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 02:02:04.880 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:24064) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:24064) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 6:40:55 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c6:40:57 AM [tsx] change in ./src\models\profile.model.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 06:41:04.074 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 06:41:04.075 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 06:41:04.080 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:30888) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:30888) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 6:44:17 AM [tsx] change in ./src\admin\admin.service.ts Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 06:44:24.212 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 06:44:24.213 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 06:44:24.228 +0600] [31mERROR[39m: [36mProcess error: uncaughtException[39m
+[0]     [35msource[39m: "uncaughtException"
+[0]     [35mstack[39m: "Error: listen EADDRINUSE: address already in use :::4000\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at Server.listen (node:net:2102:7)\n    at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)"
+[0]     err: {
+[0]       "type": "Error",
+[0]       "message": "listen EADDRINUSE: address already in use :::4000",
+[0]       "stack":
+[0]           Error: listen EADDRINUSE: address already in use :::4000
+[0]               at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[0]               at listenInCluster (node:net:1997:12)
+[0]               at Server.listen (node:net:2102:7)
+[0]               at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:72:10)
+[0]               at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[0]               at async <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:3)
+[0]       "code": "EADDRINUSE",
+[0]       "errno": -4091,
+[0]       "syscall": "listen",
+[0]       "address": "::",
+[0]       "port": 4000
+[0]     }
+[0] (node:30940) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:30940) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] 6:45:01 AM [tsx] change in ./..\..\packages\shared\dist\env.js Restarting...
+[0] c6:45:01 AM [tsx] change in ./..\..\packages\shared\dist\validators.js Restarting...
+[0] c6:45:02 AM [tsx] change in ./..\..\packages\shared\dist\index.js Restarting...
+[0] c[redis] Redis 3.x detected — BullMQ requires 5+. Queues disabled.
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:65:25)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] ValidationError: Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits. See https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/ for more information.
+[0]     at Object.keyGeneratorIpFallback (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:624:13)
+[0]     at wrappedValidations.<computed> [as keyGeneratorIpFallback] (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:675:22)
+[0]     at parseOptions (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:749:16)
+[0]     at rateLimit (file:///D:/AI/Vivah%20Australia/node_modules/.pnpm/express-rate-limit@8.5.2_express@4.22.2/node_modules/express-rate-limit/dist/index.mjs:831:18)
+[0]     at createCommunityRouter (D:\AI\Vivah Australia\apps\api\src\community\community.routes.ts:73:28)
+[0]     at createApp (D:\AI\Vivah Australia\apps\api\src\app.ts:112:19)
+[0]     at startServer (D:\AI\Vivah Australia\apps\api\src\index.ts:59:15)
+[0]     at <anonymous> (D:\AI\Vivah Australia\apps\api\src\index.ts:96:9)
+[0]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+[0]   code: 'ERR_ERL_KEY_GEN_IPV6',
+[0]   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
+[0] }
+[0] [2026-06-17 06:45:12.202 +0600] [33mWARN[39m: [36mRedis not available — match pre-caching disabled[39m
+[0] [2026-06-17 06:45:12.203 +0600] [33mWARN[39m: [36mRedis not available — saved search notifications disabled[39m
+[0] [2026-06-17 06:45:12.220 +0600] [32mINFO[39m: [36mAPI server started[39m
+[0]     [35murl[39m: "http://localhost:4000"
+[0]     [35mport[39m: 4000
+[0] (node:17804) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"viewedAt":1} for model "ProfileView". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:17804) [MONGOOSE] Warning: mongoose: Duplicate schema index on {"expiresAt":1} for model "MobileOtp". This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+[0] [2026-06-17 06:50:05.379 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "8d0b5a6a-5c8f-4e99-9734-2ed0a1a93158"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1712
+[0] [2026-06-17 06:53:01.696 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "71d64402-5a5a-48dd-9902-ce43aacf3c80"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1401
+[0] [2026-06-17 06:54:10.605 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "34088b1f-ad63-4e64-ba92-8a3eb38f80aa"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 406
+[0] [2026-06-17 06:56:31.915 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "ec17e1f4-cdbe-414a-8ae6-6e55388d6dcb"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 226
+[0] [2026-06-17 06:56:32.148 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "66740951-1fcc-4d2a-98bc-24567c5ed0e6"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 81
+[0] [2026-06-17 06:59:39.507 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "a993463a-c909-429a-8785-aa790054a3c5"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 320
+[0] [2026-06-17 07:10:56.403 +0600] [32mINFO[39m: [36mHTTP request completed[39m
+[0]     [35mrequestId[39m: "aab6d9f9-234b-4c49-a361-bd957a1e61b1"
+[0]     [35mmethod[39m: "GET"
+[0]     [35murl[39m: "/api/public/banners"
+[0]     [35mstatusCode[39m: 200
+[0]     [35mdurationMs[39m: 1149
+ ELIFECYCLE  Command failed with exit code 4294967295.

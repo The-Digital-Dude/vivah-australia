@@ -149,6 +149,7 @@ export interface Profile {
       current?: unknown;
     };
   };
+  lastCompletionNudgeSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   createdBy?: Types.ObjectId;
@@ -308,6 +309,7 @@ const profileSchema = new Schema<Profile>(
         current: { type: Schema.Types.Mixed },
       },
     },
+    lastCompletionNudgeSentAt: { type: Date },
     ...auditedSchemaFields,
   },
   timestampedSchemaOptions,

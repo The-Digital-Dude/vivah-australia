@@ -523,7 +523,7 @@ export default function MemberVerificationPage() {
                   Submit Verification Documents
                 </h2>
                 <p className="text-xs text-[#6B7280]">
-                  All documents are securely encrypted with AES-256 and manual moderation review.
+                  All documents are handled with restricted access and manual moderation review.
                 </p>
               </div>
             </div>
@@ -579,9 +579,9 @@ export default function MemberVerificationPage() {
               <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-4 border border-amber-200/50 text-[#A10E4D] text-xs">
                 <Lock className="size-4 text-[#A10E4D]/70 shrink-0" />
                 <p className="leading-5">
-                  <strong>Secure Upload Notice:</strong> Your documents are fully isolated in
-                  high-security, encrypted AWS S3 buckets. Verification is executed manually by
-                  certified Australian moderators.
+                  <strong>Secure Upload Notice:</strong> Your documents are uploaded to
+                  access-controlled cloud storage. Verification is executed manually by certified
+                  Australian moderators.
                 </p>
               </div>
 

@@ -19,7 +19,9 @@ import {
   updateAccountSettings,
   updateNotificationPreferences,
   updateOwnProfile,
+  serializeOwnProfile,
 } from './profile.service.js';
+import { generateBiodataPdf, type BiodataProfileInput } from './biodata.service.js';
 import { ProfileModel } from '../models/index.js';
 import { isPaidMember } from '../billing/billing.service.js';
 import { calculateMatchScore } from '../match/match.service.js';
@@ -49,7 +51,7 @@ export function createProfileRouter(config: AuthConfig): Router {
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
       const profile = await getOwnProfile(auth.userId);
-      response.status(200).json({ profile });
+      response.status(200).json({ profile: await serializeOwnProfile(profile) });
     }),
   );
 
@@ -60,7 +62,7 @@ export function createProfileRouter(config: AuthConfig): Router {
       const auth = requireRequestAuth(request);
       const input = profileDraftSchema.parse(request.body);
       const profile = await updateOwnProfile(auth.userId, input);
-      response.status(200).json({ profile });
+      response.status(200).json({ profile: await serializeOwnProfile(profile) });
     }),
   );
 
@@ -71,7 +73,7 @@ export function createProfileRouter(config: AuthConfig): Router {
       const auth = requireRequestAuth(request);
       profileSubmitSchema.parse(request.body);
       const profile = await submitOwnProfile(auth.userId);
-      response.status(200).json({ profile });
+      response.status(200).json({ profile: await serializeOwnProfile(profile) });
     }),
   );
 
@@ -82,7 +84,7 @@ export function createProfileRouter(config: AuthConfig): Router {
       const auth = requireRequestAuth(request);
       const input = profileDraftSchema.pick({ visibility: true }).parse(request.body);
       const profile = await updateOwnProfile(auth.userId, input);
-      response.status(200).json({ profile });
+      response.status(200).json({ profile: await serializeOwnProfile(profile) });
     }),
   );
 
@@ -211,6 +213,56 @@ export function createProfileRouter(config: AuthConfig): Router {
       response
         .status(200)
         .json({ profile, matchScore, matchReasons, isPaidMember: isPaid, isPremiumProfile });
+    }),
+  );
+
+  router.get(
+    '/profiles/:id/biodata.pdf',
+    requireAuth(config),
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const auth = requireRequestAuth(request);
+      const profileId = request.params.id;
+
+      if (!profileId) {
+        throw new HttpError(404, 'Profile not found');
+      }
+
+      // Fetch the public-visible profile (applies all privacy/visibility rules,
+      // including photo gating — photoUrl is only set when visibility.showPhoto is true
+      // and an approved public photo exists)
+      const visibleProfile = await getVisibleProfile(profileId, auth.userId);
+
+      const isPaid = await isPaidMember(auth.userId);
+
+      // Build the input, omitting any keys whose value is undefined so that
+      // exactOptionalPropertyTypes is satisfied (optional = absent, not explicitly undefined).
+      const input = Object.fromEntries(
+        Object.entries({
+          displayId: visibleProfile.displayId,
+          photoUrl: visibleProfile.photoUrl,
+          personal: visibleProfile.personal,
+          location: visibleProfile.location,
+          religion: visibleProfile.religion,
+          education: visibleProfile.education,
+          employment: visibleProfile.employment,
+          family: visibleProfile.family,
+          lifestyle: visibleProfile.lifestyle,
+          about: visibleProfile.about,
+          partnerPreference: visibleProfile.partnerPreference,
+          verification: visibleProfile.verification,
+        }).filter(([, v]) => v !== undefined),
+      ) as unknown as BiodataProfileInput;
+
+      const pdfBuffer = await generateBiodataPdf(input, { isPaid });
+      const firstName = (visibleProfile.personal as { firstName?: string } | undefined)?.firstName;
+      const filename = `biodata-${firstName ? firstName.toLowerCase().replace(/\s+/g, '-') : visibleProfile.displayId as string}.pdf`;
+
+      response
+        .status(200)
+        .set('Content-Type', 'application/pdf')
+        .set('Content-Disposition', `attachment; filename="${filename}"`)
+        .set('Content-Length', String(pdfBuffer.length))
+        .end(pdfBuffer);
     }),
   );
 

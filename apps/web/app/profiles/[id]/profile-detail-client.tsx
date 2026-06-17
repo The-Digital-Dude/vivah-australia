@@ -1402,6 +1402,42 @@ function ProfileDetailView({
     )
   );
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTabKey>('overview');
+  const [biodataLoading, setBiodataLoading] = useState(false);
+  const [biodataError, setBiodataError] = useState<string | null>(null);
+
+  async function handleDownloadBiodata() {
+    if (!token) {
+      setBiodataError('Sign in to download a biodata.');
+      return;
+    }
+    setBiodataLoading(true);
+    setBiodataError(null);
+    try {
+      const isCookieBased = token === 'cookie-based';
+      const res = await fetch(`${apiBaseUrl}/api/profiles/${actionProfileId}/biodata.pdf`, {
+        credentials: 'include',
+        headers: (token && !isCookieBased) ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        setBiodataError(text || 'Failed to generate biodata. Please try again.');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `biodata-${firstName?.toLowerCase() ?? profile.displayId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setBiodataError('Unable to download biodata right now. Please try again.');
+    } finally {
+      setBiodataLoading(false);
+    }
+  }
 
   const fullName =
     [profile.personal?.firstName, profile.personal?.lastName].filter(Boolean).join(' ') ||
@@ -1644,21 +1680,30 @@ function ProfileDetailView({
                     )}
 
                     {/* Hero CTAs */}
-                    <div className="mt-6 hidden sm:flex flex-wrap gap-3 print:hidden">
-                      {isSelfView && (
-                        <Link
-                          href="/member/profile/edit"
-                          className="inline-flex items-center gap-2 rounded-full bg-[#A10E4D] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#890B40]"
+                    <div className="mt-6 hidden sm:flex flex-col gap-2 print:hidden">
+                      <div className="flex flex-wrap gap-3">
+                        {isSelfView && (
+                          <Link
+                            href="/member/profile/edit"
+                            className="inline-flex items-center gap-2 rounded-full bg-[#A10E4D] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#890B40]"
+                          >
+                            Edit your profile
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => void handleDownloadBiodata()}
+                          disabled={biodataLoading}
+                          className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/20 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/30 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                          Edit your profile
-                        </Link>
+                          <Camera className="size-4" />
+                          {biodataLoading ? 'Generating...' : 'Download Biodata'}
+                        </button>
+                      </div>
+                      {biodataError && (
+                        <p className="rounded-xl bg-white/15 px-4 py-2 text-xs font-medium text-white/90 backdrop-blur-sm">
+                          {biodataError}
+                        </p>
                       )}
-                      <button
-                        onClick={() => window.print()}
-                        className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/20 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/30"
-                      >
-                        <Camera className="size-4" /> Download Biodata
-                      </button>
                     </div>
                   </div>
                 </div>

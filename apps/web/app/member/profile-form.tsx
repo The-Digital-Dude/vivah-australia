@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { profileDraftSchema, mediaSignUploadSchema } from '@vivah/shared';
 import { useMemberRequest } from '@/lib/member-api';
+import ProfileStrengthMeter, { type ProfileStrength, type ProfileStrengthAction } from './profile-strength-meter';
 
 // ─── Tokens & helpers ──────────────────────────────────────────────────────────
 
@@ -37,6 +38,19 @@ const STEPS = [
   { id: 9, label: 'Partner Preferences', shortLabel: '9' },
   { id: 10, label: 'Verification', shortLabel: '10' },
 ] as const;
+
+const SECTION_TO_STEP: Record<string, number> = {
+  basic: 0,
+  location: 1,
+  religion: 2,
+  career: 3,
+  family: 4,
+  lifestyle: 5,
+  about: 6,
+  photos: 7,
+  preferences: 8,
+  verification: 9,
+};
 
 // ─── Draft state shape ────────────────────────────────────────────────────────
 
@@ -233,6 +247,7 @@ interface ApiProfile {
     occupations?: string[];
     maritalStatuses?: string[];
   };
+  profileStrength?: ProfileStrength;
 }
 interface ApiProfileResponse {
   profile?: ApiProfile;
@@ -594,28 +609,6 @@ function TextAreaField({
 // ─── Step panels ──────────────────────────────────────────────────────────────
 
 type StepErrors = Record<string, string>;
-
-function calculateDraftCompletion(draft: ProfileDraft): { percentage: number; missing: string[] } {
-  const fields = [
-    { key: draft.personal.firstName, label: 'First name' },
-    { key: draft.personal.lastName, label: 'Last name' },
-    { key: draft.personal.gender, label: 'Gender' },
-    { key: draft.personal.dateOfBirth, label: 'Date of birth' },
-    { key: draft.personal.maritalStatus, label: 'Marital status' },
-    { key: draft.location.country, label: 'Country' },
-    { key: draft.location.city, label: 'City' },
-    { key: draft.religion.religion, label: 'Religion' },
-    { key: draft.religion.community, label: 'Community' },
-    { key: draft.education.highestQualification, label: 'Highest qualification' },
-    { key: draft.employment.occupation, label: 'Occupation' },
-    { key: draft.about.aboutMe, label: 'About me' },
-    { key: draft.about.partnerExpectations, label: 'Partner expectations' },
-  ];
-  const completed = fields.filter((f) => f.key && f.key.trim() !== '');
-  const missing = fields.filter((f) => !f.key || f.key.trim() === '').map((f) => f.label);
-  const percentage = Math.round((completed.length / fields.length) * 100);
-  return { percentage, missing };
-}
 
 // Step 0: Basic Details
 function StepBasicDetails({
@@ -1845,6 +1838,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   const memberRequest = useMemberRequest();
   const [step, setStep] = useState(0); // 0-indexed
   const [draft, setDraft] = useState<ProfileDraft>(emptyDraft());
+  const [profileStrength, setProfileStrength] = useState<ProfileStrength | null>(null);
   const [errors, setErrors] = useState<StepErrors>({});
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -1853,6 +1847,13 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   const [loading, setLoading] = useState(true);
 
   const LOCAL_STORAGE_KEY = 'vivah_profile_draft';
+
+  useEffect(() => {
+    const requestedSection = new URLSearchParams(window.location.search).get('section');
+    if (requestedSection && SECTION_TO_STEP[requestedSection] !== undefined) {
+      setStep(SECTION_TO_STEP[requestedSection]);
+    }
+  }, []);
 
   // Load existing profile on mount
   useEffect(() => {
@@ -1888,6 +1889,8 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
         }
 
         const remoteDraft = apiToDraft(result.data as Record<string, unknown>);
+        const apiProfile = (result.data as { profile?: ApiProfile }).profile;
+        setProfileStrength(apiProfile?.profileStrength ?? null);
         setDraft((currentDraft) => {
            // If we have a local draft stored in local storage, we prefer it to prevent data loss on reload.
            // In a production app, we might compare timestamps or prompt the user.
@@ -1981,6 +1984,9 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
       showToast(result.ok ? 'Draft saved successfully' : result.message, result.ok);
       setSaving(false);
     }
+    if (result.ok && result.data) {
+      setProfileStrength((result.data as { profile?: ApiProfile }).profile?.profileStrength ?? null);
+    }
     return result.ok;
   }
 
@@ -2007,6 +2013,9 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     if (!result.ok) {
       showToast(result.message, false);
       return;
+    }
+    if (result.data) {
+      setProfileStrength((result.data as { profile?: ApiProfile }).profile?.profileStrength ?? null);
     }
     if (step < STEPS.length - 1) setStep((s) => s + 1);
     else showToast('All sections complete! You can submit your profile.', true);
@@ -2079,6 +2088,15 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   const progress = ((step + 1) / STEPS.length) * 100;
   const isLastStep = step === STEPS.length - 1;
 
+  function handleStrengthAction(action: ProfileStrengthAction) {
+    const nextStep = SECTION_TO_STEP[action.section];
+    if (nextStep !== undefined) {
+      setStep(nextStep);
+    } else {
+      router.push(action.href);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-40 items-center justify-center rounded-3xl border border-[#A10E4D]/10 bg-white">
@@ -2093,27 +2111,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   return (
     <div className="relative grid gap-3">
       {/* Profile Strength Coaching */}
-      <div className="rounded-2xl border border-[#A10E4D]/20 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFFFFF_100%)] p-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-bold text-[#A10E4D]">Profile Strength</p>
-          <p className="text-sm font-bold text-[#A10E4D]">{calculateDraftCompletion(draft).percentage}%</p>
-        </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#A10E4D]/10">
-          <div
-            className="h-full rounded-full bg-[#A10E4D] transition-all duration-500"
-            style={{ width: `${calculateDraftCompletion(draft).percentage}%` }}
-          />
-        </div>
-        {calculateDraftCompletion(draft).missing.length > 0 ? (
-          <p className="mt-2 text-xs font-semibold text-[#A10E4D]">
-            Add <span className="font-bold underline">{calculateDraftCompletion(draft).missing[0]}</span> to boost your profile views!
-          </p>
-        ) : (
-          <p className="mt-2 text-xs font-semibold text-green-700">
-            Great job! Your profile is looking very strong.
-          </p>
-        )}
-      </div>
+      <ProfileStrengthMeter strength={profileStrength} onAction={handleStrengthAction} />
 
       {/* Toast */}
       {toast ? (

@@ -6,6 +6,7 @@ import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
 import { matchCachingQueue, savedSearchNotifyQueue } from './match/match.worker.js';
+import { profileCompletionNudgeQueue } from './profile/profile-completion.worker.js';
 
 const authConfig = {
   accessSecret: env.JWT_ACCESS_SECRET,
@@ -89,6 +90,14 @@ async function startServer() {
     });
   } else {
     logger.warn('Redis not available — saved search notifications disabled');
+  }
+
+  if (profileCompletionNudgeQueue) {
+    await profileCompletionNudgeQueue.add('send-profile-completion-nudges', {}, {
+      repeat: { pattern: '0 9 * * *' },
+    });
+  } else {
+    logger.warn('Redis not available — profile completion nudges disabled');
   }
 }
 

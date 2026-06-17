@@ -290,7 +290,7 @@ export default function AdminVerificationsPage() {
 
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Secure Document Vault</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Document Review Files</h4>
                   <div className="space-y-2">
                     {documents.map((doc) => (
                       <div
@@ -300,7 +300,7 @@ export default function AdminVerificationsPage() {
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-neutral-700 truncate">{doc.documentType}</p>
                           <p className="text-[9px] text-neutral-400 mt-0.5">
-                            {doc.storedSecurely ? 'Securely stored' : 'Standard cloud storage'}
+                            Standard access-controlled storage
                           </p>
                           {doc.originalFilename ? (
                             <p className="text-[9px] text-neutral-500 mt-1 truncate">

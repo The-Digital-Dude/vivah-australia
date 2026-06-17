@@ -1,0 +1,227 @@
+
+D:\AI\Vivah Australia\apps\api\src\admin\admin.routes.ts
+   312:9   error  Unsafe argument of type `any[]` assigned to a parameter of type `string[]`         @typescript-eslint/no-unsafe-argument
+   517:20  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   540:20  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   597:20  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   620:20  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   674:21  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   697:21  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   750:27  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   772:27  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   826:22  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   849:22  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   902:23  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   925:23  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+   978:19  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1000:19  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1053:24  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1076:24  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1130:20  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1153:20  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1207:25  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1230:25  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1284:22  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  1307:22  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+
+D:\AI\Vivah Australia\apps\api\src\admin\admin.service.ts
+  1064:19  error  Unexpected `await` of a non-Promise (non-"Thenable") value  @typescript-eslint/await-thenable
+  1248:17  error  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+  1249:31  error  Unsafe assignment of an `any` value                         @typescript-eslint/no-unsafe-assignment
+  1249:40  error  Unsafe member access .message on an `any` value             @typescript-eslint/no-unsafe-member-access
+
+D:\AI\Vivah Australia\apps\api\src\auth\auth.routes.ts
+  167:13  error  Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  171:43  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  182:13  error  Unsafe assignment of an `any` value                                     @typescript-eslint/no-unsafe-assignment
+  184:22  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+
+D:\AI\Vivah Australia\apps\api\src\billing\billing.routes.ts
+  140:13  error  Unsafe assignment of an `any` value         @typescript-eslint/no-unsafe-assignment
+  141:35  error  Unsafe assignment of an `any` value         @typescript-eslint/no-unsafe-assignment
+  141:45  error  Unsafe member access .id on an `any` value  @typescript-eslint/no-unsafe-member-access
+  153:13  error  Unsafe assignment of an `any` value         @typescript-eslint/no-unsafe-assignment
+
+D:\AI\Vivah Australia\apps\api\src\billing\billing.service.ts
+  260:19  error  Unexpected any. Specify a different type                                                          @typescript-eslint/no-explicit-any
+  261:15  error  Unsafe member access .type on an `any` value                                                      @typescript-eslint/no-unsafe-member-access
+  261:61  error  Unsafe member access .rawType on an `any` value                                                   @typescript-eslint/no-unsafe-member-access
+  513:7   error  Unsafe argument of type `any` assigned to a parameter of type `UpdateQuery<Payment> | undefined`  @typescript-eslint/no-unsafe-argument
+  513:7   error  This assertion is unnecessary since the receiver accepts the original type of the expression      @typescript-eslint/no-unnecessary-type-assertion
+  530:12  error  Unexpected any. Specify a different type                                                          @typescript-eslint/no-explicit-any
+  909:13  error  Unsafe assignment of an `any` value                                                               @typescript-eslint/no-unsafe-assignment
+  909:82  error  Unexpected any. Specify a different type                                                          @typescript-eslint/no-explicit-any
+  910:29  error  Unsafe member access .current_period_end on an `any` value                                        @typescript-eslint/no-unsafe-member-access
+  911:41  error  Unsafe member access .current_period_end on an `any` value                                        @typescript-eslint/no-unsafe-member-access
+
+D:\AI\Vivah Australia\apps\api\src\billing\paypal.service.ts
+  31:3   error  Unsafe return of a value of type `any`                                       @typescript-eslint/no-unsafe-return
+  36:23  error  Unsafe argument of type `any` assigned to a parameter of type `RequestData`  @typescript-eslint/no-unsafe-argument
+  36:29  error  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  38:3   error  Unsafe return of a value of type `any`                                       @typescript-eslint/no-unsafe-return
+
+D:\AI\Vivah Australia\apps\api\src\interactions\interactions.service.ts
+  138:10  error  'monthStart' is defined but never used              @typescript-eslint/no-unused-vars
+  242:16  error  'findConversationByPair' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\AI\Vivah Australia\apps\api\src\interactions\photo-requests.routes.test.ts
+   60:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+   61:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+   62:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  156:46  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  157:27  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  174:46  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  175:27  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  181:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  182:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  208:46  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  209:27  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  212:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  213:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  234:46  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  235:27  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  245:46  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  246:27  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  264:46  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  265:27  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+
+D:\AI\Vivah Australia\apps\api\src\interactions\photo-requests.service.ts
+  310:28  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+
+D:\AI\Vivah Australia\apps\api\src\match\match.routes.test.ts
+   74:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+   75:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+   76:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  233:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  240:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  247:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  255:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  264:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  272:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  280:31  error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  280:59  error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  282:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  285:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  303:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  331:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  338:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  344:34  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  365:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  372:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  380:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  388:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  419:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  427:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  435:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  444:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  447:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  468:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  476:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  484:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  492:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  502:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  505:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  510:9   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  511:9   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  516:9   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  517:9   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  522:9   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  523:9   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  545:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  554:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  567:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  579:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  608:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  619:9   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  642:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  685:34  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  687:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  698:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  717:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  724:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  776:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  793:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  807:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  819:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  828:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  837:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+
+D:\AI\Vivah Australia\apps\api\src\match\match.service.ts
+  22:3  error  'UserModel' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\AI\Vivah Australia\apps\api\src\match\match.worker.ts
+   18:38  error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+   18:69  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+   22:44  error  'job' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   58:27  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+   60:22  error  Unsafe member access ['personal.gender'] on an `any` value                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unsafe-member-access
+   64:22  error  Unsafe member access ['personal.age'] on an `any` value                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unsafe-member-access
+   71:48  error  Unsafe argument of type `any` assigned to a parameter of type `_QueryFilter<{ createdBy: ObjectId; updatedBy: ObjectId; isDeleted: boolean; deletedAt: Date; deletedBy: ObjectId; createdAt: Date; updatedAt: Date; ... 107 more ...; "moderation.lastReviewSnapshot": { ...; } | undefined; }> | undefined`                                                                @typescript-eslint/no-unsafe-argument
+  108:8   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  108:39  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  116:43  error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  116:74  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  120:49  error  'job' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  124:60  error  Unsafe argument of type `any` assigned to a parameter of type `{ sort: "NEWEST" | "RECOMMENDED" | "RECENTLY_ACTIVE" | "VERIFIED"; page: number; pageSize: number; religion?: string[] | undefined; education?: string[] | undefined; gender?: "FEMALE" | "MALE" | "NON_BINARY" | "PREFER_NOT_TO_SAY" | undefined; ... 26 more ...; dateJoinedBefore?: Date | undefined; }`  @typescript-eslint/no-unsafe-argument
+  125:32  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  154:10  error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unsafe-assignment
+  154:41  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+
+D:\AI\Vivah Australia\apps\api\src\media\media.routes.test.ts
+   83:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+   84:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+   85:5   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  145:25  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  172:25  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  199:25  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  243:25  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  265:25  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  295:41  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  297:7   error  Unsafe assignment of an error typed value                                       @typescript-eslint/no-unsafe-assignment
+  331:25  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  396:25  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+  452:27  error  Unsafe argument of type error typed assigned to a parameter of type `ObjectId`  @typescript-eslint/no-unsafe-argument
+
+D:\AI\Vivah Australia\apps\api\src\messages\messages.routes.ts
+    3:3   error  'conversationCreateSchema' is defined but never used                                                        @typescript-eslint/no-unused-vars
+  105:59  error  'request.query.limit' may use Object's default stringification format ('[object Object]') when stringified  @typescript-eslint/no-base-to-string
+
+D:\AI\Vivah Australia\apps\api\src\messages\messages.service.ts
+  444:34  error  Invalid type "ObjectId" of template literal expression                                                                                                                                                                                                                                                                                                                     @typescript-eslint/restrict-template-expressions
+  506:17  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  512:12  error  Unsafe member access .createdAt on an `any` value                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unsafe-member-access
+  514:44  error  Unsafe argument of type `any` assigned to a parameter of type `_QueryFilter<{ isDeleted: boolean; createdAt: Date; updatedAt: Date; senderId: ObjectId; conversationId: ObjectId; body: string; attachmentIds: ObjectId[]; ... 28 more ...; "readBy.inspect": (depth?: number | undefined, options?: unknown, inspect?: InspectFn | undefined) => string; }> | undefined`  @typescript-eslint/no-unsafe-argument
+  524:36  error  Invalid type "ObjectId" of template literal expression                                                                                                                                                                                                                                                                                                                     @typescript-eslint/restrict-template-expressions
+  588:5   error  Unsafe assignment of an `any` value                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unsafe-assignment
+  588:51  error  Invalid type "ObjectId" of template literal expression                                                                                                                                                                                                                                                                                                                     @typescript-eslint/restrict-template-expressions
+
+D:\AI\Vivah Australia\apps\api\src\models\user.model.ts
+  139:9   error  Unsafe assignment of an `any` value                @typescript-eslint/no-unsafe-assignment
+  139:21  error  Unsafe member access ._id on an `any` value        @typescript-eslint/no-unsafe-member-access
+  140:33  error  Unsafe member access .status on an `any` value     @typescript-eslint/no-unsafe-member-access
+  140:60  error  Unsafe member access .isDeleted on an `any` value  @typescript-eslint/no-unsafe-member-access
+  146:53  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  147:45  error  Unsafe member access .status on an `any` value     @typescript-eslint/no-unsafe-member-access
+  147:81  error  Unsafe member access .isDeleted on an `any` value  @typescript-eslint/no-unsafe-member-access
+  152:11  error  Unsafe assignment of an `any` value                @typescript-eslint/no-unsafe-assignment
+  154:28  error  Unsafe member access .status on an `any` value     @typescript-eslint/no-unsafe-member-access
+  154:77  error  Unsafe member access .status on an `any` value     @typescript-eslint/no-unsafe-member-access
+  155:28  error  Unsafe member access .isDeleted on an `any` value  @typescript-eslint/no-unsafe-member-access
+  155:83  error  Unsafe member access .isDeleted on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+D:\AI\Vivah Australia\apps\api\src\notifications\notifications.routes.test.ts
+   43:5   error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+   61:5   error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+   62:5   error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+   63:5   error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+   92:50  error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+  101:37  error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+  125:9   error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+  149:57  error  Unsafe assignment of an error typed value  @typescript-eslint/no-unsafe-assignment
+
+D:\AI\Vivah Australia\apps\api\src\verification\verification.routes.ts
+  56:7  error  Unexpected `await` of a non-Promise (non-"Thenable") value  @typescript-eslint/await-thenable
+
+✖ 187 problems (187 errors, 0 warnings)
+  24 errors and 0 warnings potentially fixable with the `--fix` option.
+

@@ -29,7 +29,7 @@ Awarded when members additionally verify their current address (via utility bill
 Our highest trust level. Awarded after a comprehensive verification check by our dedicated support agents, confirming that all profile details — identity, photo, occupation, education, and address — are consistent, accurate, and current.
 
 Document Handling
-All verification documents are handled with strict confidentiality. Documents are reviewed by trained team members and stored in encrypted, access-controlled cloud storage. Documents are never shared with other members or third parties.
+All verification documents are handled with strict confidentiality. Documents are reviewed by trained team members and stored in access-controlled cloud storage. Documents are never shared with other members or third parties.
 
 Verification Review Time
 - Basic: Instant

@@ -23,7 +23,7 @@ Photo Privacy
 You have full control over who can see your profile photos. You may choose to show photos publicly, only to logged-in members, or exclusively to matches you have accepted. This setting can be changed at any time from your profile privacy controls.
 
 Data Security
-All data is transmitted over HTTPS. Sensitive documents are stored in encrypted cloud storage with restricted access controls. Our team undergoes regular security training and access is reviewed quarterly.
+All data is transmitted over HTTPS. Sensitive documents are stored in access-controlled cloud storage with restricted access controls. Our team undergoes regular security training and access is reviewed quarterly.
 
 Data Retention
 Your data is retained for as long as your account is active. Upon account deletion, personal data is removed within 30 days, except where retention is required for legal compliance.

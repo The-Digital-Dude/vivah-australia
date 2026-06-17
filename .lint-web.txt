@@ -1,0 +1,92 @@
+
+D:\AI\Vivah Australia\apps\web\app\(auth)\login\page.tsx
+   48:48  error  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+   48:54  error  Unsafe member access .profile on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+   51:14  error  'e' is defined but never used                                                      @typescript-eslint/no-unused-vars
+   59:5   error  Promise-returning function provided to property where a void return was expected   @typescript-eslint/no-misused-promises
+   66:24  error  Unsafe assignment of an `any` value                                                @typescript-eslint/no-unsafe-assignment
+   66:51  error  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  100:24  error  Unsafe assignment of an `any` value                                                @typescript-eslint/no-unsafe-assignment
+  100:51  error  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  130:22  error  Unsafe assignment of an `any` value                                                @typescript-eslint/no-unsafe-assignment
+  130:49  error  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  143:45  error  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  144:19  error  Unsafe member access .accessToken on an `any` value                                @typescript-eslint/no-unsafe-member-access
+  155:73  error  Unsafe member access .accessToken on an `any` value                                @typescript-eslint/no-unsafe-member-access
+  158:22  error  Unsafe assignment of an `any` value                                                @typescript-eslint/no-unsafe-assignment
+  158:49  error  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  251:22  error  Promise-returning function provided to attribute where a void return was expected  @typescript-eslint/no-misused-promises
+  252:35  error  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  255:26  error  Unsafe assignment of an `any` value                                                @typescript-eslint/no-unsafe-assignment
+  255:38  error  Unsafe member access .onClick on an `any` value                                    @typescript-eslint/no-unsafe-member-access
+
+D:\AI\Vivah Australia\apps\web\app\(auth)\register\page.tsx
+  145:22  error  Unsafe assignment of an `any` value       @typescript-eslint/no-unsafe-assignment
+  145:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\AI\Vivah Australia\apps\web\app\admin\login\page.tsx
+  53:18  error  Unsafe assignment of an `any` value       @typescript-eslint/no-unsafe-assignment
+  53:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\AI\Vivah Australia\apps\web\app\admin\media\admin-media-review.tsx
+  136:16  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+  145:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  252:18  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+  261:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\AI\Vivah Australia\apps\web\app\admin\payments\[id]\page.tsx
+  58:65  error  Invalid type "ParamValue" of template literal expression  @typescript-eslint/restrict-template-expressions
+
+D:\AI\Vivah Australia\apps\web\app\matrimony\[slug]\page.tsx
+  255:15  error  Unsafe spread of an `any` value in an array  @typescript-eslint/no-unsafe-assignment
+
+D:\AI\Vivah Australia\apps\web\app\member\interests\interests-manager.tsx
+  133:10  error  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\AI\Vivah Australia\apps\web\app\member\profile-form.tsx
+  1840:10  error  'profileId' is assigned a value but never used                                                @typescript-eslint/no-unused-vars
+  1857:17  error  Unsafe assignment of an `any` value                                                           @typescript-eslint/no-unsafe-assignment
+  1859:32  error  Unsafe member access .personal on an `any` value                                              @typescript-eslint/no-unsafe-member-access
+  1860:22  error  Unsafe argument of type `any` assigned to a parameter of type `SetStateAction<ProfileDraft>`  @typescript-eslint/no-unsafe-argument
+  1863:16  error  'e' is defined but never used                                                                 @typescript-eslint/no-unused-vars
+
+D:\AI\Vivah Australia\apps\web\app\profiles\[id]\page.tsx
+  14:11  error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  15:5   error  Unsafe return of a value of type `any`              @typescript-eslint/no-unsafe-return
+  15:17  error  Unsafe member access .profile on an `any` value     @typescript-eslint/no-unsafe-member-access
+  16:12  error  'err' is defined but never used                     @typescript-eslint/no-unused-vars
+  23:9   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  31:9   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  31:24  error  Unsafe member access .personal on an `any` value    @typescript-eslint/no-unsafe-member-access
+  31:55  error  Unsafe member access .displayId on an `any` value   @typescript-eslint/no-unsafe-member-access
+  32:29  error  Unsafe member access .location on an `any` value    @typescript-eslint/no-unsafe-member-access
+  32:53  error  Unsafe member access .location on an `any` value    @typescript-eslint/no-unsafe-member-access
+  44:23  error  Unsafe member access .photoUrl on an `any` value    @typescript-eslint/no-unsafe-member-access
+  44:37  error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  44:50  error  Unsafe member access .photoUrl on an `any` value    @typescript-eslint/no-unsafe-member-access
+  51:9   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  56:5   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  56:19  error  Unsafe member access .personal on an `any` value    @typescript-eslint/no-unsafe-member-access
+  56:50  error  Unsafe member access .displayId on an `any` value   @typescript-eslint/no-unsafe-member-access
+  57:5   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  57:26  error  Unsafe member access .about on an `any` value       @typescript-eslint/no-unsafe-member-access
+  58:5   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  58:20  error  Unsafe member access .photoUrl on an `any` value    @typescript-eslint/no-unsafe-member-access
+  61:7   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  61:32  error  Unsafe member access .location on an `any` value    @typescript-eslint/no-unsafe-member-access
+  62:7   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  62:30  error  Unsafe member access .location on an `any` value    @typescript-eslint/no-unsafe-member-access
+  63:7   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  63:31  error  Unsafe member access .location on an `any` value    @typescript-eslint/no-unsafe-member-access
+  65:5   error  Unsafe assignment of an `any` value                 @typescript-eslint/no-unsafe-assignment
+  65:23  error  Unsafe member access .employment on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+D:\AI\Vivah Australia\apps\web\app\success-stories\page.tsx
+  212:23  error  Unsafe spread of an `any` value in an array  @typescript-eslint/no-unsafe-assignment
+  242:23  error  Unsafe spread of an `any` value in an array  @typescript-eslint/no-unsafe-assignment
+  299:25  error  Unsafe spread of an `any` value in an array  @typescript-eslint/no-unsafe-assignment
+  387:17  error  Unsafe spread of an `any` value in an array  @typescript-eslint/no-unsafe-assignment
+
+✖ 68 problems (64 errors, 4 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+
