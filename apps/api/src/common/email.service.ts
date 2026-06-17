@@ -326,6 +326,24 @@ const DEFAULT_HTML_TEMPLATES: Record<string, string> = {
       <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">See your dashboard</a>
     </div>
   `,
+  WEEKLY_ACTIVITY_DIGEST: `
+    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #A10E4D;">Your weekly Vivah Australia update</h2>
+      <p>Hi {{ firstName }}, here is your activity snapshot for the past 7 days.</p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0;">
+        <div style="min-width: 160px; padding: 16px; border: 1px solid #f2d5de; border-radius: 12px; background: #FFF8F1;">
+          <p style="margin: 0; font-size: 12px; color: #6B7280;">Profile views</p>
+          <p style="margin: 8px 0 0; font-size: 28px; font-weight: 700; color: #A10E4D;">{{ profileViews }}</p>
+        </div>
+        <div style="min-width: 160px; padding: 16px; border: 1px solid #f2d5de; border-radius: 12px; background: #FFF8F1;">
+          <p style="margin: 0; font-size: 12px; color: #6B7280;">Interests received</p>
+          <p style="margin: 8px 0 0; font-size: 28px; font-weight: 700; color: #A10E4D;">{{ interestsReceived }}</p>
+        </div>
+      </div>
+      <p>Your profile is currently <strong>{{ completionPercentage }}% complete</strong>.</p>
+      <a href="{{ actionUrl }}" style="display: inline-block; background-color: #A10E4D; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">{{ nextActionLabel }}</a>
+    </div>
+  `,
 };
 
 export async function sendTemplatedEmail(input: TemplatedEmail): Promise<void> {

@@ -6,6 +6,7 @@ import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
 import { onboardingDripQueue } from './notifications/onboarding-drip.worker.js';
+import { weeklyDigestQueue } from './notifications/weekly-digest.worker.js';
 import { subscriptionExpiryQueue } from './billing/subscription-expiry.worker.js';
 import { matchCachingQueue, savedSearchNotifyQueue } from './match/match.worker.js';
 import { profileCompletionNudgeQueue } from './profile/profile-completion.worker.js';
@@ -108,6 +109,14 @@ async function startServer() {
     });
   } else {
     logger.warn('Redis not available — onboarding drip disabled');
+  }
+
+  if (weeklyDigestQueue) {
+    await weeklyDigestQueue.add('send-weekly-digest', {}, {
+      repeat: { pattern: '0 11 * * 1' },
+    });
+  } else {
+    logger.warn('Redis not available — weekly digest disabled');
   }
 
   if (subscriptionExpiryQueue) {

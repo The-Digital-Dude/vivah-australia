@@ -220,14 +220,21 @@ export default function ProfileViewersPage() {
               {data.total === 1 ? 'person has' : 'people have'} viewed your profile
             </p>
           </div>
-          {!data.isPaid && (
-            <Link href="/member/subscription" className="ml-auto shrink-0">
-              <span className="flex items-center gap-1.5 rounded-full bg-[#D4A04C] px-4 py-2 text-xs font-bold text-[#2F2F2F] hover:bg-[#C4A030] transition">
-                <Crown className="size-3.5" />
-                Upgrade
+          <div className="ml-auto flex shrink-0 gap-2">
+            <Link href="/member/profile/edit">
+              <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:bg-white/15">
+                Improve profile
               </span>
             </Link>
-          )}
+            {!data.isPaid && (
+              <Link href="/member/subscription">
+                <span className="flex items-center gap-1.5 rounded-full bg-[#D4A04C] px-4 py-2 text-xs font-bold text-[#2F2F2F] hover:bg-[#C4A030] transition">
+                  <Crown className="size-3.5" />
+                  Upgrade
+                </span>
+              </Link>
+            )}
+          </div>
         </PremiumCard>
       )}
 

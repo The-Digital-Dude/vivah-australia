@@ -284,10 +284,10 @@ export default function MemberDashboardPage() {
   const profileViewsCount = profileViewersTotal ?? profile?.stats?.profileViews ?? 0;
 
   const summaryCards: SummaryCard[] = [
-    { label: 'New matches', value: String(newMatchesCount), description: '', icon: Sparkles, href: '/member/matches' },
-    { label: 'Received interests', value: String(receivedInterestCount), description: '', icon: Heart, href: '/member/interests' },
-    { label: 'Messages', value: String(unreadMessagesCount), description: '', icon: MessageSquare, href: '/member/messages' },
-    { label: 'Profile views', value: String(profileViewsCount), description: '', icon: Eye, href: '/member/profile-viewers' },
+    { label: 'Profile views', value: String(profileViewsCount), description: 'See who noticed you recently', icon: Eye, href: '/member/profile-viewers' },
+    { label: 'New matches', value: String(newMatchesCount), description: 'Fresh recommendations for today', icon: Sparkles, href: '/member/matches' },
+    { label: 'Received interests', value: String(receivedInterestCount), description: 'People waiting on your reply', icon: Heart, href: '/member/interests' },
+    { label: 'Messages', value: String(unreadMessagesCount), description: 'Open conversations and replies', icon: MessageSquare, href: '/member/messages' },
   ];
 
   const membershipName = entitlement.plan?.name ?? 'Free';
@@ -398,6 +398,9 @@ export default function MemberDashboardPage() {
                   <div className="min-w-0">
                     <p className="text-2xl font-bold text-[#2F2F2F]">{card.value}</p>
                     <p className="text-xs font-semibold text-[#6B7280]">{card.label}</p>
+                    {card.description ? (
+                      <p className="mt-1 text-[11px] text-[#8A8F99]">{card.description}</p>
+                    ) : null}
                   </div>
                   <ArrowRight className="ml-auto size-4 text-[#A10E4D]/40 transition group-hover:translate-x-0.5 group-hover:text-[#A10E4D]" />
                 </PremiumCard>
@@ -566,6 +569,9 @@ export default function MemberDashboardPage() {
                 <Link href="/member/profile-viewers" className="text-xs font-semibold text-[#A10E4D]">View all</Link>
               </div>
               <p className="mb-3 text-2xl font-bold text-[#2F2F2F]">{profileViewsCount}</p>
+              <p className="mb-3 text-xs text-[#6B7280]">
+                Keep an eye on who is discovering your profile and follow up while the interest is fresh.
+              </p>
               {recentVisitorProfiles.length > 0 ? (
                 <div className="flex -space-x-2">
                   {recentVisitorProfiles.map((profileCard) => (
@@ -585,6 +591,11 @@ export default function MemberDashboardPage() {
               ) : (
                 <p className="text-xs text-[#6B7280]">Views will appear as members discover you.</p>
               )}
+              <div className="mt-4">
+                <PremiumButton href="/member/profile-viewers" variant="secondary" className="w-full text-sm">
+                  Open viewers list
+                </PremiumButton>
+              </div>
             </PremiumCard>
           </div>
         </div>

@@ -642,7 +642,7 @@ async function notifyPaidProfileView(
 }
 
 export async function listProfileViewersReceived(userId: Types.ObjectId, isPaidMember: boolean) {
-  // First get own profile id so we can look up views by profileUserId
+  // First get own profile so we can validate membership and query views by owner user id.
   const ownProfile = await ProfileModel.findOne({ userId, isDeleted: false }).lean();
   if (!ownProfile) {
     throw new HttpError(404, 'Profile not found');
@@ -658,7 +658,7 @@ export async function listProfileViewersReceived(userId: Types.ObjectId, isPaidM
   }>([
     {
       $match: {
-        profileUserId: ownProfile._id,
+        profileUserId: userId,
         isDeleted: false,
         // Exclude self-views (shouldn't happen, but defensive)
         viewerId: { $ne: userId },
@@ -718,7 +718,7 @@ export async function listProfileViewersReceived(userId: Types.ObjectId, isPaidM
 
   // Get total unique viewer count (unfiltered, for the free-tier "X people viewed" teaser)
   const totalCount = await ProfileViewModel.aggregate<{ count: number }>([
-    { $match: { profileUserId: ownProfile._id, isDeleted: false, viewerId: { $ne: userId } } },
+    { $match: { profileUserId: userId, isDeleted: false, viewerId: { $ne: userId } } },
     { $group: { _id: '$viewerId' } },
     { $count: 'count' },
   ]).then((result) => result[0]?.count ?? 0);

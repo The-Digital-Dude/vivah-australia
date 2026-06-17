@@ -49,6 +49,7 @@ export interface User {
     lastIp?: string;
     lastUserAgent?: string;
   };
+  lastWeeklyDigestSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   createdBy?: Types.ObjectId;
@@ -110,6 +111,7 @@ const userSchema = new Schema<User>(
       lastIp: { type: String },
       lastUserAgent: { type: String },
     },
+    lastWeeklyDigestSentAt: { type: Date },
     ...auditedSchemaFields,
   },
   timestampedSchemaOptions,

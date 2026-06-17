@@ -210,6 +210,10 @@ describe('profile routes', () => {
         religion: { religion: 'Hindu', community: 'Indian' },
         education: { highestQualification: 'Bachelor degree' },
         employment: { occupation: 'Accountant' },
+        compatibility: {
+          relationshipPace: 'INTENTIONAL_AND_STEADY',
+          familyInvolvement: 'BALANCED',
+        },
         about: {
           aboutMe: 'I am a committed professional looking for a serious long-term match.',
           partnerExpectations: 'I value kindness, family connection, and shared goals.',
@@ -494,6 +498,58 @@ describe('profile routes', () => {
       }),
     ).toBe(2);
     expect(await ProfileViewModel.countDocuments({ viewerId: viewer.user._id })).toBe(1);
+  });
+
+  it('returns profile viewers for the viewed member using the owner user id lookup', async () => {
+    const viewer = await createUser('viewer-list@example.com');
+    const owner = await createUser('owner-list@example.com');
+    await addPremiumSubscription(owner.user._id);
+
+    const viewerProfile = await createProfile(viewer.user._id, 'VA993001');
+    viewerProfile.set({
+      'personal.firstName': 'Anaya',
+      'personal.age': 30,
+      'location.city': 'Sydney',
+      'employment.occupation': 'Designer',
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+    });
+    await viewerProfile.save();
+
+    const ownerProfile = await createProfile(owner.user._id, 'VA993002');
+    ownerProfile.set({
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+      'visibility.status': 'MEMBERS_ONLY',
+    });
+    await ownerProfile.save();
+
+    await request(app)
+      .get(`/api/profiles/${ownerProfile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const response = await request(app)
+      .get('/api/me/profile-viewers')
+      .set('Authorization', `Bearer ${owner.accessToken}`)
+      .expect(200);
+
+    expect(
+      bodyAs<{
+        total: number;
+        isPaid: boolean;
+        viewers: Array<{ blurred: boolean; viewer: { displayId: string | null } | null }>;
+      }>(response),
+    ).toMatchObject({
+      total: 1,
+      isPaid: true,
+      viewers: [
+        {
+          blurred: false,
+          viewer: {
+            displayId: 'VA993001',
+          },
+        },
+      ],
+    });
   });
 
   it('deactivates the account, hides the profile, and revokes refresh sessions', async () => {

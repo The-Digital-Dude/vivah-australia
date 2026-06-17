@@ -102,23 +102,30 @@ describe('SettingsManagerPage verification badge rules', () => {
       expect(screen.getByText('Verification Badge Rules')).toBeTruthy();
     });
 
-    const facialCheckbox = screen.getByLabelText('Facial') as HTMLInputElement;
+    const facialCheckbox = screen.getAllByLabelText('Facial').at(0);
+    expect(facialCheckbox).toBeTruthy();
+    if (!facialCheckbox) {
+      throw new Error('Expected a Facial checkbox');
+    }
     fireEvent.click(facialCheckbox);
     fireEvent.click(screen.getByRole('button', { name: 'Save Badge Rules' }));
 
     await waitFor(() => {
-      expect(memberRequestMock).toHaveBeenCalledWith(
-        '/api/admin/settings/verificationBadgeRules',
-        expect.objectContaining({
-          method: 'PUT',
-          body: expect.objectContaining({
-            value: expect.objectContaining({
-              BASIC: expect.objectContaining({
-                allOf: expect.arrayContaining(['emailVerified', 'facialVerified']),
-              }),
-            }),
-          }),
-        }),
+      const saveCall = memberRequestMock.mock.calls.find((call) => {
+        const [url] = call as [unknown, unknown?];
+        return url === '/api/admin/settings/verificationBadgeRules';
+      });
+
+      expect(saveCall).toBeTruthy();
+
+      const [, options] = saveCall as [
+        string,
+        { method?: string; body?: { value?: { BASIC?: { allOf?: string[] } } } },
+      ];
+
+      expect(options?.method).toBe('PUT');
+      expect(options?.body?.value?.BASIC?.allOf).toEqual(
+        expect.arrayContaining(['emailVerified', 'facialVerified']),
       );
     });
 

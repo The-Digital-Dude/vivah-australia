@@ -7,23 +7,16 @@ import { AccountStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
-  BannerModel,
-  BlogPostModel,
-  CmsPageModel,
   ContactInquiryModel,
   FraudEventModel,
   LandingPageModel,
   PlanModel,
   ProfileApprovalStatus,
   ProfileModel,
-  SuccessStoryModel,
-  SystemSettingModel,
-  TestimonialModel,
   UserModel,
   type UserDocument,
 } from '../models/index.js';
 import type { AuthConfig } from '../auth/auth-types.js';
-import { createTokenPair } from '../auth/token.service.js';
 
 interface FeaturedProfilesResponse {
   profiles: Array<{ displayId: string }>;
@@ -35,24 +28,8 @@ interface PublicMatchesResponse {
   gated: boolean;
 }
 
-interface CmsPageResponse {
-  page: {
-    _id: string;
-    title: string;
-  };
-}
-
 function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
-}
-
-function hasTitle(value: unknown): value is { title: string } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'title' in value &&
-    typeof (value as { title?: unknown }).title === 'string'
-  );
 }
 
 const authConfig: AuthConfig = {
@@ -83,27 +60,6 @@ afterAll(async () => {
   await disconnectDatabase();
   await mongoServer?.stop();
 });
-
-async function createAdminAccessToken() {
-  const admin: UserDocument = await UserModel.create({
-    email: 'admin@example.com',
-    authProviders: ['email'],
-    role: UserRole.ADMIN,
-    status: AccountStatus.ACTIVE,
-    emailVerified: true,
-    mobileVerified: false,
-    failedLoginAttempts: 0,
-    refreshTokenVersion: 0,
-    marketingConsent: false,
-    metadata: {},
-  });
-
-  return createTokenPair(authConfig, {
-    id: admin.id,
-    role: admin.role,
-    refreshTokenVersion: 0,
-  }).accessToken;
-}
 
 describe('public web routes', () => {
   it('returns active public plans without authentication', async () => {
@@ -305,44 +261,6 @@ describe('public web routes', () => {
     expect(body.profiles[0]).toMatchObject({ displayId: 'VA910001' });
   });
 
-  it('creates and serves CMS pages through admin CRUD and public fetch', async () => {
-    const accessToken = await createAdminAccessToken();
-    const createResponse = await request(app)
-      .post('/api/admin/cms/pages')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        slug: 'about-us',
-        title: 'About Us',
-        body: 'Published CMS page.',
-        published: true,
-      })
-      .expect(201);
-
-    const publicResponse = await request(app).get('/api/public/pages/about-us').expect(200);
-    expect(bodyAs<CmsPageResponse>(publicResponse).page.title).toBe('About Us');
-
-    const listResponse = await request(app)
-      .get('/api/admin/cms/pages')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200);
-    expect(bodyAs<{ pages: Array<{ slug: string }> }>(listResponse).pages).toContainEqual(
-      expect.objectContaining({ slug: 'about-us' }),
-    );
-
-    await request(app)
-      .patch(`/api/admin/cms/pages/${bodyAs<CmsPageResponse>(createResponse).page._id}`)
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({ title: 'About Vivah Australia' })
-      .expect(200);
-
-    const updated: unknown = await CmsPageModel.findOne({ slug: 'about-us' }).orFail();
-    expect(hasTitle(updated)).toBe(true);
-
-    if (hasTitle(updated)) {
-      expect(updated.title).toBe('About Vivah Australia');
-    }
-  });
-
   it('lists active matrimony landing page slugs for sitemap generation', async () => {
     await LandingPageModel.create([
       {
@@ -370,104 +288,6 @@ describe('public web routes', () => {
     expect(bodyAs<{ pages: Array<{ slug: string; updatedAt?: string }> }>(response).pages).toEqual([
       expect.objectContaining({ slug: 'indian-matrimony-sydney' }),
     ]);
-  });
-
-  it('manages homepage and CMS content collections from admin APIs', async () => {
-    const accessToken = await createAdminAccessToken();
-    await request(app)
-      .put('/api/admin/cms/home')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        hero: {
-          title: 'Vivah Australia',
-          subtitle: 'Premium introductions for serious Australian members.',
-          primaryAction: 'Create profile',
-          secondaryAction: 'View plans',
-        },
-        howItWorks: ['Create profile', 'Verify details'],
-        safety: ['Manual moderation', 'Private media'],
-        faq: [{ question: 'Can admins update FAQs?', answer: 'Yes, from the CMS.' }],
-        contact: { email: 'support@vivahaustralia.com.au', location: 'Australia' },
-      })
-      .expect(200);
-
-    const homeResponse = await request(app).get('/api/public/home').expect(200);
-    expect(bodyAs<{ hero: { subtitle: string } }>(homeResponse).hero.subtitle).toContain(
-      'Premium introductions',
-    );
-
-    await request(app)
-      .post('/api/admin/cms/blogs')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        slug: 'profile-guide',
-        title: 'Profile guide',
-        body: 'Useful profile guidance.',
-        published: true,
-      })
-      .expect(201);
-
-    await request(app)
-      .post('/api/admin/cms/success-stories')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        slug: 'melbourne-match',
-        title: 'Melbourne match',
-        body: 'A thoughtful family introduction.',
-        coupleName: 'A & P',
-        published: true,
-      })
-      .expect(201);
-
-    await request(app)
-      .post('/api/admin/cms/testimonials')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        name: 'Member family',
-        quote: 'The service felt considered.',
-        published: true,
-      })
-      .expect(201);
-
-    await request(app)
-      .post('/api/admin/cms/banners')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        key: 'homepage-hero',
-        title: 'Homepage hero',
-        imageUrl: 'https://example.com/hero.jpg',
-        active: true,
-      })
-      .expect(201);
-
-    await request(app)
-      .get('/api/admin/cms/blogs')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200);
-    await request(app)
-      .get('/api/admin/cms/success-stories')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200);
-    await request(app)
-      .get('/api/admin/cms/testimonials')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200);
-    await request(app)
-      .get('/api/admin/cms/banners')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(200);
-
-    await expect(
-      SystemSettingModel.findOne({ key: 'homepageContent' }).orFail(),
-    ).resolves.toBeTruthy();
-    await expect(BlogPostModel.findOne({ slug: 'profile-guide' }).orFail()).resolves.toBeTruthy();
-    await expect(
-      SuccessStoryModel.findOne({ slug: 'melbourne-match' }).orFail(),
-    ).resolves.toBeTruthy();
-    await expect(
-      TestimonialModel.findOne({ name: 'Member family' }).orFail(),
-    ).resolves.toBeTruthy();
-    await expect(BannerModel.findOne({ key: 'homepage-hero' }).orFail()).resolves.toBeTruthy();
   });
 
   it('validates and stores contact inquiries', async () => {

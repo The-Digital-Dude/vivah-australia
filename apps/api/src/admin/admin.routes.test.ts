@@ -12,6 +12,9 @@ import {
   ActivityLogModel,
   AuthTokenModel,
   AuditLogModel,
+  BannerModel,
+  BlogPostModel,
+  CmsPageModel,
   CommunityPostModel,
   CommunityRoomModel,
   NotificationModel,
@@ -19,7 +22,10 @@ import {
   ProfileApprovalStatus,
   ProfileModel,
   ReportModel,
+  SuccessStoryModel,
   SubscriptionModel,
+  SystemSettingModel,
+  TestimonialModel,
   UserModel,
   VerificationDocumentModel,
   VerificationRequestModel,
@@ -175,10 +181,13 @@ describe('admin production readiness routes', () => {
     ).toEqual(expect.any(Array));
 
     const csvResponse = await request(app)
-      .get('/api/admin/analytics/export.csv')
+      .get('/api/admin/analytics/export.csv?from=2026-06-01T00:00:00.000Z&to=2026-06-17T23:59:59.999Z')
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .expect(200);
     expect(csvResponse.text).toContain('section,key,count,totalCents');
+    const analyticsRange = bodyAs<{ range: { from: string; to: string } }>(analyticsResponse).range;
+    expect(typeof analyticsRange.from).toBe('string');
+    expect(typeof analyticsRange.to).toBe('string');
   });
 
   it('applies permission-based admin access consistently by role', async () => {
@@ -635,5 +644,148 @@ describe('admin production readiness routes', () => {
     expect(bodyAs<{ logs: Array<{ action: string }> }>(response).logs[0]?.action).toBe(
       'ADMIN_USER_UPDATED',
     );
+  });
+
+  it('creates and serves CMS pages through admin CRUD and public fetch', async () => {
+    const admin = await createUser('admin-cms-pages@example.com', UserRole.ADMIN);
+    const createResponse = await request(app)
+      .post('/api/admin/cms/pages')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({
+        slug: 'about-us',
+        title: 'About Us',
+        body: 'Published CMS page.',
+        published: true,
+      })
+      .expect(201);
+
+    const publicResponse = await request(app).get('/api/public/pages/about-us').expect(200);
+    expect(bodyAs<{ page: { title: string } }>(publicResponse).page.title).toBe('About Us');
+
+    const listResponse = await request(app)
+      .get('/api/admin/cms/pages')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    expect(bodyAs<{ pages: Array<{ slug: string }> }>(listResponse).pages).toContainEqual(
+      expect.objectContaining({ slug: 'about-us' }),
+    );
+
+    await request(app)
+      .patch(`/api/admin/cms/pages/${bodyAs<{ page: { _id: string } }>(createResponse).page._id}`)
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({ title: 'About Vivah Australia' })
+      .expect(200);
+
+    const storedPage: unknown = await CmsPageModel.findOne({ slug: 'about-us' })
+      .select('title')
+      .lean()
+      .orFail();
+    expect(
+      typeof storedPage === 'object' &&
+        storedPage !== null &&
+        'title' in storedPage &&
+        typeof storedPage.title === 'string'
+        ? storedPage.title
+        : undefined,
+    ).toBe('About Vivah Australia');
+  });
+
+  it('manages homepage and CMS content collections from admin APIs', async () => {
+    const admin = await createUser('admin-cms-home@example.com', UserRole.ADMIN);
+
+    await request(app)
+      .put('/api/admin/cms/home')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({
+        hero: {
+          title: 'Vivah Australia',
+          subtitle: 'Premium introductions for serious Australian members.',
+          primaryAction: 'Create profile',
+          secondaryAction: 'View plans',
+        },
+        howItWorks: ['Create profile', 'Verify details'],
+        safety: ['Manual moderation', 'Private media'],
+        faq: [{ question: 'Can admins update FAQs?', answer: 'Yes, from the CMS.' }],
+        contact: { email: 'support@vivahaustralia.com.au', location: 'Australia' },
+      })
+      .expect(200);
+
+    const homeResponse = await request(app).get('/api/public/home').expect(200);
+    expect(bodyAs<{ hero: { subtitle: string } }>(homeResponse).hero.subtitle).toContain(
+      'Premium introductions',
+    );
+
+    await request(app)
+      .post('/api/admin/cms/blogs')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({
+        slug: 'profile-guide',
+        title: 'Profile guide',
+        body: 'Useful profile guidance.',
+        published: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .post('/api/admin/cms/success-stories')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({
+        slug: 'melbourne-match',
+        title: 'Melbourne match',
+        body: 'A thoughtful family introduction.',
+        coupleName: 'A & P',
+        published: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .post('/api/admin/cms/testimonials')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({
+        name: 'Member family',
+        quote: 'The service felt considered.',
+        published: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .post('/api/admin/cms/banners')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .send({
+        key: 'homepage-hero',
+        title: 'Homepage hero',
+        imageUrl: 'https://example.com/hero.jpg',
+        active: true,
+      })
+      .expect(201);
+
+    await request(app)
+      .get('/api/admin/cms/blogs')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    await request(app)
+      .get('/api/admin/cms/success-stories')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    await request(app)
+      .get('/api/admin/cms/testimonials')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+    await request(app)
+      .get('/api/admin/cms/banners')
+      .set('Authorization', `Bearer ${admin.accessToken}`)
+      .expect(200);
+
+    await expect(
+      SystemSettingModel.findOne({ key: 'homepageContent' }).orFail(),
+    ).resolves.toBeTruthy();
+    await expect(BlogPostModel.findOne({ slug: 'profile-guide' }).orFail()).resolves.toBeTruthy();
+    await expect(
+      SuccessStoryModel.findOne({ slug: 'melbourne-match' }).orFail(),
+    ).resolves.toBeTruthy();
+    await expect(
+      TestimonialModel.findOne({ name: 'Member family' }).orFail(),
+    ).resolves.toBeTruthy();
+    await expect(BannerModel.findOne({ key: 'homepage-hero' }).orFail()).resolves.toBeTruthy();
   });
 });
