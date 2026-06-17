@@ -41,7 +41,7 @@ function buildHomeRedirect(request: NextRequest, message: string) {
   return NextResponse.redirect(homeUrl);
 }
 
-export function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === '/admin/login') {
