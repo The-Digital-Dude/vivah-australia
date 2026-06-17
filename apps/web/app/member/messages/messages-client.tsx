@@ -30,6 +30,8 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:400
 
 interface Conversation {
   id: string;
+  isLocked?: boolean;
+  lockReason?: string;
   otherProfile?: {
     id: string;
     firstName?: string;
@@ -125,12 +127,15 @@ export default function MessagesClient() {
   const socketRef = useRef<Socket | null>(null);
   const messageListRef = useRef<HTMLDivElement | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [selected, setSelected] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [typing, setTyping] = useState<string | null>(null);
   const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [loadingConversations, setLoadingConversations] = useState(false);
+  const [loadingMoreConversations, setLoadingMoreConversations] = useState(false);
   const [writeLocked, setWriteLocked] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -177,16 +182,53 @@ export default function MessagesClient() {
     });
   }, [memberRequest]);
 
-  const loadConversations = useCallback(async () => {
-    const result = await memberRequest('/api/me/conversations');
+  const loadConversations = useCallback(async (cursor?: string | null) => {
+    const isLoadMore = Boolean(cursor);
+    if (isLoadMore) {
+      setLoadingMoreConversations(true);
+    } else {
+      setLoadingConversations(true);
+    }
+
+    const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+    const result = await memberRequest(`/api/me/conversations${query}`);
     if (!result.ok) {
       setMessage(result.message);
+      if (isLoadMore) {
+        setLoadingMoreConversations(false);
+      } else {
+        setLoadingConversations(false);
+      }
       return;
     }
-    const items = (result.data as { data?: Conversation[]; nextCursor?: string | null }).data ?? [];
+
+    const payload = result.data as { data?: Conversation[]; nextCursor?: string | null };
+    const items = payload.data ?? [];
+    setNextCursor(payload.nextCursor ?? null);
+
+    if (isLoadMore) {
+      setConversations((current) => {
+        const seen = new Set(current.map((item) => item.id));
+        const appended = items.filter((item) => !seen.has(item.id));
+        return [...current, ...appended];
+      });
+      setLoadingMoreConversations(false);
+      return;
+    }
+
     setConversations(items);
-    setSelected((current) => current ?? items[0] ?? null);
+    setSelected((current) =>
+      current ? items.find((item) => item.id === current.id) ?? current : items[0] ?? null,
+    );
+    setLoadingConversations(false);
   }, [memberRequest]);
+
+  async function loadMoreConversations() {
+    if (!nextCursor || loadingMoreConversations) {
+      return;
+    }
+    await loadConversations(nextCursor);
+  }
 
   const loadMessages = useCallback(async (conversationId: string, pageNum = 1) => {
     const limit = 50;
@@ -225,7 +267,7 @@ export default function MessagesClient() {
     }
     setPage(1);
     setHasMore(false);
-    setWriteLocked(false);
+    setWriteLocked(Boolean(selected.isLocked));
     void loadMessages(selected.id, 1);
     if (socketRef.current) {
       socketRef.current.emit('conversation:join', { conversationId: selected.id }, (response: { ok?: boolean; message?: string }) => {
@@ -285,6 +327,17 @@ export default function MessagesClient() {
         void loadMessages(selectedRef.current.id, pageRef.current);
       }
     });
+
+    socket.on(
+      'conversation:access-revoked',
+      (event: { conversationId?: string; reason?: string }) => {
+        if (event.conversationId && event.conversationId === selectedRef.current?.id) {
+          setWriteLocked(true);
+          setMessage('Messaging is currently unavailable for this conversation.');
+        }
+        void loadConversations();
+      },
+    );
 
     socket.on('disconnect', () => {
       clearTypingIndicator();
@@ -582,6 +635,19 @@ export default function MessagesClient() {
               <p className="rounded-[24px] border border-dashed border-[#D6A84F] p-5 text-sm leading-6 text-[#5E6470]">
                 Accepted interests will appear here.
               </p>
+            ) : null}
+            {nextCursor ? (
+              <button
+                type="button"
+                onClick={() => void loadMoreConversations()}
+                disabled={loadingMoreConversations}
+                className="rounded-[24px] border border-[#F0D6DA] bg-white px-4 py-3 text-sm font-semibold text-[#A10E4D] transition hover:bg-[#FFF9F5] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loadingMoreConversations ? 'Loading more conversations…' : 'Load more conversations'}
+              </button>
+            ) : null}
+            {loadingConversations && conversations.length === 0 ? (
+              <p className="text-sm text-[#6B7280]">Loading conversations…</p>
             ) : null}
           </div>
         </PremiumCard>

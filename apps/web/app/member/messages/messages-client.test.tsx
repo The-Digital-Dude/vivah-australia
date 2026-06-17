@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import MessagesClient from './messages-client';
 
@@ -81,6 +81,7 @@ describe('MessagesClient rendering', () => {
             data: [
               {
                 id: 'conv-1',
+                isLocked: false,
                 otherProfile: {
                   id: 'profile-1',
                   firstName: 'Anaya',
@@ -91,6 +92,7 @@ describe('MessagesClient rendering', () => {
               },
               {
                 id: 'conv-2',
+                isLocked: false,
                 otherProfile: {
                   id: 'profile-2',
                   firstName: 'Rahul',
@@ -209,6 +211,7 @@ describe('MessagesClient rendering', () => {
             data: [
               {
                 id: 'conv-empty',
+                isLocked: false,
                 otherProfile: {
                   id: 'profile-3',
                   firstName: 'Kiran',
@@ -247,5 +250,168 @@ describe('MessagesClient rendering', () => {
     });
 
     expect(screen.getByText('Kiran, 27')).toBeTruthy();
+  });
+
+  it('locks the composer when the conversation payload is blocked', async () => {
+    memberRequestMock.mockImplementation((url: string, options?: { method?: string }) => {
+      if (url === '/api/me/profile') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: { profile: { id: 'my-profile', userId: 'member-1', personal: { firstName: 'Aarav' } } },
+        });
+      }
+
+      if (url === '/api/me/conversations') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            data: [
+              {
+                id: 'conv-locked',
+                isLocked: true,
+                lockReason: 'blocked',
+                otherProfile: { id: 'profile-9', firstName: 'Riya', age: 28, city: 'Sydney', occupation: 'Lawyer' },
+              },
+            ],
+          },
+        });
+      }
+
+      if (url === '/api/me/conversations/conv-locked/messages?limit=50') {
+        return Promise.resolve({ ok: true, message: '', data: { messages: [] } });
+      }
+
+      if (url === '/api/me/conversations/conv-locked/read' && options?.method === 'POST') {
+        return Promise.resolve({ ok: true, message: '', data: {} });
+      }
+
+      return Promise.resolve({ ok: false, message: `Unexpected request: ${url}` });
+    });
+
+    render(<MessagesClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByPlaceholderText('Write a thoughtful, respectful message…')).toBeNull();
+    });
+  });
+
+  it('appends later conversation pages with nextCursor and preserves the active selection', async () => {
+    memberRequestMock.mockImplementation((url: string, options?: { method?: string }) => {
+      if (url === '/api/me/profile') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            profile: {
+              id: 'my-profile',
+              userId: 'member-1',
+              personal: {
+                firstName: 'Aarav',
+              },
+            },
+          },
+        });
+      }
+
+      if (url === '/api/me/conversations') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            data: [
+              {
+                id: 'conv-1',
+                isLocked: false,
+                otherProfile: {
+                  id: 'profile-1',
+                  firstName: 'Anaya',
+                  age: 29,
+                  city: 'Melbourne',
+                  occupation: 'Engineer',
+                },
+              },
+            ],
+            nextCursor: 'cursor-2',
+          },
+        });
+      }
+
+      if (url === '/api/me/conversations?cursor=cursor-2') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            data: [
+              {
+                id: 'conv-2',
+                isLocked: false,
+                otherProfile: {
+                  id: 'profile-2',
+                  firstName: 'Rahul',
+                  age: 31,
+                  city: 'Sydney',
+                  occupation: 'Doctor',
+                },
+              },
+            ],
+            nextCursor: null,
+          },
+        });
+      }
+
+      if (url === '/api/me/conversations/conv-1/messages?limit=50') {
+        return Promise.resolve({
+          ok: true,
+          message: '',
+          data: {
+            messages: [
+              {
+                id: 'msg-1',
+                conversationId: 'conv-1',
+                senderId: 'member-1',
+                body: 'Hello Anaya, I enjoyed reading your profile.',
+                attachments: [],
+                readBy: [],
+                createdAt: '2025-01-05T10:30:00.000Z',
+              },
+            ],
+          },
+        });
+      }
+
+      if (url === '/api/me/conversations/conv-1/read' && options?.method === 'POST') {
+        return Promise.resolve({ ok: true, message: '', data: {} });
+      }
+
+      return Promise.resolve({
+        ok: false,
+        message: `Unexpected request: ${url}`,
+      });
+    });
+
+    render(<MessagesClient />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Load more conversations' })).toBeTruthy();
+    });
+
+    expect(screen.getByText('Anaya, 29')).toBeTruthy();
+    expect(screen.queryByText('Rahul')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Load more conversations' }));
+
+    await waitFor(() => {
+      expect(memberRequestMock).toHaveBeenCalledWith('/api/me/conversations?cursor=cursor-2');
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Rahul')).toBeTruthy();
+    });
+
+    expect(screen.getByText('Anaya, 29')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Load more conversations' })).toBeNull();
+    expect(screen.getByText('Profile actions for profile-1')).toBeTruthy();
   });
 });
