@@ -11,6 +11,7 @@ import { createTokenPair } from '../auth/token.service.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import { attachMessageSocketServer } from './messages.socket.js';
+import { resetMessageRealtimeState } from './messages.realtime.js';
 import {
   BlockModel,
   ConversationModel,
@@ -40,6 +41,7 @@ const app = createApp({
 let mongoServer: MongoMemoryServer;
 let httpServer: HttpServer;
 let socketUrl: string;
+let messageIo: ReturnType<typeof attachMessageSocketServer>;
 
 function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
@@ -215,7 +217,7 @@ beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   await connectDatabase(mongoServer.getUri());
   httpServer = createServer(app);
-  attachMessageSocketServer(httpServer, {
+  messageIo = attachMessageSocketServer(httpServer, {
     corsOrigins: ['http://localhost:3000'],
     auth: authConfig,
   });
@@ -234,7 +236,9 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
+  await new Promise<void>((resolve) => messageIo.close(() => resolve()));
   await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+  resetMessageRealtimeState();
   await disconnectDatabase();
   await mongoServer?.stop();
 }, 180000);

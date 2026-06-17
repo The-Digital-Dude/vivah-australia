@@ -213,7 +213,9 @@ export function createProfileRouter(config: AuthConfig): Router {
           ],
         },
       ];
-      response.status(200).json({ prompts });
+      return Promise.resolve().then(() => {
+        response.status(200).json({ prompts });
+      });
     }),
   );
 
