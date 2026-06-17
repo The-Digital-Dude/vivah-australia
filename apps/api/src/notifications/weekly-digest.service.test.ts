@@ -190,4 +190,56 @@ describe('weekly activity digest service', () => {
     await expect(sendWeeklyActivityDigests(now)).resolves.toMatchObject({ sent: 0 });
     expect(emailMocks.sendTemplatedEmail).not.toHaveBeenCalled();
   });
+
+  it('skips members who disabled marketing notifications even when email notifications stay on', async () => {
+    const now = new Date('2026-06-18T11:00:00.000Z');
+    const user = await createUser('digest-marketing-off@example.com', {
+      notificationPreferences: {
+        emailNotifications: true,
+        smsNotifications: false,
+        pushNotifications: false,
+        marketingNotifications: false,
+      },
+    });
+    await createProfile(user._id, 'VA700003');
+    await ProfileViewModel.create({
+      viewerId: new mongoose.Types.ObjectId(),
+      profileId: new mongoose.Types.ObjectId(),
+      profileUserId: user._id,
+      viewedAt: new Date('2026-06-16T09:00:00.000Z'),
+    });
+
+    await expect(sendWeeklyActivityDigests(now)).resolves.toMatchObject({ sent: 0 });
+    expect(emailMocks.sendTemplatedEmail).not.toHaveBeenCalled();
+  });
+
+  it('skips fully complete members who had no weekly activity', async () => {
+    const now = new Date('2026-06-18T11:00:00.000Z');
+    const user = await createUser('digest-no-activity@example.com');
+    const profile = await createProfile(user._id, 'VA700004');
+    profile.completionPercentage = 100;
+    await profile.save();
+
+    await expect(sendWeeklyActivityDigests(now)).resolves.toMatchObject({ sent: 0, skipped: 1 });
+    expect(emailMocks.sendTemplatedEmail).not.toHaveBeenCalled();
+  });
+
+  it('resends after the weekly cooldown window has passed', async () => {
+    const firstRun = new Date('2026-06-18T11:00:00.000Z');
+    const secondRun = new Date('2026-06-26T11:00:00.000Z');
+    const user = await createUser('digest-repeat@example.com');
+    await createProfile(user._id, 'VA700005');
+
+    await ProfileViewModel.create({
+      viewerId: new mongoose.Types.ObjectId(),
+      profileId: new mongoose.Types.ObjectId(),
+      profileUserId: user._id,
+      viewedAt: new Date('2026-06-16T09:00:00.000Z'),
+    });
+
+    await expect(sendWeeklyActivityDigests(firstRun)).resolves.toMatchObject({ sent: 1 });
+    await expect(sendWeeklyActivityDigests(secondRun)).resolves.toMatchObject({ sent: 1 });
+
+    expect(emailMocks.sendTemplatedEmail).toHaveBeenCalledTimes(2);
+  });
 });

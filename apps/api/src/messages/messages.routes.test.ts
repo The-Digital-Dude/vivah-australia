@@ -236,8 +236,12 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  await new Promise<void>((resolve) => messageIo.close(() => resolve()));
-  await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+  await messageIo.close();
+  await new Promise<void>((resolve) => {
+    httpServer.close(() => {
+      resolve();
+    });
+  });
   resetMessageRealtimeState();
   await disconnectDatabase();
   await mongoServer?.stop();
