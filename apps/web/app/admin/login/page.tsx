@@ -1,8 +1,8 @@
 'use client';
 
+import { Suspense, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
 import { postAuth, type AuthSessionUser } from '@/lib/auth-api';
@@ -21,7 +21,7 @@ function formValue(form: FormData, key: string) {
   return typeof value === 'string' ? value : '';
 }
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setSession } = useAuth();
@@ -102,5 +102,27 @@ export default function AdminLoginPage() {
         </form>
       </section>
     </main>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#FFF8F1] px-4 py-10 text-[#232323]">
+          <section className="w-full max-w-md rounded-lg border border-[#7A1E3A]/10 bg-white p-8 shadow-sm">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="h-7 w-7 text-[#7A1E3A]" />
+              <div>
+                <h1 className="text-2xl font-semibold">Admin login</h1>
+                <p className="text-sm text-[#5E6470]">Loading secure access...</p>
+              </div>
+            </div>
+          </section>
+        </main>
+      }
+    >
+      <AdminLoginForm />
+    </Suspense>
   );
 }
