@@ -1,3 +1,5 @@
+/* global console */
+
 const fs = require('fs');
 
 const path = 'app/final-homepage-dark/client.tsx';

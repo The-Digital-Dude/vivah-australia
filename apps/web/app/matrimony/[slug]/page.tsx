@@ -252,7 +252,7 @@ export default async function MatrimonyLandingPage({ params }: Props) {
       <section className="bg-brand-maroon py-14 px-6 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-4xl text-center">
           <div className="flex justify-center gap-1 mb-3">
-            {[...Array(5)].map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className="size-5 fill-brand-gold text-brand-gold" />
             ))}
           </div>

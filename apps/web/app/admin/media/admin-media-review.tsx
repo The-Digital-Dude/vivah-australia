@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { mediaReviewSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
@@ -133,7 +134,6 @@ export default function AdminMediaReview() {
           >
             {/* Image container */}
             <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-50 border-b border-neutral-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               {item.mediaType === 'VIDEO' || item.category === 'VIDEO_INTRO' ? (
                 <video
                   src={item.assetUrl}
@@ -142,10 +142,12 @@ export default function AdminMediaReview() {
                   controls
                 />
               ) : (
-                <img
+                <Image
                   src={item.thumbnailUrl ?? item.assetUrl}
                   alt={item.originalFilename}
-                  className="h-full w-full object-cover transition duration-300 hover:scale-105"
+                  fill
+                  unoptimized
+                  className="object-cover transition duration-300 hover:scale-105"
                 />
               )}
               <div className="absolute left-3 top-3 flex items-center gap-1.5">
@@ -249,7 +251,6 @@ export default function AdminMediaReview() {
 
             <div className="mt-4 space-y-4">
               <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-neutral-100 border border-neutral-100 shadow-inner">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 {reviewItem.item.mediaType === 'VIDEO' || reviewItem.item.category === 'VIDEO_INTRO' ? (
                   <video
                     src={reviewItem.item.assetUrl}
@@ -258,10 +259,12 @@ export default function AdminMediaReview() {
                     controls
                   />
                 ) : (
-                  <img
+                  <Image
                     src={reviewItem.item.assetUrl}
                     alt={reviewItem.item.originalFilename}
-                    className="h-full w-full object-cover"
+                    fill
+                    unoptimized
+                    className="object-cover"
                   />
                 )}
               </div>

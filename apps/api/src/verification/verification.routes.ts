@@ -51,11 +51,13 @@ export function createVerificationRouter(config: AuthConfig): Router {
   // Webhook for the KYC provider to POST results to
   router.post(
     '/verification/liveness/webhook',
-    asyncHandler(async (_request: Request, response: Response) => {
-      // Typically you'd verify signature/auth headers here
-      await processKycWebhook();
-      response.status(200).json({ success: true });
-    }),
+    asyncHandler((_request: Request, response: Response) =>
+      Promise.resolve().then(() => {
+        // Typically you'd verify signature/auth headers here
+        processKycWebhook();
+        response.status(200).json({ success: true });
+      }),
+    ),
   );
 
   return router;

@@ -1,10 +1,10 @@
 import twilio from 'twilio';
-import { Queue, Worker } from 'bullmq';
-import { env } from '../env.js';
+import { Queue, Worker, type ConnectionOptions } from 'bullmq';
 import { logger } from './logger.js';
 import { redisClient } from './redis.js';
 
 const redisConnection = redisClient;
+const queueConnection = redisConnection as ConnectionOptions | null;
 
 let twilioClient: twilio.Twilio | null = null;
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
@@ -16,11 +16,11 @@ export interface SmsJobData {
   body: string;
 }
 
-export const smsQueue = redisConnection
-  ? new Queue<SmsJobData>('smsQueue', { connection: redisConnection as any })
+export const smsQueue = queueConnection
+  ? new Queue<SmsJobData>('smsQueue', { connection: queueConnection })
   : null;
 
-const smsWorker = redisConnection
+const smsWorker = queueConnection
   ? new Worker<SmsJobData>('smsQueue', async (job) => {
       if (!twilioClient || !process.env.TWILIO_FROM_NUMBER) {
         logger.warn('Twilio not configured, skipping SMS send to ' + job.data.to);
@@ -31,7 +31,7 @@ const smsWorker = redisConnection
         from: process.env.TWILIO_FROM_NUMBER,
         to: job.data.to,
       });
-    }, { connection: redisConnection as any })
+    }, { connection: queueConnection })
   : null;
 
 smsWorker?.on('failed', (job, err) => {

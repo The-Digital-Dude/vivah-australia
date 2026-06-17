@@ -6,7 +6,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { AccountStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
-import { ProfileApprovalStatus, ProfileModel, UserModel, VerificationDocumentModel } from '../models/index.js';
+import {
+  ProfileApprovalStatus,
+  ProfileModel,
+  UserModel,
+  VerificationDocumentModel,
+  type ProfileDocument,
+  type UserDocument,
+} from '../models/index.js';
 import { createTokenPair } from '../auth/token.service.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 
@@ -29,8 +36,11 @@ function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
 }
 
-async function createUser(email: string, role: UserRole = UserRole.USER) {
-  const user = await UserModel.create({
+async function createUser(
+  email: string,
+  role: UserRole = UserRole.USER,
+): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role,
@@ -45,14 +55,14 @@ async function createUser(email: string, role: UserRole = UserRole.USER) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
 
   return { user, accessToken };
 }
 
 async function createProfile(userId: mongoose.Types.ObjectId) {
-  return ProfileModel.create({
+  const profile: ProfileDocument = await ProfileModel.create({
     userId,
     displayId: `VA${userId.toString().slice(-8).toUpperCase()}`,
     completionPercentage: 100,
@@ -86,6 +96,7 @@ async function createProfile(userId: mongoose.Types.ObjectId) {
     stats: { profileViews: 0, interestsReceived: 0, interestsSent: 0, favouritesCount: 0 },
     moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
   });
+  return profile;
 }
 
 beforeAll(async () => {
@@ -135,12 +146,13 @@ describe('verification routes', () => {
       })
       .expect(201);
     const signBody = bodyAs<{
-      document: { id: string };
+      document: { id: string; storedSecurely: boolean };
       upload: { provider: string; method: string; url: string; fields: Record<string, string> };
     }>(signResponse);
 
     expect(signBody.upload.provider).toBe('gcs');
     expect(signBody.upload.method).toBe('PUT');
+    expect(signBody.document.storedSecurely).toBe(false);
 
     await request(app)
       .put(`/api/mock-gcs-storage/${signBody.upload.fields.storageKey}`)
@@ -159,7 +171,11 @@ describe('verification routes', () => {
       })
       .expect(200);
 
-    expect(bodyAs<{ document: { uploadStatus: string } }>(completeResponse).document.uploadStatus).toBe('UPLOADED');
+    const completeBody = bodyAs<{ document: { uploadStatus: string; storedSecurely: boolean } }>(
+      completeResponse,
+    );
+    expect(completeBody.document.uploadStatus).toBe('UPLOADED');
+    expect(completeBody.document.storedSecurely).toBe(false);
   });
 
   it('rejects invalid completion attempts and document-backed requests without a completed upload', async () => {

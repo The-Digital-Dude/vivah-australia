@@ -17,6 +17,8 @@ import {
   ProfileViewModel,
   SubscriptionModel,
   UserModel,
+  type ProfileDocument,
+  type UserDocument,
 } from '../models/index.js';
 import { createTokenPair } from '../auth/token.service.js';
 import { hashToken } from '../auth/token.service.js';
@@ -59,8 +61,8 @@ function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
 }
 
-async function createUser(email: string) {
-  const user = await UserModel.create({
+async function createUser(email: string): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role: UserRole.USER,
@@ -75,14 +77,14 @@ async function createUser(email: string) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
 
   return { user, accessToken };
 }
 
 async function createProfile(userId: mongoose.Types.ObjectId, displayId = 'VA123456') {
-  return ProfileModel.create({
+  const profile: ProfileDocument = await ProfileModel.create({
     userId,
     displayId,
     completionPercentage: 0,
@@ -116,6 +118,7 @@ async function createProfile(userId: mongoose.Types.ObjectId, displayId = 'VA123
     stats: { profileViews: 0, interestsReceived: 0, interestsSent: 0, favouritesCount: 0 },
     moderation: { approvalStatus: ProfileApprovalStatus.PENDING },
   });
+  return profile;
 }
 
 async function addPremiumSubscription(userId: mongoose.Types.ObjectId) {

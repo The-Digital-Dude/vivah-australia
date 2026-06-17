@@ -55,7 +55,7 @@ export default function AdminPaymentDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const result = await memberRequest(`/api/admin/payments/${params.id}`);
+      const result = await memberRequest(`/api/admin/payments/${String(params.id)}`);
       if (result.ok) {
         setData(result.data as PaymentDetailData);
       } else {

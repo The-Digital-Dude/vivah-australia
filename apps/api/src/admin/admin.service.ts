@@ -1032,7 +1032,7 @@ export async function getVerificationRequestDetail(requestId: string, actorId?: 
     requestId,
     isDeleted: false,
   })
-    .select('_id documentType encrypted createdAt updatedAt originalFilename mimeType fileSizeBytes uploadStatus')
+    .select('_id documentType storedSecurely createdAt updatedAt originalFilename mimeType fileSizeBytes uploadStatus')
     .lean();
   if (actorId) {
     await logAudit({
@@ -1061,7 +1061,7 @@ export async function getVerificationDocumentPreview(
     isDeleted: false,
   });
   if (!document) throw new HttpError(404, 'Verification document not found');
-  const preview = await createVerificationDocumentPreviewAccess(actorId, requestId, document);
+  const preview = createVerificationDocumentPreviewAccess(actorId, requestId, document);
   await logAudit({
     actorId,
     actorRole,
@@ -1245,8 +1245,11 @@ export async function performBulkModerationAction(
     try {
       const result = await performModerationAction(actorId, actorRole, reportId, action);
       results.push(result);
-    } catch (e: any) {
-      errors.push({ reportId, error: e.message || 'Unknown error' });
+    } catch (error: unknown) {
+      errors.push({
+        reportId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
     }
   }
   return { results, errors };

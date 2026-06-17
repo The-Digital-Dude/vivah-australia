@@ -279,22 +279,6 @@ function formatDate(value?: string) {
   }).format(new Date(value));
 }
 
-function formatRelativeDate(value?: string) {
-  if (!value) {
-    return 'Recently active';
-  }
-
-  const time = new Date(value).getTime();
-  const diff = Date.now() - time;
-  const mins = Math.max(1, Math.floor(diff / 60000));
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return formatDate(value) ?? 'Recently active';
-}
-
 function matchValue(
   left?: string | number | null,
   right?: string | number | null,

@@ -209,7 +209,7 @@ export default function SuccessStoriesPage() {
                 {/* Floating quote badge */}
                 <div className="absolute -top-5 -right-5 bg-brand-maroon text-white rounded-2xl px-4 py-3 shadow-xl max-w-[180px] hidden sm:block">
                   <div className="flex gap-1 mb-1">
-                    {[...Array(5)].map((_, i) => (
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Star key={i} className="size-3 fill-brand-gold text-brand-gold" />
                     ))}
                   </div>
@@ -239,7 +239,7 @@ export default function SuccessStoriesPage() {
                     </p>
                   </div>
                   <div className="ml-auto flex gap-1">
-                    {[...Array(5)].map((_, i) => (
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Star key={i} className="size-4 fill-brand-gold text-brand-gold" />
                     ))}
                   </div>
@@ -296,7 +296,7 @@ export default function SuccessStoriesPage() {
                   {/* Content */}
                   <div className="p-6 flex flex-col gap-4 flex-1">
                     <div className="flex gap-1">
-                      {[...Array(5)].map((_, i) => (
+                      {Array.from({ length: 5 }).map((_, i) => (
                         <Star key={i} className="size-3.5 fill-brand-gold text-brand-gold" />
                       ))}
                     </div>
@@ -384,7 +384,7 @@ export default function SuccessStoriesPage() {
             </div>
             <div className="hidden sm:block h-12 w-px bg-gray-200" />
             <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
+              {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="size-6 fill-brand-gold text-brand-gold" />
               ))}
               <span className="ml-2 font-bold text-brand-charcoal text-base self-center">4.9 / 5</span>

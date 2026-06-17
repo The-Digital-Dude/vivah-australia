@@ -164,7 +164,10 @@ export function createAuthRouter(config: AuthConfig): Router {
     authRateLimit,
     asyncHandler(async (request: Request, response: Response) => {
       const input = refreshTokenSchema.parse(request.body);
-      const refreshTokenToUse = request.cookies?.refreshToken || input.refreshToken;
+      const refreshTokenToUse =
+        (typeof request.cookies?.refreshToken === 'string'
+          ? request.cookies.refreshToken
+          : undefined) ?? input.refreshToken;
       if (!refreshTokenToUse) {
         throw new HttpError(400, 'Refresh token is required');
       }
@@ -179,7 +182,10 @@ export function createAuthRouter(config: AuthConfig): Router {
     authRateLimit,
     asyncHandler(async (request: Request, response: Response) => {
       const input = logoutSchema.partial().parse(request.body);
-      const refreshTokenToUse = request.cookies?.refreshToken || input.refreshToken;
+      const refreshTokenToUse =
+        (typeof request.cookies?.refreshToken === 'string'
+          ? request.cookies.refreshToken
+          : undefined) ?? input.refreshToken;
       if (refreshTokenToUse) {
         await logout(refreshTokenToUse, config);
       }

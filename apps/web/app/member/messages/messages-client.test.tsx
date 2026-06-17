@@ -78,7 +78,7 @@ describe('MessagesClient rendering', () => {
           ok: true,
           message: '',
           data: {
-            conversations: [
+            data: [
               {
                 id: 'conv-1',
                 otherProfile: {
@@ -206,7 +206,7 @@ describe('MessagesClient rendering', () => {
           ok: true,
           message: '',
           data: {
-            conversations: [
+            data: [
               {
                 id: 'conv-empty',
                 otherProfile: {

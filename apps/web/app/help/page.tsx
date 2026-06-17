@@ -10,7 +10,6 @@ import {
   CreditCard,
   ArrowRight,
   Mail,
-  Phone,
   FileText,
   Search,
 } from 'lucide-react';

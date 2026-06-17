@@ -20,6 +20,8 @@ import {
   ProfileApprovalStatus,
   ProfileModel,
   UserModel,
+  type ProfileDocument,
+  type UserDocument,
 } from '../models/index.js';
 
 const authConfig: AuthConfig = {
@@ -87,8 +89,8 @@ async function createUploadedAttachment(
   return bodyAs<{ attachment: { id: string } }>(completed).attachment.id;
 }
 
-async function createUser(email: string) {
-  const user = await UserModel.create({
+async function createUser(email: string): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role: UserRole.USER,
@@ -103,7 +105,7 @@ async function createUser(email: string) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
 
   return { user, accessToken };
@@ -115,7 +117,7 @@ async function createProfile(
   firstName: string,
   gender: (typeof Gender)[keyof typeof Gender],
 ) {
-  return ProfileModel.create({
+  const profile: ProfileDocument = await ProfileModel.create({
     userId,
     userStatus: AccountStatus.ACTIVE,
     userIsDeleted: false,
@@ -161,6 +163,7 @@ async function createProfile(
     stats: { profileViews: 0, interestsReceived: 0, interestsSent: 0, favouritesCount: 0 },
     moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
   });
+  return profile;
 }
 
 async function createAcceptedConversation() {
@@ -438,7 +441,7 @@ describe('message routes and realtime server', () => {
   });
 
   it('rejects socket room joins for non-participants', async () => {
-    const { sender, conversation } = await createAcceptedConversation();
+    const { conversation } = await createAcceptedConversation();
     const outsider = await createUser(`outsider-${Date.now()}@example.com`);
     await createProfile(outsider.user._id, `VAO${Date.now()}`, 'Outsider', Gender.MALE);
     const outsiderSocket = connectSocket(outsider.accessToken);
@@ -456,7 +459,7 @@ describe('message routes and realtime server', () => {
   });
 
   it('blocks reading messages when the other member is no longer available', async () => {
-    const { sender, receiver, conversation, receiverProfile } = await createAcceptedConversation();
+    const { sender, conversation, receiverProfile } = await createAcceptedConversation();
     await ProfileModel.updateOne(
       { _id: receiverProfile._id },
       {

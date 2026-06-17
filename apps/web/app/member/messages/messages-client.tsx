@@ -19,11 +19,10 @@ import {
   Sparkles,
   Star,
   Trash2,
-  Upload,
 } from 'lucide-react';
 import { messageAttachmentSignUploadSchema, messageCreateSchema } from '@vivah/shared';
 import { useAuth } from '@/app/auth-context';
-import { PremiumButton, PremiumCard } from '@/app/components';
+import { PremiumCard } from '@/app/components';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
 
@@ -102,14 +101,6 @@ function formatMessageTime(value: string) {
   return new Date(value).toLocaleTimeString([], {
     hour: 'numeric',
     minute: '2-digit',
-  });
-}
-
-function formatMessageDate(value: string) {
-  return new Date(value).toLocaleDateString([], {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
   });
 }
 
@@ -192,7 +183,7 @@ export default function MessagesClient() {
       setMessage(result.message);
       return;
     }
-    const items = (result.data as { conversations?: Conversation[] }).conversations ?? [];
+    const items = (result.data as { data?: Conversation[]; nextCursor?: string | null }).data ?? [];
     setConversations(items);
     setSelected((current) => current ?? items[0] ?? null);
   }, [memberRequest]);

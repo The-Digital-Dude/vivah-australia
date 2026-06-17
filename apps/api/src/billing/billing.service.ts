@@ -36,6 +36,15 @@ const stripe = env.STRIPE_SECRET_KEY
   ? new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: '2026-05-27.dahlia' })
   : undefined;
 
+interface StripeRequestError {
+  type?: string;
+  rawType?: string;
+}
+
+interface StripeSubscriptionSnapshot {
+  current_period_end?: number;
+}
+
 function toObjectId(id: string | Types.ObjectId) {
   return typeof id === 'string' ? new Types.ObjectId(id) : id;
 }
@@ -257,8 +266,12 @@ export async function createCheckoutSession(userId: Types.ObjectId, input: Check
   try {
     const session = await stripe.checkout.sessions.create(sessionParams);
     return { checkoutUrl: session.url, sessionId: session.id };
-  } catch (error: any) {
-    if (error.type === 'StripeInvalidRequestError' || error.rawType === 'invalid_request_error') {
+  } catch (error: unknown) {
+    const stripeError = error as StripeRequestError;
+    if (
+      stripeError.type === 'StripeInvalidRequestError' ||
+      stripeError.rawType === 'invalid_request_error'
+    ) {
       throw new HttpError(
         400,
         `Stripe Configuration Error: The price ID '${plan.stripePriceId}' was not found in your Stripe account. Please create this product in your Stripe dashboard and update the Plan, or remove your STRIPE_SECRET_KEY to use the mock checkout.`
@@ -527,7 +540,7 @@ export async function createRefund(input: RefundCreateInput, adminId?: Types.Obj
             },
           },
         },
-      ] as any,
+      ],
       { returnDocument: 'after', ...(session ? { session } : {}) },
     );
     if (!updatedPayment) {
@@ -906,7 +919,9 @@ export async function verifyCheckoutSession(userId: Types.ObjectId, sessionId: s
   let currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   if (providerSubscriptionId) {
     try {
-      const sub = await stripe.subscriptions.retrieve(providerSubscriptionId) as any;
+      const sub = (await stripe.subscriptions.retrieve(
+        providerSubscriptionId,
+      )) as StripeSubscriptionSnapshot;
       if (sub && typeof sub.current_period_end === 'number') {
         currentPeriodEnd = new Date(sub.current_period_end * 1000);
       }

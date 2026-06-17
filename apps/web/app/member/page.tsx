@@ -158,10 +158,6 @@ interface SummaryCard {
   href: string;
 }
 
-function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(' ');
-}
-
 function formatDate(value?: string) {
   if (!value) {
     return null;
@@ -186,7 +182,7 @@ export default function MemberDashboardPage() {
   const [boosts, setBoosts] = useState<BoostItem[]>([]);
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [profileViewersTotal, setProfileViewersTotal] = useState<number | null>(null);
-  const [profileViewersIsPaid, setProfileViewersIsPaid] = useState(false);
+  const [, setProfileViewersIsPaid] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activatingBoost, setActivatingBoost] = useState(false);
   const [boostMessage, setBoostMessage] = useState<string | null>(null);

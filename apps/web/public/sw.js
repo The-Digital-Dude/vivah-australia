@@ -1,3 +1,5 @@
+/* global self, clients */
+
 self.addEventListener('push', (event) => {
   if (!event.data) return;
   let payload = { title: 'Vivah Australia', body: '', data: {} };

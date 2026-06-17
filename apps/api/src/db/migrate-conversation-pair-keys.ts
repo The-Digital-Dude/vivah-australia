@@ -57,7 +57,7 @@ run()
   })
   .catch(async (error) => {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-    if (mongoose.connection.readyState !== 0) {
+    if (mongoose.connection.readyState !== mongoose.ConnectionStates.disconnected) {
       await disconnectDatabase();
     }
     process.exitCode = 1;

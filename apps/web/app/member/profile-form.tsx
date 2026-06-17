@@ -248,6 +248,14 @@ interface ApiProfileResponse {
   partnerPreference?: ApiProfile['partnerPreference'];
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isProfileDraft(value: unknown): value is ProfileDraft {
+  return isRecord(value) && isRecord(value.personal);
+}
+
 function apiStr(section: ApiSection | undefined, key: string): string {
   const v = section?.[key];
   return v != null ? String(v) : '';
@@ -1837,7 +1845,6 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
   const memberRequest = useMemberRequest();
   const [step, setStep] = useState(0); // 0-indexed
   const [draft, setDraft] = useState<ProfileDraft>(emptyDraft());
-  const [profileId, setProfileId] = useState<string | null>(null);
   const [errors, setErrors] = useState<StepErrors>({});
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -1854,32 +1861,23 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
       try {
         const localDraft = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (localDraft) {
-          const parsed = JSON.parse(localDraft);
-          // Only apply if it has the right shape
-          if (parsed && parsed.personal) {
+          const parsed: unknown = JSON.parse(localDraft);
+          if (isProfileDraft(parsed)) {
             setDraft(parsed);
           }
         }
-      } catch (e) {
+      } catch {
         // ignore parse errors
       }
 
       const result = await memberRequest('/api/me/profile');
       if (result.ok && result.data) {
         interface RawProfile {
-          id: string;
-          verification?: {
-            mobileVerified?: boolean;
-            emailVerified?: boolean;
-          };
           moderation?: {
             approvalStatus?: string;
           };
         }
         const rawProfile = (result.data as { profile?: RawProfile }).profile;
-        if (rawProfile?.id) {
-          setProfileId(rawProfile.id);
-        }
 
         // Guard if onboarding mode is active
         if (mode === 'onboarding') {

@@ -3,7 +3,6 @@ import Link from 'next/link';
 import {
   Heart,
   ShieldCheck,
-  Users,
   MapPin,
   Sparkles,
   LockKeyhole,
@@ -360,7 +359,7 @@ export default function AboutPage() {
               ].map((t) => (
                 <div key={t.name} className="flex-1 bg-white rounded-2xl border border-gray-100 p-7 shadow-sm">
                   <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Star key={i} className="size-4 text-brand-gold fill-brand-gold" />
                     ))}
                   </div>

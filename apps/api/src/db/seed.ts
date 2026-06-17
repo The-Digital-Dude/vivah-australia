@@ -1161,7 +1161,7 @@ async function seedVerifications(
           documentType:
             type === 'IDENTITY' ? 'Driver Licence' : `${title(type.toLowerCase())} Document`,
           storageKey,
-          encrypted: true,
+            storedSecurely: false,
           isDeleted: false,
         },
       },

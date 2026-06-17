@@ -12,7 +12,14 @@ function environment() {
 
 export const paypalClient = new paypal.core.PayPalHttpClient(environment());
 
-export async function createPayPalOrder(amount: number, currency: string = 'AUD') {
+interface PayPalOrderResult {
+  id?: string;
+}
+
+export async function createPayPalOrder(
+  amount: number,
+  currency: string = 'AUD',
+): Promise<PayPalOrderResult> {
   const request = new paypal.orders.OrdersCreateRequest();
   request.prefer('return=representation');
   request.requestBody({
@@ -28,12 +35,11 @@ export async function createPayPalOrder(amount: number, currency: string = 'AUD'
   });
 
   const response = await paypalClient.execute(request);
-  return response.result;
+  return response.result as PayPalOrderResult;
 }
 
-export async function capturePayPalOrder(orderId: string) {
+export async function capturePayPalOrder(orderId: string): Promise<PayPalOrderResult> {
   const request = new paypal.orders.OrdersCaptureRequest(orderId);
-  request.requestBody({} as any);
   const response = await paypalClient.execute(request);
-  return response.result;
+  return response.result as PayPalOrderResult;
 }

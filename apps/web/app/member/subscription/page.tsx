@@ -171,8 +171,7 @@ function SubscriptionPageContent() {
     if (initialized) {
       void load();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialized]);
+    }, [initialized]);
 
   useEffect(() => {
     if (!initialized || !checkoutParam) return;
@@ -197,8 +196,7 @@ function SubscriptionPageContent() {
     }
 
     void handleCheckoutResult();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkoutParam, initialized]);
+    }, [checkoutParam, initialized]);
 
   async function activateBoost() {
     setBoostLoading(true);

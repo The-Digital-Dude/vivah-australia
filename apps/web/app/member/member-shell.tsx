@@ -170,7 +170,7 @@ function pathMatches(pathname: string, matches: string[]) {
 }
 
 function DesktopRail({
-  firstName,
+  firstName: _firstName,
   pathname,
   unreadCount,
 }: Readonly<{

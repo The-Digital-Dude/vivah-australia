@@ -5,7 +5,7 @@ import { logger } from './common/logger.js';
 import { connectDatabase } from './db/connection.js';
 import { env } from './env.js';
 import { attachMessageSocketServer } from './messages/messages.socket.js';
-import { matchCachingQueue, matchCachingWorker, savedSearchNotifyQueue, savedSearchNotifyWorker } from './match/match.worker.js';
+import { matchCachingQueue, savedSearchNotifyQueue } from './match/match.worker.js';
 
 const authConfig = {
   accessSecret: env.JWT_ACCESS_SECRET,

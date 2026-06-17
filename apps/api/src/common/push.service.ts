@@ -11,6 +11,10 @@ export interface PushProvider {
   }): Promise<void>;
 }
 
+interface PushSendError {
+  statusCode?: number;
+}
+
 class ConsolePushProvider implements PushProvider {
   sendPush(input: { endpoint: string; title: string; body: string; data?: unknown }) {
     console.info(
@@ -43,9 +47,9 @@ class WebPushProvider implements PushProvider {
     const payload = JSON.stringify({ title: input.title, body: input.body, data: input.data ?? {} });
     try {
       await webpush.sendNotification(subscription, payload);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // 410 Gone = subscription expired/unregistered — treat as a non-fatal miss
-      if (err?.statusCode === 410) {
+      if ((err as PushSendError).statusCode === 410) {
         console.warn(`Push subscription gone (410) for endpoint: ${input.endpoint.slice(0, 60)}…`);
         return;
       }

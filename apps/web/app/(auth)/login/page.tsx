@@ -9,13 +9,28 @@ import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props
 import AuthShell from '../auth-shell';
 import FormField from '../form-field';
 import SubmitButton from '../submit-button';
-import { postAuth } from '@/lib/auth-api';
+import { postAuth, type AuthSessionUser } from '@/lib/auth-api';
 import { memberRequest } from '@/lib/member-api';
 import { useAuth } from '@/app/auth-context';
 
 function formValue(form: FormData, key: string) {
   const value = form.get(key);
   return typeof value === 'string' ? value : '';
+}
+
+function safeReturnUrl(value: string | null, fallback: string) {
+  if (!value || !value.startsWith('/')) {
+    return fallback;
+  }
+  return value;
+}
+
+interface MemberProfileSummary {
+  completionPercentage?: number;
+}
+
+interface FacebookAuthResponse {
+  accessToken?: unknown;
 }
 
 function LoginContent() {
@@ -26,14 +41,51 @@ function LoginContent() {
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
 
+  function applySession(
+    user: AuthSessionUser | undefined,
+    accessToken?: string,
+    refreshToken?: string,
+  ) {
+    setSession({ user, accessToken, refreshToken });
+  }
+
+  async function handleGoogleSuccess(tokenResponse: { access_token: string }) {
+    setError('');
+    setMessage('');
+    setPending(true);
+    try {
+      const result = await postAuth('oauth/google', { token: tokenResponse.access_token });
+      if (result.ok) {
+        applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
+        setMessage('Signed in successfully.');
+        await routeAfterLogin();
+      } else {
+        setError(result.message || 'Google login failed');
+        setPending(false);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during Google login');
+      setPending(false);
+    }
+  }
+
   const routeAfterLogin = async () => {
-    let returnUrl = searchParams.get('returnUrl') || '/member';
+    const requestedReturnUrl = searchParams.get('redirect') || searchParams.get('returnUrl');
+    let returnUrl = safeReturnUrl(requestedReturnUrl, '/member');
+
+    if (requestedReturnUrl) {
+      router.push(returnUrl);
+      router.refresh();
+      return;
+    }
+
     try {
       const profileRes = await memberRequest('/api/me/profile');
-      if (profileRes.ok && (profileRes.data as any)?.profile?.completionPercentage < 50) {
+      const profile = (profileRes.data as { profile?: MemberProfileSummary } | undefined)?.profile;
+      if (profileRes.ok && (profile?.completionPercentage ?? 100) < 50) {
         returnUrl = '/member/onboarding';
       }
-    } catch (e) {
+    } catch {
       // ignore error
     }
     router.push(returnUrl);
@@ -41,24 +93,8 @@ function LoginContent() {
   };
 
   const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setError('');
-      setMessage('');
-      setPending(true);
-      try {
-        const result = await postAuth('oauth/google', { token: tokenResponse.access_token });
-        if (result.ok) {
-          setSession({ user: result.data?.user as any });
-          setMessage('Signed in successfully.');
-          await routeAfterLogin();
-        } else {
-          setError(result.message || 'Google login failed');
-          setPending(false);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred during Google login');
-        setPending(false);
-      }
+    onSuccess: (tokenResponse) => {
+      void handleGoogleSuccess(tokenResponse);
     },
     onError: () => {
       setError('Google login failed');
@@ -82,7 +118,7 @@ function LoginContent() {
       if (response?.authorization?.id_token) {
         const result = await postAuth('oauth/apple', { token: response?.authorization?.id_token });
         if (result.ok) {
-          setSession({ user: result.data?.user as any });
+          applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
           setMessage('Signed in successfully.');
           await routeAfterLogin();
         } else {
@@ -112,7 +148,7 @@ function LoginContent() {
       const result = await postAuth('login', { email, password });
 
       if (result.ok) {
-        setSession({ user: result.data?.user as any });
+        applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
         setMessage('Welcome back');
         await routeAfterLogin();
       } else {
@@ -125,8 +161,16 @@ function LoginContent() {
     }
   };
 
-  const responseFacebook = async (response: any) => {
-    if (!response.accessToken) {
+  const responseFacebook = async (response: unknown) => {
+    const accessToken =
+      typeof response === 'object' &&
+      response !== null &&
+      'accessToken' in response &&
+      typeof (response as FacebookAuthResponse).accessToken === 'string'
+        ? (response as { accessToken: string }).accessToken
+        : null;
+
+    if (!accessToken) {
       setError('Facebook login failed or was cancelled');
       setPending(false);
       return;
@@ -137,10 +181,10 @@ function LoginContent() {
     setPending(true);
 
     try {
-      const result = await postAuth('oauth/facebook', { token: response.accessToken });
+      const result = await postAuth('oauth/facebook', { token: accessToken });
 
       if (result.ok) {
-        setSession({ user: result.data?.user as any });
+        applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
         setMessage('Signed in successfully.');
         await routeAfterLogin();
       } else {
@@ -215,11 +259,13 @@ function LoginContent() {
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => googleLogin()}
-            className="flex h-11 items-center justify-center gap-1 rounded-2xl border border-brand-maroon/10 bg-white px-2 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
-          >
+            <button
+              type="button"
+              onClick={() => {
+                void googleLogin();
+              }}
+              className="flex h-11 items-center justify-center gap-1 rounded-2xl border border-brand-maroon/10 bg-white px-2 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
+            >
             Google
           </button>
           <button
@@ -233,11 +279,13 @@ function LoginContent() {
             appId={process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || 'missing-app-id'}
             autoLoad={false}
             fields="name,email,picture"
-            callback={responseFacebook}
-            render={(renderProps: any) => (
+            callback={(response) => {
+              void responseFacebook(response);
+            }}
+            render={(renderProps) => (
               <button
                 type="button"
-                onClick={renderProps.onClick}
+                onClick={() => renderProps.onClick?.()}
                 className="flex h-11 items-center justify-center gap-1 rounded-2xl border border-brand-maroon/10 bg-white px-2 text-sm font-semibold text-brand-charcoal hover:bg-brand-maroon/5 transition"
               >
                 Facebook

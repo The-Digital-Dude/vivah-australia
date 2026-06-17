@@ -17,6 +17,7 @@
     "apps/**/*.tsx",
     "packages/**/*.ts",
     "packages/**/*.tsx",
+    "verify-users.ts",
     "*.config.mjs"
   ],
   "exclude": ["node_modules", "dist", ".next"]

@@ -196,8 +196,7 @@ export default function SearchClient() {
 
   useEffect(() => {
     void fetchProfiles(initialFilters);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchProfiles]);
+    }, [fetchProfiles]);
 
   function applyFilters() {
     setFilters(pending);

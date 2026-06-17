@@ -1,4 +1,4 @@
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker, type ConnectionOptions } from 'bullmq';
 import {
   BlockModel,
   HiddenProfileModel,
@@ -8,20 +8,25 @@ import {
   SavedSearchModel,
 } from '../models/index.js';
 import { calculateMatchScore, searchProfiles } from './match.service.js';
-import { AccountStatus, ProfileVisibility } from '@vivah/shared';
+import {
+  AccountStatus,
+  ProfileVisibility,
+  type ProfileSearchQueryInput,
+} from '@vivah/shared';
 import { createNotification } from '../notifications/notifications.service.js';
 import { redisClient } from '../common/redis.js';
 
 const redisConnection = redisClient;
+const queueConnection = redisConnection as ConnectionOptions | null;
 
-export const matchCachingQueue = redisConnection
-  ? new Queue('matchCachingQueue', { connection: redisConnection as any })
+export const matchCachingQueue = queueConnection
+  ? new Queue('matchCachingQueue', { connection: queueConnection })
   : null;
 
-export const matchCachingWorker = redisConnection
-  ? new Worker('matchCachingQueue', async (job) => {
+export const matchCachingWorker = queueConnection
+  ? new Worker('matchCachingQueue', async (_job) => {
   // Base query for active profiles
-  const baseQuery = {
+  const baseQuery: Record<string, unknown> = {
     isDeleted: false,
     userIsDeleted: false,
     userStatus: AccountStatus.ACTIVE,
@@ -55,7 +60,7 @@ export const matchCachingWorker = redisConnection
     const viewerPreference = viewer.partnerPreference ?? {};
     const genderFilter = viewer.personal.gender === 'MALE' ? 'FEMALE' : viewer.personal.gender === 'FEMALE' ? 'MALE' : undefined;
 
-    const candidateQuery: any = { ...baseQuery, _id: { $ne: viewer._id } };
+    const candidateQuery: Record<string, unknown> = { ...baseQuery, _id: { $ne: viewer._id } };
     if (genderFilter) {
       candidateQuery['personal.gender'] = genderFilter;
     }
@@ -105,24 +110,26 @@ export const matchCachingWorker = redisConnection
       await MatchRecommendationModel.deleteMany({ userId: viewer.userId });
     }
   }
-  }, { connection: redisConnection as any })
+  }, { connection: queueConnection })
   : null;
 
 matchCachingWorker?.on('failed', (job, err) => {
   console.error(`Match caching job ${job?.id} failed:`, err);
 });
 
-export const savedSearchNotifyQueue = redisConnection
-  ? new Queue('savedSearchNotifyQueue', { connection: redisConnection as any })
+export const savedSearchNotifyQueue = queueConnection
+  ? new Queue('savedSearchNotifyQueue', { connection: queueConnection })
   : null;
 
-export const savedSearchNotifyWorker = redisConnection
-  ? new Worker('savedSearchNotifyQueue', async (job) => {
+export const savedSearchNotifyWorker = queueConnection
+  ? new Worker('savedSearchNotifyQueue', async (_job) => {
       const searches = await SavedSearchModel.find({ isDeleted: false, notifyOnNewMatches: true });
       for (const search of searches) {
+        const savedQuery = (search.query ?? {}) as Partial<ProfileSearchQueryInput>;
         // Run search using current query and take top 5
         const result = await searchProfiles(search.userId, {
-          ...((search.query as any) || {}),
+          ...savedQuery,
+          sort: savedQuery.sort ?? 'RECOMMENDED',
           page: 1,
           pageSize: 5,
         });
@@ -151,7 +158,7 @@ export const savedSearchNotifyWorker = redisConnection
           }
         }
       }
-    }, { connection: redisConnection as any })
+    }, { connection: queueConnection })
   : null;
 
 savedSearchNotifyWorker?.on('failed', (job, err) => {

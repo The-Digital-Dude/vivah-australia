@@ -129,20 +129,3 @@ export default function InterestsManager() {
     </div>
   );
 }
-
-function Button({
-  label,
-  icon,
-  onClick,
-}: Readonly<{ label: string; icon: React.ReactNode; onClick: () => void }>) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#F0D6DA] px-3 text-xs font-semibold text-[#7A1E3A] hover:bg-[#FFF8F1]"
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}

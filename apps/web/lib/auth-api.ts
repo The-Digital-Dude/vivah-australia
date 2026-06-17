@@ -5,11 +5,19 @@ const authApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost
 export interface AuthApiResult {
   ok: boolean;
   message: string;
-  data?: {
-    accessToken?: string;
-    refreshToken?: string;
-    [key: string]: unknown;
-  };
+  data?: AuthApiData;
+}
+
+export interface AuthSessionUser {
+  role: string;
+  [key: string]: unknown;
+}
+
+export interface AuthApiData {
+  accessToken?: string;
+  refreshToken?: string;
+  user?: AuthSessionUser;
+  [key: string]: unknown;
 }
 
 export async function postAuth(
@@ -29,7 +37,7 @@ export async function postAuth(
 
   const data = (await response.json()) as {
     message?: string;
-    data?: { accessToken?: string; refreshToken?: string; [key: string]: unknown };
+    data?: AuthApiData;
     issues?: Array<{ message: string }>;
     [key: string]: unknown;
   };

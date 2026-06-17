@@ -307,7 +307,7 @@ export async function getPrivateGalleryIfGranted(
     .lean();
 
   return media.map((m) => {
-    const deliveryTarget = { id: String(m._id) } as { id: string };
+    const deliveryTarget: { id: string } = { id: String(m._id) };
     const original = createSignedMediaDeliveryUrl(deliveryTarget, requesterId.toString(), 'original');
     const thumbnail = createSignedMediaDeliveryUrl(deliveryTarget, requesterId.toString(), 'thumbnail');
     const poster = createSignedMediaDeliveryUrl(deliveryTarget, requesterId.toString(), 'poster');

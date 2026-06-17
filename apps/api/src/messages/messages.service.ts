@@ -441,7 +441,7 @@ export async function sendMessage(
             : 'Sent an attachment',
           deletedFor: [],
         },
-        $inc: { [`unreadCounts.${otherUserId}`]: 1 },
+        $inc: { [`unreadCounts.${String(otherUserId)}`]: 1 },
       },
       session ? { session } : {},
     );
@@ -503,7 +503,7 @@ export async function listConversations(userId: Types.ObjectId, cursor?: string,
 
 export async function listMessages(userId: Types.ObjectId, conversationId: string, limit = 50, beforeDate?: string) {
   const conversation = await getConversationForUser(userId, conversationId, true);
-  const filter: any = {
+  const filter: Record<string, unknown> = {
     conversationId: conversation._id,
     isDeleted: false,
     deletedFor: { $ne: userId },
@@ -521,7 +521,7 @@ export async function listMessages(userId: Types.ObjectId, conversationId: strin
 
 export async function markConversationRead(userId: Types.ObjectId, conversationId: string) {
   const conversation = await getConversationForUser(userId, conversationId, true);
-  conversation.set(`unreadCounts.${userId}`, 0);
+  conversation.set(`unreadCounts.${String(userId)}`, 0);
   await conversation.save();
   await MessageModel.updateMany(
     {
@@ -578,6 +578,9 @@ async function publicConversation(conversation: ConversationDocument, userId: Ty
           }
         : undefined;
 
+  const unreadCountValue = conversation.get(`unreadCounts.${String(userId)}`) as unknown;
+  const unreadCount = typeof unreadCountValue === 'number' ? unreadCountValue : 0;
+
   return {
     id: conversation.id,
     participantIds: conversation.participantIds.map(String),
@@ -585,7 +588,7 @@ async function publicConversation(conversation: ConversationDocument, userId: Ty
     otherProfile: otherProfilePayload,
     lastMessageAt: conversation.lastMessageAt,
     lastMessagePreview: conversation.lastMessagePreview,
-    unreadCount: conversation.get(`unreadCounts.${userId}`) || 0,
+    unreadCount,
     updatedAt: conversation.updatedAt,
   };
 }

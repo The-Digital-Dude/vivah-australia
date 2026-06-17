@@ -13,6 +13,7 @@ import {
   ProfileModel,
   PushSubscriptionModel,
   UserModel,
+  type UserDocument,
 } from '../models/index.js';
 
 const authConfig: AuthConfig = {
@@ -26,8 +27,8 @@ const authConfig: AuthConfig = {
 const app = createApp({ corsOrigins: ['http://localhost:3000'], auth: authConfig });
 let mongoServer: MongoMemoryServer;
 
-async function createUser(email: string) {
-  const user = await UserModel.create({
+async function createUser(email: string): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role: UserRole.USER,
@@ -60,7 +61,7 @@ async function createUser(email: string) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
   return { user, accessToken };
 }

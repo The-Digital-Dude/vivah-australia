@@ -13,7 +13,13 @@ import {
 } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
-import { ProfileMediaModel, ProfileModel, UserModel } from '../models/index.js';
+import {
+  ProfileMediaModel,
+  ProfileModel,
+  UserModel,
+  type ProfileDocument,
+  type UserDocument,
+} from '../models/index.js';
 import { createTokenPair } from '../auth/token.service.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 
@@ -66,8 +72,11 @@ function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
 }
 
-async function createUser(email: string, role: UserRole = UserRole.USER) {
-  const user = await UserModel.create({
+async function createUser(
+  email: string,
+  role: UserRole = UserRole.USER,
+): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role,
@@ -82,14 +91,14 @@ async function createUser(email: string, role: UserRole = UserRole.USER) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
 
   return { user, accessToken };
 }
 
 async function createProfile(userId: mongoose.Types.ObjectId) {
-  return ProfileModel.create({
+  const profile: ProfileDocument = await ProfileModel.create({
     userId,
     displayId: `VA${userId.toString().slice(-8).toUpperCase()}`,
     completionPercentage: 10,
@@ -123,6 +132,7 @@ async function createProfile(userId: mongoose.Types.ObjectId) {
     stats: { profileViews: 0, interestsReceived: 0, interestsSent: 0, favouritesCount: 0 },
     moderation: { approvalStatus: 'PENDING' },
   });
+  return profile;
 }
 
 beforeAll(async () => {

@@ -21,7 +21,7 @@ interface VerificationItem {
 interface VerificationDocument {
   _id: string;
   documentType: string;
-  encrypted: boolean;
+  storedSecurely: boolean;
   originalFilename?: string;
   mimeType?: string;
   fileSizeBytes?: number;
@@ -300,7 +300,7 @@ export default function AdminVerificationsPage() {
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-neutral-700 truncate">{doc.documentType}</p>
                           <p className="text-[9px] text-neutral-400 mt-0.5">
-                            {doc.encrypted ? 'AES-256 Encrypted Storage' : 'Standard Secure Storage'}
+                            {doc.storedSecurely ? 'Securely stored' : 'Standard cloud storage'}
                           </p>
                           {doc.originalFilename ? (
                             <p className="text-[9px] text-neutral-500 mt-1 truncate">
@@ -315,7 +315,7 @@ export default function AdminVerificationsPage() {
                           className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#A10E4D]/25 px-2.5 text-[10px] font-bold text-[#A10E4D] hover:bg-[#FFF0F3] bg-white transition shrink-0"
                         >
                           <Eye className="h-3 w-3" />
-                          <span>Decrypt & View</span>
+                          <span>Preview Document</span>
                         </button>
                       </div>
                     ))}
@@ -392,7 +392,7 @@ export default function AdminVerificationsPage() {
                     className="mt-1 h-3.5 w-3.5 rounded text-[#A10E4D] focus:ring-[#A10E4D]/20 cursor-pointer"
                   />
                   <label htmlFor="confirm-app" className="text-xs text-neutral-600 font-semibold cursor-pointer">
-                    I confirm that I have reviewed the decrypted documents and verified the member's authenticity.
+                    I confirm that I have reviewed the submitted documents and verified the member's authenticity.
                   </label>
                 </div>
               ) : (

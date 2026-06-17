@@ -135,11 +135,6 @@ async function notify(userId: Types.ObjectId, type: string, title: string, body?
   });
 }
 
-function monthStart() {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), 1);
-}
-
 function monthKey(date = new Date()) {
   return date.toISOString().substring(0, 7);
 }
@@ -236,21 +231,6 @@ async function findInterestByPair(
     query.session(session);
   }
 
-  return query;
-}
-
-async function findConversationByPair(
-  firstUserId: Types.ObjectId,
-  secondUserId: Types.ObjectId,
-  session?: ClientSession,
-) {
-  const query = ConversationModel.findOne({
-    pairKey: pairKeyForUsers(firstUserId, secondUserId),
-    isDeleted: false,
-  });
-  if (session) {
-    query.session(session);
-  }
   return query;
 }
 

@@ -7,13 +7,32 @@ interface ProfilePageProps {
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
-async function getProfileData(id: string) {
+interface PublicProfileData {
+  displayId?: string;
+  photoUrl?: string;
+  personal?: {
+    firstName?: string;
+  };
+  location?: {
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+  about?: {
+    aboutMe?: string;
+  };
+  employment?: {
+    occupation?: string;
+  };
+}
+
+async function getProfileData(id: string): Promise<PublicProfileData | null> {
   try {
     const res = await fetch(`${apiBaseUrl}/api/profiles/${id}`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
-    const data = await res.json();
-    return data.profile;
-  } catch (err) {
+    const data = (await res.json()) as { profile?: PublicProfileData };
+    return data.profile ?? null;
+  } catch {
     return null;
   }
 }

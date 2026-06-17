@@ -31,10 +31,6 @@ interface Summary {
   recentReports: Array<{ _id: string; reason: string; status: string; createdAt: string }>;
 }
 
-function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(' ');
-}
-
 function formatCurrency(cents: number) {
   return new Intl.NumberFormat('en-AU', {
     style: 'currency',

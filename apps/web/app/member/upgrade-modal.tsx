@@ -140,7 +140,7 @@ export default function UpgradeModal({
                 const data = res.data as { id: string };
                 return data.id;
               }}
-              onApprove={async (data, actions) => {
+              onApprove={async (data, _actions) => {
                 const res = await memberRequest('/api/billing/paypal/capture-order', {
                   method: 'POST',
                   body: { orderId: data.orderID }

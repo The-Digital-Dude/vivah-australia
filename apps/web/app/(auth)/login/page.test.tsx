@@ -8,11 +8,16 @@ const pushMock = vi.fn();
 const refreshMock = vi.fn();
 const setSessionMock = vi.fn();
 const postAuthMock = vi.fn();
+const memberRequestMock = vi.fn();
+const searchParamsGetMock = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: pushMock,
     refresh: refreshMock,
+  }),
+  useSearchParams: () => ({
+    get: searchParamsGetMock,
   }),
 }));
 
@@ -20,6 +25,21 @@ vi.mock('next/link', () => ({
   default: ({ children, href }: { children: ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   ),
+}));
+
+vi.mock('@react-oauth/google', () => ({
+  useGoogleLogin: () => vi.fn(),
+}));
+
+vi.mock('react-apple-signin-auth', () => ({
+  appleAuthHelpers: {
+    signIn: vi.fn(),
+  },
+}));
+
+vi.mock('react-facebook-login/dist/facebook-login-render-props', () => ({
+  default: ({ render }: { render: (props: { onClick: () => void }) => ReactNode }) =>
+    render({ onClick: vi.fn() }),
 }));
 
 vi.mock('../auth-shell', () => ({
@@ -73,6 +93,10 @@ vi.mock('@/lib/auth-api', () => ({
   postAuth: (...args: unknown[]) => postAuthMock(...args) as unknown,
 }));
 
+vi.mock('@/lib/member-api', () => ({
+  memberRequest: (...args: unknown[]) => memberRequestMock(...args) as unknown,
+}));
+
 vi.mock('@/app/auth-context', () => ({
   useAuth: () => ({
     setSession: setSessionMock,
@@ -82,6 +106,15 @@ vi.mock('@/app/auth-context', () => ({
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    searchParamsGetMock.mockReturnValue(null);
+    memberRequestMock.mockResolvedValue({
+      ok: true,
+      data: {
+        profile: {
+          completionPercentage: 100,
+        },
+      },
+    });
   });
 
   it('submits credentials, stores the session, and redirects on success', async () => {
@@ -89,8 +122,9 @@ describe('LoginPage', () => {
       ok: true,
       message: 'Signed in successfully.',
       data: {
-        accessToken: 'access-token',
-        refreshToken: 'refresh-token',
+        user: {
+          role: 'USER',
+        },
       },
     });
 
@@ -111,8 +145,9 @@ describe('LoginPage', () => {
       });
     });
     expect(setSessionMock).toHaveBeenCalledWith({
-      accessToken: 'access-token',
-      refreshToken: 'refresh-token',
+      user: {
+        role: 'USER',
+      },
     });
     expect(pushMock).toHaveBeenCalledWith('/member');
     expect(refreshMock).toHaveBeenCalled();

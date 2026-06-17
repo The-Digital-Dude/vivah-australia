@@ -2,20 +2,21 @@ import crypto from 'crypto';
 import type { Types } from 'mongoose';
 import { TemplateModel } from '../models/index.js';
 import { env } from '../env.js';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker, type ConnectionOptions } from 'bullmq';
 import { redisClient } from './redis.js';
 
 const redisConnection = redisClient;
+const queueConnection = redisConnection as ConnectionOptions | null;
 
-export const emailQueue = redisConnection
-  ? new Queue('emailQueue', { connection: redisConnection as any })
+export const emailQueue = queueConnection
+  ? new Queue('emailQueue', { connection: queueConnection })
   : null;
 
-const emailWorker = redisConnection
+const emailWorker = queueConnection
   ? new Worker('emailQueue', async (job) => {
       const emailProvider = getEmailProvider();
       await emailProvider.sendEmail(job.data as Email);
-    }, { connection: redisConnection as any })
+    }, { connection: queueConnection })
   : null;
 
 emailWorker?.on('failed', (job, err) => {
@@ -233,7 +234,9 @@ export async function sendEmail(email: Email): Promise<void> {
     finalEmail.text = (email.text ?? '') + `\n\nTo unsubscribe from marketing emails, visit: ${unsubUrl}`;
   }
   // Strip internal-only fields before queuing/sending
-  const { isMarketing: _m, recipientUserId: _r, ...sendable } = finalEmail;
+  const sendable: Email = { ...finalEmail };
+  delete sendable.isMarketing;
+  delete sendable.recipientUserId;
 
   if (emailQueue) {
     await emailQueue.add('sendEmail', sendable, {

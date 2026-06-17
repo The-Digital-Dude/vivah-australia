@@ -1,49 +1,71 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+
+const adminRoles = new Set(['SUPER_ADMIN', 'ADMIN', 'MODERATOR']);
+
+interface AccessTokenPayload {
+  exp?: number;
+  role?: string;
+  sub?: string;
+  type?: string;
+}
+
+function decodeAccessToken(token: string): AccessTokenPayload | null {
+  const [, payload = ''] = token.split('.');
+  if (!payload) {
+    return null;
+  }
+
+  try {
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=');
+    const decoded = atob(padded);
+    return JSON.parse(decoded) as AccessTokenPayload;
+  } catch {
+    return null;
+  }
+}
+
+function buildLoginRedirect(request: NextRequest) {
+  const loginUrl = request.nextUrl.clone();
+  loginUrl.pathname = '/login';
+  loginUrl.search = '';
+  loginUrl.searchParams.set('redirect', `${request.nextUrl.pathname}${request.nextUrl.search}`);
+  return NextResponse.redirect(loginUrl);
+}
+
+function buildHomeRedirect(request: NextRequest, message: string) {
+  const homeUrl = request.nextUrl.clone();
+  homeUrl.pathname = '/';
+  homeUrl.search = '';
+  homeUrl.searchParams.set('message', message);
+  return NextResponse.redirect(homeUrl);
+}
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isMemberRoute = pathname.startsWith('/member');
-  const isAdminRoute = pathname.startsWith('/admin');
-  const isAdminLogin = pathname === '/admin/login';
-
-  if (!isMemberRoute && !isAdminRoute) {
+  if (pathname === '/admin/login') {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get('accessToken')?.value;
-
-  if (isAdminRoute && !isAdminLogin) {
-    if (!token) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/admin/login';
-      return NextResponse.redirect(url);
-    }
-
-    try {
-      const payloadBase64 = token.split('.')[1];
-      if (!payloadBase64) throw new Error('Invalid token');
-      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
-      const payload = JSON.parse(payloadJson);
-
-      const adminRoles = ['SUPER_ADMIN', 'ADMIN', 'MODERATOR'];
-      if (!adminRoles.includes(payload.role)) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/login';
-        return NextResponse.redirect(url);
-      }
-    } catch (e) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/admin/login';
-      return NextResponse.redirect(url);
-    }
+  const accessToken = request.cookies.get('accessToken')?.value;
+  if (!accessToken) {
+    return buildLoginRedirect(request);
   }
 
-  if (isMemberRoute && !token) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+  const payload = decodeAccessToken(accessToken);
+  if (!payload || payload.type !== 'access' || typeof payload.sub !== 'string') {
+    return buildLoginRedirect(request);
+  }
+
+  if (typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now()) {
+    return buildLoginRedirect(request);
+  }
+
+  if (pathname.startsWith('/admin')) {
+    if (!payload.role || !adminRoles.has(payload.role)) {
+      return buildHomeRedirect(request, 'admin-access-required');
+    }
   }
 
   return NextResponse.next();

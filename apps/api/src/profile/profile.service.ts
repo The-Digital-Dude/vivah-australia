@@ -186,11 +186,11 @@ export async function submitOwnProfile(userId: Types.ObjectId) {
           <li><strong>Display ID:</strong> ${profile.displayId}</li>
           <li><strong>Name:</strong> ${profile.personal?.firstName ?? ''} ${profile.personal?.lastName ?? ''}</li>
         </ul>
-        <a href="https://admin.vivahaustralia.com.au/profiles/${profile._id.toString()}">Review Profile</a>
+        <a href="https://admin.vivahaustralia.com.au/profiles/${String(profile._id)}">Review Profile</a>
       `
     });
-  } catch (err) {
-    console.error('Failed to send admin notification email:', err);
+  } catch {
+    console.error('Failed to send admin notification email');
   }
 
   return profile;
@@ -665,7 +665,7 @@ export async function requestAccountDeletion(userId: Types.ObjectId) {
       { participantIds: userId, isDeleted: false },
       {
         $addToSet: { deletedFor: userId },
-        $set: { [`unreadCounts.${userId}`]: 0 },
+        $set: { [`unreadCounts.${String(userId)}`]: 0 },
       },
     ),
     ReportModel.updateMany({ reporterId: userId }, { $set: { 'targetSnapshot.reporterDeletedAt': now.toISOString() } }),
@@ -677,7 +677,7 @@ export async function requestAccountDeletion(userId: Types.ObjectId) {
 
   try {
     await cancelSubscription(userId);
-  } catch (err) {
+  } catch {
     // Ignore if no active subscription
   }
 

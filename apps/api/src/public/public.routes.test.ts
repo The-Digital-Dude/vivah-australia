@@ -20,6 +20,7 @@ import {
   SystemSettingModel,
   TestimonialModel,
   UserModel,
+  type UserDocument,
 } from '../models/index.js';
 import type { AuthConfig } from '../auth/auth-types.js';
 import { createTokenPair } from '../auth/token.service.js';
@@ -84,7 +85,7 @@ afterAll(async () => {
 });
 
 async function createAdminAccessToken() {
-  const admin = await UserModel.create({
+  const admin: UserDocument = await UserModel.create({
     email: 'admin@example.com',
     authProviders: ['email'],
     role: UserRole.ADMIN,
@@ -100,7 +101,7 @@ async function createAdminAccessToken() {
   return createTokenPair(authConfig, {
     id: admin.id,
     role: admin.role,
-    refreshTokenVersion: admin.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
 }
 
@@ -125,7 +126,7 @@ describe('public web routes', () => {
   });
 
   it('only returns approved visible featured profiles', async () => {
-    const user = await UserModel.create({
+    const user: UserDocument = await UserModel.create({
       email: 'member@example.com',
       authProviders: ['email'],
       role: UserRole.USER,
@@ -183,7 +184,7 @@ describe('public web routes', () => {
   });
 
   it('returns capped public match previews with basic filters', async () => {
-    const femaleUser = await UserModel.create({
+    const femaleUser: UserDocument = await UserModel.create({
       email: 'preview-female@example.com',
       authProviders: ['email'],
       role: UserRole.USER,
@@ -196,7 +197,7 @@ describe('public web routes', () => {
       metadata: {},
     });
 
-    const maleUser = await UserModel.create({
+    const maleUser: UserDocument = await UserModel.create({
       email: 'preview-male@example.com',
       authProviders: ['email'],
       role: UserRole.USER,
@@ -587,7 +588,7 @@ describe('public web routes', () => {
   });
 
   it('excludes non-active/deleted/suspended/banned users and prioritizes boosted profiles in public matching lists', async () => {
-    const activeUser = await UserModel.create({
+    const activeUser: UserDocument = await UserModel.create({
       email: 'public-active@example.com',
       authProviders: ['email'],
       role: UserRole.USER,
@@ -600,7 +601,7 @@ describe('public web routes', () => {
       metadata: {},
     });
 
-    const boostedUser = await UserModel.create({
+    const boostedUser: UserDocument = await UserModel.create({
       email: 'public-boosted@example.com',
       authProviders: ['email'],
       role: UserRole.USER,
@@ -613,7 +614,7 @@ describe('public web routes', () => {
       metadata: {},
     });
 
-    const suspendedUser = await UserModel.create({
+    const suspendedUser: UserDocument = await UserModel.create({
       email: 'public-suspended@example.com',
       authProviders: ['email'],
       role: UserRole.USER,

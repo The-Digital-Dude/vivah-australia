@@ -1,12 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
-import { postAuth } from '@/lib/auth-api';
+import { postAuth, type AuthSessionUser } from '@/lib/auth-api';
 
 const adminRoles = new Set(['SUPER_ADMIN', 'ADMIN', 'MODERATOR']);
+
+function safeReturnUrl(value: string | null, fallback: string) {
+  if (!value || !value.startsWith('/')) {
+    return fallback;
+  }
+  return value;
+}
 
 function formValue(form: FormData, key: string) {
   const value = form.get(key);
@@ -15,9 +23,18 @@ function formValue(form: FormData, key: string) {
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setSession } = useAuth();
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
+
+  function applySession(
+    user: AuthSessionUser | undefined,
+    accessToken?: string,
+    refreshToken?: string,
+  ) {
+    setSession({ user, accessToken, refreshToken });
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,8 +58,8 @@ export default function AdminLoginPage() {
       return;
     }
 
-    setSession({ user: result.data?.user as any });
-    router.push('/admin/dashboard');
+    applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
+    router.push(safeReturnUrl(searchParams.get('redirect'), '/admin/dashboard'));
   }
 
   return (

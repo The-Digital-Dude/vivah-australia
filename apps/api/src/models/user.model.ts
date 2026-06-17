@@ -132,28 +132,37 @@ userSchema.post('save', async function (doc) {
   }
 });
 
-userSchema.post('findOneAndUpdate', async function (doc) {
+userSchema.post('findOneAndUpdate', async function (doc?: UserDocument | null) {
   if (doc) {
     const { ProfileModel } = await import('./profile.model.js');
     await ProfileModel.updateOne(
       { userId: doc._id },
-      { $set: { userStatus: doc.status, userIsDeleted: doc.isDeleted } }
+      { $set: { userStatus: doc.status, userIsDeleted: doc.isDeleted } },
     );
   }
 });
 
 userSchema.post('updateOne', async function () {
-  const update = this.getUpdate() as Record<string, any>;
-  if (update && update.$set && (update.$set.status !== undefined || update.$set.isDeleted !== undefined)) {
-    const query = this.getQuery();
+  const update = this.getUpdate() as
+    | { $set?: { status?: AccountStatusType; isDeleted?: boolean } }
+    | undefined;
+  if (
+    update?.$set &&
+    (update.$set.status !== undefined || update.$set.isDeleted !== undefined)
+  ) {
+    const query = this.getQuery() as { _id?: Types.ObjectId };
     if (query._id) {
       const { ProfileModel } = await import('./profile.model.js');
       await ProfileModel.updateOne(
         { userId: query._id },
-        { $set: { 
-           ...(update.$set.status !== undefined ? { userStatus: update.$set.status } : {}),
-           ...(update.$set.isDeleted !== undefined ? { userIsDeleted: update.$set.isDeleted } : {})
-        } }
+        {
+          $set: {
+            ...(update.$set.status !== undefined ? { userStatus: update.$set.status } : {}),
+            ...(update.$set.isDeleted !== undefined
+              ? { userIsDeleted: update.$set.isDeleted }
+              : {}),
+          },
+        },
       );
     }
   }

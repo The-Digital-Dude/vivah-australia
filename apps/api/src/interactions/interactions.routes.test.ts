@@ -27,6 +27,9 @@ import {
   ReportModel,
   SubscriptionModel,
   UserModel,
+  type ProfileMediaDocument,
+  type ProfileDocument,
+  type UserDocument,
 } from '../models/index.js';
 
 const authConfig: AuthConfig = {
@@ -48,8 +51,11 @@ function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
 }
 
-async function createUser(email: string, role = UserRole.USER) {
-  const user = await UserModel.create({
+async function createUser(
+  email: string,
+  role = UserRole.USER,
+): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role,
@@ -64,7 +70,7 @@ async function createUser(email: string, role = UserRole.USER) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
 
   return { user, accessToken };
@@ -76,7 +82,7 @@ async function createProfile(
   firstName: string,
   gender: (typeof Gender)[keyof typeof Gender],
 ) {
-  return ProfileModel.create({
+  const profile: ProfileDocument = await ProfileModel.create({
     userId,
     displayId,
     completionPercentage: 100,
@@ -122,6 +128,7 @@ async function createProfile(
     userStatus: AccountStatus.ACTIVE,
     userIsDeleted: false,
   });
+  return profile;
 }
 
 async function premiumUser(email: string) {
@@ -567,7 +574,7 @@ describe('interaction routes', () => {
       authorId: target.user._id,
       body: 'Unsafe comment body',
     });
-    const media = await ProfileMediaModel.create({
+    const media: ProfileMediaDocument = await ProfileMediaModel.create({
       userId: target.user._id,
       profileId: targetProfile._id,
       assetUrl: 'https://example.com/private-media.jpg',
@@ -657,10 +664,11 @@ describe('interaction routes', () => {
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .expect(200);
     expect(bodyAs<{ reports: unknown[] }>(list).reports).toHaveLength(1);
-    expect(bodyAs<{ reports: Array<{ evidence?: unknown; reportedMember?: unknown }> }>(list).reports[0]).toMatchObject({
-      evidence: expect.any(Object),
-      reportedMember: expect.any(Object),
-    });
+    const firstReport = bodyAs<{
+      reports: Array<{ evidence?: unknown; reportedMember?: unknown }>;
+    }>(list).reports[0];
+    expect(firstReport?.evidence).toEqual(expect.any(Object));
+    expect(firstReport?.reportedMember).toEqual(expect.any(Object));
 
     const assigned = await request(app)
       .patch(`/api/admin/reports/${reportId}`)

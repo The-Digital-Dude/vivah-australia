@@ -19,7 +19,6 @@ import {
   ProfileModel,
   SavedSearchModel,
   SubscriptionModel,
-  UserModel,
   MatchRecommendationModel,
 } from '../models/index.js';
 import type { ProfileDocument } from '../models/profile.model.js';

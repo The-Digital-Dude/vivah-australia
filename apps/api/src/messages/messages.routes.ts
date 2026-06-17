@@ -1,6 +1,5 @@
 import {
   conversationListQuerySchema,
-  conversationCreateSchema,
   messageAttachmentCompleteUploadSchema,
   messageAttachmentSignUploadSchema,
   messageCreateSchema,
@@ -102,7 +101,8 @@ export function createMessagesRouter(config: AuthConfig): Router {
         throw new HttpError(404, 'Conversation not found');
       }
 
-      const limit = request.query.limit ? parseInt(String(request.query.limit), 10) : 50;
+      const limit =
+        typeof request.query.limit === 'string' ? parseInt(request.query.limit, 10) : 50;
       const beforeDate = typeof request.query.beforeDate === 'string' ? request.query.beforeDate : undefined;
 
       const messages = await listMessages(auth.userId, conversationId, limit, beforeDate);

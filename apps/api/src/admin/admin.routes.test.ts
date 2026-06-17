@@ -21,6 +21,8 @@ import {
   UserModel,
   VerificationDocumentModel,
   VerificationRequestModel,
+  type ProfileDocument,
+  type UserDocument,
 } from '../models/index.js';
 
 const authConfig: AuthConfig = {
@@ -38,8 +40,11 @@ function bodyAs<T>(response: Response): T {
   return response.body as T;
 }
 
-async function createUser(email: string, role = UserRole.USER) {
-  const user = await UserModel.create({
+async function createUser(
+  email: string,
+  role = UserRole.USER,
+): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role,
@@ -54,13 +59,13 @@ async function createUser(email: string, role = UserRole.USER) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
   return { user, accessToken };
 }
 
 async function createProfile(userId: mongoose.Types.ObjectId) {
-  return ProfileModel.create({
+  const profile: ProfileDocument = await ProfileModel.create({
     userId,
     displayId: `VA${Date.now()}`,
     completionPercentage: 100,
@@ -101,6 +106,7 @@ async function createProfile(userId: mongoose.Types.ObjectId) {
     stats: { profileViews: 0, interestsReceived: 0, interestsSent: 0, favouritesCount: 0 },
     moderation: { approvalStatus: ProfileApprovalStatus.PENDING },
   });
+  return profile;
 }
 
 beforeAll(async () => {

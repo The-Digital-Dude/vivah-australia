@@ -10,7 +10,11 @@ interface AuthContextType {
   userRole: string | null;
   initialized: boolean;
   setToken: (token: string | null) => void;
-  setSession: (data: { user?: { role: string } }) => void;
+  setSession: (data: {
+    accessToken?: string | undefined;
+    refreshToken?: string | undefined;
+    user?: { role: string } | undefined;
+  }) => void;
   refreshAccessToken: () => Promise<string | null>;
   clearToken: () => void;
 }
@@ -61,7 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setSession = (data: { user?: { role: string } }) => {
+  const setSession = (data: {
+    accessToken?: string | undefined;
+    refreshToken?: string | undefined;
+    user?: { role: string } | undefined;
+  }) => {
     setToken('cookie-based');
     if (data.user) {
       setUserRole(data.user.role);

@@ -267,7 +267,7 @@ export async function verifyEmail(token: string): Promise<void> {
   await authToken.save();
 }
 
-export async function resendVerificationEmail(email: string, config: AuthConfig) {
+export async function resendVerificationEmail(email: string, _config: AuthConfig) {
   const user = await UserModel.findOne({ email });
 
   if (!user || user.emailVerified) {

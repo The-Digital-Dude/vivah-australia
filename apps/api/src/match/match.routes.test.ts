@@ -17,6 +17,8 @@ import {
   ProfileModel,
   SubscriptionModel,
   UserModel,
+  type ProfileDocument,
+  type UserDocument,
 } from '../models/index.js';
 
 const authConfig: AuthConfig = {
@@ -57,8 +59,11 @@ function bodyAs<TBody>(response: Response): TBody {
   return response.body as TBody;
 }
 
-async function createUser(email: string, role = UserRole.USER) {
-  const user = await UserModel.create({
+async function createUser(
+  email: string,
+  role = UserRole.USER,
+): Promise<{ user: UserDocument; accessToken: string }> {
+  const user: UserDocument = await UserModel.create({
     email,
     authProviders: ['email'],
     role,
@@ -73,7 +78,7 @@ async function createUser(email: string, role = UserRole.USER) {
   const accessToken = createTokenPair(authConfig, {
     id: user.id,
     role: user.role,
-    refreshTokenVersion: user.refreshTokenVersion,
+    refreshTokenVersion: 0,
   }).accessToken;
 
   return { user, accessToken };
@@ -108,7 +113,7 @@ async function createProfile({
   lastActiveAt?: Date;
   activeBoostEndsAt?: Date;
 }) {
-  return ProfileModel.create({
+  const profile: ProfileDocument = await ProfileModel.create({
     userId,
     displayId,
     completionPercentage,
@@ -184,6 +189,7 @@ async function createProfile({
     },
     moderation: { approvalStatus },
   });
+  return profile;
 }
 
 async function addPremiumSubscription(userId: mongoose.Types.ObjectId) {
@@ -280,7 +286,6 @@ describe('match routes', () => {
     await BlockModel.create({ blockerId: viewer.user._id, blockedId: blocked.user._id });
     await HiddenProfileModel.create({
       userId: viewer.user._id,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       profileId: ignoredProfile._id,
       hiddenUserId: ignored.user._id,
     });
@@ -442,7 +447,6 @@ describe('match routes', () => {
     });
     await HiddenProfileModel.create({
       userId: viewer.user._id,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       profileId: strongProfile._id,
       hiddenUserId: strong.user._id,
     });
@@ -500,7 +504,6 @@ describe('match routes', () => {
 
     await HiddenProfileModel.create({
       userId: viewer.user._id,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       profileId: hiddenProfile._id,
       hiddenUserId: hidden.user._id,
     });

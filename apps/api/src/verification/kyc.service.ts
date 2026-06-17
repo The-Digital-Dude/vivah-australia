@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
 import { UserModel } from '../models/index.js';
 import { HttpError } from '../auth/auth-errors.js';
 
@@ -16,6 +16,6 @@ export async function initiateLivenessCheck(userId: Types.ObjectId) {
   throw new HttpError(503, 'Liveness verification is not available yet');
 }
 
-export async function processKycWebhook() {
+export function processKycWebhook() {
   throw new HttpError(503, 'KYC webhook is disabled until a real provider is configured');
 }

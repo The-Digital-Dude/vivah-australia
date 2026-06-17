@@ -6,13 +6,11 @@ import {
   Check,
   X,
   Crown,
-  Heart,
   MessageCircle,
   ShieldCheck,
   Sparkles,
   Star,
   TrendingUp,
-  Users,
   Eye,
   Zap,
   Lock,
@@ -464,7 +462,7 @@ export default function MembershipPage() {
                   style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
                 >
                   <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Star key={i} className="size-4 fill-brand-gold text-brand-gold" />
                     ))}
                   </div>

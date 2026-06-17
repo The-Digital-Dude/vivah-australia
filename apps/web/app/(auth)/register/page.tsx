@@ -7,7 +7,7 @@ import AuthShell from '../auth-shell';
 import FormField from '../form-field';
 import OtpInput from '../otp-input';
 import SubmitButton from '../submit-button';
-import { postAuth } from '@/lib/auth-api';
+import { postAuth, type AuthSessionUser } from '@/lib/auth-api';
 import { useAuth } from '@/app/auth-context';
 
 type RegisterMode = 'email' | 'mobile';
@@ -26,6 +26,14 @@ export default function RegisterPage() {
   const [registeredMobile, setRegisteredMobile] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [resendCountdown, setResendCountdown] = useState(0);
+
+  function applySession(
+    user: AuthSessionUser | undefined,
+    accessToken?: string,
+    refreshToken?: string,
+  ) {
+    setSession({ user, accessToken, refreshToken });
+  }
 
   useEffect(() => {
     if (resendCountdown <= 0) return;
@@ -142,7 +150,7 @@ export default function RegisterPage() {
       });
 
       if (result.ok && result.data?.accessToken) {
-        setSession({ user: result.data?.user as any });
+        applySession(result.data.user, result.data.accessToken, result.data.refreshToken);
         setSuccess('Mobile number verified. Welcome to Vivah Australia.');
         router.push('/member/onboarding');
         router.refresh();

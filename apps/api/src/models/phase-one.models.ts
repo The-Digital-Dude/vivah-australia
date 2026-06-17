@@ -184,7 +184,7 @@ export interface VerificationDocument {
   mimeType: string;
   fileSizeBytes: number;
   originalFilename: string;
-  encrypted: boolean;
+  storedSecurely: boolean;
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
@@ -215,7 +215,7 @@ const verificationDocumentSchema = new Schema<VerificationDocument>(
     mimeType: { type: String, required: true, trim: true },
     fileSizeBytes: { type: Number, required: true, min: 1 },
     originalFilename: { type: String, required: true, trim: true },
-    encrypted: { type: Boolean, default: true },
+    storedSecurely: { type: Boolean, default: false },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'verification_documents' },

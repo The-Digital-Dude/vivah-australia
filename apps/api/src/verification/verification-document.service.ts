@@ -125,7 +125,7 @@ function publicVerificationDocument(document: HydratedDocument<VerificationDocum
     mimeType: document.mimeType,
     fileSizeBytes: document.fileSizeBytes,
     originalFilename: document.originalFilename,
-    encrypted: document.encrypted,
+    storedSecurely: document.storedSecurely,
     createdAt: document.createdAt,
     updatedAt: document.updatedAt,
   };
@@ -173,7 +173,6 @@ export async function createSignedVerificationDocumentUpload(
     mimeType: input.mimeType,
     fileSizeBytes: input.fileSizeBytes,
     originalFilename: input.fileName,
-    encrypted: true,
   });
 
   if (!cloudinary) {
@@ -272,7 +271,7 @@ export async function completeSignedVerificationDocumentUpload(
   return publicVerificationDocument(document);
 }
 
-export async function createVerificationDocumentPreviewAccess(
+export function createVerificationDocumentPreviewAccess(
   actorId: Types.ObjectId,
   requestId: string,
   document: HydratedDocument<VerificationDocument>,
@@ -284,7 +283,7 @@ export async function createVerificationDocumentPreviewAccess(
     document: {
       id: document.id,
       documentType: document.documentType,
-      encrypted: document.encrypted,
+      storedSecurely: document.storedSecurely,
       originalFilename: document.originalFilename,
       mimeType: document.mimeType,
     },
