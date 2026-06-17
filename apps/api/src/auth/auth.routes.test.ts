@@ -179,6 +179,11 @@ describe('auth routes', () => {
     expect(createdUser.status).toBe(AccountStatus.PENDING);
     expect(createdUser.mobileVerified).toBe(false);
 
+    await MobileOtpModel.collection.updateMany(
+      { mobile, usedAt: { $exists: false } },
+      { $set: { createdAt: new Date(Date.now() - 61_000) } },
+    );
+
     await request(app).post('/api/auth/otp/send').send({ mobile }).expect(201);
 
     const verifyResponse = await request(app)
@@ -359,10 +364,10 @@ describe('auth routes', () => {
       .send({ token: 'mock-google-token' })
       .expect(200);
 
-    const body = bodyAs<{ user: { email: string; role: string }; tokenPair: TokenResponseBody }>(response);
+    const body = bodyAs<{ user: { email: string; role: string }; accessToken: string; refreshToken: string }>(response);
     expect(body.user.email).toBe('google-user@example.com');
-    expect(body.tokenPair.accessToken).toBeDefined();
-    expect(body.tokenPair.refreshToken).toBeDefined();
+    expect(body.accessToken).toBeDefined();
+    expect(body.refreshToken).toBeDefined();
 
     const dbUser = await UserModel.findOne({ email: 'google-user@example.com' }).orFail();
     expect(dbUser.googleId).toBe('12345google');
@@ -375,10 +380,10 @@ describe('auth routes', () => {
       .send({ token: 'mock-facebook-token' })
       .expect(200);
 
-    const body = bodyAs<{ user: { email: string; role: string }; tokenPair: TokenResponseBody }>(response);
+    const body = bodyAs<{ user: { email: string; role: string }; accessToken: string; refreshToken: string }>(response);
     expect(body.user.email).toBe('facebook-user@example.com');
-    expect(body.tokenPair.accessToken).toBeDefined();
-    expect(body.tokenPair.refreshToken).toBeDefined();
+    expect(body.accessToken).toBeDefined();
+    expect(body.refreshToken).toBeDefined();
 
     const dbUser = await UserModel.findOne({ email: 'facebook-user@example.com' }).orFail();
     expect(dbUser.facebookId).toBe('12345fb');

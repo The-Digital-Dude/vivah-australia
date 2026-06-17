@@ -11,7 +11,7 @@ import {
   UserRole,
 } from '@vivah/shared';
 import { Router, type NextFunction, type Request, type Response } from 'express';
-import { rateLimit } from 'express-rate-limit';
+import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
 import { z } from 'zod';
 import { HttpError } from '../auth/auth-errors.js';
 import { requireAuth } from '../auth/auth.middleware.js';
@@ -67,7 +67,8 @@ export function createCommunityRouter(config: AuthConfig): Router {
     max: 5,
     message: { message: 'Too many posts. Please wait before posting again.' },
     keyGenerator: (req) =>
-      (req as AuthenticatedRequest).auth?.userId?.toString() ?? req.ip ?? 'anon',
+      (req as AuthenticatedRequest).auth?.userId?.toString() ??
+      ipKeyGenerator(req.ip ?? '127.0.0.1'),
   });
 
   const commentRateLimit = rateLimit({
@@ -75,7 +76,8 @@ export function createCommunityRouter(config: AuthConfig): Router {
     max: 15,
     message: { message: 'Too many comments. Please slow down.' },
     keyGenerator: (req) =>
-      (req as AuthenticatedRequest).auth?.userId?.toString() ?? req.ip ?? 'anon',
+      (req as AuthenticatedRequest).auth?.userId?.toString() ??
+      ipKeyGenerator(req.ip ?? '127.0.0.1'),
   });
 
   router.get(

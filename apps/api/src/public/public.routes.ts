@@ -637,6 +637,8 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       // Fetch matching profiles filtered by city/religion
       const profileFilter: Record<string, unknown> = {
         isDeleted: false,
+        userIsDeleted: false,
+        userStatus: AccountStatus.ACTIVE,
         'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
         'visibility.status': { $ne: 'HIDDEN' },
       };

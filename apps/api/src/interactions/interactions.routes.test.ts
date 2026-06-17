@@ -580,7 +580,7 @@ describe('interaction routes', () => {
       assetUrl: 'https://example.com/private-media.jpg',
       mediaType: 'PHOTO',
       category: 'PRIVATE_GALLERY',
-      uploadStatus: 'COMPLETED',
+      uploadStatus: 'UPLOADED',
       mimeType: 'image/jpeg',
       fileSizeBytes: 12345,
       originalFilename: 'private.jpg',

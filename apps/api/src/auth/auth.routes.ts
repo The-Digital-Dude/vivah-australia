@@ -57,19 +57,43 @@ function clearAuthCookies(response: Response) {
   response.clearCookie('refreshToken', cookieOptions);
 }
 
-const authRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+function createAuthRateLimit() {
+  return rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+}
 
-const passwordResetRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+function createPasswordResetRateLimit() {
+  return rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+}
+
+function authResponsePayload(
+  config: AuthConfig,
+  result: {
+    user: Record<string, unknown>;
+    accessToken?: string;
+    refreshToken?: string;
+  },
+) {
+  const payload: Record<string, unknown> = {
+    user: result.user,
+  };
+
+  if (config.exposeSensitiveTokens && result.accessToken && result.refreshToken) {
+    payload.accessToken = result.accessToken;
+    payload.refreshToken = result.refreshToken;
+  }
+
+  return payload;
+}
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -84,7 +108,7 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/register/email',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = registerEmailSchema.parse(request.body);
       const result = await registerWithEmail(input, config);
@@ -94,7 +118,7 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/register/mobile',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = registerMobileSchema.parse(request.body);
       const result = await registerWithMobile(input);
@@ -107,7 +131,7 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/otp/send',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = mobileOtpRequestSchema.parse(request.body);
       response.status(201).json(await resendMobileRegistrationOtp(input.mobile));
@@ -116,18 +140,18 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/otp/verify',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = mobileOtpVerifySchema.parse(request.body);
       const result = await verifyMobileRegistration(input.mobile, input.code, config);
       setAuthCookies(response, result.accessToken, result.refreshToken);
-      response.status(200).json({ user: result.user });
+      response.status(200).json(authResponsePayload(config, result));
     }),
   );
 
   router.post(
     '/verify-email',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = verifyEmailSchema.parse(request.body);
       await verifyEmail(input.token);
@@ -137,7 +161,7 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/resend-verification-email',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const { email } = request.body as Record<string, unknown>;
       if (typeof email !== 'string' || !email) {
@@ -150,18 +174,18 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/login',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = loginSchema.parse(request.body);
       const result = await loginWithEmail(input, config);
       setAuthCookies(response, result.accessToken, result.refreshToken);
-      response.status(200).json({ user: result.user });
+      response.status(200).json(authResponsePayload(config, result));
     }),
   );
 
   router.post(
     '/refresh',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = refreshTokenSchema.parse(request.body);
       const refreshTokenToUse =
@@ -173,13 +197,13 @@ export function createAuthRouter(config: AuthConfig): Router {
       }
       const result = await refreshSession(refreshTokenToUse, config);
       setAuthCookies(response, result.accessToken, result.refreshToken);
-      response.status(200).json({ user: result.user });
+      response.status(200).json(authResponsePayload(config, result));
     }),
   );
 
   router.post(
     '/logout',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = logoutSchema.partial().parse(request.body);
       const refreshTokenToUse =
@@ -196,7 +220,7 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/forgot-password',
-    passwordResetRateLimit,
+    createPasswordResetRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = forgotPasswordSchema.parse(request.body);
       const result = await requestPasswordReset(input.email, config);
@@ -209,7 +233,7 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/reset-password',
-    passwordResetRateLimit,
+    createPasswordResetRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const input = resetPasswordSchema.parse(request.body);
       await resetPassword(input.token, input.password);
@@ -234,7 +258,7 @@ export function createAuthRouter(config: AuthConfig): Router {
 
   router.post(
     '/oauth/google',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const { token } = request.body as Record<string, unknown>;
       if (typeof token !== 'string' || !token) {
@@ -243,13 +267,16 @@ export function createAuthRouter(config: AuthConfig): Router {
       const profile = await verifyGoogleToken(token);
       const result = await loginOrRegisterOAuth('google', profile, config);
       setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
-      response.status(200).json({ user: result.user });
+      response.status(200).json({
+        user: result.user,
+        ...(config.exposeSensitiveTokens ? result.tokenPair : {}),
+      });
     }),
   );
 
   router.post(
     '/oauth/facebook',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const { token } = request.body as Record<string, unknown>;
       if (typeof token !== 'string' || !token) {
@@ -258,13 +285,16 @@ export function createAuthRouter(config: AuthConfig): Router {
       const profile = await verifyFacebookToken(token);
       const result = await loginOrRegisterOAuth('facebook', profile, config);
       setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
-      response.status(200).json({ user: result.user });
+      response.status(200).json({
+        user: result.user,
+        ...(config.exposeSensitiveTokens ? result.tokenPair : {}),
+      });
     }),
   );
 
   router.post(
     '/oauth/apple',
-    authRateLimit,
+    createAuthRateLimit(),
     asyncHandler(async (request: Request, response: Response) => {
       const { token } = request.body as Record<string, unknown>;
       if (typeof token !== 'string' || !token) {
@@ -273,7 +303,10 @@ export function createAuthRouter(config: AuthConfig): Router {
       const profile = await verifyAppleToken(token);
       const result = await loginOrRegisterOAuth('apple', profile, config);
       setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
-      response.status(200).json({ user: result.user });
+      response.status(200).json({
+        user: result.user,
+        ...(config.exposeSensitiveTokens ? result.tokenPair : {}),
+      });
     }),
   );
 

@@ -315,6 +315,21 @@ const profileSchema = new Schema<Profile>(
   timestampedSchemaOptions,
 );
 
+profileSchema.pre('save', async function () {
+  if (!this.isNew && !this.isModified('userId')) {
+    return;
+  }
+
+  const { UserModel } = await import('./user.model.js');
+  const user = await UserModel.findById(this.userId).select('status isDeleted').lean();
+  if (!user) {
+    return;
+  }
+
+  this.userStatus = user.status;
+  this.userIsDeleted = user.isDeleted;
+});
+
 profileSchema.index({ userId: 1 }, { unique: true });
 profileSchema.index({ displayId: 1 }, { unique: true });
 profileSchema.index({ slug: 1 }, { unique: true, sparse: true });

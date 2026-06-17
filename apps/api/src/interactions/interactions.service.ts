@@ -187,7 +187,13 @@ async function adjustMonthlyInterestCounter(
         },
       },
     ],
-    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true, ...(session ? { session } : {}) },
+    {
+      upsert: true,
+      returnDocument: 'after',
+      setDefaultsOnInsert: true,
+      updatePipeline: true,
+      ...(session ? { session } : {}),
+    },
   );
 
   return counter?.count ?? 0;

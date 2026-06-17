@@ -128,6 +128,7 @@ describe('community routes', () => {
 
   it('supports posts, comments, reactions, reports, and moderation', async () => {
     const member = await createUser('community-member@example.com');
+    const reporter = await createUser('community-reporter@example.com');
     const admin = await createUser('community-mod@example.com', UserRole.MODERATOR);
     const room = await CommunityRoomModel.create({
       slug: 'introductions',
@@ -168,7 +169,7 @@ describe('community routes', () => {
 
     await request(app)
       .post(`/api/community/posts/${postId}/report`)
-      .set('Authorization', `Bearer ${member.accessToken}`)
+      .set('Authorization', `Bearer ${reporter.accessToken}`)
       .send({ reason: 'This post needs moderator review.' })
       .expect(201);
     expect(await ReportModel.countDocuments({ targetType: 'POST' })).toBe(1);

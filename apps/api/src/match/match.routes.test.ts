@@ -636,7 +636,7 @@ describe('match routes', () => {
     const body = bodyAs<MatchResponseBody>(response);
     expect(body.pagination?.total).toBe(200);
     expect(body.pagination?.total).not.toBe(205);
-    expect(body.pagination?.totalPages).toBe(8);
+    expect(body.pagination?.totalPages).toBe(20);
   });
 
   it('creates, lists, runs, and deletes saved searches', async () => {

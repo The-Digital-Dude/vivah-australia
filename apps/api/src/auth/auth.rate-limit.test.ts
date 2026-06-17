@@ -4,6 +4,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
+import { MobileOtpModel } from '../models/index.js';
 import type { AuthConfig } from './auth-types.js';
 
 const authConfig: AuthConfig = {
@@ -47,8 +48,17 @@ describe('auth rate limits', () => {
       marketingConsent: false,
     });
 
+    await MobileOtpModel.collection.updateMany(
+      { mobile, usedAt: { $exists: false } },
+      { $set: { createdAt: new Date(Date.now() - 61_000) } },
+    );
+
     for (let index = 0; index < 98; index += 1) {
       await request(app).post('/api/auth/otp/send').send({ mobile }).expect(201);
+      await MobileOtpModel.collection.updateMany(
+        { mobile, usedAt: { $exists: false } },
+        { $set: { createdAt: new Date(Date.now() - 61_000) } },
+      );
     }
 
     const finalAllowed = await request(app).post('/api/auth/otp/send').send({ mobile });

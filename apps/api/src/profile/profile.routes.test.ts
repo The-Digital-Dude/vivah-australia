@@ -521,7 +521,7 @@ describe('profile routes', () => {
     const updatedProfile = await ProfileModel.findById(profile._id).lean();
 
     expect(updatedUser?.status).toBe(AccountStatus.SUSPENDED);
-    expect(updatedUser?.refreshTokenVersion).toBe(1);
+    expect(updatedUser?.activeSessions).toHaveLength(0);
     expect(updatedProfile?.visibility.status).toBe('HIDDEN');
     expect(
       await AuthTokenModel.countDocuments({ userId: user._id, isDeleted: false }),
