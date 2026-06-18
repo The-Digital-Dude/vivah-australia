@@ -230,7 +230,7 @@ export default function AdminMediaReview() {
             className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
           />
           
-          <div className="relative w-full max-w-5xl rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
+          <div className="relative flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
             <h3 className="text-base font-extrabold text-neutral-900 flex items-center gap-2">
               {reviewItem.targetStatus === 'APPROVED' ? (
                 <>
@@ -249,13 +249,13 @@ export default function AdminMediaReview() {
               Select details for updating asset moderation to <strong className="text-[#A10E4D] uppercase">{reviewItem.targetStatus}</strong>.
             </p>
 
-            <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,420px)]">
-              <div className="flex items-center justify-center rounded-xl border border-neutral-100 bg-neutral-950/80 p-3 shadow-inner">
+            <div className="mt-4 grid min-h-0 flex-1 gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,420px)]">
+              <div className="flex min-h-0 items-center justify-center rounded-xl border border-neutral-100 bg-neutral-950/80 p-3 shadow-inner">
                 {reviewItem.item.mediaType === 'VIDEO' || reviewItem.item.category === 'VIDEO_INTRO' ? (
                   <video
                     src={reviewItem.item.assetUrl}
                     poster={reviewItem.item.videoPosterUrl ?? reviewItem.item.thumbnailUrl ?? reviewItem.item.assetUrl}
-                    className="max-h-[72vh] w-auto max-w-full rounded-lg object-contain"
+                    className="max-h-[58vh] w-auto max-w-full rounded-lg object-contain"
                     controls
                   />
                 ) : (
@@ -266,13 +266,13 @@ export default function AdminMediaReview() {
                       width={1400}
                       height={1800}
                       unoptimized
-                      className="max-h-[72vh] w-auto max-w-full rounded-lg object-contain"
+                      className="max-h-[58vh] w-auto max-w-full rounded-lg object-contain"
                     />
                   </div>
                 )}
               </div>
 
-              <div className="space-y-4">
+              <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
                 <div className="rounded-xl border border-neutral-150 bg-neutral-50 p-4">
                   <p className="text-sm font-bold text-neutral-900">{reviewItem.item.originalFilename}</p>
                   <p className="mt-1 text-xs text-neutral-500">
