@@ -34,7 +34,7 @@ import UpgradeModal from '../member/upgrade-modal';
 import { validateCoupon } from '@/lib/public-api';
 import { useAuth } from '@/app/auth-context';
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000').trim();
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 

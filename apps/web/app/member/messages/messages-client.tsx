@@ -26,7 +26,7 @@ import { PremiumCard } from '@/app/components';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
 import ProfileActions from '../profile-actions';
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000').trim();
 
 interface Conversation {
   id: string;

@@ -17,7 +17,7 @@ import { useEntitlement } from '@/lib/use-entitlement';
 import { useAuth } from '@/app/auth-context';
 import UpgradeModal from '../upgrade-modal';
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000').trim();
 
 interface Plan {
   id: string;
