@@ -73,8 +73,10 @@ async function startServer() {
     auth: authConfig,
   });
 
-  server.listen(env.API_PORT, () => {
-    logger.info({ url: env.API_BASE_URL, port: env.API_PORT }, 'API server started');
+  // Render (and similar platforms) set PORT env var; prefer it over API_PORT
+  const port = process.env.PORT ? Number(process.env.PORT) : env.API_PORT;
+  server.listen(port, () => {
+    logger.info({ url: env.API_BASE_URL, port }, 'API server started');
   });
 
   // Schedule nightly match pre-caching (skipped if Redis unavailable)

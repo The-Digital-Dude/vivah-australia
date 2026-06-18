@@ -1,0 +1,71 @@
+services:
+  # ── API (Express + Socket.io) ─────────────────────────────────────────────
+  - type: web
+    name: vivah-australia-api
+    runtime: node
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @vivah/shared build && pnpm --filter @vivah/api build
+    startCommand: node apps/api/dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # ── URLs — set API_BASE_URL in Render dashboard after first deploy ──────
+      # API_BASE_URL is available as the Render service URL (e.g. https://vivah-australia-api.onrender.com)
+      - key: API_BASE_URL
+        sync: false
+      - key: WEB_BASE_URL
+        value: https://vivah-australia-web.vercel.app
+      - key: CORS_ORIGINS
+        value: https://vivah-australia-web.vercel.app
+
+      # ── Database ─────────────────────────────────────────────────────────────
+      # Set MONGODB_URI in Render dashboard (get from MongoDB Atlas)
+      - key: MONGODB_URI
+        sync: false
+
+      # ── Redis (linked from the Redis service below) ───────────────────────
+      - key: REDIS_URI
+        fromService:
+          type: redis
+          name: vivah-australia-redis
+          property: connectionString
+
+      # ── Auth / JWT (auto-generated secure secrets) ───────────────────────
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 30d
+
+      # ── Bot protection — set real key in Render dashboard ────────────────
+      - key: HCAPTCHA_SECRET
+        sync: false
+
+      # ── Media — auto-generated signing secret; add Cloudinary keys later ─
+      - key: MEDIA_ACCESS_SECRET
+        generateValue: true
+
+      # ── Notifications (console = log only; swap later for real providers) ─
+      - key: EMAIL_PROVIDER
+        value: console
+      - key: EMAIL_FROM
+        value: noreply@vivahaustralia.com.au
+      - key: SMS_PROVIDER
+        value: console
+      - key: PUSH_PROVIDER
+        value: console
+
+      # ── Error tracking (off for sandbox) ─────────────────────────────────
+      - key: ERROR_TRACKING_PROVIDER
+        value: none
+
+  # ── Redis (BullMQ + match caching) ───────────────────────────────────────
+  - type: redis
+    name: vivah-australia-redis
+    plan: free
+    maxmemoryPolicy: noeviction
