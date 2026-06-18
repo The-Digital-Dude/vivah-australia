@@ -75,6 +75,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserRole(data.user.role);
       localStorage.setItem('user_role', data.user.role);
     }
+    if (data.refreshToken) {
+      setRefreshTokenState(data.refreshToken);
+      localStorage.setItem('refresh_token', data.refreshToken);
+    }
   };
 
   const clearToken = useCallback(() => {
@@ -96,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await fetch(`${apiBaseUrl}/api/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ refreshToken: activeRefreshToken }),
     });
 
@@ -104,7 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
-    const data = (await response.json()) as { user?: { role: string } };
+    const data = (await response.json()) as {
+      user?: { role: string };
+      accessToken?: string;
+      refreshToken?: string;
+    };
     if (!data.user) {
       clearToken();
       return null;
@@ -114,8 +123,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserRole(data.user.role);
     localStorage.setItem('auth_token', 'cookie-based');
     localStorage.setItem('user_role', data.user.role);
-    return 'cookie-based';
-  }, [clearToken]);
+
+    if (data.refreshToken) {
+      setRefreshTokenState(data.refreshToken);
+      localStorage.setItem('refresh_token', data.refreshToken);
+    }
+
+    // Restore the same-domain Vercel cookie so Next.js middleware keeps routing correctly
+    if (data.accessToken && typeof document !== 'undefined') {
+      document.cookie = `accessToken=${data.accessToken}; path=/; max-age=900; SameSite=Lax; Secure`;
+    }
+
+    return data.accessToken ?? 'cookie-based';
+  }, [clearToken, refreshToken]);
 
   return (
     <AuthContext.Provider
