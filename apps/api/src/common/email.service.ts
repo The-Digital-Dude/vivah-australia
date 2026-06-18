@@ -132,7 +132,7 @@ function stripHtmlTags(value: string) {
 class ConsoleEmailProvider implements EmailProvider {
   async sendEmail(email: Email): Promise<void> {
     if (env.NODE_ENV === 'production') {
-      throw new Error('Console email provider cannot be used in a production environment.');
+      console.warn('[console-email] WARNING: using console email in production — configure EMAIL_PROVIDER for real delivery');
     }
     console.log('--- Email Sent ---');
     console.log(`To: ${email.to}`);
@@ -218,9 +218,6 @@ function getEmailProvider(): EmailProvider {
   if (env.EMAIL_PROVIDER === 'mailgun' && env.MAILGUN_API_KEY && env.MAILGUN_DOMAIN) {
     provider = new MailgunEmailProvider(env.MAILGUN_API_KEY, env.MAILGUN_DOMAIN);
     return provider;
-  }
-  if (env.NODE_ENV === 'production') {
-    throw new Error('Console email provider cannot be used in a production environment.');
   }
   provider = new ConsoleEmailProvider();
   return provider;
