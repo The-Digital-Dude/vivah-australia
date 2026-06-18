@@ -66,7 +66,7 @@ function LoginContent() {
       if (result.ok) {
         applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
         setMessage('Signed in successfully.');
-        await routeAfterLogin();
+        await routeAfterLogin(result.data?.accessToken);
       } else {
         setError(result.message || 'Google login failed');
         setPending(false);
@@ -77,27 +77,33 @@ function LoginContent() {
     }
   }
 
-  const routeAfterLogin = async () => {
+  const routeAfterLogin = async (accessToken?: string) => {
     const requestedReturnUrl = searchParams.get('redirect') || searchParams.get('returnUrl');
     let returnUrl = safeReturnUrl(requestedReturnUrl, '/member');
 
     if (requestedReturnUrl) {
       router.push(returnUrl);
-      router.refresh();
       return;
     }
 
     try {
-      const profileRes = await memberRequest('/api/me/profile');
+      // Use Authorization header so the check works cross-origin (Vercel → Render).
+      // Race against a 5 s timeout to avoid hanging during Render cold starts.
+      const timeout = new Promise<{ ok: false; message: string; data?: never }>((resolve) =>
+        setTimeout(() => resolve({ ok: false, message: 'timeout' }), 5000),
+      );
+      const profileRes = await Promise.race([
+        memberRequest('/api/me/profile', ...(accessToken ? [{ token: accessToken }] : [])),
+        timeout,
+      ]);
       const profile = (profileRes.data as { profile?: MemberProfileSummary } | undefined)?.profile;
       if (profileRes.ok && (profile?.completionPercentage ?? 100) < 50) {
         returnUrl = '/member/onboarding';
       }
     } catch {
-      // ignore error
+      // ignore — proceed to /member
     }
     router.push(returnUrl);
-    router.refresh();
   };
 
   const googleLogin = useGoogleLogin({
@@ -128,7 +134,7 @@ function LoginContent() {
         if (result.ok) {
           applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
           setMessage('Signed in successfully.');
-          await routeAfterLogin();
+          await routeAfterLogin(result.data?.accessToken);
         } else {
           setError(result.message || 'Apple login failed');
           setPending(false);
@@ -158,7 +164,7 @@ function LoginContent() {
       if (result.ok) {
         applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
         setMessage('Welcome back');
-        await routeAfterLogin();
+        await routeAfterLogin(result.data?.accessToken);
       } else {
         setError(result.message || 'Login failed');
         setPending(false);
@@ -194,7 +200,7 @@ function LoginContent() {
       if (result.ok) {
         applySession(result.data?.user, result.data?.accessToken, result.data?.refreshToken);
         setMessage('Signed in successfully.');
-        await routeAfterLogin();
+        await routeAfterLogin(result.data?.accessToken);
       } else {
         setError(result.message || 'Facebook login failed');
         setPending(false);

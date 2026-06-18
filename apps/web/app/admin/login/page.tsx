@@ -34,6 +34,9 @@ function AdminLoginForm() {
     refreshToken?: string,
   ) {
     setSession({ user, accessToken, refreshToken });
+    if (accessToken && typeof document !== 'undefined') {
+      document.cookie = `accessToken=${accessToken}; path=/; max-age=900; SameSite=Lax; Secure`;
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
