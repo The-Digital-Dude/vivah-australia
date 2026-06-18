@@ -1,5 +1,5 @@
-/* eslint-env node */
 #!/usr/bin/env node
+/* eslint-env node */
 
 import { v2 as cloudinary } from 'cloudinary';
 
