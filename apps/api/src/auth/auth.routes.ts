@@ -1,4 +1,4 @@
-import { Router, type NextFunction, type Request, type Response } from 'express';
+import { Router, type CookieOptions, type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import {
   changePasswordSchema,
@@ -35,7 +35,7 @@ import { HttpError } from './auth-errors.js';
 function setAuthCookies(response: Response, accessToken: string, refreshToken: string) {
   const isProd = process.env.NODE_ENV === 'production';
   // Cross-origin (Vercel → Render): SameSite=None requires Secure=true
-  const cookieOptions = {
+  const cookieOptions: CookieOptions = {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'none' : 'lax',
@@ -48,7 +48,7 @@ function setAuthCookies(response: Response, accessToken: string, refreshToken: s
 
 function clearAuthCookies(response: Response) {
   const isProd = process.env.NODE_ENV === 'production';
-  const cookieOptions = {
+  const cookieOptions: CookieOptions = {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'none' : 'lax',
