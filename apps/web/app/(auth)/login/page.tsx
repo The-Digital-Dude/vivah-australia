@@ -47,6 +47,14 @@ function LoginContent() {
     refreshToken?: string,
   ) {
     setSession({ user, accessToken, refreshToken });
+    // In cross-origin deployments (Vercel + Render) the httpOnly cookie lives on
+    // the API domain and is invisible to the Next.js middleware running on the web
+    // domain.  Set a same-domain accessToken cookie here so the middleware can
+    // gate /member and /admin routes correctly.  The real security check is still
+    // the API's requireAuth — this cookie is only used for client-side routing.
+    if (accessToken && typeof document !== 'undefined') {
+      document.cookie = `accessToken=${accessToken}; path=/; max-age=900; SameSite=Lax; Secure`;
+    }
   }
 
   async function handleGoogleSuccess(tokenResponse: { access_token: string }) {

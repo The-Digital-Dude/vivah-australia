@@ -16,7 +16,10 @@ const authConfig = {
   refreshSecret: env.JWT_REFRESH_SECRET,
   accessExpiresIn: env.JWT_ACCESS_EXPIRES_IN,
   refreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN,
-  exposeSensitiveTokens: env.NODE_ENV !== 'production',
+  // EXPOSE_TOKENS=true allows the login response to include the token in the body.
+  // Needed when the web app (Vercel) and API (Render) are on different domains so
+  // the Next.js middleware can set a same-domain cookie for route protection.
+  exposeSensitiveTokens: env.NODE_ENV !== 'production' || process.env.EXPOSE_TOKENS === 'true',
 };
 
 async function reportProcessError(
