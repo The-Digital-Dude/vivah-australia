@@ -9,6 +9,7 @@ import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   ContactInquiryModel,
   FraudEventModel,
+  InterestModel,
   LandingPageModel,
   PlanModel,
   ProfileApprovalStatus,
@@ -19,11 +20,11 @@ import {
 import type { AuthConfig } from '../auth/auth-types.js';
 
 interface FeaturedProfilesResponse {
-  profiles: Array<{ displayId: string }>;
+  profiles: Array<{ displayId: string; responsivenessLabel?: string }>;
 }
 
 interface PublicMatchesResponse {
-  profiles: Array<{ displayId: string }>;
+  profiles: Array<{ displayId: string; responsivenessLabel?: string }>;
   limit: number;
   gated: boolean;
 }
@@ -471,6 +472,7 @@ describe('public web routes', () => {
 
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 1);
+    const now = Date.now();
     await ProfileModel.create({
       userId: boostedUser._id,
       userStatus: AccountStatus.ACTIVE,
@@ -491,6 +493,37 @@ describe('public web routes', () => {
       stats: { profileViews: 0, lastActiveAt: new Date(), activeBoostEndsAt: futureDate },
       moderation: { approvalStatus: ProfileApprovalStatus.APPROVED },
     });
+
+    await InterestModel.create([
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: boostedUser._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 5 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: boostedUser._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 4 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 4 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: boostedUser._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 3 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 3 * 24 * 60 * 60 * 1000 + 16 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: boostedUser._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 2 * 24 * 60 * 60 * 1000 + 18 * 60 * 60 * 1000),
+      },
+    ]);
 
     await ProfileModel.create({
       userId: suspendedUser._id,
@@ -520,6 +553,7 @@ describe('public web routes', () => {
     expect(bodyFeatured.profiles).toHaveLength(2);
     expect(bodyFeatured.profiles[0]?.displayId).toBe('VA900011');
     expect(bodyFeatured.profiles[1]?.displayId).toBe('VA900010');
+    expect(bodyFeatured.profiles[0]?.responsivenessLabel).toBe('Very Responsive');
 
     // Verify public matches route
     const resMatches = await request(app).get('/api/public/matches?gender=FEMALE').expect(200);
@@ -527,5 +561,6 @@ describe('public web routes', () => {
     expect(bodyMatches.profiles).toHaveLength(2);
     expect(bodyMatches.profiles[0]?.displayId).toBe('VA900011');
     expect(bodyMatches.profiles[1]?.displayId).toBe('VA900010');
+    expect(bodyMatches.profiles[0]?.responsivenessLabel).toBe('Very Responsive');
   });
 });

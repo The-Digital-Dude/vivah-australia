@@ -38,7 +38,7 @@ function setAuthCookies(response: Response, accessToken: string, refreshToken: s
   const cookieOptions = {
     httpOnly: true,
     secure: isProd,
-    sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
   };
 
@@ -51,7 +51,7 @@ function clearAuthCookies(response: Response) {
   const cookieOptions = {
     httpOnly: true,
     secure: isProd,
-    sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
   };
   response.clearCookie('accessToken', cookieOptions);

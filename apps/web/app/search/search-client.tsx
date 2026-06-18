@@ -30,6 +30,7 @@ interface PublicProfile {
   _id: string;
   displayId: string;
   slug?: string;
+  responsivenessLabel?: string;
   personal?: { firstName?: string; age?: number; gender?: string };
   location?: { city?: string; state?: string };
   religion?: { religion?: string };
@@ -106,6 +107,11 @@ function ProfileCard({ profile }: { profile: PublicProfile }) {
 
         {/* Tags */}
         <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+          {profile.responsivenessLabel && (
+            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+              {profile.responsivenessLabel}
+            </span>
+          )}
           {religion && (
             <span className="rounded-full bg-brand-maroon/8 px-2.5 py-0.5 text-[11px] font-semibold text-brand-maroon">
               {religion}

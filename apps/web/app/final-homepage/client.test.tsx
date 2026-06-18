@@ -42,12 +42,13 @@ vi.mock('@/app/components', () => ({
     profile,
     actions,
   }: {
-    profile: { name?: string; isBoosted?: boolean };
+    profile: { name?: string; isBoosted?: boolean; responsivenessLabel?: string };
     actions?: ReactNode;
   }) => (
     <article>
       <h3>{profile.name}</h3>
       {profile.isBoosted ? <span>Boosted</span> : null}
+      {profile.responsivenessLabel ? <span>{profile.responsivenessLabel}</span> : null}
       {actions}
     </article>
   ),
@@ -68,6 +69,7 @@ describe('FinalHomepageClient featured members', () => {
             religion: { religion: 'Hindu' },
             verification: { level: 'GOLD' },
             stats: { lastActiveAt: '2026-06-18T08:00:00.000Z' },
+            responsivenessLabel: 'Very Responsive',
           },
           {
             displayId: 'VA901002',
@@ -88,5 +90,6 @@ describe('FinalHomepageClient featured members', () => {
     expect(screen.getByText('Riya')).toBeTruthy();
     expect(screen.getByText('Anaya')).toBeTruthy();
     expect(screen.getAllByText('Boosted').length).toBeGreaterThan(0);
+    expect(screen.getByText('Very Responsive')).toBeTruthy();
   });
 });

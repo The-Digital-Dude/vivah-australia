@@ -14,6 +14,7 @@ import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { generateUnsubscribeToken, sendTemplatedEmail } from '../common/email.service.js';
 import { recordDuplicateContactAttempts } from '../common/fraud.service.js';
 import { logAudit } from '../common/audit.service.js';
+import { getResponsivenessSignals } from '../common/responsiveness.service.js';
 import {
   parseVerificationBadgeRulesSetting,
   VERIFICATION_BADGE_RULES_SETTING_KEY,
@@ -39,6 +40,15 @@ import { publicCache } from './public-cache.js';
 
 const PUBLIC_PROFILE_LIMIT = 6;
 const PUBLIC_MATCH_PREVIEW_LIMIT = 12;
+
+function withResponsivenessLabel<
+  TProfile extends { userId?: Types.ObjectId; [key: string]: unknown }
+>(profiles: TProfile[], labels: Map<string, { label: string }>) {
+  return profiles.map(({ userId, ...profile }) => ({
+    ...profile,
+    ...(userId ? { responsivenessLabel: labels.get(userId.toString())?.label } : {}),
+  }));
+}
 
 const contactRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -185,7 +195,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       };
       
       const now = new Date();
-      const selectFields = 'displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt stats.lastActiveAt';
+      const selectFields = 'userId displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt stats.lastActiveAt';
 
       const boosted = await ProfileModel.find({ ...baseFilter, 'stats.activeBoostEndsAt': { $gt: now } })
         .sort({ 'stats.lastActiveAt': -1, updatedAt: -1 })
@@ -208,7 +218,13 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         profiles = profiles.concat(standard.map(p => ({ ...p, isBoosted: false })));
       }
 
-      response.status(200).json({ profiles });
+      const responsivenessByUser = await getResponsivenessSignals(
+        profiles
+          .map((profile) => profile.userId)
+          .filter((userId): userId is Types.ObjectId => Boolean(userId)),
+      );
+
+      response.status(200).json({ profiles: withResponsivenessLabel(profiles, responsivenessByUser) });
     }),
   );
 
@@ -255,7 +271,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
 
       const now = new Date();
       const selectFields =
-        'displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt stats.lastActiveAt';
+        'userId displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt stats.lastActiveAt';
 
       const boosted = await ProfileModel.find({
         ...baseFilter,
@@ -284,8 +300,14 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
         profiles = profiles.concat(standard.map((profile) => ({ ...profile, isBoosted: false })));
       }
 
+      const responsivenessByUser = await getResponsivenessSignals(
+        profiles
+          .map((profile) => profile.userId)
+          .filter((userId): userId is Types.ObjectId => Boolean(userId)),
+      );
+
       response.status(200).json({
-        profiles,
+        profiles: withResponsivenessLabel(profiles, responsivenessByUser),
         limit,
         gated: true,
       });

@@ -341,6 +341,7 @@ export default function FinalHomepageClient({
                         religion: profile.religion?.religion,
                         verificationLevel: profile.verification?.level,
                         isBoosted: profile.isBoosted,
+                        responsivenessLabel: profile.responsivenessLabel,
                         lastActiveLabel: formatRelativeDate(profile.stats?.lastActiveAt),
                         privacyHint: profile.isBoosted
                           ? 'This member is currently using a profile boost for higher visibility.'

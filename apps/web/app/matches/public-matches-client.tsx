@@ -203,6 +203,7 @@ export default function PublicMatchesClient({
                     name: profile.personal?.firstName ?? 'Vivah member',
                     occupation: profile.employment?.occupation,
                     religion: profile.religion?.religion,
+                    responsivenessLabel: profile.responsivenessLabel,
                     slug: profile.slug,
                     verificationLevel: profile.verification?.level,
                   }}

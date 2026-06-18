@@ -15,6 +15,7 @@ export interface FeaturedProfile {
   displayId: string;
   slug?: string;
   isBoosted?: boolean;
+  responsivenessLabel?: string;
   personal?: {
     firstName?: string;
     age?: number;
