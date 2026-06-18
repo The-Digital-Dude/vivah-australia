@@ -41,6 +41,10 @@ export interface CreateAppOptions {
 export function createApp(options: CreateAppOptions): Express {
   const app = express();
 
+  // Render (and most cloud platforms) sit behind a proxy that sets X-Forwarded-For.
+  // Without this, express-rate-limit can't identify real client IPs.
+  app.set('trust proxy', 1);
+
   app.use(helmet());
   app.use(
     cors({
