@@ -230,7 +230,7 @@ export default function AdminMediaReview() {
             className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
           />
           
-          <div className="relative w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
+          <div className="relative w-full max-w-5xl rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
             <h3 className="text-base font-extrabold text-neutral-900 flex items-center gap-2">
               {reviewItem.targetStatus === 'APPROVED' ? (
                 <>
@@ -249,79 +249,100 @@ export default function AdminMediaReview() {
               Select details for updating asset moderation to <strong className="text-[#A10E4D] uppercase">{reviewItem.targetStatus}</strong>.
             </p>
 
-            <div className="mt-4 space-y-4">
-              <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-neutral-100 border border-neutral-100 shadow-inner">
+            <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,420px)]">
+              <div className="flex items-center justify-center rounded-xl border border-neutral-100 bg-neutral-950/80 p-3 shadow-inner">
                 {reviewItem.item.mediaType === 'VIDEO' || reviewItem.item.category === 'VIDEO_INTRO' ? (
                   <video
                     src={reviewItem.item.assetUrl}
                     poster={reviewItem.item.videoPosterUrl ?? reviewItem.item.thumbnailUrl ?? reviewItem.item.assetUrl}
-                    className="h-full w-full object-cover"
+                    className="max-h-[72vh] w-auto max-w-full rounded-lg object-contain"
                     controls
                   />
                 ) : (
-                  <Image
-                    src={reviewItem.item.assetUrl}
-                    alt={reviewItem.item.originalFilename}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
+                  <div className="relative flex w-full items-center justify-center">
+                    <Image
+                      src={reviewItem.item.assetUrl}
+                      alt={reviewItem.item.originalFilename}
+                      width={1400}
+                      height={1800}
+                      unoptimized
+                      className="max-h-[72vh] w-auto max-w-full rounded-lg object-contain"
+                    />
+                  </div>
                 )}
               </div>
 
-              {reviewItem.targetStatus === 'APPROVED' ? (
-                <div className="flex items-start gap-2.5 bg-neutral-50 p-3 rounded-xl border border-neutral-150">
-                  <input
-                    type="checkbox"
-                    id="confirm-media-app"
-                    checked={confirmApprove}
-                    onChange={(e) => setConfirmApprove(e.target.checked)}
-                    className="mt-1 h-3.5 w-3.5 rounded text-[#A10E4D] focus:ring-[#A10E4D]/20 cursor-pointer"
-                  />
-                  <label htmlFor="confirm-media-app" className="text-xs text-neutral-600 font-semibold cursor-pointer select-none">
-                    I confirm that this photo complies with Vivah Australia's profile display guidelines (face is clear, respectful, no contact info).
-                  </label>
+              <div className="space-y-4">
+                <div className="rounded-xl border border-neutral-150 bg-neutral-50 p-4">
+                  <p className="text-sm font-bold text-neutral-900">{reviewItem.item.originalFilename}</p>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Owner: <span className="font-semibold text-neutral-700">{reviewItem.item.profileId?.displayId ?? 'Unlinked'}</span>
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-black/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                      {reviewItem.item.visibility}
+                    </span>
+                    <span className="rounded-full bg-[#D4A04C]/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#8A651F]">
+                      {reviewItem.item.category.replace('_', ' ')}
+                    </span>
+                    <AdminStatusBadge status={reviewItem.item.approvalStatus} />
+                  </div>
                 </div>
-              ) : (
-                <div>
-                  <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider">
-                    Reason for member feedback *
-                  </label>
-                  <textarea
-                    required
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    placeholder="Describe why this image was rejected or needs changes..."
-                    className="mt-1.5 w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D] min-h-[80px]"
-                  />
+
+                {reviewItem.targetStatus === 'APPROVED' ? (
+                  <div className="flex items-start gap-2.5 rounded-xl border border-neutral-150 bg-neutral-50 p-3">
+                    <input
+                      type="checkbox"
+                      id="confirm-media-app"
+                      checked={confirmApprove}
+                      onChange={(e) => setConfirmApprove(e.target.checked)}
+                      className="mt-1 h-3.5 w-3.5 rounded text-[#A10E4D] focus:ring-[#A10E4D]/20 cursor-pointer"
+                    />
+                    <label htmlFor="confirm-media-app" className="text-xs text-neutral-600 font-semibold cursor-pointer select-none">
+                      I confirm that this photo complies with Vivah Australia's profile display guidelines (face is clear, respectful, no contact info).
+                    </label>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                      Reason for member feedback *
+                    </label>
+                    <textarea
+                      required
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      placeholder="Describe why this image was rejected or needs changes..."
+                      className="mt-1.5 min-h-[120px] w-full rounded-xl border border-neutral-250 p-3 text-xs outline-none focus:border-[#A10E4D]"
+                    />
+                  </div>
+                )}
+
+                {/* Audit compliance footer */}
+                <div className="flex items-start gap-2.5 rounded-xl border border-amber-250 bg-amber-50/50 p-3">
+                  <ShieldAlert className="mt-0.5 h-4.5 w-4.5 shrink-0 text-amber-700" />
+                  <p className="text-[10px] leading-relaxed text-amber-800">
+                    <strong>Audit Compliance:</strong> Approving photos updates client visibility states instantly. Rejection events are registered in operator audit logs.
+                  </p>
                 </div>
-              )}
-            </div>
 
-            {/* Audit compliance footer */}
-            <div className="mt-4 flex gap-2.5 items-start bg-amber-50/50 border border-amber-250 p-3 rounded-xl">
-              <ShieldAlert className="h-4.5 w-4.5 text-amber-700 shrink-0 mt-0.5" />
-              <p className="text-[10px] text-amber-800 leading-relaxed">
-                <strong>Audit Compliance:</strong> Approving photos updates client visibility states instantly. Rejection events are registered in operator audit logs.
-              </p>
-            </div>
-
-            <div className="mt-6 flex items-center justify-end gap-2">
-              <button
-                onClick={() => setReviewItem(null)}
-                className="rounded-xl border border-neutral-250 px-4 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-50 bg-white transition"
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => void submitReview()}
-                disabled={reviewItem.targetStatus === 'APPROVED' && !confirmApprove}
-                className="rounded-xl bg-[#A10E4D] hover:bg-[#890B40] disabled:bg-neutral-350 disabled:cursor-not-allowed px-4 py-2 text-xs font-bold text-white shadow-md transition"
-                type="button"
-              >
-                Submit Decision
-              </button>
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    onClick={() => setReviewItem(null)}
+                    className="rounded-xl border border-neutral-250 bg-white px-4 py-2 text-xs font-bold text-neutral-600 transition hover:bg-neutral-50"
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => void submitReview()}
+                    disabled={reviewItem.targetStatus === 'APPROVED' && !confirmApprove}
+                    className="rounded-xl bg-[#A10E4D] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-[#890B40] disabled:cursor-not-allowed disabled:bg-neutral-350"
+                    type="button"
+                  >
+                    Submit Decision
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
