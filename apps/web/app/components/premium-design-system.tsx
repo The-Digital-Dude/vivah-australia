@@ -225,6 +225,7 @@ export type ProfileMatchCardProfile = {
   slug?: string | undefined;
   verificationLevel?: string | undefined;
   isBoosted?: boolean | undefined;
+  responsivenessLabel?: string | undefined;
 };
 
 export function ProfileMatchCard({
@@ -308,6 +309,12 @@ export function ProfileMatchCard({
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <VerificationBadge level={profile.verificationLevel} />
+            {profile.responsivenessLabel ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                <CheckCircle2 className="size-3.5" />
+                {profile.responsivenessLabel}
+              </span>
+            ) : null}
             {profile.occupation ? (
               <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#5F5F5F]">
                 {profile.occupation}

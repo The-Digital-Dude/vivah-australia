@@ -19,6 +19,7 @@ import {
   CommunityRoomModel,
   NotificationModel,
   PlanModel,
+  ProfileBoostModel,
   ProfileApprovalStatus,
   ProfileModel,
   ReportModel,
@@ -135,7 +136,7 @@ describe('admin production readiness routes', () => {
   it('enforces admin RBAC and returns dashboard summary', async () => {
     const member = await createUser('member@example.com');
     const admin = await createUser('admin@example.com', UserRole.ADMIN);
-    await createProfile(member.user._id);
+    const memberProfile = await createProfile(member.user._id);
     await ReportModel.create({
       reporterId: member.user._id,
       targetType: 'USER',
@@ -143,6 +144,18 @@ describe('admin production readiness routes', () => {
       status: 'OPEN',
       severity: 'LOW',
     });
+    const boost = await ProfileBoostModel.create({
+      userId: member.user._id,
+      profileId: memberProfile._id,
+      source: 'ENTITLEMENT',
+      startsAt: new Date('2026-06-10T00:00:00.000Z'),
+      endsAt: new Date('2026-06-20T00:00:00.000Z'),
+      active: true,
+    });
+    await ProfileBoostModel.collection.updateOne(
+      { _id: boost._id },
+      { $set: { createdAt: new Date('2026-06-10T00:00:00.000Z') } },
+    );
 
     await request(app)
       .get('/api/admin/dashboard/summary')
@@ -176,15 +189,30 @@ describe('admin production readiness routes', () => {
       bodyAs<{ usersByRole: Array<{ _id: string; count: number }> }>(analyticsResponse).usersByRole,
     ).toContainEqual(expect.objectContaining({ _id: UserRole.ADMIN, count: 1 }));
     expect(
-      bodyAs<{ matchInterestStats: unknown[]; messagingActivity: unknown[] }>(analyticsResponse)
-        .matchInterestStats,
+      bodyAs<{
+        matchInterestStats: unknown[];
+        messagingActivity: unknown[];
+        boostSourceStats: Array<{ _id: string; count: number }>;
+        activeBoostCount: number;
+      }>(analyticsResponse).matchInterestStats,
     ).toEqual(expect.any(Array));
+    expect(
+      bodyAs<{
+        boostSourceStats: Array<{ _id: string; count: number }>;
+        activeBoostCount: number;
+      }>(analyticsResponse).boostSourceStats,
+    ).toContainEqual(expect.objectContaining({ _id: 'ENTITLEMENT', count: 1 }));
+    expect(
+      bodyAs<{ activeBoostCount: number }>(analyticsResponse).activeBoostCount,
+    ).toBeGreaterThanOrEqual(1);
 
     const csvResponse = await request(app)
       .get('/api/admin/analytics/export.csv?from=2026-06-01T00:00:00.000Z&to=2026-06-17T23:59:59.999Z')
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .expect(200);
     expect(csvResponse.text).toContain('section,key,count,totalCents');
+    expect(csvResponse.text).toContain('"boostSourceStats","ENTITLEMENT","1",""');
+    expect(csvResponse.text).toContain('activeBoostCount,LIVE,');
     const analyticsRange = bodyAs<{ range: { from: string; to: string } }>(analyticsResponse).range;
     expect(typeof analyticsRange.from).toBe('string');
     expect(typeof analyticsRange.to).toBe('string');

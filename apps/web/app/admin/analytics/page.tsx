@@ -47,6 +47,9 @@ interface AnalyticsSummary {
   matchInterestStats: AggregateRow[];
   messagingActivity: AggregateRow[];
   communityActivity: AggregateRow[];
+  boostSourceStats: AggregateRow[];
+  boostActivity: AggregateRow[];
+  activeBoostCount: number;
 }
 
 interface ChartRow {
@@ -133,6 +136,18 @@ export default function AdminAnalyticsPage() {
     () => toChartRows(summary?.communityActivity ?? []),
     [summary?.communityActivity],
   );
+  const boostSourceStats = useMemo(
+    () => toChartRows(summary?.boostSourceStats ?? []),
+    [summary?.boostSourceStats],
+  );
+  const boostActivity = useMemo(
+    () => toTimeSeries(summary?.boostActivity ?? []),
+    [summary?.boostActivity],
+  );
+  const totalBoosts = useMemo(
+    () => total(summary?.boostSourceStats ?? []),
+    [summary?.boostSourceStats],
+  );
 
   return (
     <AdminShell
@@ -178,7 +193,7 @@ export default function AdminAnalyticsPage() {
         </button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <Metric
           icon={<CreditCard className="h-5 w-5" />}
           label="Monthly revenue"
@@ -199,6 +214,24 @@ export default function AdminAnalyticsPage() {
           label="Subscriptions"
           value={total(summary?.subscriptionsByStatus)}
         />
+        <Metric
+          icon={<SparklesMetricIcon />}
+          label="Live boosts"
+          value={summary?.activeBoostCount ?? 0}
+        />
+      </div>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <Metric
+          icon={<SparklesMetricIcon />}
+          label="Boosts in range"
+          value={totalBoosts}
+        />
+        <Metric
+          icon={<SparklesMetricIcon />}
+          label="Boost sources tracked"
+          value={boostSourceStats.length}
+        />
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -210,10 +243,31 @@ export default function AdminAnalyticsPage() {
         <BarBreakdown title="Payments by status" rows={paymentsByStatus} showMoney />
         <BarBreakdown title="Subscriptions by status" rows={subscriptionsByStatus} />
         <BarBreakdown title="Match and interest activity" rows={matchInterestStats} />
+        <BarBreakdown title="Boost usage by source" rows={boostSourceStats} />
         <LineBreakdown title="Messaging activity by day" rows={messagingActivity} />
+        <LineBreakdown title="Boost activations by day" rows={boostActivity} />
         <CommunityBreakdown title="Community activity" rows={communityActivity} />
       </div>
     </AdminShell>
+  );
+}
+
+function SparklesMetricIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z" />
+      <path d="m19 14 .8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14Z" />
+      <path d="m5 13 .8 2.2L8 16l-2.2.8L5 19l-.8-2.2L2 16l2.2-.8L5 13Z" />
+    </svg>
   );
 }
 

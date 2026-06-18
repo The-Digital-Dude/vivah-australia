@@ -11,6 +11,7 @@ import { connectDatabase, disconnectDatabase } from '../db/connection.js';
 import {
   BlockModel,
   HiddenProfileModel,
+  InterestModel,
   MatchRecommendationModel,
   PlanModel,
   ProfileApprovalStatus,
@@ -43,6 +44,7 @@ interface MatchResponseBody {
     city?: string;
     matchScore: number;
     matchReasons: string[];
+    responsivenessLabel?: string;
   }>;
   pagination?: {
     pageSize: number;
@@ -655,6 +657,77 @@ describe('match routes', () => {
       .expect(200);
 
     expect(bodyAs<MatchResponseBody>(response).results).toEqual([]);
+  });
+
+  it('surfaces a responsiveness label for candidates who consistently reply to received interests', async () => {
+    const viewer = await createUser('responsive-viewer@example.com');
+    const candidate = await createUser('responsive-candidate@example.com');
+
+    await createProfile({
+      userId: viewer.user._id,
+      displayId: 'VA230301',
+      firstName: 'Viewer',
+      gender: Gender.MALE,
+      age: 31,
+      city: 'Melbourne',
+    });
+
+    await createProfile({
+      userId: candidate.user._id,
+      displayId: 'VA230302',
+      firstName: 'Responsive Riya',
+      gender: Gender.FEMALE,
+      age: 29,
+      city: 'Melbourne',
+    });
+
+    const now = Date.now();
+    await InterestModel.create([
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: candidate.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 6 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 6 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: candidate.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 5 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: candidate.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 4 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 4 * 24 * 60 * 60 * 1000 + 16 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: candidate.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 3 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 3 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: candidate.user._id,
+        status: 'PENDING',
+        createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000),
+      },
+    ]);
+
+    const response = await request(app)
+      .get('/api/matches/recommended?limit=12&mode=HIGHLY_COMPATIBLE')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
+
+    const card = bodyAs<MatchResponseBody>(response).results.find(
+      (profile) => profile.firstName === 'Responsive Riya',
+    );
+    expect(card?.responsivenessLabel).toBe('Very Responsive');
   });
 
   it('filters cached recommendations using the same eligibility rules as live discovery', async () => {

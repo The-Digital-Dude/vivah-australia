@@ -5,9 +5,11 @@ import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import { AdminStatusBadge } from '../components/admin-status-badge';
 import { AlertCircle, Check, X, ClipboardSignature, Eye, ShieldCheck } from 'lucide-react';
+import { buildProfileDiffRows } from './profile-diff';
 
 interface ProfileItem {
   _id: string;
+  userId: string;
   displayId: string;
   personal?: { firstName?: string; lastName?: string };
   moderation: {
@@ -20,11 +22,23 @@ interface ProfileItem {
   updatedAt: string;
 }
 
+interface AdminUserNote {
+  id: string;
+  note: string;
+  authorId: string;
+  createdAt: string;
+}
+
+interface AdminUserNoteDetail {
+  notes?: AdminUserNote[];
+}
+
 export default function AdminProfilesPage() {
   const memberRequest = useMemberRequest();
   const [status, setStatus] = useState('PENDING');
   const [profiles, setProfiles] = useState<ProfileItem[]>([]);
   const [detail, setDetail] = useState<ProfileItem | null>(null);
+  const [notes, setNotes] = useState<AdminUserNote[]>([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -33,6 +47,8 @@ export default function AdminProfilesPage() {
   const [reason, setReason] = useState('');
   const [internalNote, setInternalNote] = useState('');
   const [confirmApprove, setConfirmApprove] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
 
   async function load(nextStatus = status) {
     setLoading(true);
@@ -79,10 +95,46 @@ export default function AdminProfilesPage() {
   async function viewProfile(id: string) {
     const result = await memberRequest(`/api/admin/profiles/${id}`);
     if (result.ok) {
-      setDetail((result.data as { profile?: ProfileItem }).profile ?? null);
+      const profile = (result.data as { profile?: ProfileItem }).profile ?? null;
+      setDetail(profile);
+      setNoteContent('');
+      if (profile?.userId) {
+        await loadNotes(profile.userId);
+      } else {
+        setNotes([]);
+      }
     } else {
       setMessage(result.message);
     }
+  }
+
+  async function loadNotes(userId: string) {
+    const result = await memberRequest(`/api/admin/users/${userId}`);
+    if (!result.ok) {
+      setMessage(result.message);
+      setNotes([]);
+      return;
+    }
+    const data = result.data as AdminUserNoteDetail;
+    setNotes(data.notes ?? []);
+  }
+
+  async function saveNote() {
+    if (!detail?.userId || !noteContent.trim()) {
+      return;
+    }
+    setSavingNote(true);
+    const result = await memberRequest(`/api/admin/users/${detail.userId}/notes`, {
+      method: 'PATCH',
+      body: { note: noteContent.trim() },
+    });
+    setSavingNote(false);
+    setMessage(result.ok ? 'Moderator note added.' : result.message);
+    if (!result.ok) {
+      return;
+    }
+    setNoteContent('');
+    await loadNotes(detail.userId);
   }
 
   useEffect(() => {
@@ -230,7 +282,11 @@ export default function AdminProfilesPage() {
                   <p className="text-[10px] text-neutral-450 mt-1 font-mono">Profile ID: {detail._id}</p>
                 </div>
                 <button
-                  onClick={() => setDetail(null)}
+                  onClick={() => {
+                    setDetail(null);
+                    setNotes([]);
+                    setNoteContent('');
+                  }}
                   className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:bg-neutral-50"
                   type="button"
                 >
@@ -249,6 +305,58 @@ export default function AdminProfilesPage() {
                     </p>
                   </div>
                 )}
+
+                <div className="rounded-2xl border border-neutral-150 bg-neutral-50/50 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                        Moderator notes
+                      </h4>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        Internal-only notes for review context, escalation, and handoff.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    {notes.length > 0 ? (
+                      notes.map((note) => (
+                        <div key={note.id} className="rounded-xl border border-neutral-150 bg-white p-3">
+                          <p className="text-xs leading-relaxed text-neutral-700">{note.note}</p>
+                          <p className="mt-2 text-[10px] font-semibold text-neutral-400">
+                            Author: {note.authorId} · {new Date(note.createdAt).toLocaleString()}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="rounded-xl border border-dashed border-neutral-200 bg-white p-3 text-xs italic text-neutral-500">
+                        No moderator notes yet for this member.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                      Add moderator note
+                    </label>
+                    <textarea
+                      value={noteContent}
+                      onChange={(event) => setNoteContent(event.target.value)}
+                      placeholder="Add internal-only context for the next reviewer..."
+                      className="mt-1.5 min-h-[90px] w-full rounded-xl border border-neutral-250 bg-white p-3 text-xs outline-none focus:border-[#A10E4D]"
+                    />
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => void saveNote()}
+                        disabled={savingNote || !noteContent.trim()}
+                        className="rounded-xl bg-[#A10E4D] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#890B40] disabled:cursor-not-allowed disabled:bg-neutral-350"
+                      >
+                        {savingNote ? 'Saving…' : 'Save Note'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
           ) : (
@@ -363,21 +471,51 @@ function SnapshotComparison({
       </p>
     );
   }
-  return (
-    <div className="grid gap-3">
-      <Snapshot title="Previous Draft Values" value={snapshot.previous} />
-      <Snapshot title="Proposed Draft Changes" value={snapshot.current} />
-    </div>
-  );
-}
 
-function Snapshot({ title, value }: Readonly<{ title: string; value: unknown }>) {
+  const diffRows = buildProfileDiffRows(snapshot.previous, snapshot.current);
+
+  if (diffRows.length === 0) {
+    return (
+      <div className="rounded-xl border border-neutral-150 bg-neutral-50/50 p-4">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Profile changes</h4>
+        <p className="mt-2 rounded-xl border border-dashed border-neutral-200 bg-white p-3 text-xs italic text-neutral-500">
+          No field-level changes were captured between the last approved snapshot and this draft.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-xl border border-neutral-150 bg-neutral-50/50 p-3.5">
-      <h5 className="text-xs font-bold text-neutral-700">{title}</h5>
-      <pre className="mt-2 max-h-40 overflow-auto text-[10px] font-mono leading-relaxed text-neutral-600 bg-white p-2 rounded-lg border border-neutral-100">
-        {JSON.stringify(value ?? {}, null, 2)}
-      </pre>
+    <div className="rounded-xl border border-neutral-150 bg-neutral-50/50 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Profile changes</h4>
+          <p className="mt-1 text-xs text-neutral-500">
+            Review the exact before-and-after fields in this edited approved profile.
+          </p>
+        </div>
+        <span className="rounded-full border border-[#D4A04C]/30 bg-[#FFF9F5] px-2.5 py-1 text-[10px] font-bold text-[#A10E4D]">
+          {diffRows.length} changed {diffRows.length === 1 ? 'field' : 'fields'}
+        </span>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-xl border border-neutral-150 bg-white">
+        <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] gap-0 border-b border-neutral-150 bg-neutral-50">
+          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">Field</div>
+          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">Before</div>
+          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">After</div>
+        </div>
+        {diffRows.map((row) => (
+          <div
+            key={row.path}
+            className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] gap-0 border-t border-neutral-100"
+          >
+            <div className="px-3 py-3 text-xs font-semibold text-neutral-800">{row.label}</div>
+            <div className="px-3 py-3 text-xs leading-relaxed text-neutral-500">{row.before}</div>
+            <div className="bg-emerald-50/60 px-3 py-3 text-xs leading-relaxed text-neutral-700">{row.after}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

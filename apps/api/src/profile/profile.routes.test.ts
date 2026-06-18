@@ -10,6 +10,7 @@ import {
   AuthTokenModel,
   BlockModel,
   FraudEventModel,
+  InterestModel,
   NotificationModel,
   PlanModel,
   ProfileApprovalStatus,
@@ -55,6 +56,7 @@ interface ProfileResponseBody {
       approvalStatus: ProfileApprovalStatus;
     };
   };
+  responsivenessLabel?: string;
 }
 
 function bodyAs<TBody>(response: Response): TBody {
@@ -287,6 +289,62 @@ describe('profile routes', () => {
       displayId: 'VA100001',
       slug: 'amit-sharma-va100001',
     });
+  });
+
+  it('includes a responsiveness label for profiles with strong reply behavior', async () => {
+    const owner = await createUser('responsive-profile-owner@example.com');
+    const profile = await createProfile(owner.user._id, 'VA100777');
+    profile.set({
+      slug: 'responsive-riya-va100777',
+      'personal.firstName': 'Responsive Riya',
+      'personal.gender': 'FEMALE',
+      'personal.age': 29,
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+      'visibility.status': 'PUBLIC',
+    });
+    await profile.save();
+
+    const now = Date.now();
+    await InterestModel.create([
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: owner.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 5 * 24 * 60 * 60 * 1000 + 10 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: owner.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 4 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 4 * 24 * 60 * 60 * 1000 + 14 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: owner.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 3 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 3 * 24 * 60 * 60 * 1000 + 18 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: owner.user._id,
+        status: 'ACCEPTED',
+        createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000),
+        respondedAt: new Date(now - 2 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000),
+      },
+      {
+        senderId: new mongoose.Types.ObjectId(),
+        receiverId: owner.user._id,
+        status: 'PENDING',
+        createdAt: new Date(now - 24 * 60 * 60 * 1000),
+      },
+    ]);
+
+    const response = await request(app).get(`/api/profiles/${profile.id}`).expect(200);
+
+    expect(bodyAs<ProfileResponseBody>(response).responsivenessLabel).toBe('Very Responsive');
   });
 
   it('blocks profile viewing when either user has blocked the other', async () => {

@@ -118,6 +118,9 @@ describe('AdminAnalyticsPage charts', () => {
           { _id: 'POSTS', count: 7 },
           { _id: 'COMMENTS', count: 16 },
         ],
+        boostSourceStats: [{ _id: 'ENTITLEMENT', count: 4 }],
+        boostActivity: [{ _id: '2026-06-14', count: 4 }],
+        activeBoostCount: 2,
       },
     });
 
@@ -132,14 +135,18 @@ describe('AdminAnalyticsPage charts', () => {
     expect(screen.getByText('Reporting and analytics')).toBeTruthy();
     expect(screen.getByText('Users by role')).toBeTruthy();
     expect(screen.getByText('Messaging activity by day')).toBeTruthy();
+    expect(screen.getByText('Boost usage by source')).toBeTruthy();
+    expect(screen.getByText('Boost activations by day')).toBeTruthy();
     expect(screen.getByText('Community activity')).toBeTruthy();
     expect(screen.getByTestId('analytics-pie-chart')).toBeTruthy();
     expect(screen.getAllByTestId('analytics-bar-chart').length).toBeGreaterThan(0);
-    expect(screen.getByTestId('analytics-line-chart')).toBeTruthy();
+    expect(screen.getAllByTestId('analytics-line-chart').length).toBe(2);
     expect(screen.getByTestId('analytics-community-cards')).toBeTruthy();
     expect(screen.getByText('POSTS')).toBeTruthy();
     expect(screen.getByText('COMMENTS')).toBeTruthy();
     expect(screen.getByText('ACCEPTED')).toBeTruthy();
+    expect(screen.getByText('ENTITLEMENT')).toBeTruthy();
+    expect(screen.getByText('Live boosts')).toBeTruthy();
   });
 
   it('shows empty states for chart sections with no data', async () => {
@@ -160,6 +167,9 @@ describe('AdminAnalyticsPage charts', () => {
         matchInterestStats: [],
         messagingActivity: [],
         communityActivity: [],
+        boostSourceStats: [],
+        boostActivity: [],
+        activeBoostCount: 0,
       },
     });
 
@@ -191,6 +201,9 @@ describe('AdminAnalyticsPage charts', () => {
         matchInterestStats: [],
         messagingActivity: [],
         communityActivity: [],
+        boostSourceStats: [],
+        boostActivity: [],
+        activeBoostCount: 0,
       },
     });
 

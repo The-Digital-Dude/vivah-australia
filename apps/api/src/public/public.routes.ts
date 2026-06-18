@@ -185,7 +185,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       };
       
       const now = new Date();
-      const selectFields = 'displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt';
+      const selectFields = 'displayId slug personal.firstName personal.age personal.gender location.city location.state religion.religion employment.occupation verification.level stats.activeBoostEndsAt stats.lastActiveAt';
 
       const boosted = await ProfileModel.find({ ...baseFilter, 'stats.activeBoostEndsAt': { $gt: now } })
         .sort({ 'stats.lastActiveAt': -1, updatedAt: -1 })

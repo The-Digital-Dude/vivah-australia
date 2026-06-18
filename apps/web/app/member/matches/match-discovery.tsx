@@ -45,6 +45,7 @@ interface MatchCard {
   matchReasons: string[];
   lastActiveAt?: string;
   isBoosted?: boolean;
+  responsivenessLabel?: string;
 }
 
 interface MatchResponse {
@@ -1019,6 +1020,7 @@ function ProfileCard({
         occupation: profile.occupation,
         photoUrl: profile.photoUrl,
         privacyHint: 'Private photos and direct introductions stay protected until you connect.',
+        responsivenessLabel: profile.responsivenessLabel,
         verificationLevel: profile.verificationLevel,
         slug: profile.id,
       }}

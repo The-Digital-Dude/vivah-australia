@@ -11,6 +11,7 @@ import {
 } from '@vivah/shared';
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
+import { getResponsivenessSignals } from '../common/responsiveness.service.js';
 import {
   BlockModel,
   HiddenProfileModel,
@@ -79,6 +80,7 @@ export interface MatchCard {
   matchScore: number;
   matchReasons: string[];
   isBoosted?: boolean | undefined;
+  responsivenessLabel?: string | undefined;
 }
 
 export interface ScoredMatch {
@@ -626,10 +628,14 @@ async function approvedPhotoMap(profiles: ProfileDocument[]) {
 }
 
 async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]) {
-  const photoByProfile = await approvedPhotoMap(profiles);
+  const [photoByProfile, responsivenessByUser] = await Promise.all([
+    approvedPhotoMap(profiles),
+    getResponsivenessSignals(profiles.map((profile) => profile.userId)),
+  ]);
 
   return profiles.map((profile) => {
     const scored = calculateMatchScore(viewer, profile);
+    const responsiveness = responsivenessByUser.get(profile.userId.toString());
     return {
       id: profile.id,
       displayId: profile.displayId,
@@ -654,6 +660,7 @@ async function toMatchCards(viewer: ProfileDocument, profiles: ProfileDocument[]
       ...(profile.religion.motherTongue ? { motherTongue: profile.religion.motherTongue } : {}),
       ...(profile.personal.maritalStatus ? { maritalStatus: profile.personal.maritalStatus } : {}),
       ...(profile.stats.lastActiveAt ? { lastActiveAt: profile.stats.lastActiveAt } : {}),
+      ...(responsiveness ? { responsivenessLabel: responsiveness.label } : {}),
       ...(profile.visibility.showPhoto && photoByProfile.get(profile.id)
         ? { photoUrl: photoByProfile.get(profile.id) }
         : {}),
@@ -793,7 +800,7 @@ async function fetchRecommendedCandidates(
 }
 
 const MATCH_SELECT =
-  'displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto compatibility createdAt';
+  'userId displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto compatibility createdAt';
 
 async function fetchProfilesByOrderedIds(profileIds: Types.ObjectId[], matchSelect: string) {
   if (profileIds.length === 0) {
@@ -884,7 +891,7 @@ export async function searchProfiles(userId: Types.ObjectId, input: ProfileSearc
     [...blockedUserIds, ...hiddenUserIds],
     input,
   );
-  const matchSelect = 'displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto';
+  const matchSelect = 'userId displayId personal.firstName personal.age personal.gender personal.heightCm personal.maritalStatus location.city location.state location.country employment.occupation education.highestQualification religion.religion religion.community religion.motherTongue verification.level stats.lastActiveAt stats.activeBoostEndsAt completionPercentage partnerPreference about.interests about.hobbies visibility.showPhoto';
 
   if (input.sort === 'RECOMMENDED') {
     const candidates = await ProfileModel.find(filter)

@@ -1,6 +1,6 @@
 'use client';
 
-import { PublicHeader, PublicFooter } from '@/app/components';
+import { ProfileMatchCard, PublicHeader, PublicFooter } from '@/app/components';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Users, ShieldCheck, MapPin, LockKeyhole, Search, Sparkles, Heart, ArrowRight, ChevronDown } from 'lucide-react';
@@ -8,8 +8,25 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/auth-context';
 import { FinalSuccessSlider } from '@/app/components/home/final-success-slider';
+import type { FeaturedProfile } from '@/lib/public-api';
 
-export default function FinalHomepageClient() {
+function formatRelativeDate(value?: string) {
+  if (!value) {
+    return undefined;
+  }
+
+  const diff = Date.now() - new Date(value).getTime();
+  const minutes = Math.max(1, Math.floor(diff / 60000));
+  if (minutes < 60) return `Active ${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Active ${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `Active ${days}d ago`;
+}
+
+export default function FinalHomepageClient({
+  featuredProfiles = [],
+}: Readonly<{ featuredProfiles?: FeaturedProfile[] }>) {
   const router = useRouter();
   const { token, initialized } = useAuth();
   const [lookingFor, setLookingFor] = useState('Female');
@@ -281,6 +298,84 @@ export default function FinalHomepageClient() {
               ))}
             </div>
 
+          </div>
+        </section>
+
+        {/* FEATURED MEMBERS */}
+        <section className="bg-white py-20 px-4 sm:px-6 lg:px-8 border-t border-[#A10E4D]/8">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10">
+              <div>
+                <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-2">
+                  Featured Members
+                </p>
+                <h2 className="text-3xl sm:text-4xl font-playfair font-bold text-brand-charcoal">
+                  Members getting noticed right now
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm sm:text-base leading-7 text-gray-500">
+                  A live row of active profiles, with boosted members prioritised the same way discovery already works across the platform.
+                </p>
+              </div>
+              <Link
+                href="/matches"
+                className="inline-flex items-center gap-2 text-sm font-bold text-brand-maroon hover:underline"
+              >
+                Browse all members <ArrowRight className="size-4" />
+              </Link>
+            </div>
+
+            {featuredProfiles.length > 0 ? (
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {featuredProfiles.slice(0, 6).map((profile) => {
+                  const id = profile.id || profile._id || profile.displayId;
+                  return (
+                    <ProfileMatchCard
+                      key={profile.displayId}
+                      profile={{
+                        id,
+                        slug: profile.slug || profile.displayId,
+                        name: profile.personal?.firstName ?? 'Vivah member',
+                        age: profile.personal?.age,
+                        city: [profile.location?.city, profile.location?.state].filter(Boolean).join(', ') || 'Australia',
+                        occupation: profile.employment?.occupation,
+                        religion: profile.religion?.religion,
+                        verificationLevel: profile.verification?.level,
+                        isBoosted: profile.isBoosted,
+                        lastActiveLabel: formatRelativeDate(profile.stats?.lastActiveAt),
+                        privacyHint: profile.isBoosted
+                          ? 'This member is currently using a profile boost for higher visibility.'
+                          : 'Create your profile to unlock full compatibility and direct introductions.',
+                      }}
+                      actions={
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <p className="text-xs font-medium text-[#6B7280]">
+                            {profile.isBoosted
+                              ? 'Boosted profiles appear first during active discovery windows.'
+                              : 'More member details unlock once you create your profile.'}
+                          </p>
+                          <Link
+                            href={profile.slug ? `/profiles/${profile.slug}` : `/profiles/${profile.displayId}`}
+                            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-maroon"
+                          >
+                            View preview <ArrowRight className="size-3.5" />
+                          </Link>
+                        </div>
+                      }
+                    />
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-[28px] border border-dashed border-brand-gold/40 bg-brand-ivory px-6 py-10 text-center">
+                <Sparkles className="mx-auto size-8 text-brand-gold" />
+                <h3 className="mt-4 text-xl font-semibold text-brand-charcoal">
+                  Featured members will appear here as profiles go live
+                </h3>
+                <p className="mt-3 max-w-2xl mx-auto text-sm leading-7 text-gray-500">
+                  As approved members become active or use profile boosts, this row automatically updates to showcase who is trending now.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 

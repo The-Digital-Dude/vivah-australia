@@ -39,6 +39,7 @@ import {
   InterestModel,
   MessageModel,
   PaymentModel,
+  ProfileBoostModel,
   ProfileMediaModel,
   ProfileApprovalStatus,
   ProfileModel,
@@ -368,6 +369,7 @@ export async function getModerationDashboard() {
 export async function getAnalyticsSummary(input: DateRangeInput = {}) {
   const range = dateRange(input);
   const rangeMatch = createdAtMatch(range);
+  const now = new Date();
   const [
     usersByRole,
     usersByStatus,
@@ -380,6 +382,9 @@ export async function getAnalyticsSummary(input: DateRangeInput = {}) {
     matchInterestStats,
     messagingActivity,
     communityActivity,
+    boostSourceStats,
+    boostActivity,
+    activeBoostCount,
   ] = await Promise.all([
     UserModel.aggregate<{ _id: string; count: number }>([
       { $match: { isDeleted: false } },
@@ -434,6 +439,26 @@ export async function getAnalyticsSummary(input: DateRangeInput = {}) {
       { _id: 'POSTS', count: posts },
       { _id: 'COMMENTS', count: comments },
     ]),
+    ProfileBoostModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false, ...rangeMatch } },
+      { $group: { _id: '$source', count: { $sum: 1 } } },
+    ]),
+    ProfileBoostModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: false, ...rangeMatch } },
+      {
+        $group: {
+          _id: { $dateToString: { date: '$createdAt', format: '%Y-%m-%d' } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]),
+    ProfileBoostModel.countDocuments({
+      isDeleted: false,
+      active: true,
+      startsAt: { $lte: now },
+      endsAt: { $gt: now },
+    }),
   ]);
 
   return {
@@ -450,6 +475,9 @@ export async function getAnalyticsSummary(input: DateRangeInput = {}) {
     matchInterestStats,
     messagingActivity,
     communityActivity,
+    boostSourceStats,
+    boostActivity,
+    activeBoostCount,
   };
 }
 
@@ -564,6 +592,9 @@ export async function getAnalyticsCsv(input: DateRangeInput = {}) {
     ...aggregateRowsToCsv('matchInterestStats', summary.matchInterestStats),
     ...aggregateRowsToCsv('messagingActivity', summary.messagingActivity),
     ...aggregateRowsToCsv('communityActivity', summary.communityActivity),
+    ...aggregateRowsToCsv('boostSourceStats', summary.boostSourceStats),
+    ...aggregateRowsToCsv('boostActivity', summary.boostActivity),
+    ['activeBoostCount', 'LIVE', String(summary.activeBoostCount), ''].join(','),
   ].join('\n');
 }
 

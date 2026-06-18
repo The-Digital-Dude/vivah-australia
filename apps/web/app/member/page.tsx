@@ -66,6 +66,7 @@ interface MatchCard {
   photoUrl?: string;
   matchScore: number;
   matchReasons: string[];
+  responsivenessLabel?: string;
 }
 
 interface ProfileStats {
@@ -436,6 +437,7 @@ export default function MemberDashboardPage() {
                         occupation: match.occupation,
                         photoUrl: match.photoUrl,
                         religion: match.religion,
+                        responsivenessLabel: match.responsivenessLabel,
                         verificationLevel: match.verificationLevel,
                         slug: match.id,
                       }}

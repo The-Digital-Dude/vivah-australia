@@ -8,6 +8,7 @@ import {
 import { requireAuth } from '../auth/auth.middleware.js';
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
+import { getResponsivenessSignal } from '../common/responsiveness.service.js';
 import {
   getOwnProfile,
   deactivateOwnAccount,
@@ -268,6 +269,7 @@ export function createProfileRouter(config: AuthConfig): Router {
       let matchReasons: string[] | undefined;
       let isPaid = false;
       let isPremiumProfile = false;
+      let responsivenessLabel: string | undefined;
 
       if (viewerId) {
         const [viewerProfile, rawCandidateProfile] = await Promise.all([
@@ -283,18 +285,35 @@ export function createProfileRouter(config: AuthConfig): Router {
 
         isPaid = await isPaidMember(viewerId);
         if (rawCandidateProfile) {
-          isPremiumProfile = await isPaidMember(rawCandidateProfile.userId);
+          const [premiumStatus, responsiveness] = await Promise.all([
+            isPaidMember(rawCandidateProfile.userId),
+            getResponsivenessSignal(rawCandidateProfile.userId),
+          ]);
+          isPremiumProfile = premiumStatus;
+          responsivenessLabel = responsiveness?.label;
         }
       } else if (profile._id) {
         const rawCandidateProfile = await ProfileModel.findOne({ _id: profile._id, isDeleted: false });
         if (rawCandidateProfile) {
-          isPremiumProfile = await isPaidMember(rawCandidateProfile.userId);
+          const [premiumStatus, responsiveness] = await Promise.all([
+            isPaidMember(rawCandidateProfile.userId),
+            getResponsivenessSignal(rawCandidateProfile.userId),
+          ]);
+          isPremiumProfile = premiumStatus;
+          responsivenessLabel = responsiveness?.label;
         }
       }
 
       response
         .status(200)
-        .json({ profile, matchScore, matchReasons, isPaidMember: isPaid, isPremiumProfile });
+        .json({
+          profile,
+          matchScore,
+          matchReasons,
+          isPaidMember: isPaid,
+          isPremiumProfile,
+          responsivenessLabel,
+        });
     }),
   );
 

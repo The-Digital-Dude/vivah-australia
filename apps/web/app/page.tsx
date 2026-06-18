@@ -1,4 +1,5 @@
 import FinalHomepageClient from './final-homepage/client';
+import { getFeaturedProfiles } from '@/lib/public-api';
 
 export const metadata = {
   title: 'Vivah Australia | Premium Indian Matrimonial Platform',
@@ -6,6 +7,7 @@ export const metadata = {
     'Create a verified matrimonial profile, discover compatible Australian matches, and connect safely with serious relationship seekers.',
 };
 
-export default function HomePage() {
-  return <FinalHomepageClient />;
+export default async function HomePage() {
+  const { profiles } = await getFeaturedProfiles();
+  return <FinalHomepageClient featuredProfiles={profiles} />;
 }

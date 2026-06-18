@@ -68,6 +68,7 @@ interface PublicProfileResponse {
   matchReasons?: string[];
   isPaidMember?: boolean;
   isPremiumProfile?: boolean;
+  responsivenessLabel?: string;
 }
 
 interface ProfileDetail {
@@ -230,6 +231,7 @@ type LoadState =
       matchScore?: number | undefined;
       matchReasons?: string[] | undefined;
       isPremiumProfile?: boolean | undefined;
+      responsivenessLabel?: string | undefined;
     };
 
 type MobileTabKey = 'overview' | 'photos' | 'about' | 'family' | 'lifestyle';
@@ -1100,6 +1102,7 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
         matchScore: profileData.matchScore,
         matchReasons: profileData.matchReasons,
         isPremiumProfile: profileData.isPremiumProfile,
+        responsivenessLabel: profileData.responsivenessLabel,
       });
 
       if (token) {
@@ -1156,6 +1159,7 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
       matchScore={state.matchScore}
       matchReasons={state.matchReasons}
       isPremiumProfile={state.isPremiumProfile}
+      responsivenessLabel={state.responsivenessLabel}
     />
   );
 }
@@ -1170,6 +1174,7 @@ function ProfileDetailView({
   matchScore,
   matchReasons,
   isPremiumProfile,
+  responsivenessLabel,
 }: Readonly<{
   profile: ProfileDetail;
   profileId: string;
@@ -1178,6 +1183,7 @@ function ProfileDetailView({
   matchScore?: number | undefined;
   matchReasons?: string[] | undefined;
   isPremiumProfile?: boolean | undefined;
+  responsivenessLabel?: string | undefined;
 }>) {
   const actionProfileId = profile._id ?? profileId;
   const isSelfView = !!(
@@ -1496,6 +1502,23 @@ function ProfileDetailView({
                             </ToneBadge>
                           ))}
                         </div>
+                      </div>
+                    ) : null}
+
+                    {responsivenessLabel ? (
+                      <div className="mt-4 rounded-[24px] border border-emerald-200 bg-emerald-50/70 px-4 py-3">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-700">
+                          Response style
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <ToneBadge tone="emerald" size="md">
+                            <CheckCircle2 className="size-4" />
+                            {responsivenessLabel}
+                          </ToneBadge>
+                        </div>
+                        <p className="mt-2 text-xs leading-6 text-emerald-800/80">
+                          Based on how consistently this member replies to introductions they receive.
+                        </p>
                       </div>
                     ) : null}
 
