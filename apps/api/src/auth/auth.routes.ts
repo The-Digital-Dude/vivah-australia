@@ -34,15 +34,16 @@ import { HttpError } from './auth-errors.js';
 
 function setAuthCookies(response: Response, accessToken: string, refreshToken: string) {
   const isProd = process.env.NODE_ENV === 'production';
+  // Cross-origin (Vercel → Render): SameSite=None requires Secure=true
   const cookieOptions = {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'lax' as const,
+    sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
     path: '/',
   };
-  
-  response.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 }); // 15 mins
-  response.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 days
+
+  response.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+  response.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
 }
 
 function clearAuthCookies(response: Response) {
@@ -50,7 +51,7 @@ function clearAuthCookies(response: Response) {
   const cookieOptions = {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'lax' as const,
+    sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
     path: '/',
   };
   response.clearCookie('accessToken', cookieOptions);
