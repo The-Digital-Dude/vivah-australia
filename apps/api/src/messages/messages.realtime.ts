@@ -104,6 +104,13 @@ export function emitUserNotification(userId: Types.ObjectId, event: string, payl
   messageIo.to(`user:${String(userId)}`).emit(event, payload);
 }
 
+export function emitToConversationRoom(conversationId: string, event: string, payload: unknown) {
+  if (!messageIo) {
+    return;
+  }
+  messageIo.to(conversationId).emit(event, payload);
+}
+
 export function resetMessageRealtimeState() {
   messageIo = null;
   socketsByUser.clear();

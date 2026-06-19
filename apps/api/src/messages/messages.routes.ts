@@ -16,11 +16,13 @@ import {
   deleteConversationForUser,
   deleteMessageForUser,
   completeMessageAttachmentUpload,
+  getConversationForUser,
   listConversations,
   listMessages,
   markConversationRead,
   sendMessage,
 } from './messages.service.js';
+import { emitToConversationRoom, emitUserNotification } from './messages.realtime.js';
 
 function asyncHandler(
   handler: (request: Request, response: Response, next: NextFunction) => Promise<void>,
@@ -130,6 +132,22 @@ export function createMessagesRouter(config: AuthConfig): Router {
 
       const input = messageCreateSchema.parse(request.body);
       const message = await sendMessage(auth.userId, conversationId, input);
+      const conversation = await getConversationForUser(auth.userId, conversationId);
+
+      emitToConversationRoom(conversationId, 'message:new', message);
+      emitToConversationRoom(conversationId, 'conversation:updated', {
+        conversationId,
+        lastMessageAt: message.createdAt,
+      });
+
+      for (const participantId of conversation.participantIds) {
+        emitUserNotification(participantId, 'message:new', message);
+        emitUserNotification(participantId, 'conversation:updated', {
+          conversationId,
+          lastMessageAt: message.createdAt,
+        });
+      }
+
       response.status(201).json({ message: 'Message sent successfully', data: message });
     }),
   );
