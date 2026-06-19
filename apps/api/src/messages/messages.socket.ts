@@ -135,13 +135,25 @@ export function attachMessageSocketServer(
           const envelope = payload as { conversationId?: unknown; message?: unknown };
           const conversationId =
             typeof envelope.conversationId === 'string' ? envelope.conversationId : '';
+          const conversation = await getConversationForUser(socket.data.userId, conversationId);
           const input = messageCreateSchema.parse(envelope.message);
           const message = await sendMessage(socket.data.userId, conversationId, input);
+          
           io.to(conversationId).emit('message:new', message);
           io.to(conversationId).emit('conversation:updated', {
             conversationId,
             lastMessageAt: message.createdAt,
           });
+
+          for (const participantId of conversation.participantIds) {
+            const userRoom = `user:${participantId.toHexString()}`;
+            io.to(userRoom).emit('message:new', message);
+            io.to(userRoom).emit('conversation:updated', {
+              conversationId,
+              lastMessageAt: message.createdAt,
+            });
+          }
+
           acknowledge?.({ ok: true, message });
         } catch (error) {
           acknowledge?.({
