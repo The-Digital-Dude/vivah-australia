@@ -2238,7 +2238,7 @@ export default function ProfileForm({ mode }: Readonly<{ mode: 'onboarding' | 'e
     setSubmitting(false);
     if (result.ok) {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
-      showToast('Profile onboarding submitted successfully', true);
+      showToast('Compatibility Profile submitted successfully', true);
       setTimeout(() => {
         router.push('/member');
       }, 1500);

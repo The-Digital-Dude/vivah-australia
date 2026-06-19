@@ -8,8 +8,8 @@ export const metadata = {
 export default function OnboardingPage() {
   return (
     <MemberShell
-      title="Profile onboarding"
-      subtitle="Complete the core profile sections, save partial progress, then submit for approval."
+      title="Find Your Match — Compatibility Profile"
+      subtitle="Complete your compatibility profile, save partial progress, then submit for approval."
     >
       <ProfileForm mode="onboarding" />
     </MemberShell>

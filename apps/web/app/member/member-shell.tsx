@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { io, type Socket } from 'socket.io-client';
+import { useNotifications, getNotificationUrl } from './use-notifications';
 import {
   Bell,
   Camera,
@@ -372,7 +373,11 @@ export default function MemberShell({
   const visibleGroups = useMemo(() => navGroups, []);
 
   const firstName = shellProfile?.personal?.firstName ?? 'Member';
-  const profileInitial = firstName.slice(0, 1).toUpperCase();
+  const profileInitial = (firstName ?? 'V').slice(0, 1).toUpperCase();
+
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const { notifications, markRead } = useNotifications();
+  const unreadNotifications = useMemo(() => notifications.filter((n) => !n.readAt), [notifications]);
 
   if (!initialized || !token) {
     return (
@@ -421,18 +426,60 @@ export default function MemberShell({
                     </div>
 
                     <div className="flex items-center gap-3">
-<Link
-                        href="/member/notifications"
-                        className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#A10E4D]/15 bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3] sm:h-11 sm:w-11"
-                        aria-label="Notifications"
-                      >
-                        <Bell className="h-5 w-5" />
-                        {unreadCount ? (
-                          <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[#A10E4D] px-1.5 text-center text-xs font-semibold text-white">
-                            {unreadCount}
-                          </span>
-                        ) : null}
-                      </Link>
+                      <div className="relative">
+                        <button
+                          onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                          className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#A10E4D]/15 bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3] sm:h-11 sm:w-11"
+                          aria-label="Notifications"
+                        >
+                          <Bell className="h-5 w-5" />
+                          {unreadCount ? (
+                            <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-[#A10E4D] px-1.5 text-center text-xs font-semibold text-white">
+                              {unreadCount}
+                            </span>
+                          ) : null}
+                        </button>
+                        
+                        {isNotificationsOpen && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
+                            <div className="absolute right-0 top-full mt-2 w-80 z-50 overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white shadow-xl">
+                              <div className="border-b border-[#A10E4D]/10 px-4 py-3 bg-[#FFF9F5]">
+                                <h3 className="font-semibold text-[#2F2F2F]">Notifications</h3>
+                              </div>
+                              <div className="max-h-96 overflow-y-auto">
+                                {unreadNotifications.length === 0 ? (
+                                  <div className="p-4 text-center text-sm text-[#6B7280]">
+                                    No new notifications
+                                  </div>
+                                ) : (
+                                  unreadNotifications.slice(0, 5).map((n) => (
+                                    <Link
+                                      key={n._id}
+                                      href={getNotificationUrl(n)}
+                                      onClick={() => {
+                                        setIsNotificationsOpen(false);
+                                        markRead(n._id);
+                                      }}
+                                      className="block border-b border-[#A10E4D]/5 p-4 hover:bg-[#FFF9F5] transition"
+                                    >
+                                      <p className="text-sm font-medium text-[#2F2F2F] leading-snug">{n.title}</p>
+                                      {n.body && <p className="mt-1 text-xs text-[#6B7280] line-clamp-2">{n.body}</p>}
+                                    </Link>
+                                  ))
+                                )}
+                              </div>
+                              <Link
+                                href="/member/notifications"
+                                onClick={() => setIsNotificationsOpen(false)}
+                                className="block bg-gray-50 px-4 py-2.5 text-center text-xs font-semibold text-[#A10E4D] hover:bg-gray-100 transition"
+                              >
+                                View all notifications
+                              </Link>
+                            </div>
+                          </>
+                        )}
+                      </div>
 
                       <Link
                         href="/member/profile/edit"

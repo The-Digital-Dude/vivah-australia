@@ -492,7 +492,7 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
 
   if (viewerId && !profile.userId.equals(viewerId)) {
     const viewedAt = new Date();
-    await ProfileViewModel.findOneAndUpdate(
+    const existingView = await ProfileViewModel.findOneAndUpdate(
       { viewerId, profileId: profile._id },
       {
         $set: {
@@ -502,8 +502,20 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
           viewedAt,
         },
       },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: 'before', setDefaultsOnInsert: true },
     );
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    if (!existingView || (existingView.viewedAt && existingView.viewedAt < sevenDaysAgo)) {
+      await createNotification(
+        profile.userId,
+        'PROFILE_VIEWED',
+        'Someone viewed your profile',
+        'A member recently viewed your profile. Log in to see who it is.',
+        { viewerId: viewerId.toString() }
+      );
+    }
+
     await notifyPaidProfileView(viewerId, profile, viewedAt);
     const recentViewCount = await ProfileViewModel.countDocuments({
       viewerId,

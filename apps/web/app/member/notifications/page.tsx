@@ -11,137 +11,16 @@ import {
   Trash,
 } from 'lucide-react';
 import MemberShell from '../member-shell';
-import { useMemberRequest } from '@/lib/member-api';
-import {
-  subscribeToNotificationRealtimeEvents,
-  type RealtimeNotificationItem,
-} from '@/lib/notification-realtime';
-import { PremiumButton, PremiumCard } from '@/app/components';
-
-interface NotificationItem {
-  _id: string;
-  type: string;
-  title: string;
-  body?: string;
-  readAt?: string;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-function toNotificationItem(notification: RealtimeNotificationItem): NotificationItem | null {
-  if (!notification._id) {
-    return null;
-  }
-
-  return {
-    _id: notification._id,
-    type: notification.type,
-    title: notification.title,
-    ...(notification.body ? { body: notification.body } : {}),
-    ...(notification.readAt ? { readAt: notification.readAt } : {}),
-    createdAt: notification.createdAt,
-    ...(notification.updatedAt ? { updatedAt: notification.updatedAt } : {}),
-  };
-}
+import Link from 'next/link';
+import { useNotifications, getNotificationUrl } from '../use-notifications';
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
 
 export default function MemberNotificationsPage() {
-  const memberRequest = useMemberRequest();
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [message, setMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const { notifications, message, isSuccess, markRead, markAllRead, remove } = useNotifications();
   const [filterTab, setFilterTab] = useState<'ALL' | 'MATCH' | 'VERIFICATION' | 'BILLING'>('ALL');
-
-  async function load() {
-    const result = await memberRequest('/api/me/notifications');
-    if (result.ok) {
-      setNotifications((result.data as { notifications?: NotificationItem[] }).notifications ?? []);
-    } else {
-      setMessage(result.message);
-      setIsSuccess(false);
-    }
-  }
-
-  async function markRead(id: string) {
-    const result = await memberRequest(`/api/me/notifications/${id}/read`, { method: 'PATCH' });
-    setMessage(result.ok ? 'Notification marked as read.' : result.message);
-    setIsSuccess(result.ok);
-    if (result.ok) {
-      await load();
-    }
-  }
-
-  async function markAllRead() {
-    const result = await memberRequest('/api/me/notifications/read-all', { method: 'PATCH' });
-    setMessage(result.ok ? 'All notifications marked as read.' : result.message);
-    setIsSuccess(result.ok);
-    if (result.ok) {
-      await load();
-    }
-  }
-
-  async function remove(id: string) {
-    const result = await memberRequest(`/api/me/notifications/${id}`, { method: 'DELETE' });
-    setMessage(result.ok ? 'Notification deleted successfully.' : result.message);
-    setIsSuccess(result.ok);
-    if (result.ok) {
-      await load();
-    }
-  }
-
-  useEffect(() => {
-    void load();
-  }, []);
-
-  useEffect(() => {
-    return subscribeToNotificationRealtimeEvents((event) => {
-      if (event.type === 'notification:new') {
-        const notification = toNotificationItem(event.notification);
-        if (!notification) {
-          return;
-        }
-        setNotifications((current) => {
-          if (current.some((item) => item._id === notification._id)) {
-            return current;
-          }
-          return [notification, ...current];
-        });
-        return;
-      }
-
-      if (event.type === 'notification:updated') {
-        const notification = toNotificationItem(event.notification);
-        if (!notification) {
-          return;
-        }
-        setNotifications((current) =>
-          current.map((item) =>
-            item._id === notification._id ? { ...item, ...notification } : item,
-          ),
-        );
-        return;
-      }
-
-      if (event.type === 'notification:deleted') {
-        setNotifications((current) =>
-          current.filter((item) => item._id !== event.notificationId),
-        );
-        return;
-      }
-
-      if (event.type === 'notification:all-read') {
-        setNotifications((current) =>
-          current.map((item) => ({
-            ...item,
-            readAt: item.readAt ?? event.readAt,
-          })),
-        );
-      }
-    });
-  }, []);
 
   // Helpers to categorize notifications
   const matchTypes = ['INTEREST', 'MATCH', 'VISIT', 'LIKE'];
@@ -282,10 +161,12 @@ export default function MemberNotificationsPage() {
                 })();
 
                 return (
-                  <article
+                  <Link
+                    href={getNotificationUrl(n)}
                     key={n._id}
+                    onClick={() => { if (isUnread) markRead(n._id); }}
                     className={cx(
-                      'rounded-2xl border px-4 py-3 flex gap-3 transition',
+                      'rounded-2xl border px-4 py-3 flex gap-3 transition hover:border-[#A10E4D]/30 block',
                       isUnread
                         ? 'border-[#A10E4D]/15 bg-[#FFF9F5] border-l-4 border-l-[#A10E4D]'
                         : 'border-[#A10E4D]/8 bg-white',
@@ -308,7 +189,7 @@ export default function MemberNotificationsPage() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.preventDefault()}>
                       {isUnread && (
                         <button onClick={() => void markRead(n._id)} className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#A10E4D]/20 text-[#A10E4D] transition hover:bg-[#FFF0F3]" aria-label="Mark as read">
                           <Check className="size-3.5" />
@@ -318,7 +199,7 @@ export default function MemberNotificationsPage() {
                         <Trash className="size-3.5" />
                       </button>
                     </div>
-                  </article>
+                  </Link>
                 );
               })}
             </div>
