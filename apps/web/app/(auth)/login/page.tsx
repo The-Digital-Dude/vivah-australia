@@ -82,7 +82,7 @@ function LoginContent() {
     let returnUrl = safeReturnUrl(requestedReturnUrl, '/member');
 
     if (requestedReturnUrl) {
-      router.push(returnUrl);
+      window.location.href = returnUrl;
       return;
     }
 
@@ -101,9 +101,10 @@ function LoginContent() {
         returnUrl = '/member/onboarding';
       }
     } catch {
-      // ignore — proceed to /member
+      // Ignore errors and use default returnUrl
     }
-    router.push(returnUrl);
+
+    window.location.href = returnUrl;
   };
 
   const googleLogin = useGoogleLogin({
