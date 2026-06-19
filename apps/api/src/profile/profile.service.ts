@@ -507,13 +507,13 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
 
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     if (!existingView || (existingView.viewedAt && existingView.viewedAt < sevenDaysAgo)) {
-      await createNotification(
-        profile.userId,
-        'PROFILE_VIEWED',
-        'Someone viewed your profile',
-        'A member recently viewed your profile. Log in to see who it is.',
-        { viewerId: viewerId.toString() }
-      );
+      await createNotification({
+        userId: profile.userId,
+        type: 'PROFILE_VIEWED',
+        title: 'Someone viewed your profile',
+        body: 'A member recently viewed your profile. Log in to see who it is.',
+        data: { viewerId: viewerId.toString() }
+      });
     }
 
     await notifyPaidProfileView(viewerId, profile, viewedAt);
