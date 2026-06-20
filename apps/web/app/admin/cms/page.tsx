@@ -194,7 +194,7 @@ const sections: Array<{ key: SectionKey; label: string }> = [
 
 export default function AdminCmsPage() {
   const memberRequest = useMemberRequest();
-  const [activeSection, setActiveSection] = useState<SectionKey>('home');
+  const [activeSection, setActiveSection] = useState<SectionKey>('blogs');
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
   const [home, setHome] = useState<HomeContent>(emptyHome);

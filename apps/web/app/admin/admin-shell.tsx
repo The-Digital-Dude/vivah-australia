@@ -75,13 +75,13 @@ const navigationGroups: NavGroup[] = [
     items: [
       { label: 'Payments', href: '/admin/payments', icon: CreditCard },
       { label: 'CMS', href: '/admin/cms', icon: FileText },
-      { label: 'Community', href: '/admin/community', icon: Globe },
+      // { label: 'Community', href: '/admin/community', icon: Globe },
     ],
   },
   {
     title: 'Growth',
     items: [
-      { label: 'Landing Pages', href: '/admin/cms/landing-pages', icon: MapPin },
+      // { label: 'Landing Pages', href: '/admin/cms/landing-pages', icon: MapPin },
       { label: 'Promotions', href: '/admin/cms/promotions', icon: Tag },
       { label: 'Campaigns', href: '/admin/cms/campaigns', icon: Megaphone },
     ],
