@@ -25,6 +25,98 @@ interface FraudEvent {
   createdAt: string;
 }
 
+const METADATA_LABELS: Record<string, string> = {
+  window: 'Time window',
+  viewCount: 'Profile views',
+  reportCount: 'Reports submitted',
+  targetId: 'Target member',
+  email: 'Email',
+  phone: 'Phone',
+  count: 'Attempts',
+  messageCount: 'Messages sent',
+  mobile: 'Mobile',
+  attempts: 'Attempts',
+  activeReportCount: 'Active reports',
+  highestSeverity: 'Highest severity',
+  statuses: 'Report statuses',
+};
+
+const WINDOW_LABELS: Record<string, string> = {
+  '1h': 'Last hour',
+  '24h': 'Last 24 hours',
+  '7d': 'Last 7 days',
+};
+
+function humanizeKey(key: string) {
+  const known = METADATA_LABELS[key];
+  if (known) return known;
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/[_-]+/g, ' ')
+    .replace(/^./, (char) => char.toUpperCase())
+    .trim();
+}
+
+function MetadataGrid({ data }: { data: Record<string, unknown> }) {
+  const entries = Object.entries(data).filter(
+    ([, value]) => value !== null && value !== undefined && value !== '',
+  );
+
+  if (!entries.length) {
+    return <p className="text-xs text-neutral-500">No additional signal details recorded.</p>;
+  }
+
+  return (
+    <dl className="grid gap-3 sm:grid-cols-2">
+      {entries.map(([key, value]) => (
+        <div key={key} className="rounded-xl border border-neutral-150 bg-neutral-50 p-3.5">
+          <dt className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{humanizeKey(key)}</dt>
+          <dd className="mt-1.5">{renderMetadataValue(key, value)}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function renderMetadataValue(key: string, value: unknown) {
+  if (Array.isArray(value)) {
+    if (!value.length) return <span className="text-sm text-neutral-400">None</span>;
+    return (
+      <div className="flex flex-wrap gap-1.5">
+        {value.map((item, index) => {
+          const text = typeof item === 'object' && item !== null ? JSON.stringify(item) : String(item);
+          return (
+            <span
+              key={`${text}-${index}`}
+              className="rounded-full bg-white border border-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-700"
+            >
+              {text}
+            </span>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (key === 'window' && typeof value === 'string') {
+    return <span className="text-sm font-semibold text-neutral-800">{WINDOW_LABELS[value] ?? value}</span>;
+  }
+
+  if (typeof value === 'boolean') {
+    return <span className="text-sm font-semibold text-neutral-800">{value ? 'Yes' : 'No'}</span>;
+  }
+
+  if (typeof value === 'object') {
+    return (
+      <pre className="overflow-x-auto rounded-lg bg-white border border-neutral-200 p-2 text-[10px] font-mono leading-relaxed text-neutral-600">
+        {JSON.stringify(value, null, 2)}
+      </pre>
+    );
+  }
+
+  return <span className="text-sm font-semibold text-neutral-800 break-words">{String(value)}</span>;
+}
+
 export default function AdminFraudPage() {
   const memberRequest = useMemberRequest();
   const [events, setEvents] = useState<FraudEvent[]>([]);
@@ -109,10 +201,8 @@ export default function AdminFraudPage() {
 
             {(event.evidence ?? event.metadata) && (
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Event Metadata</h3>
-                <pre className="overflow-x-auto rounded-xl bg-neutral-50 border border-neutral-150 p-4 text-[10px] font-mono leading-relaxed text-neutral-600">
-                  {JSON.stringify(event.evidence ?? event.metadata, null, 2)}
-                </pre>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Signal details</h3>
+                <MetadataGrid data={(event.evidence ?? event.metadata) as Record<string, unknown>} />
               </div>
             )}
 

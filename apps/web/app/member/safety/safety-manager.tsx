@@ -117,7 +117,9 @@ export default function SafetyManager() {
             </select>
           </label>
           <label className="grid gap-2 text-sm font-medium text-[#232323]">
-            Reason
+            <span className="flex items-center gap-1">
+              Reason <span className="text-xs text-slate-500">(Minimum 10 characters)</span>
+            </span>
             <textarea
               name="reason"
               rows={5}
