@@ -15,6 +15,8 @@ interface VerificationItem {
   documentUrls?: string[];
   adminNote?: string;
   priority?: { label: string; score: number; ageDays: number };
+  membershipTier?: number;
+  membershipLabel?: string;
   createdAt: string;
 }
 
@@ -27,6 +29,23 @@ interface VerificationDocument {
   fileSizeBytes?: number;
   uploadStatus?: string;
   createdAt: string;
+}
+
+function MembershipBadge({ tier, label }: { tier?: number | undefined; label?: string | undefined }) {
+  const isPremium = (tier ?? 0) > 0;
+  const text = label ?? (isPremium ? 'Premium' : 'Free');
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+        isPremium
+          ? 'bg-[#FFF6E5] border border-[#D4A04C]/40 text-[#9A6B14]'
+          : 'bg-neutral-100 border border-neutral-200 text-neutral-500'
+      }`}
+    >
+      {isPremium && <Sparkles className="h-2.5 w-2.5" />}
+      {text}
+    </span>
+  );
 }
 
 export default function AdminVerificationsPage() {
@@ -100,22 +119,48 @@ export default function AdminVerificationsPage() {
     }
   }
 
-  async function previewDocument(requestId: string, documentId: string) {
+  async function previewDocument(doc: VerificationDocument) {
+    if (!detail) return;
+
+    // Short-circuit documents that were never actually uploaded (e.g. demo/seed data),
+    // so the admin gets a clear message instead of a blank tab pointing at a 404.
+    if (doc.uploadStatus !== 'UPLOADED') {
+      setMessage('No file is available for this document — the member has not completed the upload.');
+      return;
+    }
+
     const result = await memberRequest(
-      `/api/admin/verifications/${requestId}/documents/${documentId}/access`,
+      `/api/admin/verifications/${detail._id}/documents/${doc._id}/access`,
     );
     if (!result.ok) {
       setMessage(result.message);
       return;
     }
     const preview = (result.data as { preview?: { previewUrl?: string; expiresAt?: string } }).preview;
-    
-    // Open preview URL in a safe new window tab
-    if (preview?.previewUrl) {
-      window.open(preview.previewUrl, '_blank');
-      setMessage(`Secure temporary preview opened. Link expires soon.`);
-    } else {
+    if (!preview?.previewUrl) {
       setMessage('Secure document preview link could not be loaded.');
+      return;
+    }
+
+    // Fetch the file through the authenticated session first so we can surface a clear
+    // error rather than navigating a new tab to a raw URL that may fail silently.
+    try {
+      const response = await fetch(preview.previewUrl, { credentials: 'include' });
+      if (!response.ok) {
+        setMessage(
+          response.status === 404
+            ? 'The document file could not be found in secure storage.'
+            : `The document preview could not be loaded (error ${response.status}).`,
+        );
+        return;
+      }
+      const blobUrl = URL.createObjectURL(await response.blob());
+      window.open(blobUrl, '_blank');
+      // Release the object URL once the new tab has had time to load it.
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+      setMessage('Secure document preview opened in a new tab.');
+    } catch {
+      setMessage('Could not load the document preview. Please check your connection and try again.');
     }
   }
 
@@ -196,11 +241,12 @@ export default function AdminVerificationsPage() {
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-full bg-neutral-100 border border-neutral-200 px-2.5 py-0.5 text-[10px] font-bold text-neutral-600">
                         {item.type}
                       </span>
                       <AdminStatusBadge status={item.status} />
+                      <MembershipBadge tier={item.membershipTier} label={item.membershipLabel} />
                     </div>
                     <h3 className="mt-2 text-sm font-bold text-neutral-900">
                       Request ID: {item._id.slice(-8).toUpperCase()}
@@ -309,14 +355,24 @@ export default function AdminVerificationsPage() {
                             </p>
                           ) : null}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => void previewDocument(detail._id, doc._id)}
-                          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#A10E4D]/25 px-2.5 text-[10px] font-bold text-[#A10E4D] hover:bg-[#FFF0F3] bg-white transition shrink-0"
-                        >
-                          <Eye className="h-3 w-3" />
-                          <span>Preview Document</span>
-                        </button>
+                        {doc.uploadStatus === 'UPLOADED' ? (
+                          <button
+                            type="button"
+                            onClick={() => void previewDocument(doc)}
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#A10E4D]/25 px-2.5 text-[10px] font-bold text-[#A10E4D] hover:bg-[#FFF0F3] bg-white transition shrink-0"
+                          >
+                            <Eye className="h-3 w-3" />
+                            <span>Preview Document</span>
+                          </button>
+                        ) : (
+                          <span
+                            title="The member has not completed the file upload for this document."
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-200 px-2.5 text-[10px] font-bold text-neutral-400 bg-neutral-50 shrink-0 cursor-not-allowed"
+                          >
+                            <AlertCircle className="h-3 w-3" />
+                            <span>No File</span>
+                          </span>
+                        )}
                       </div>
                     ))}
                     {documents.length === 0 && (

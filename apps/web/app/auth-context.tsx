@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000').trim();
 
@@ -17,6 +17,13 @@ interface AuthContextType {
   }) => void;
   refreshAccessToken: () => Promise<string | null>;
   clearToken: () => void;
+  /**
+   * Resolves once the provider has hydrated the session from localStorage, then
+   * returns the current token. Callers that fire on mount (e.g. data fetches in
+   * page effects) must await this instead of reading `token` directly, otherwise
+   * they race the hydration effect and see a spurious null token.
+   */
+  awaitToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,6 +33,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [refreshToken, setRefreshTokenState] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+
+  // Mirror of `token` readable synchronously from async callers (see awaitToken).
+  const tokenRef = useRef<string | null>(null);
+
+  // Resolves when the hydration effect below has run, so awaitToken can gate on it.
+  const readyRef = useRef<{ promise: Promise<void>; resolve: () => void } | null>(null);
+  if (readyRef.current === null) {
+    let resolveReady: () => void = () => {};
+    const promise = new Promise<void>((resolve) => {
+      resolveReady = resolve;
+    });
+    readyRef.current = { promise, resolve: resolveReady };
+  }
 
   const roleFromToken = useCallback((value: string | null) => {
     if (!value) return null;
@@ -42,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedRefreshToken = localStorage.getItem('refresh_token');
     const storedRole = localStorage.getItem('user_role');
     if (storedToken) {
+      tokenRef.current = storedToken;
       setTokenState(storedToken);
       if (storedToken === 'cookie-based' && storedRole) {
         setUserRole(storedRole);
@@ -53,9 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setRefreshTokenState(storedRefreshToken);
     }
     setInitialized(true);
+    readyRef.current?.resolve();
   }, [roleFromToken]);
 
   const setToken = (newToken: string | null) => {
+    tokenRef.current = newToken;
     setTokenState(newToken);
     setUserRole(roleFromToken(newToken));
     if (newToken) {
@@ -82,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const clearToken = useCallback(() => {
+    tokenRef.current = null;
     setTokenState(null);
     setRefreshTokenState(null);
     setUserRole(null);
@@ -119,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
+    tokenRef.current = 'cookie-based';
     setTokenState('cookie-based');
     setUserRole(data.user.role);
     localStorage.setItem('auth_token', 'cookie-based');
@@ -137,6 +162,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data.accessToken ?? 'cookie-based';
   }, [clearToken, refreshToken]);
 
+  const awaitToken = useCallback(async () => {
+    await readyRef.current?.promise;
+    return tokenRef.current;
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -148,6 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession,
         refreshAccessToken,
         clearToken,
+        awaitToken,
       }}
     >
       {children}

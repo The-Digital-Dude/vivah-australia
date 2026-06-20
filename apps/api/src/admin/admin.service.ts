@@ -44,6 +44,7 @@ import {
   ProfileApprovalStatus,
   ProfileModel,
   ReportModel,
+  PlanModel,
   SubscriptionModel,
   UserModel,
   VerificationDocumentModel,
@@ -1064,6 +1065,57 @@ export async function getOwnVerificationRequest(userId: Types.ObjectId, requestI
   return sanitizeVerificationRequest(request);
 }
 
+type MembershipTier = { tier: number; label: string };
+
+const FREE_MEMBERSHIP: MembershipTier = { tier: 0, label: 'Free' };
+
+/** Derives a compact tier label from a Plan code (e.g. PREMIUM_MONTHLY -> "Premium"). */
+function membershipLabel(planCode: string | undefined) {
+  const head = (planCode ?? '').split('_')[0];
+  if (!head) return FREE_MEMBERSHIP.label;
+  return head.charAt(0).toUpperCase() + head.slice(1).toLowerCase();
+}
+
+/**
+ * Resolves the highest active membership tier for each user.
+ * Users with no active/trialing subscription default to tier 0 (Free).
+ */
+async function membershipTierByUser(userIds: Types.ObjectId[]) {
+  const tiers = new Map<string, MembershipTier>();
+  if (userIds.length === 0) return tiers;
+
+  const now = new Date();
+  const subscriptions = await SubscriptionModel.find({
+    userId: { $in: userIds },
+    status: { $in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
+    startsAt: { $lte: now },
+    isDeleted: false,
+    $and: [{ $or: [{ currentPeriodEnd: { $exists: false } }, { currentPeriodEnd: { $gt: now } }] }],
+    $or: [{ endsAt: { $exists: false } }, { endsAt: { $gt: now } }],
+  })
+    .select('userId planId')
+    .lean();
+
+  const planIds = [...new Set(subscriptions.map((sub) => String(sub.planId)))];
+  const plans = await PlanModel.find({ _id: { $in: planIds } })
+    .select('sortOrder code')
+    .lean();
+  const planTier = new Map(
+    plans.map((plan) => [
+      String(plan._id),
+      { tier: plan.sortOrder ?? 0, label: membershipLabel(plan.code) } satisfies MembershipTier,
+    ]),
+  );
+
+  for (const sub of subscriptions) {
+    const userKey = String(sub.userId);
+    const next = planTier.get(String(sub.planId)) ?? FREE_MEMBERSHIP;
+    const current = tiers.get(userKey);
+    if (!current || next.tier > current.tier) tiers.set(userKey, next);
+  }
+  return tiers;
+}
+
 export async function listVerificationRequests(
   status: VerificationStatusType = VerificationStatus.PENDING,
 ) {
@@ -1071,9 +1123,25 @@ export async function listVerificationRequests(
     .sort({ createdAt: 1 })
     .limit(100)
     .lean();
+
+  const tiers = await membershipTierByUser(requests.map((request) => request.userId));
+
   return requests
-    .map((request) => ({ ...sanitizeVerificationRequest(request), priority: verificationPriority(request) }))
-    .sort((a, b) => b.priority.score - a.priority.score);
+    .map((request) => {
+      const membership = tiers.get(String(request.userId)) ?? FREE_MEMBERSHIP;
+      return {
+        ...sanitizeVerificationRequest(request),
+        priority: verificationPriority(request),
+        membershipTier: membership.tier,
+        membershipLabel: membership.label,
+      };
+    })
+    .sort((a, b) => {
+      // Higher membership tier first.
+      if (a.membershipTier !== b.membershipTier) return b.membershipTier - a.membershipTier;
+      // Within the same tier, oldest request first (first come, first served).
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
 }
 
 export async function getVerificationRequestDetail(requestId: string, actorId?: Types.ObjectId) {

@@ -13,7 +13,7 @@ export interface MemberApiResult {
 }
 
 export function useMemberRequest() {
-  const { refreshAccessToken, token } = useAuth();
+  const { refreshAccessToken, awaitToken } = useAuth();
 
   return useCallback(
     async function memberRequest(
@@ -23,6 +23,11 @@ export function useMemberRequest() {
         body?: Record<string, unknown>;
       } = {},
     ): Promise<MemberApiResult> {
+      // Wait for the auth provider to finish hydrating the session from
+      // localStorage before deciding. Page effects often fire on mount before
+      // hydration completes; reading `token` directly here would race that and
+      // return a spurious "Not authenticated" on first load / reload.
+      const token = await awaitToken();
       if (!token) {
         return {
           ok: false,
@@ -59,7 +64,7 @@ export function useMemberRequest() {
         status: response.status,
       };
     },
-    [refreshAccessToken, token],
+    [refreshAccessToken, awaitToken],
   );
 }
 
