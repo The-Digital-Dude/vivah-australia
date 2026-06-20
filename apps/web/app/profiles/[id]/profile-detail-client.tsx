@@ -28,12 +28,7 @@ import {
   Briefcase,
   Quote,
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/app/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/app/components/ui/dialog';
 import { Progress } from '@/app/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import {
@@ -292,11 +287,13 @@ function buildPersonalityTraits(profile: ProfileDetail): string[] {
   else if (diet) traits.push(`🍽️ ${formatEnum(diet)}`);
 
   const smoking = profile.lifestyle?.smokingHabits?.toLowerCase();
-  if (smoking === 'non_smoker' || smoking === 'non-smoker' || smoking === 'never') traits.push('🚭 Non-smoker');
+  if (smoking === 'non_smoker' || smoking === 'non-smoker' || smoking === 'never')
+    traits.push('🚭 Non-smoker');
   else if (smoking === 'smoker') traits.push('🚬 Smoker');
 
   const drinking = profile.lifestyle?.drinkingHabits?.toLowerCase();
-  if (drinking === 'non_drinker' || drinking === 'never' || drinking === 'no') traits.push('🍵 Non-drinker');
+  if (drinking === 'non_drinker' || drinking === 'never' || drinking === 'no')
+    traits.push('🍵 Non-drinker');
 
   const familyValues = profile.family?.familyValues?.toLowerCase();
   if (familyValues === 'traditional') traits.push('🏡 Traditional values');
@@ -304,27 +301,63 @@ function buildPersonalityTraits(profile: ProfileDetail): string[] {
   else if (familyValues === 'liberal') traits.push('🌍 Liberal mindset');
 
   if (profile.family?.familyType?.toLowerCase().includes('joint')) traits.push('👨‍👩‍👧‍👦 Joint family');
-  if (profile.family?.familyType?.toLowerCase().includes('nuclear')) traits.push('🏠 Nuclear family');
+  if (profile.family?.familyType?.toLowerCase().includes('nuclear'))
+    traits.push('🏠 Nuclear family');
 
   if (profile.religion?.languagesSpoken && profile.religion.languagesSpoken.length > 1) {
     traits.push(`💬 ${profile.religion.languagesSpoken.length} languages`);
   }
 
-  if (profile.location?.visaStatus?.toLowerCase().includes('citizen')) traits.push('🇦🇺 Australian citizen');
-  else if (profile.location?.visaStatus?.toLowerCase().includes('pr')) traits.push('🇦🇺 Permanent resident');
+  if (profile.location?.visaStatus?.toLowerCase().includes('citizen'))
+    traits.push('🇦🇺 Australian citizen');
+  else if (profile.location?.visaStatus?.toLowerCase().includes('pr'))
+    traits.push('🇦🇺 Permanent resident');
 
   return traits.slice(0, 6);
 }
 
 function buildInterestGroups(profile: ProfileDetail) {
-  const all = [...(profile.about?.hobbies ?? []), ...(profile.about?.interests ?? [])].filter(Boolean);
+  const all = [...(profile.about?.hobbies ?? []), ...(profile.about?.interests ?? [])].filter(
+    Boolean,
+  );
 
-  const cultureTerms = ['music', 'classical', 'bollywood', 'movies', 'art', 'culture', 'reading', 'books', 'writing', 'poetry', 'theatre', 'dance'];
-  const outdoorTerms = ['hiking', 'travel', 'trekking', 'sports', 'cricket', 'football', 'gym', 'yoga', 'fitness', 'cycling', 'swimming', 'running'];
+  const cultureTerms = [
+    'music',
+    'classical',
+    'bollywood',
+    'movies',
+    'art',
+    'culture',
+    'reading',
+    'books',
+    'writing',
+    'poetry',
+    'theatre',
+    'dance',
+  ];
+  const outdoorTerms = [
+    'hiking',
+    'travel',
+    'trekking',
+    'sports',
+    'cricket',
+    'football',
+    'gym',
+    'yoga',
+    'fitness',
+    'cycling',
+    'swimming',
+    'running',
+  ];
   const foodTerms = ['cooking', 'baking', 'food', 'restaurants', 'cuisine', 'chef'];
   const techTerms = ['technology', 'coding', 'programming', 'gaming', 'photography'];
 
-  type GroupKey = 'Culture & Arts' | 'Outdoor & Sport' | 'Food & Lifestyle' | 'Tech & Creative' | 'Other Passions';
+  type GroupKey =
+    | 'Culture & Arts'
+    | 'Outdoor & Sport'
+    | 'Food & Lifestyle'
+    | 'Tech & Creative'
+    | 'Other Passions';
   const groups: Record<GroupKey, string[]> = {
     'Culture & Arts': [],
     'Outdoor & Sport': [],
@@ -415,9 +448,15 @@ function ProfileSurface({
 function StaticProfileLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div className="min-h-screen bg-brand-ivory text-brand-charcoal font-poppins">
-      <div className="print:hidden"><PublicHeader /></div>
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 print:p-0 print:m-0">{children}</main>
-      <div className="print:hidden"><PublicFooter /></div>
+      <div className="print:hidden">
+        <PublicHeader />
+      </div>
+      <main className="mx-auto container px-4 py-8 sm:px-6 lg:px-8 print:p-0 print:m-0">
+        {children}
+      </main>
+      <div className="print:hidden">
+        <PublicFooter />
+      </div>
     </div>
   );
 }
@@ -469,8 +508,12 @@ function ScoreRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-bold text-brand-charcoal leading-none">{score}%</span>
-        {label && <span className="mt-0.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">{label}</span>}
+        <span className="text-base font-bold text-brand-charcoal leading-none">{score}%</span>
+        {label && (
+          <span className="mt-0.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">
+            {label}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -497,10 +540,10 @@ function PhotoLightbox({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="overflow-hidden bg-brand-charcoal p-0 text-white">
-          <div className="relative aspect-[4/5] w-full bg-[#111111]">
-            <Image src={imageUrl} alt={title} fill sizes="100vw" className="object-contain" />
-          </div>
+      <DialogContent className="overflow-hidden bg-brand-charcoal p-0 text-white">
+        <div className="relative aspect-[4/5] w-full bg-[#111111]">
+          <Image src={imageUrl} alt={title} fill sizes="100vw" className="object-contain" />
+        </div>
         <div className="p-5 text-left">
           <DialogTitle className="text-white">{title}</DialogTitle>
           {description ? (
@@ -589,7 +632,9 @@ function GalleryExperienceSection({
             <div className="grid min-h-[340px] place-items-center rounded-[28px] border border-dashed border-brand-gold/40 bg-[linear-gradient(135deg,#FFF9F5_0%,#FFF0F3_100%)] p-8 text-center">
               <div>
                 <ImageOff className="mx-auto size-10 text-brand-gold" />
-                <p className="mt-4 text-lg font-semibold text-brand-charcoal">No public gallery yet</p>
+                <p className="mt-4 text-lg font-semibold text-brand-charcoal">
+                  No public gallery yet
+                </p>
                 <p className="mt-2 max-w-md text-sm leading-6 text-gray-500">
                   This member has not added public gallery photos yet, but you can still review
                   their trust signals, compatibility, and request access to private photos.
@@ -833,14 +878,22 @@ function PrivateGalleryAccessCard({
     return (
       <div className="rounded-[28px] border border-brand-gold/30 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
         <Clock3 className="mx-auto size-8 text-brand-gold" />
-        <p className="mt-4 text-lg font-semibold text-brand-charcoal">Private photo request pending</p>
-        <p className="mt-2 text-sm leading-6 text-gray-500">
-          Your request is waiting for a response. We will surface the private gallery here if
-          access is granted.
+        <p className="mt-4 text-lg font-semibold text-brand-charcoal">
+          Private photo request pending
         </p>
-        {feedback ? <p className="mt-3 text-sm font-semibold text-brand-maroon">{feedback}</p> : null}
+        <p className="mt-2 text-sm leading-6 text-gray-500">
+          Your request is waiting for a response. We will surface the private gallery here if access
+          is granted.
+        </p>
+        {feedback ? (
+          <p className="mt-3 text-sm font-semibold text-brand-maroon">{feedback}</p>
+        ) : null}
         <div className="mt-4 flex justify-center">
-          <PremiumButton variant="secondary" onClick={() => void handleWithdraw()} disabled={sending}>
+          <PremiumButton
+            variant="secondary"
+            onClick={() => void handleWithdraw()}
+            disabled={sending}
+          >
             <X className="size-4" />
             Withdraw request
           </PremiumButton>
@@ -876,7 +929,11 @@ function PrivateGalleryAccessCard({
             className="w-full rounded-2xl border border-brand-maroon/20 bg-brand-ivory px-4 py-3 text-sm text-brand-charcoal outline-none transition focus:border-brand-maroon focus:ring-4 focus:ring-[#FFF0F3]"
           />
           <div className="grid gap-2 sm:grid-cols-2">
-            <PremiumButton onClick={() => void handleSendRequest()} disabled={sending} className="w-full">
+            <PremiumButton
+              onClick={() => void handleSendRequest()}
+              disabled={sending}
+              className="w-full"
+            >
               <Send className="size-4" />
               {sending ? 'Sending...' : 'Send request'}
             </PremiumButton>
@@ -927,16 +984,23 @@ function IntroMediaPlaceholder({
 // ─── Family & Future Goals Section ──────────────────────────────────────────
 
 function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) {
-  const hasContent = profile.family?.familyValues || profile.family?.familyType || profile.about?.partnerExpectations;
+  const hasContent =
+    profile.family?.familyValues ||
+    profile.family?.familyType ||
+    profile.about?.partnerExpectations;
 
   const narrativeParts: string[] = [];
   const firstName = profile.personal?.firstName;
 
   if (profile.family?.familyValues) {
-    narrativeParts.push(`${firstName ?? 'They'} describe their family orientation as ${profile.family.familyValues.toLowerCase()}`);
+    narrativeParts.push(
+      `${firstName ?? 'They'} describe their family orientation as ${profile.family.familyValues.toLowerCase()}`,
+    );
   }
   if (profile.family?.familyType) {
-    narrativeParts.push(`preferring a ${profile.family.familyType.toLowerCase().replace('_', ' ')} family setup`);
+    narrativeParts.push(
+      `preferring a ${profile.family.familyType.toLowerCase().replace('_', ' ')} family setup`,
+    );
   }
   if (profile.location?.city || profile.location?.state) {
     narrativeParts.push(`and are based in ${profile.location.city ?? profile.location.state}`);
@@ -962,7 +1026,9 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
               )}
               {profile.about?.partnerExpectations && (
                 <>
-                  <p className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">In their words</p>
+                  <p className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-gray-500">
+                    In their words
+                  </p>
                   <p className="mt-2 text-sm leading-7 text-brand-charcoal">
                     {profile.about.partnerExpectations}
                   </p>
@@ -977,7 +1043,9 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
 
           <div className="grid gap-4">
             <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Family background</p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                Family background
+              </p>
               <div className="mt-4 grid gap-3">
                 <DetailField label="Family values" value={profile.family?.familyValues} />
                 <DetailField label="Family type" value={profile.family?.familyType} />
@@ -994,7 +1062,9 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
             </div>
 
             {/* Partner preference chips */}
-            {(profile.partnerPreference?.ageMin || profile.partnerPreference?.ageMax || (profile.partnerPreference?.communities?.length ?? 0) > 0) && (
+            {(profile.partnerPreference?.ageMin ||
+              profile.partnerPreference?.ageMax ||
+              (profile.partnerPreference?.communities?.length ?? 0) > 0) && (
               <div className="rounded-[28px] border border-brand-maroon/10 bg-white p-5">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                   What they imagine
@@ -1003,7 +1073,8 @@ function FamilyFutureSection({ profile }: Readonly<{ profile: ProfileDetail }>) 
                   {profile.partnerPreference?.ageMin || profile.partnerPreference?.ageMax ? (
                     <ToneBadge tone="burgundy">
                       <Heart className="size-3.5" />
-                      Age {profile.partnerPreference?.ageMin ?? '?'}–{profile.partnerPreference?.ageMax ?? '?'}
+                      Age {profile.partnerPreference?.ageMin ?? '?'}–
+                      {profile.partnerPreference?.ageMax ?? '?'}
                     </ToneBadge>
                   ) : null}
                   {(profile.partnerPreference?.communities ?? []).slice(0, 2).map((c) => (
@@ -1053,7 +1124,7 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
       const response = await fetch(`${apiBaseUrl}${path}`, {
         cache: 'no-store',
         credentials: 'include',
-        headers: (accessToken && !isCookieBased) ? { Authorization: `Bearer ${accessToken}` } : {},
+        headers: accessToken && !isCookieBased ? { Authorization: `Bearer ${accessToken}` } : {},
       });
 
       if (response.status === 401 && accessToken && !isCookieBased) {
@@ -1069,7 +1140,10 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
     async function load() {
       setState({ status: 'loading' });
 
-      const profileResponse = await fetchJson<PublicProfileResponse>(`/api/profiles/${profileId}`, token);
+      const profileResponse = await fetchJson<PublicProfileResponse>(
+        `/api/profiles/${profileId}`,
+        token,
+      );
 
       if (!active) {
         return;
@@ -1106,7 +1180,10 @@ export default function ProfileDetailClient({ profileId }: Readonly<{ profileId:
       });
 
       if (token) {
-        const viewerResponse = await fetchJson<{ profile?: ViewerProfile }>('/api/me/profile', token);
+        const viewerResponse = await fetchJson<{ profile?: ViewerProfile }>(
+          '/api/me/profile',
+          token,
+        );
         if (active && viewerResponse.ok) {
           const viewerData = (await viewerResponse.json()) as { profile?: ViewerProfile };
           setViewerProfile(viewerData.profile ?? null);
@@ -1188,11 +1265,9 @@ function ProfileDetailView({
   const actionProfileId = profile._id ?? profileId;
   const isSelfView = !!(
     viewerProfile &&
-    (
-      (viewerProfile._id && viewerProfile._id === profile._id) ||
+    ((viewerProfile._id && viewerProfile._id === profile._id) ||
       (viewerProfile.displayId && viewerProfile.displayId === profile.displayId) ||
-      (viewerProfile.slug && viewerProfile.slug === profileId)
-    )
+      (viewerProfile.slug && viewerProfile.slug === profileId))
   );
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTabKey>('overview');
   const [biodataLoading, setBiodataLoading] = useState(false);
@@ -1209,7 +1284,7 @@ function ProfileDetailView({
       const isCookieBased = token === 'cookie-based';
       const res = await fetch(`${apiBaseUrl}/api/profiles/${actionProfileId}/biodata.pdf`, {
         credentials: 'include',
-        headers: (token && !isCookieBased) ? { Authorization: `Bearer ${token}` } : {},
+        headers: token && !isCookieBased ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
@@ -1257,9 +1332,10 @@ function ProfileDetailView({
   const interestGroups = useMemo(() => buildInterestGroups(profile), [profile]);
   const primaryPhotoUrl = profile.photoUrl ?? profile.publicGallery?.[0]?.assetUrl ?? null;
   const membershipLabel = isPremiumProfile ? 'Premium member' : 'Vivah member';
-  const overallScore = typeof matchScore === 'number' ? matchScore : Math.round(
-    compatibilityRows.reduce((s, r) => s + r.score, 0) / compatibilityRows.length
-  );
+  const overallScore =
+    typeof matchScore === 'number'
+      ? matchScore
+      : Math.round(compatibilityRows.reduce((s, r) => s + r.score, 0) / compatibilityRows.length);
   const compatibilityHeadline = getCompatibilityHeadline(overallScore);
 
   useEffect(() => {
@@ -1286,7 +1362,11 @@ function ProfileDetailView({
                 timeoutId = setTimeout(() => {
                   const activeTabEl = document.querySelector(`[data-state="active"]`);
                   if (activeTabEl) {
-                    activeTabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    activeTabEl.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'nearest',
+                      inline: 'center',
+                    });
                   }
                 }, 100);
                 return current.key;
@@ -1312,7 +1392,6 @@ function ProfileDetailView({
     <StaticProfileLayout>
       <article className="grid gap-6 pb-28 lg:pb-0 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
         <div className="grid gap-6">
-
           <motion.div
             {...fadeInUp}
             className="rounded-[26px] border border-brand-maroon/10 bg-white/90 px-5 py-4 shadow-[0_14px_32px_rgba(122,31,43,0.06)] backdrop-blur"
@@ -1333,14 +1412,20 @@ function ProfileDetailView({
                   {profile.displayId}
                 </span>
               </div>
-
             </div>
           </motion.div>
 
           {isSelfView && (
             <div className="flex items-center justify-between rounded-xl border border-[#A10E4D]/20 bg-[#FFF0F3] px-4 py-2.5">
-              <p className="text-xs font-semibold text-[#A10E4D]">This is how your profile appears to others</p>
-              <Link href="/member/profile/edit" className="text-xs font-bold text-[#A10E4D] underline">Edit profile</Link>
+              <p className="text-xs font-semibold text-[#A10E4D]">
+                This is how your profile appears to others
+              </p>
+              <Link
+                href="/member/profile/edit"
+                className="text-xs font-bold text-[#A10E4D] underline"
+              >
+                Edit profile
+              </Link>
             </div>
           )}
 
@@ -1353,9 +1438,8 @@ function ProfileDetailView({
           >
             <PremiumCard className="overflow-hidden rounded-[34px] border border-brand-maroon/10 bg-white p-0 shadow-[0_28px_80px_rgba(122,31,43,0.12)]">
               <div className="grid xl:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.1fr)]">
-
                 {/* Photo Panel */}
-                <div className="relative min-h-[320px] overflow-hidden bg-[linear-gradient(145deg,#A10E4D_0%,#6B0C32_45%,#D4A04C_100%)]">
+                <div className="relative rounded-[28px] min-h-[320px] overflow-hidden bg-[linear-gradient(145deg,#A10E4D_0%,#6B0C32_45%,#D4A04C_100%)]">
                   {primaryPhotoUrl ? (
                     <Image
                       src={primaryPhotoUrl}
@@ -1379,17 +1463,21 @@ function ProfileDetailView({
                   {/* Bottom overlay badges */}
                   <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={cx(
-                        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
-                        'bg-white/15 backdrop-blur text-white border border-white/20'
-                      )}>
+                      <span
+                        className={cx(
+                          'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
+                          'bg-white/15 backdrop-blur text-white border border-white/20',
+                        )}
+                      >
                         <Sparkles className="size-3.5" />
                         {membershipLabel}
                       </span>
-                      <span className={cx(
-                        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
-                        'bg-[#1F6F4A]/80 backdrop-blur text-white border border-[#1F6F4A]/30'
-                      )}>
+                      <span
+                        className={cx(
+                          'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
+                          'bg-[#1F6F4A]/80 backdrop-blur text-white border border-[#1F6F4A]/30',
+                        )}
+                      >
                         <ShieldCheck className="size-3.5" />
                         {profile.verification?.level?.replaceAll('_', ' ') ?? 'Verified'}
                       </span>
@@ -1418,7 +1506,7 @@ function ProfileDetailView({
                     </p>
 
                     {/* Match score ring + completion */}
-                    <div className="mt-6 grid gap-4 xl:grid-cols-[auto_minmax(0,1fr)]">
+                    <div className="mt-6">
                       <div className="rounded-[28px] border border-brand-maroon/10 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFF9F5_100%)] px-5 py-4">
                         <div className="flex items-center gap-4">
                           <ScoreRing
@@ -1436,23 +1524,12 @@ function ProfileDetailView({
                               {compatibilityHeadline}
                             </p>
                             <p className="mt-1 text-xs leading-6 text-gray-500">
-                              Built from the same profile signals used in match ranking, including lifestyle, family values, education, career, location, and community fit.
+                              Built from the same profile signals used in match ranking, including
+                              lifestyle, family values, education, career, location, and community
+                              fit.
                             </p>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="rounded-[28px] border border-brand-maroon/10 bg-white px-5 py-4">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gold">
-                          Profile completion
-                        </p>
-                        <p className="mt-1 text-2xl font-semibold text-brand-charcoal">
-                          {profile.completionPercentage}%
-                        </p>
-                        <Progress className="mt-2" value={profile.completionPercentage} />
-                        <p className="mt-1.5 text-xs text-gray-500">
-                          More complete profiles build trust faster
-                        </p>
                       </div>
                     </div>
 
@@ -1492,7 +1569,8 @@ function ProfileDetailView({
                           Why you match
                         </p>
                         <p className="text-xs text-gray-500">
-                          These reasons come directly from the ranking rules used for your match score.
+                          These reasons come directly from the ranking rules used for your match
+                          score.
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {matchReasons.slice(0, 3).map((reason) => (
@@ -1517,7 +1595,8 @@ function ProfileDetailView({
                           </ToneBadge>
                         </div>
                         <p className="mt-2 text-xs leading-6 text-emerald-800/80">
-                          Based on how consistently this member replies to introductions they receive.
+                          Based on how consistently this member replies to introductions they
+                          receive.
                         </p>
                       </div>
                     ) : null}
@@ -1525,7 +1604,9 @@ function ProfileDetailView({
                     {/* Personality trait pills */}
                     {personalityTraits.length > 0 && (
                       <div className="mt-5">
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">At a glance</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                          At a glance
+                        </p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {personalityTraits.slice(0, 3).map((trait) => (
                             <span
@@ -1540,8 +1621,20 @@ function ProfileDetailView({
                     )}
 
                     {/* Hero CTAs */}
-                    <div className="mt-6 hidden sm:flex flex-col gap-2 print:hidden">
-                      <div className="flex flex-wrap gap-3">
+                    <div className="mt-6 hidden sm:flex items-end gap-2">
+                      <div className="rounded-[28px] border border-brand-maroon/10 bg-white px-5 py-4">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-gold">
+                          Profile completion
+                        </p>
+                        <p className="mt-1 text-2xl font-semibold text-brand-charcoal">
+                          {profile.completionPercentage}%
+                        </p>
+                        <Progress className="mt-2" value={profile.completionPercentage} />
+                        <p className="mt-1.5 text-xs text-gray-500">
+                          More complete profiles build trust faster
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-3">
                         {isSelfView && (
                           <Link
                             href="/member/profile/edit"
@@ -1553,7 +1646,7 @@ function ProfileDetailView({
                         <button
                           onClick={() => void handleDownloadBiodata()}
                           disabled={biodataLoading}
-                          className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/20 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/20 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#A10E4D] transition hover:bg-white/30 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <Camera className="size-4" />
                           {biodataLoading ? 'Generating...' : 'Download Biodata'}
@@ -1582,7 +1675,8 @@ function ProfileDetailView({
                     See what is driving this match
                   </h2>
                   <p className="mt-1 text-sm leading-6 text-gray-500">
-                    This is a profile-comparison estimate across six areas. It is meant to start better conversations, not make the decision for you.
+                    This is a profile-comparison estimate across six areas. It is meant to start
+                    better conversations, not make the decision for you.
                   </p>
                 </div>
                 <div className="inline-flex items-center gap-3 rounded-full border border-brand-maroon/10 bg-brand-ivory px-4 py-2 text-sm font-semibold text-brand-charcoal">
@@ -1620,14 +1714,14 @@ function ProfileDetailView({
                         </div>
                       </div>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-gray-600">{row.summary}</p>
+                    {/* <p className="mt-3 text-sm leading-6 text-gray-600">{row.summary}</p> */}
                   </div>
                 ))}
               </div>
             </div>
           </ProfileSurface>
 
-          <div className="sticky top-20 z-20 hidden md:block print:hidden">
+          <div className="sticky top-4 z-20 hidden md:block print:hidden">
             <Tabs
               value={activeMobileTab}
               onValueChange={(value) => {
@@ -1698,7 +1792,10 @@ function ProfileDetailView({
               {interestGroups.length > 0 ? (
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {interestGroups.map((group) => (
-                    <div key={group.label} className="rounded-[24px] border border-brand-maroon/10 bg-white p-4">
+                    <div
+                      key={group.label}
+                      className="rounded-[24px] border border-brand-maroon/10 bg-white p-4"
+                    >
                       <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
                         {group.label}
                       </p>
@@ -1719,7 +1816,12 @@ function ProfileDetailView({
                 </div>
               ) : (
                 <div className="mt-6 flex flex-wrap gap-2">
-                  {Array.from(new Set([...(profile.about?.hobbies ?? []), ...(profile.about?.interests ?? [])]))
+                  {Array.from(
+                    new Set([
+                      ...(profile.about?.hobbies ?? []),
+                      ...(profile.about?.interests ?? []),
+                    ]),
+                  )
                     .filter(Boolean)
                     .slice(0, 10)
                     .map((item, i) => (
@@ -1736,7 +1838,10 @@ function ProfileDetailView({
                 <DetailField label="Religion" value={profile.religion?.religion} />
                 <DetailField label="Community" value={profile.religion?.community} />
                 <DetailField label="Mother tongue" value={profile.religion?.motherTongue} />
-                <DetailField label="Based in" value={profile.location?.city ?? profile.location?.state} />
+                <DetailField
+                  label="Based in"
+                  value={profile.location?.city ?? profile.location?.state}
+                />
               </div>
 
               {(profile.compatibility?.valuesPrompt ||
@@ -1748,19 +1853,33 @@ function ProfileDetailView({
                     Compatibility cues
                   </p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <DetailField label="Relationship pace" value={formatEnum(profile.compatibility?.relationshipPace)} />
-                    <DetailField label="Family involvement" value={formatEnum(profile.compatibility?.familyInvolvement)} />
-                    <DetailField label="Communication style" value={formatEnum(profile.compatibility?.communicationStyle)} />
-                    <DetailField label="Conflict approach" value={formatEnum(profile.compatibility?.conflictApproach)} />
+                    <DetailField
+                      label="Relationship pace"
+                      value={formatEnum(profile.compatibility?.relationshipPace)}
+                    />
+                    <DetailField
+                      label="Family involvement"
+                      value={formatEnum(profile.compatibility?.familyInvolvement)}
+                    />
+                    <DetailField
+                      label="Communication style"
+                      value={formatEnum(profile.compatibility?.communicationStyle)}
+                    />
+                    <DetailField
+                      label="Conflict approach"
+                      value={formatEnum(profile.compatibility?.conflictApproach)}
+                    />
                   </div>
                   {profile.compatibility?.valuesPrompt ? (
                     <p className="mt-4 text-sm leading-7 text-brand-charcoal">
-                      <span className="font-semibold">Values:</span> {profile.compatibility.valuesPrompt}
+                      <span className="font-semibold">Values:</span>{' '}
+                      {profile.compatibility.valuesPrompt}
                     </p>
                   ) : null}
                   {profile.compatibility?.relationshipVision ? (
                     <p className="mt-3 text-sm leading-7 text-brand-charcoal">
-                      <span className="font-semibold">Relationship vision:</span> {profile.compatibility.relationshipVision}
+                      <span className="font-semibold">Relationship vision:</span>{' '}
+                      {profile.compatibility.relationshipVision}
                     </p>
                   ) : null}
                 </div>
@@ -1796,11 +1915,23 @@ function ProfileDetailView({
                     <p className="text-sm font-semibold text-brand-charcoal">Lifestyle</p>
                   </div>
                   <div className="grid gap-3">
-                    <DetailField label="Diet" value={formatEnum(profile.lifestyle?.dietaryPreferences)} />
-                    <DetailField label="Smoking" value={formatEnum(profile.lifestyle?.smokingHabits)} />
-                    <DetailField label="Drinking" value={formatEnum(profile.lifestyle?.drinkingHabits)} />
+                    <DetailField
+                      label="Diet"
+                      value={formatEnum(profile.lifestyle?.dietaryPreferences)}
+                    />
+                    <DetailField
+                      label="Smoking"
+                      value={formatEnum(profile.lifestyle?.smokingHabits)}
+                    />
+                    <DetailField
+                      label="Drinking"
+                      value={formatEnum(profile.lifestyle?.drinkingHabits)}
+                    />
                     {profile.lifestyle?.religiousPractices && (
-                      <DetailField label="Religious practices" value={formatEnum(profile.lifestyle.religiousPractices)} />
+                      <DetailField
+                        label="Religious practices"
+                        value={formatEnum(profile.lifestyle.religiousPractices)}
+                      />
                     )}
                   </div>
                 </div>
@@ -1811,7 +1942,10 @@ function ProfileDetailView({
                     <p className="text-sm font-semibold text-brand-charcoal">Education & career</p>
                   </div>
                   <div className="grid gap-3">
-                    <DetailField label="Education" value={profile.education?.highestQualification} />
+                    <DetailField
+                      label="Education"
+                      value={profile.education?.highestQualification}
+                    />
                     <DetailField label="Occupation" value={profile.employment?.occupation} />
                     <DetailField label="Industry" value={profile.employment?.industry} />
                     <DetailField label="Employer" value={profile.employment?.employerName} />
@@ -1825,12 +1959,20 @@ function ProfileDetailView({
                   </div>
                   <div className="grid gap-3">
                     <DetailField label="Gender" value={formatEnum(profile.personal?.gender)} />
-                    <DetailField label="Marital status" value={formatEnum(profile.personal?.maritalStatus)} />
+                    <DetailField
+                      label="Marital status"
+                      value={formatEnum(profile.personal?.maritalStatus)}
+                    />
                     <DetailField
                       label="Height"
-                      value={profile.personal?.heightCm ? `${profile.personal.heightCm} cm` : undefined}
+                      value={
+                        profile.personal?.heightCm ? `${profile.personal.heightCm} cm` : undefined
+                      }
                     />
-                    <DetailField label="Languages" value={joinList(profile.religion?.languagesSpoken)} />
+                    <DetailField
+                      label="Languages"
+                      value={joinList(profile.religion?.languagesSpoken)}
+                    />
                   </div>
                 </div>
 
@@ -1849,23 +1991,25 @@ function ProfileDetailView({
               </div>
             </div>
           </ProfileSurface>
-
         </div>
 
         {/* ── Sidebar (desktop) ────────────────────────────────────────── */}
         <aside className="hidden lg:block">
           <div
-            className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pb-4"
+            className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto pb-4"
             style={{ scrollbarWidth: 'none' }}
           >
             <ProfileSurface className="p-0">
               <div className="rounded-[30px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] p-5 space-y-4">
-
                 {/* Self-view banner */}
                 {isSelfView && (
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Your public profile</p>
-                    <p className="mt-1.5 text-sm text-gray-500">Keep your profile complete to attract better matches.</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
+                      Your public profile
+                    </p>
+                    <p className="mt-1.5 text-sm text-gray-500">
+                      Keep your profile complete to attract better matches.
+                    </p>
                   </div>
                 )}
 
@@ -1873,9 +2017,16 @@ function ProfileDetailView({
                 <div className="flex items-center gap-3 rounded-2xl bg-[linear-gradient(135deg,#FFF0F3,#FFF9F5)] border border-brand-maroon/8 px-4 py-3">
                   <ScoreRing score={overallScore} size={48} strokeWidth={4} color="#A10E4D" />
                   <div>
-                    <p className="text-sm font-semibold text-brand-charcoal">{overallScore}% compatible</p>
+                    <p className="text-sm font-semibold text-brand-charcoal">
+                      {overallScore}% compatible
+                    </p>
                     <p className="text-xs text-gray-500">
-                      Best alignment: {compatibilityHighlights.strongest.map((row) => row.label).slice(0, 2).join(' and ')}.
+                      Best alignment:{' '}
+                      {compatibilityHighlights.strongest
+                        .map((row) => row.label)
+                        .slice(0, 2)
+                        .join(' and ')}
+                      .
                     </p>
                   </div>
                 </div>
@@ -1887,7 +2038,9 @@ function ProfileDetailView({
                       <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <Heart className="size-2.5" />
                       </span>
-                      <span className="text-xs text-brand-charcoal truncate">{profile.personal.age} yrs old</span>
+                      <span className="text-xs text-brand-charcoal truncate">
+                        {profile.personal.age} yrs old
+                      </span>
                     </div>
                   )}
                   {profile.location?.city && (
@@ -1896,7 +2049,8 @@ function ProfileDetailView({
                         <MapPin className="size-2.5" />
                       </span>
                       <span className="text-xs text-brand-charcoal truncate">
-                        {profile.location.city}{profile.location.state ? `, ${profile.location.state}` : ''}
+                        {profile.location.city}
+                        {profile.location.state ? `, ${profile.location.state}` : ''}
                       </span>
                     </div>
                   )}
@@ -1905,7 +2059,9 @@ function ProfileDetailView({
                       <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <Briefcase className="size-2.5" />
                       </span>
-                      <span className="text-xs text-brand-charcoal truncate">{profile.employment.occupation}</span>
+                      <span className="text-xs text-brand-charcoal truncate">
+                        {profile.employment.occupation}
+                      </span>
                     </div>
                   )}
                   {profile.education?.highestQualification && (
@@ -1913,7 +2069,9 @@ function ProfileDetailView({
                       <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#FFF0F3] text-brand-maroon">
                         <GraduationCap className="size-2.5" />
                       </span>
-                      <span className="text-xs text-brand-charcoal truncate">{profile.education.highestQualification}</span>
+                      <span className="text-xs text-brand-charcoal truncate">
+                        {profile.education.highestQualification}
+                      </span>
                     </div>
                   )}
                   {profile.religion?.religion && (
@@ -1922,7 +2080,8 @@ function ProfileDetailView({
                         <Star className="size-2.5" />
                       </span>
                       <span className="text-xs text-brand-charcoal truncate">
-                        {profile.religion.religion}{profile.religion.community ? ` · ${profile.religion.community}` : ''}
+                        {profile.religion.religion}
+                        {profile.religion.community ? ` · ${profile.religion.community}` : ''}
                       </span>
                     </div>
                   )}
@@ -1962,7 +2121,13 @@ function ProfileDetailView({
             <div className="flex items-center gap-3 mb-2">
               {primaryPhotoUrl ? (
                 <div className="relative size-8 overflow-hidden rounded-full border-2 border-brand-maroon/20 shrink-0">
-                  <Image src={primaryPhotoUrl} alt={fullName} fill className="object-cover" sizes="32px" />
+                  <Image
+                    src={primaryPhotoUrl}
+                    alt={fullName}
+                    fill
+                    className="object-cover"
+                    sizes="32px"
+                  />
                 </div>
               ) : (
                 <div className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-maroon text-white text-sm font-bold">
