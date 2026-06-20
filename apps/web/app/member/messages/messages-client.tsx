@@ -283,9 +283,11 @@ export default function MessagesClient() {
       return;
     }
 
+    // No transports override — let Socket.io default to polling-then-upgrade.
+    // Forcing websocket-only breaks cold-start recovery on Render free tier and
+    // skips the cross-origin handshake fallback that polling provides.
     const socket = io(apiBaseUrl, {
       auth: { token },
-      transports: ['websocket'],
     });
     socketRef.current = socket;
 
