@@ -411,7 +411,7 @@ export default function MemberShell({
         <div className="min-w-0">
           <main
             className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8"
-            // style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8.5rem)' }}
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8.5rem)' }}
           >
             <div className="overflow-hidden rounded-[32px] border border-[#A10E4D]/10 bg-white shadow-[0_18px_50px_rgba(122,31,43,0.08)]">
               <div className="border-b border-[#A10E4D]/10 bg-[linear-gradient(180deg,rgba(252,250,247,0.95)_0%,rgba(255,255,255,1)_100%)] px-4 py-4 sm:px-6 sm:py-5">

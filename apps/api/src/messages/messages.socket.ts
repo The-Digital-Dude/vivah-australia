@@ -19,6 +19,22 @@ interface SocketData {
 
 const TYPING_EVENT_THROTTLE_MS = 750;
 
+function cookieToken(cookieHeader: string | undefined, name: string): string | undefined {
+  if (!cookieHeader) {
+    return undefined;
+  }
+  for (const part of cookieHeader.split(';')) {
+    const index = part.indexOf('=');
+    if (index === -1) {
+      continue;
+    }
+    if (part.slice(0, index).trim() === name) {
+      return decodeURIComponent(part.slice(index + 1).trim());
+    }
+  }
+  return undefined;
+}
+
 export function attachMessageSocketServer(
   httpServer: HttpServer,
   options: { corsOrigins: string[]; auth: AuthConfig },
@@ -31,17 +47,28 @@ export function attachMessageSocketServer(
   >(httpServer, {
     cors: {
       origin: options.corsOrigins,
+      credentials: true,
     },
   });
 
   io.use((socket, next) => {
     void (async () => {
-      const token =
+      // Auth login flows keep the real JWT in an httpOnly `accessToken` cookie and only
+      // expose the literal sentinel 'cookie-based' to client JS, so the handshake's
+      // auth.token is unusable for those sessions. Read the cookie (sent because the
+      // client connects withCredentials) the same way requireAuth does, and fall back to
+      // a genuine bearer token only when it isn't the sentinel.
+      const bearer = socket.handshake.headers.authorization?.startsWith('Bearer ')
+        ? socket.handshake.headers.authorization.slice('Bearer '.length)
+        : undefined;
+      const handshakeToken =
         typeof socket.handshake.auth.token === 'string'
           ? socket.handshake.auth.token
-          : socket.handshake.headers.authorization?.startsWith('Bearer ')
-            ? socket.handshake.headers.authorization.slice('Bearer '.length)
-            : undefined;
+          : undefined;
+      const fallbackToken = [handshakeToken, bearer].find(
+        (value) => value && value !== 'cookie-based',
+      );
+      const token = cookieToken(socket.handshake.headers.cookie, 'accessToken') ?? fallbackToken;
 
       if (!token) {
         next(new Error('Authentication required'));

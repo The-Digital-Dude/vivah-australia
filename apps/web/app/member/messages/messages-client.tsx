@@ -144,6 +144,8 @@ export default function MessagesClient() {
   const selectedRef = useRef<Conversation | null>(null);
   const pageRef = useRef(1);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const selfTypingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTypingEmitRef = useRef(0);
   useEffect(() => {
     selectedRef.current = selected;
   }, [selected]);
@@ -162,6 +164,42 @@ export default function MessagesClient() {
     }
     setTyping(null);
   }, []);
+
+  const emitTyping = useCallback((isTyping: boolean) => {
+    const conversationId = selectedRef.current?.id;
+    if (!conversationId) {
+      return;
+    }
+    socketRef.current?.emit('typing', { conversationId, typing: isTyping });
+  }, []);
+
+  // Emit "typing" on keystrokes (throttled, since the server also throttles), then
+  // emit "stopped" after a short pause so the recipient's indicator clears on its own.
+  const handleTypingActivity = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTypingEmitRef.current > 1500) {
+      lastTypingEmitRef.current = now;
+      emitTyping(true);
+    }
+    if (selfTypingTimeoutRef.current) {
+      clearTimeout(selfTypingTimeoutRef.current);
+    }
+    selfTypingTimeoutRef.current = setTimeout(() => {
+      lastTypingEmitRef.current = 0;
+      emitTyping(false);
+    }, 2000);
+  }, [emitTyping]);
+
+  const stopTyping = useCallback(() => {
+    if (selfTypingTimeoutRef.current) {
+      clearTimeout(selfTypingTimeoutRef.current);
+      selfTypingTimeoutRef.current = null;
+    }
+    if (lastTypingEmitRef.current !== 0) {
+      lastTypingEmitRef.current = 0;
+      emitTyping(false);
+    }
+  }, [emitTyping]);
 
   const loadViewer = useCallback(async () => {
     const result = await memberRequest('/api/me/profile');
@@ -182,46 +220,49 @@ export default function MessagesClient() {
     });
   }, [memberRequest]);
 
-  const loadConversations = useCallback(async (cursor?: string | null) => {
-    const isLoadMore = Boolean(cursor);
-    if (isLoadMore) {
-      setLoadingMoreConversations(true);
-    } else {
-      setLoadingConversations(true);
-    }
-
-    const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
-    const result = await memberRequest(`/api/me/conversations${query}`);
-    if (!result.ok) {
-      setMessage(result.message);
+  const loadConversations = useCallback(
+    async (cursor?: string | null) => {
+      const isLoadMore = Boolean(cursor);
       if (isLoadMore) {
-        setLoadingMoreConversations(false);
+        setLoadingMoreConversations(true);
       } else {
-        setLoadingConversations(false);
+        setLoadingConversations(true);
       }
-      return;
-    }
 
-    const payload = result.data as { data?: Conversation[]; nextCursor?: string | null };
-    const items = payload.data ?? [];
-    setNextCursor(payload.nextCursor ?? null);
+      const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+      const result = await memberRequest(`/api/me/conversations${query}`);
+      if (!result.ok) {
+        setMessage(result.message);
+        if (isLoadMore) {
+          setLoadingMoreConversations(false);
+        } else {
+          setLoadingConversations(false);
+        }
+        return;
+      }
 
-    if (isLoadMore) {
-      setConversations((current) => {
-        const seen = new Set(current.map((item) => item.id));
-        const appended = items.filter((item) => !seen.has(item.id));
-        return [...current, ...appended];
-      });
-      setLoadingMoreConversations(false);
-      return;
-    }
+      const payload = result.data as { data?: Conversation[]; nextCursor?: string | null };
+      const items = payload.data ?? [];
+      setNextCursor(payload.nextCursor ?? null);
 
-    setConversations(items);
-    setSelected((current) =>
-      current ? items.find((item) => item.id === current.id) ?? current : items[0] ?? null,
-    );
-    setLoadingConversations(false);
-  }, [memberRequest]);
+      if (isLoadMore) {
+        setConversations((current) => {
+          const seen = new Set(current.map((item) => item.id));
+          const appended = items.filter((item) => !seen.has(item.id));
+          return [...current, ...appended];
+        });
+        setLoadingMoreConversations(false);
+        return;
+      }
+
+      setConversations(items);
+      setSelected((current) =>
+        current ? (items.find((item) => item.id === current.id) ?? current) : (items[0] ?? null),
+      );
+      setLoadingConversations(false);
+    },
+    [memberRequest],
+  );
 
   async function loadMoreConversations() {
     if (!nextCursor || loadingMoreConversations) {
@@ -230,21 +271,26 @@ export default function MessagesClient() {
     await loadConversations(nextCursor);
   }
 
-  const loadMessages = useCallback(async (conversationId: string, pageNum = 1) => {
-    const limit = 50;
-    const result = await memberRequest(`/api/me/conversations/${conversationId}/messages?limit=${limit * pageNum}`);
-    if (!result.ok) {
-      if (result.status === 403) setWriteLocked(true);
-      setMessage(result.message);
-      return;
-    }
-    setWriteLocked(false);
-    const newMessages = (result.data as { messages?: Message[] }).messages ?? [];
-    setMessages(newMessages);
-    setHasMore(newMessages.length >= limit * pageNum);
-    await memberRequest(`/api/me/conversations/${conversationId}/read`, { method: 'POST' });
-    void loadConversations();
-  }, [loadConversations, memberRequest]);
+  const loadMessages = useCallback(
+    async (conversationId: string, pageNum = 1) => {
+      const limit = 50;
+      const result = await memberRequest(
+        `/api/me/conversations/${conversationId}/messages?limit=${limit * pageNum}`,
+      );
+      if (!result.ok) {
+        if (result.status === 403) setWriteLocked(true);
+        setMessage(result.message);
+        return;
+      }
+      setWriteLocked(false);
+      const newMessages = (result.data as { messages?: Message[] }).messages ?? [];
+      setMessages(newMessages);
+      setHasMore(newMessages.length >= limit * pageNum);
+      await memberRequest(`/api/me/conversations/${conversationId}/read`, { method: 'POST' });
+      void loadConversations();
+    },
+    [loadConversations, memberRequest],
+  );
 
   async function loadMoreMessages() {
     if (!selected) return;
@@ -270,11 +316,15 @@ export default function MessagesClient() {
     setWriteLocked(Boolean(selected.isLocked));
     void loadMessages(selected.id, 1);
     if (socketRef.current) {
-      socketRef.current.emit('conversation:join', { conversationId: selected.id }, (response: { ok?: boolean; message?: string }) => {
-        if (response?.ok === false) {
-          setMessage(response.message ?? 'Unable to join this conversation.');
-        }
-      });
+      socketRef.current.emit(
+        'conversation:join',
+        { conversationId: selected.id },
+        (response: { ok?: boolean; message?: string }) => {
+          if (response?.ok === false) {
+            setMessage(response.message ?? 'Unable to join this conversation.');
+          }
+        },
+      );
     }
   }, [loadMessages, selected?.id]);
 
@@ -287,6 +337,10 @@ export default function MessagesClient() {
     // Forcing websocket-only breaks cold-start recovery on Render free tier and
     // skips the cross-origin handshake fallback that polling provides.
     const socket = io(apiBaseUrl, {
+      // `token` is the literal 'cookie-based' sentinel for cookie sessions, so the real
+      // JWT lives in the httpOnly accessToken cookie. withCredentials makes the browser
+      // send that cookie in the handshake; the API authenticates the socket from it.
+      withCredentials: true,
       auth: { token },
     });
     socketRef.current = socket;
@@ -306,7 +360,9 @@ export default function MessagesClient() {
         setMessages((current) =>
           current.some((item) => item.id === incoming.id) ? current : [...current, incoming],
         );
-        void memberRequest(`/api/me/conversations/${incoming.conversationId}/read`, { method: 'POST' });
+        void memberRequest(`/api/me/conversations/${incoming.conversationId}/read`, {
+          method: 'POST',
+        });
       }
       void loadConversations();
     });
@@ -394,8 +450,7 @@ export default function MessagesClient() {
     const form = new FormData(formEl);
     const bodyVal = form.get('body');
     const payload = {
-      body:
-        typeof bodyVal === 'string' ? bodyVal.trim() || undefined : undefined,
+      body: typeof bodyVal === 'string' ? bodyVal.trim() || undefined : undefined,
       attachments: pendingAttachments.map((attachment) => ({ attachmentId: attachment.id })),
     };
     const parsed = messageCreateSchema.safeParse(payload);
@@ -409,17 +464,18 @@ export default function MessagesClient() {
       method: 'POST',
       body: parsed.data,
     });
-    
+
     if (result.status === 403) {
       setWriteLocked(true);
       setMessage('You cannot reply to this conversation.');
       return;
     }
-    
+
     setMessage(result.message);
     if (result.ok) {
       formEl.reset();
       setPendingAttachments([]);
+      stopTyping();
       await loadMessages(selected.id, page);
       socketRef.current?.emit('message:read', { conversationId: selected.id });
     }
@@ -544,370 +600,427 @@ export default function MessagesClient() {
   }
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)_300px]">
-      <motion.aside
-        initial={{ opacity: 0, x: -16 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
-      >
-        <PremiumCard className="rounded-[30px] p-5 shadow-[0_20px_45px_rgba(122,31,43,0.06)]">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
-                Conversations
-              </p>
-              <h2 className="mt-2 font-playfair text-3xl font-semibold text-[#2F2F2F]">
-                Messages
-              </h2>
-            </div>
-            <div className="rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
-              {conversations.length} active
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-[24px] border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3">
-            <p className="text-sm font-semibold text-[#2F2F2F]">Search conversations</p>
-            <p className="mt-1 text-xs leading-5 text-[#6B7280]">
-              Accepted interests and active chats stay grouped here so you can keep serious
-              conversations moving.
-            </p>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
-              All
-            </span>
-            <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#6B7280]">
-              Safe chat
-            </span>
-            <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#6B7280]">
-              New replies
-            </span>
-          </div>
-
-          <div className="mt-5 grid gap-3">
-            {conversations.map((conversation) => {
-              const active = selected?.id === conversation.id;
-              const name = conversation.otherProfile?.firstName ?? 'Vivah member';
-              const meta = [conversation.otherProfile?.city, conversation.otherProfile?.occupation]
-                .filter(Boolean)
-                .join(' • ');
-
-              return (
-                <button
-                  key={conversation.id}
-                  type="button"
-                  onClick={() => setSelected(conversation)}
-                  className={cx(
-                    'rounded-[24px] border p-4 text-left transition',
-                    active
-                      ? 'border-[#A10E4D]/16 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFF9F5_100%)] shadow-[0_18px_38px_rgba(161,14,77,0.08)]'
-                      : 'border-[#F0D6DA] bg-white hover:border-[#A10E4D]/12 hover:bg-[#FFF9F5]',
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FFF0F3_0%,#FFDCE8_100%)] text-sm font-bold text-[#A10E4D]">
-                      {name.slice(0, 1)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className={cx("font-semibold truncate", conversation.unreadCount ? "text-[#A10E4D]" : "text-[#232323]")}>{name}</p>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
-                          <span className="text-[10px] font-medium text-[#8B8B8B]">
-                            {formatRelativeTime(conversation.lastMessageAt)}
-                          </span>
-                          {conversation.unreadCount ? (
-                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#A10E4D] text-[9px] font-bold text-white">
-                              {conversation.unreadCount}
-                            </span>
-                          ) : null}
-                        </div>
-                      </div>
-                      <p className="mt-0.5 text-xs text-[#5E6470] truncate">{conversation.lastMessagePreview || meta || 'Australia'}</p>
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-[#6B7280]">
-                        <Circle className="size-2 fill-[#1F6F4A] text-[#1F6F4A]" />
-                        Active
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-            {conversations.length === 0 ? (
-              <p className="rounded-[24px] border border-dashed border-[#D6A84F] p-5 text-sm leading-6 text-[#5E6470]">
-                Accepted interests will appear here.
-              </p>
-            ) : null}
-            {nextCursor ? (
-              <button
-                type="button"
-                onClick={() => void loadMoreConversations()}
-                disabled={loadingMoreConversations}
-                className="rounded-[24px] border border-[#F0D6DA] bg-white px-4 py-3 text-sm font-semibold text-[#A10E4D] transition hover:bg-[#FFF9F5] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loadingMoreConversations ? 'Loading more conversations…' : 'Load more conversations'}
-              </button>
-            ) : null}
-            {loadingConversations && conversations.length === 0 ? (
-              <p className="text-sm text-[#6B7280]">Loading conversations…</p>
-            ) : null}
-          </div>
-        </PremiumCard>
-      </motion.aside>
-
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-      >
-        <PremiumCard className="overflow-hidden rounded-[30px] border border-[#F0D6DA] p-0 shadow-[0_20px_50px_rgba(122,31,43,0.08)]">
-          <header className="border-b border-[#F0D6DA] bg-[linear-gradient(180deg,#FFFDFB_0%,#FFF8F1_100%)] px-5 py-5 sm:px-6">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-              <div className="min-w-0">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FFF0F3] text-lg font-semibold text-[#A10E4D]">
-                    {(selected?.otherProfile?.firstName ?? 'V').slice(0, 1)}
-                  </div>
-                  <div className="min-w-0">
-                    <h2 className="truncate text-2xl font-semibold text-[#232323]">{activeTitle}</h2>
-                    <p className="mt-1 text-sm text-[#5E6470]">{activeSubtitle || 'Safe chat'}</p>
-                  </div>
-                </div>
-
-                {selected?.otherProfile ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
-                      <MapPin className="size-3.5" />
-                      {selected.otherProfile.city ?? 'Location hidden'}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#9A6F1E]">
-                      <Briefcase className="size-3.5" />
-                      {selected.otherProfile.occupation ?? 'Occupation hidden'}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FBF6] px-3 py-1 text-xs font-semibold text-[#1F6F4A]">
-                      <ShieldCheck className="size-3.5" />
-                      Safe, member-only messaging
-                    </span>
-                  </div>
-                ) : null}
+    <div>
+      <div className="grid gap-5 2xl:grid-cols-[320px_minmax(0,1fr)]">
+        <motion.aside
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
+          <PremiumCard className="rounded-[30px] p-5 shadow-[0_20px_45px_rgba(122,31,43,0.06)]">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+                  Conversations
+                </p>
+                <h2 className="mt-2 font-playfair text-3xl font-semibold text-[#2F2F2F]">
+                  Messages
+                </h2>
               </div>
+              <div className="rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
+                {conversations.length} active
+              </div>
+            </div>
 
-              <div className="flex flex-wrap gap-2">
-                {selectedProfileId ? <ProfileActions profileId={selectedProfileId} compact /> : null}
-                {selected ? (
+            <div className="mt-5 rounded-[24px] border border-[#A10E4D]/10 bg-[#FFF9F5] px-4 py-3">
+              <p className="text-sm font-semibold text-[#2F2F2F]">Search conversations</p>
+              <p className="mt-1 text-xs leading-5 text-[#6B7280]">
+                Accepted interests and active chats stay grouped here so you can keep serious
+                conversations moving.
+              </p>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
+                All
+              </span>
+              <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#6B7280]">
+                Safe chat
+              </span>
+              <span className="rounded-full bg-[#FFF9F5] px-3 py-1 text-xs font-semibold text-[#6B7280]">
+                New replies
+              </span>
+            </div>
+
+            <div className="mt-5 grid gap-3">
+              {conversations.map((conversation) => {
+                const active = selected?.id === conversation.id;
+                const name = conversation.otherProfile?.firstName ?? 'Vivah member';
+                const meta = [
+                  conversation.otherProfile?.city,
+                  conversation.otherProfile?.occupation,
+                ]
+                  .filter(Boolean)
+                  .join(' • ');
+
+                return (
                   <button
+                    key={conversation.id}
                     type="button"
-                    onClick={() => void deleteConversation()}
-                    className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-white px-4 text-xs font-semibold text-[#7A1E3A] transition hover:bg-[#FFF8F1]"
+                    onClick={() => setSelected(conversation)}
+                    className={cx(
+                      'rounded-[24px] border p-4 text-left transition',
+                      active
+                        ? 'border-[#A10E4D]/16 bg-[linear-gradient(135deg,#FFF0F3_0%,#FFF9F5_100%)] shadow-[0_18px_38px_rgba(161,14,77,0.08)]'
+                        : 'border-[#F0D6DA] bg-white hover:border-[#A10E4D]/12 hover:bg-[#FFF9F5]',
+                    )}
                   >
-                    <Trash2 className="size-3.5" />
-                    Delete chat
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          </header>
-
-          <div
-            ref={messageListRef}
-            className="grid max-h-[620px] gap-4 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] px-5 py-5 sm:px-6"
-          >
-            {hasMore ? (
-              <div className="text-center py-2">
-                <button 
-                  onClick={() => void loadMoreMessages()}
-                  className="text-xs font-semibold text-[#A10E4D] hover:underline"
-                >
-                  Load previous messages
-                </button>
-              </div>
-            ) : null}
-
-            {messages.map((item) => {
-              const isMine = currentUserId != null && item.senderId === currentUserId;
-              const otherInitial = (selected?.otherProfile?.firstName ?? 'V').slice(0, 1);
-              const senderLabel = isMine
-                ? viewerLabel
-                : selected?.otherProfile?.firstName ?? 'Member';
-              return (
-                <div key={item.id} className={cx('flex items-end gap-2', isMine ? 'justify-end' : 'justify-start')}>
-                  {!isMine && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-xs font-bold text-[#A10E4D]">
-                      {otherInitial}
-                    </div>
-                  )}
-                  <article className={cx(
-                    'max-w-[75%] px-4 py-3 shadow-sm',
-                    isMine
-                      ? 'rounded-[20px] rounded-br-md bg-[linear-gradient(135deg,#A10E4D_0%,#7A0A3C_100%)] text-white'
-                      : 'rounded-[20px] rounded-bl-md border border-[#F0D6DA] bg-white text-[#232323]',
-                  )}>
-                    <p className={cx('text-[10px] font-semibold uppercase tracking-[0.12em]', isMine ? 'text-white/75' : 'text-[#A10E4D]')}>
-                      {senderLabel}
-                    </p>
-                    {item.body ? (
-                      <p className={cx('mt-1 text-sm leading-7', isMine ? 'text-white' : 'text-[#232323]')}>{item.body}</p>
-                    ) : null}
-
-                    {item.attachments.length > 0 ? (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {item.attachments.map((attachment, index) => (
-                          <a
-                            key={`${item.id}-${index}`}
-                            href={attachment.assetUrl}
-                            target="_blank"
-                            rel="noreferrer"
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FFF0F3_0%,#FFDCE8_100%)] text-sm font-bold text-[#A10E4D]">
+                        {name.slice(0, 1)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <p
                             className={cx(
-                              'inline-flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold',
-                              isMine ? 'bg-white/20 text-white' : 'border border-[#F0D6DA] bg-[#FFF9F5] text-[#7A1E3A]'
+                              'font-semibold truncate',
+                              conversation.unreadCount ? 'text-[#A10E4D]' : 'text-[#232323]',
                             )}
                           >
-                            {attachment.attachmentType === 'DOCUMENT' ? (
-                              <FileText className="size-3.5" />
-                            ) : (
-                              <ImageIcon className="size-3.5" />
-                            )}
-                            {attachment.fileName ?? 'Attachment'}
-                          </a>
-                        ))}
+                            {name}
+                          </p>
+                          <div className="flex flex-col items-end gap-1 shrink-0">
+                            <span className="text-[10px] font-medium text-[#8B8B8B]">
+                              {formatRelativeTime(conversation.lastMessageAt)}
+                            </span>
+                            {conversation.unreadCount ? (
+                              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#A10E4D] text-[9px] font-bold text-white">
+                                {conversation.unreadCount}
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+                        <p className="mt-0.5 text-xs text-[#5E6470] truncate">
+                          {conversation.lastMessagePreview || meta || 'Australia'}
+                        </p>
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-[#6B7280]">
+                          <Circle className="size-2 fill-[#1F6F4A] text-[#1F6F4A]" />
+                          Active
+                        </div>
                       </div>
-                    ) : null}
-
-                    <div className={cx('mt-2 flex items-center gap-3 text-[10px]', isMine ? 'justify-end text-white/60' : 'justify-between text-[#9B9AA0]')}>
-                      <span>{formatMessageTime(item.createdAt)}</span>
-                      {!isMine && (
-                        <button
-                          type="button"
-                          onClick={() => void deleteMessage(item.id)}
-                          className="font-semibold text-[#A10E4D]"
-                        >
-                          Delete
-                        </button>
-                      )}
                     </div>
-                  </article>
-                  {isMine && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF8EC] px-2 text-[10px] font-bold text-[#D4A04C]">
-                      You
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {selected && messages.length === 0 ? (
-              <div className="rounded-[26px] border border-dashed border-[#D6A84F] bg-[#FFF9F5] p-6 text-center">
-                <MessageCircleHeart className="mx-auto size-7 text-[#D4A04C]" />
-                <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">
-                  Start the conversation after your interest has been accepted.
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#6B7280]">
-                  Use warm, respectful first messages and let the conversation unfold naturally.
-                </p>
-              </div>
-            ) : null}
-          </div>
-
-          {selected ? (
-            <div className="border-t border-[#F0D6DA] bg-white px-5 py-4 sm:px-6">
-              {typing ? (
-                <p className="mb-2 flex items-center gap-2 text-xs text-[#6B7280]">
-                  <span className="flex gap-0.5">
-                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]" style={{ animationDelay: '0ms' }} />
-                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]" style={{ animationDelay: '150ms' }} />
-                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]" style={{ animationDelay: '300ms' }} />
-                  </span>
-                  {typing}
-                </p>
-              ) : null}
-
-              {pendingAttachments.length > 0 ? (
-                <div className="mb-3 flex flex-wrap gap-2">
-                  {pendingAttachments.map((attachment) => (
-                    <div
-                      key={attachment.id}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-[#FFF8F1] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
-                    >
-                      {attachment.attachmentType === 'DOCUMENT' ? (
-                        <FileText className="size-3.5" />
-                      ) : (
-                        <ImageIcon className="size-3.5" />
-                      )}
-                      {attachment.fileName}
-                      <button type="button" onClick={() => removePendingAttachment(attachment.id)} className="ml-1 text-[#A10E4D] hover:opacity-70">✕</button>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-
-              {writeLocked ? (
-                <div className="flex items-center justify-center rounded-[20px] border border-[#E8D5D8] bg-[#FFF0F3] px-4 py-4 text-sm font-semibold text-[#A10E4D]">
-                  <ShieldCheck className="mr-2 size-4" />
-                  Messaging is currently unavailable for this conversation.
-                </div>
-              ) : (
-                <form className="flex items-end gap-3" onSubmit={(event) => void sendMessage(event)}>
-                <div className="flex-1">
-                  <textarea
-                    name="body"
-                    rows={2}
-                    onFocus={() =>
-                      socketRef.current?.emit('typing', { conversationId: selected.id, typing: true })
-                    }
-                    onBlur={() => {
-                      clearTypingIndicator();
-                      socketRef.current?.emit('typing', { conversationId: selected.id, typing: false });
-                    }}
-                    placeholder="Write a thoughtful, respectful message…"
-                    className="w-full resize-none rounded-[20px] border border-[#E8D5D8] bg-[#FFF9F5] px-4 py-3 text-sm outline-none transition focus:border-[#A10E4D] focus:bg-white focus:ring-4 focus:ring-[#FFF0F3]"
-                  />
-                </div>
-                <div className="flex shrink-0 flex-col gap-2">
-                  <button
-                    type="submit"
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A10E4D] text-white shadow-[0_8px_20px_rgba(161,14,77,0.25)] transition hover:bg-[#890B40] active:scale-95"
-                  >
-                    <Send className="size-4" />
                   </button>
-                  <label className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[#F0D6DA] bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3]">
-                    <Paperclip className="size-4" />
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      className="sr-only"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) void uploadAttachment(file);
-                        e.target.value = '';
-                      }}
-                    />
-                  </label>
-                </div>
-              </form>
-              )}
-
-              {uploadingAttachment ? (
-                <p className="mt-2 flex items-center gap-2 text-xs text-[#6B7280]">
-                  <Loader2 className="size-3 animate-spin" />
-                  Uploading securely…
+                );
+              })}
+              {conversations.length === 0 ? (
+                <p className="rounded-[24px] border border-dashed border-[#D6A84F] p-5 text-sm leading-6 text-[#5E6470]">
+                  Accepted interests will appear here.
                 </p>
+              ) : null}
+              {nextCursor ? (
+                <button
+                  type="button"
+                  onClick={() => void loadMoreConversations()}
+                  disabled={loadingMoreConversations}
+                  className="rounded-[24px] border border-[#F0D6DA] bg-white px-4 py-3 text-sm font-semibold text-[#A10E4D] transition hover:bg-[#FFF9F5] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loadingMoreConversations
+                    ? 'Loading more conversations…'
+                    : 'Load more conversations'}
+                </button>
+              ) : null}
+              {loadingConversations && conversations.length === 0 ? (
+                <p className="text-sm text-[#6B7280]">Loading conversations…</p>
               ) : null}
             </div>
-          ) : null}
+          </PremiumCard>
+        </motion.aside>
 
-          {message ? (
-            <p className="border-t border-[#F0D6DA] bg-[#FFF9F5] px-5 py-3 text-sm text-[#7A1E3A] sm:px-6">
-              {message}
-            </p>
-          ) : null}
-        </PremiumCard>
-      </motion.section>
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
+        >
+          <PremiumCard className="overflow-hidden rounded-[30px] border border-[#F0D6DA] p-0 shadow-[0_20px_50px_rgba(122,31,43,0.08)]">
+            <header className="border-b border-[#F0D6DA] bg-[linear-gradient(180deg,#FFFDFB_0%,#FFF8F1_100%)] px-5 py-5 sm:px-6">
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FFF0F3] text-lg font-semibold text-[#A10E4D]">
+                      {(selected?.otherProfile?.firstName ?? 'V').slice(0, 1)}
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="truncate text-2xl font-semibold text-[#232323]">
+                        {activeTitle}
+                      </h2>
+                      <p className="mt-1 text-sm text-[#5E6470]">{activeSubtitle || 'Safe chat'}</p>
+                    </div>
+                  </div>
+
+                  {selected?.otherProfile ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0F3] px-3 py-1 text-xs font-semibold text-[#A10E4D]">
+                        <MapPin className="size-3.5" />
+                        {selected.otherProfile.city ?? 'Location hidden'}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF8EC] px-3 py-1 text-xs font-semibold text-[#9A6F1E]">
+                        <Briefcase className="size-3.5" />
+                        {selected.otherProfile.occupation ?? 'Occupation hidden'}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FBF6] px-3 py-1 text-xs font-semibold text-[#1F6F4A]">
+                        <ShieldCheck className="size-3.5" />
+                        Safe, member-only messaging
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {selectedProfileId ? (
+                    <ProfileActions profileId={selectedProfileId} compact />
+                  ) : null}
+                  {selected ? (
+                    <button
+                      type="button"
+                      onClick={() => void deleteConversation()}
+                      className="inline-flex min-h-10 items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-white px-4 text-xs font-semibold text-[#7A1E3A] transition hover:bg-[#FFF8F1]"
+                    >
+                      <Trash2 className="size-3.5" />
+                      Delete chat
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            </header>
+
+            <div
+              ref={messageListRef}
+              className="grid max-h-[620px] gap-4 overflow-y-auto bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF9F5_100%)] px-5 py-5 sm:px-6"
+            >
+              {hasMore ? (
+                <div className="text-center py-2">
+                  <button
+                    onClick={() => void loadMoreMessages()}
+                    className="text-xs font-semibold text-[#A10E4D] hover:underline"
+                  >
+                    Load previous messages
+                  </button>
+                </div>
+              ) : null}
+
+              {messages.map((item) => {
+                const isMine = currentUserId != null && item.senderId === currentUserId;
+                const otherInitial = (selected?.otherProfile?.firstName ?? 'V').slice(0, 1);
+                const senderLabel = isMine
+                  ? viewerLabel
+                  : (selected?.otherProfile?.firstName ?? 'Member');
+                return (
+                  <div
+                    key={item.id}
+                    className={cx('flex items-end gap-2', isMine ? 'justify-end' : 'justify-start')}
+                  >
+                    {!isMine && (
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-xs font-bold text-[#A10E4D]">
+                        {otherInitial}
+                      </div>
+                    )}
+                    <article
+                      className={cx(
+                        'max-w-[75%] px-4 py-3 shadow-sm',
+                        isMine
+                          ? 'rounded-[20px] rounded-br-md bg-[linear-gradient(135deg,#A10E4D_0%,#7A0A3C_100%)] text-white'
+                          : 'rounded-[20px] rounded-bl-md border border-[#F0D6DA] bg-white text-[#232323]',
+                      )}
+                    >
+                      <p
+                        className={cx(
+                          'text-[10px] font-semibold uppercase tracking-[0.12em]',
+                          isMine ? 'text-white/75' : 'text-[#A10E4D]',
+                        )}
+                      >
+                        {senderLabel}
+                      </p>
+                      {item.body ? (
+                        <p
+                          className={cx(
+                            'mt-1 text-sm leading-7',
+                            isMine ? 'text-white' : 'text-[#232323]',
+                          )}
+                        >
+                          {item.body}
+                        </p>
+                      ) : null}
+
+                      {item.attachments.length > 0 ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {item.attachments.map((attachment, index) => (
+                            <a
+                              key={`${item.id}-${index}`}
+                              href={attachment.assetUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={cx(
+                                'inline-flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold',
+                                isMine
+                                  ? 'bg-white/20 text-white'
+                                  : 'border border-[#F0D6DA] bg-[#FFF9F5] text-[#7A1E3A]',
+                              )}
+                            >
+                              {attachment.attachmentType === 'DOCUMENT' ? (
+                                <FileText className="size-3.5" />
+                              ) : (
+                                <ImageIcon className="size-3.5" />
+                              )}
+                              {attachment.fileName ?? 'Attachment'}
+                            </a>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      <div
+                        className={cx(
+                          'mt-2 flex items-center gap-3 text-[10px]',
+                          isMine ? 'justify-end text-white/60' : 'justify-between text-[#9B9AA0]',
+                        )}
+                      >
+                        <span>{formatMessageTime(item.createdAt)}</span>
+                        {!isMine && (
+                          <button
+                            type="button"
+                            onClick={() => void deleteMessage(item.id)}
+                            className="font-semibold text-[#A10E4D]"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                    {isMine && (
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF8EC] px-2 text-[10px] font-bold text-[#D4A04C]">
+                        You
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {selected && messages.length === 0 ? (
+                <div className="rounded-[26px] border border-dashed border-[#D6A84F] bg-[#FFF9F5] p-6 text-center">
+                  <MessageCircleHeart className="mx-auto size-7 text-[#D4A04C]" />
+                  <p className="mt-3 text-sm font-semibold text-[#2F2F2F]">
+                    Start the conversation after your interest has been accepted.
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+                    Use warm, respectful first messages and let the conversation unfold naturally.
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            {selected ? (
+              <div className="border-t border-[#F0D6DA] bg-white px-5 py-4 sm:px-6">
+                {typing ? (
+                  <p className="mb-2 flex items-center gap-2 text-xs text-[#6B7280]">
+                    <span className="flex gap-0.5">
+                      <span
+                        className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]"
+                        style={{ animationDelay: '0ms' }}
+                      />
+                      <span
+                        className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]"
+                        style={{ animationDelay: '150ms' }}
+                      />
+                      <span
+                        className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#A10E4D]"
+                        style={{ animationDelay: '300ms' }}
+                      />
+                    </span>
+                    {typing}
+                  </p>
+                ) : null}
+
+                {pendingAttachments.length > 0 ? (
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {pendingAttachments.map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-[#F0D6DA] bg-[#FFF8F1] px-3 py-2 text-xs font-semibold text-[#7A1E3A]"
+                      >
+                        {attachment.attachmentType === 'DOCUMENT' ? (
+                          <FileText className="size-3.5" />
+                        ) : (
+                          <ImageIcon className="size-3.5" />
+                        )}
+                        {attachment.fileName}
+                        <button
+                          type="button"
+                          onClick={() => removePendingAttachment(attachment.id)}
+                          className="ml-1 text-[#A10E4D] hover:opacity-70"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                {writeLocked ? (
+                  <div className="flex items-center justify-center rounded-[20px] border border-[#E8D5D8] bg-[#FFF0F3] px-4 py-4 text-sm font-semibold text-[#A10E4D]">
+                    <ShieldCheck className="mr-2 size-4" />
+                    Messaging is currently unavailable for this conversation.
+                  </div>
+                ) : (
+                  <form
+                    className="flex items-end gap-3"
+                    onSubmit={(event) => void sendMessage(event)}
+                  >
+                    <div className="flex-1">
+                      <textarea
+                        name="body"
+                        rows={2}
+                        onChange={handleTypingActivity}
+                        onBlur={stopTyping}
+                        placeholder="Write a thoughtful, respectful message…"
+                        className="w-full resize-none rounded-[20px] border border-[#E8D5D8] bg-[#FFF9F5] px-4 py-3 text-sm outline-none transition focus:border-[#A10E4D] focus:bg-white focus:ring-4 focus:ring-[#FFF0F3]"
+                      />
+                    </div>
+                    <div className="flex shrink-0 flex-col gap-2">
+                      <button
+                        type="submit"
+                        className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A10E4D] text-white shadow-[0_8px_20px_rgba(161,14,77,0.25)] transition hover:bg-[#890B40] active:scale-95"
+                      >
+                        <Send className="size-4" />
+                      </button>
+                      <label className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[#F0D6DA] bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3]">
+                        <Paperclip className="size-4" />
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                          className="sr-only"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) void uploadAttachment(file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </form>
+                )}
+
+                {uploadingAttachment ? (
+                  <p className="mt-2 flex items-center gap-2 text-xs text-[#6B7280]">
+                    <Loader2 className="size-3 animate-spin" />
+                    Uploading securely…
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {message ? (
+              <p className="border-t border-[#F0D6DA] bg-[#FFF9F5] px-5 py-3 text-sm text-[#7A1E3A] sm:px-6">
+                {message}
+              </p>
+            ) : null}
+          </PremiumCard>
+        </motion.section>
+      </div>
 
       <motion.aside
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut', delay: 0.08 }}
-        className="grid gap-4"
+        className="mt-5 grid gap-4 lg:grid-cols-3"
       >
         <PremiumCard className="rounded-[30px] p-5">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
