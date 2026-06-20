@@ -8,7 +8,7 @@ import {
 } from '@vivah/shared';
 import { Types, type ClientSession, type HydratedDocument } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
-import { recordRepeatedReports, syncReportedUserRiskCounter } from '../common/fraud.service.js';
+import { recordRepeatedReports, safeFraudWrite, syncReportedUserRiskCounter } from '../common/fraud.service.js';
 import { runInTransaction } from '../common/mongo-transactions.js';
 import { pairKeyForUsers } from '../common/pair-key.js';
 import { disconnectMessageSocketsForPair } from '../messages/messages.realtime.js';
@@ -1070,7 +1070,8 @@ export async function createReport(
   const report = new ReportModel(reportPayload);
   await report.save();
   if (resolved.reportedUserId) {
-    await syncReportedUserRiskCounter(resolved.reportedUserId);
+    const reportedUserId = resolved.reportedUserId;
+    void safeFraudWrite('REPORTED_USER_RISK_SCORE', () => syncReportedUserRiskCounter(reportedUserId));
   }
 
   await notify(userId, 'REPORT_SUBMITTED', 'Report submitted', 'Our safety team will review it.');
@@ -1082,7 +1083,7 @@ export async function createReport(
   });
 
   if (reportCount >= 5) {
-    await recordRepeatedReports({
+    void recordRepeatedReports({
       reporterId: userId,
       reportCount,
       targetId: String(resolved.targetId),
@@ -1183,7 +1184,8 @@ export async function reviewReport(
 
   await report.save();
   if (report.reportedUserId) {
-    await syncReportedUserRiskCounter(report.reportedUserId);
+    const reportedUserId = report.reportedUserId;
+    void safeFraudWrite('REPORTED_USER_RISK_SCORE', () => syncReportedUserRiskCounter(reportedUserId));
   }
   return report;
 }

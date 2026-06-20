@@ -523,7 +523,7 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
       isDeleted: false,
     });
     if (recentViewCount >= 20) {
-      await recordHighVelocityProfileViews(viewerId, recentViewCount);
+      void recordHighVelocityProfileViews(viewerId, recentViewCount);
     }
   }
 

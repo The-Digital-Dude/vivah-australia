@@ -433,7 +433,7 @@ export async function sendMessage(
   });
 
   if (sentThisHour >= HOURLY_MESSAGE_LIMIT) {
-    await recordUnusualMessageVolume(userId, sentThisHour);
+    void recordUnusualMessageVolume(userId, sentThisHour);
     throw new HttpError(429, 'Rate limit exceeded. Please try again later.');
   }
 

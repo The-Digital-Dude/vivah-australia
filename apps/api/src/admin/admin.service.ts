@@ -22,7 +22,13 @@ import {
 import { Types } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { logActivity, logAudit } from '../common/audit.service.js';
-import { fraudRuleLabel, listFraudEvents, reviewFraudEvent } from '../common/fraud.service.js';
+import {
+  fraudRuleLabel,
+  fraudRuleOptions,
+  getFraudEventStatusCounts,
+  listFraudEvents,
+  reviewFraudEvent,
+} from '../common/fraud.service.js';
 import { escapeRegex } from '../common/regex.js';
 import { disconnectMessageSocketsForUser } from '../messages/messages.realtime.js';
 import { createNotification } from '../notifications/notifications.service.js';
@@ -599,8 +605,10 @@ export async function getAnalyticsCsv(input: DateRangeInput = {}) {
   ].join('\n');
 }
 
-export async function getFraudEvents() {
-  const events = await listFraudEvents();
+const FRAUD_SEVERITY_RANK: Record<string, number> = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+
+export async function getFraudEvents(filter?: { status?: string; rule?: string }) {
+  const [events, counts] = await Promise.all([listFraudEvents(filter), getFraudEventStatusCounts()]);
   const userIds = events
     .map((event) => event.userId)
     .filter((userId): userId is Types.ObjectId => Boolean(userId));
@@ -611,27 +619,35 @@ export async function getFraudEvents() {
   const userById = new Map(users.map((user) => [String(user._id), user]));
   const profileByUserId = new Map(profiles.map((profile) => [String(profile.userId), profile]));
 
-  return {
-    events: events.map((event) => {
-      const eventUserId = event.userId ? String(event.userId) : null;
-      const user = eventUserId ? userById.get(eventUserId) ?? null : null;
-      const profile = eventUserId ? profileByUserId.get(eventUserId) ?? null : null;
-      const metadata =
-        typeof event.metadata === 'object' && event.metadata ? (event.metadata as Record<string, unknown>) : {};
+  const mapped = events.map((event) => {
+    const eventUserId = event.userId ? String(event.userId) : null;
+    const user = eventUserId ? userById.get(eventUserId) ?? null : null;
+    const profile = eventUserId ? profileByUserId.get(eventUserId) ?? null : null;
+    const metadata =
+      typeof event.metadata === 'object' && event.metadata ? (event.metadata as Record<string, unknown>) : {};
 
-      return {
-        ...event,
-        ruleLabel: fraudRuleLabel(event.rule),
-        affectedMember: user
-          ? {
-              ...publicUser(user),
-              profile: profileCardSummary(profile),
-            }
-          : null,
-        evidence: metadata,
-      };
-    }),
-  };
+    return {
+      ...event,
+      ruleLabel: fraudRuleLabel(event.rule),
+      affectedMember: user
+        ? {
+            ...publicUser(user),
+            profile: profileCardSummary(profile),
+          }
+        : null,
+      evidence: metadata,
+    };
+  });
+
+  // Prioritise the most dangerous signals first: severity, then score, then recency.
+  mapped.sort(
+    (left, right) =>
+      (FRAUD_SEVERITY_RANK[right.severity] ?? 0) - (FRAUD_SEVERITY_RANK[left.severity] ?? 0) ||
+      right.score - left.score ||
+      new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+  );
+
+  return { events: mapped, counts, rules: fraudRuleOptions() };
 }
 
 export async function updateFraudEventStatus(

@@ -251,8 +251,13 @@ export function createAdminRouter(config: AuthConfig): Router {
     '/admin/fraud/events',
     requireAuth(config),
     requirePermission(AdminPermission.FRAUD_MANAGE),
-    asyncHandler(async (_request, response) => {
-      response.status(200).json(await getFraudEvents());
+    asyncHandler(async (request, response) => {
+      const rawStatus = typeof request.query.status === 'string' ? request.query.status : '';
+      const rawRule = typeof request.query.rule === 'string' ? request.query.rule : '';
+      const filter: { status?: string; rule?: string } = {};
+      if (['OPEN', 'REVIEWED', 'DISMISSED'].includes(rawStatus)) filter.status = rawStatus;
+      if (rawRule) filter.rule = rawRule;
+      response.status(200).json(await getFraudEvents(filter));
     }),
   );
 

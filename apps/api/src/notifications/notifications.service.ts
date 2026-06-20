@@ -257,7 +257,7 @@ export async function verifyMobileOtp(userId: Types.ObjectId, mobile: string, co
   if (otp.attempts > 5 || otp.codeHash !== hashOtp(code)) {
     await otp.save();
     if (otp.attempts >= 3) {
-      await recordRepeatedOtpFailures({ userId, mobile, attempts: otp.attempts });
+      void recordRepeatedOtpFailures({ userId, mobile, attempts: otp.attempts });
     }
     throw new HttpError(400, 'Invalid or expired OTP');
   }

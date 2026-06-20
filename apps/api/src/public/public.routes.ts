@@ -471,7 +471,7 @@ export function createPublicRouter(authConfig: AuthConfig): Router {
       });
 
       if (recentDuplicateCount >= 3) {
-        await recordDuplicateContactAttempts({
+        void recordDuplicateContactAttempts({
           email: input.email.toLowerCase(),
           ...(input.phone ? { phone: input.phone } : {}),
           count: recentDuplicateCount,

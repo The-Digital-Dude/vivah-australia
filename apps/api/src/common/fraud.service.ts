@@ -1,6 +1,7 @@
 import type { Types } from 'mongoose';
 import { ReportStatus } from '@vivah/shared';
 import { ReportModel, FraudEventModel } from '../models/index.js';
+import { logger } from './logger.js';
 
 type FraudSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
@@ -57,8 +58,36 @@ export async function recordFraudEvent(input: {
   });
 }
 
-export async function listFraudEvents() {
-  return FraudEventModel.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(100).lean();
+export async function listFraudEvents(filter?: { status?: string; rule?: string }) {
+  const query: Record<string, unknown> = { isDeleted: false };
+  if (filter?.status) query.status = filter.status;
+  if (filter?.rule) query.rule = filter.rule;
+  return FraudEventModel.find(query).sort({ createdAt: -1 }).limit(100).lean();
+}
+
+export async function getFraudEventStatusCounts() {
+  const rows = await FraudEventModel.aggregate<{ _id: string; count: number }>([
+    { $match: { isDeleted: false } },
+    { $group: { _id: '$status', count: { $sum: 1 } } },
+  ]);
+  const counts = { OPEN: 0, REVIEWED: 0, DISMISSED: 0 };
+  for (const row of rows) {
+    if (row._id in counts) counts[row._id as keyof typeof counts] = row.count;
+  }
+  return counts;
+}
+
+/**
+ * Runs a fraud bookkeeping write without ever throwing into — or blocking — the
+ * caller's request path. Errors are logged and swallowed so detection problems
+ * can never fail a member-facing action (profile view, message send, etc.).
+ */
+export async function safeFraudWrite(rule: string, fn: () => Promise<unknown>): Promise<void> {
+  try {
+    await fn();
+  } catch (err) {
+    logger.error({ err, rule }, 'Failed to record fraud event');
+  }
 }
 
 export async function reviewFraudEvent(
@@ -81,37 +110,43 @@ export async function reviewFraudEvent(
 }
 
 export async function recordHighVelocityProfileViews(userId: Types.ObjectId, viewCount: number) {
-  const oneHourAgo = new Date(Date.now() - FRAUD_RULES.HIGH_VELOCITY_PROFILE_VIEWS.dedupeWindowMs);
-  const existing = await FraudEventModel.countDocuments({
-    userId,
-    rule: 'HIGH_VELOCITY_PROFILE_VIEWS',
-    createdAt: { $gte: oneHourAgo },
-    isDeleted: false,
-  });
-
-  if (existing === 0) {
-    await recordFraudEvent({
+  await safeFraudWrite('HIGH_VELOCITY_PROFILE_VIEWS', () =>
+    recordDedupedFraudEvent({
       userId,
       rule: 'HIGH_VELOCITY_PROFILE_VIEWS',
       severity: FRAUD_RULES.HIGH_VELOCITY_PROFILE_VIEWS.severityFor(viewCount),
       score: FRAUD_RULES.HIGH_VELOCITY_PROFILE_VIEWS.scoreFor(viewCount),
       metadata: { window: '1h', viewCount },
-    });
-  }
+    }),
+  );
 }
 
+/**
+ * Records a velocity-style signal with a per-window dedupe. Within the window we
+ * keep a single event, but if the behaviour worsens (a higher score) we escalate
+ * the still-open event in place instead of dropping the new signal. A signal that
+ * has already been triaged (reviewed/dismissed) is never silently re-opened.
+ */
 async function recordDedupedFraudEvent(input: Parameters<typeof recordFraudEvent>[0]) {
   const dedupeWindowMs = FRAUD_RULES[input.rule as keyof typeof FRAUD_RULES]?.dedupeWindowMs ?? 60 * 60 * 1000;
-  const oneHourAgo = new Date(Date.now() - dedupeWindowMs);
-  const existing = await FraudEventModel.countDocuments({
+  const windowStart = new Date(Date.now() - dedupeWindowMs);
+  const existing = await FraudEventModel.findOne({
     ...(input.userId ? { userId: input.userId } : {}),
     rule: input.rule,
-    createdAt: { $gte: oneHourAgo },
+    createdAt: { $gte: windowStart },
     isDeleted: false,
-  });
+  }).sort({ createdAt: -1 });
 
-  if (existing === 0) {
+  if (!existing) {
     await recordFraudEvent(input);
+    return;
+  }
+
+  if (existing.status === 'OPEN' && input.score > existing.score) {
+    existing.score = input.score;
+    existing.severity = input.severity;
+    if (input.metadata) existing.metadata = input.metadata;
+    await existing.save();
   }
 }
 
@@ -120,13 +155,15 @@ export async function recordRepeatedReports(input: {
   reportCount: number;
   targetId?: string;
 }) {
-  await recordDedupedFraudEvent({
-    userId: input.reporterId,
-    rule: 'REPEATED_REPORT_SUBMISSIONS',
-    severity: FRAUD_RULES.REPEATED_REPORT_SUBMISSIONS.severityFor(input.reportCount),
-    score: FRAUD_RULES.REPEATED_REPORT_SUBMISSIONS.scoreFor(input.reportCount),
-    metadata: { window: '24h', reportCount: input.reportCount, targetId: input.targetId },
-  });
+  await safeFraudWrite('REPEATED_REPORT_SUBMISSIONS', () =>
+    recordDedupedFraudEvent({
+      userId: input.reporterId,
+      rule: 'REPEATED_REPORT_SUBMISSIONS',
+      severity: FRAUD_RULES.REPEATED_REPORT_SUBMISSIONS.severityFor(input.reportCount),
+      score: FRAUD_RULES.REPEATED_REPORT_SUBMISSIONS.scoreFor(input.reportCount),
+      metadata: { window: '24h', reportCount: input.reportCount, targetId: input.targetId },
+    }),
+  );
 }
 
 export async function recordDuplicateContactAttempts(input: {
@@ -134,22 +171,26 @@ export async function recordDuplicateContactAttempts(input: {
   phone?: string;
   count: number;
 }) {
-  await recordDedupedFraudEvent({
-    rule: 'DUPLICATE_CONTACT_ATTEMPTS',
-    severity: FRAUD_RULES.DUPLICATE_CONTACT_ATTEMPTS.severityFor(input.count),
-    score: FRAUD_RULES.DUPLICATE_CONTACT_ATTEMPTS.scoreFor(input.count),
-    metadata: { window: '24h', email: input.email, phone: input.phone, count: input.count },
-  });
+  await safeFraudWrite('DUPLICATE_CONTACT_ATTEMPTS', () =>
+    recordDedupedFraudEvent({
+      rule: 'DUPLICATE_CONTACT_ATTEMPTS',
+      severity: FRAUD_RULES.DUPLICATE_CONTACT_ATTEMPTS.severityFor(input.count),
+      score: FRAUD_RULES.DUPLICATE_CONTACT_ATTEMPTS.scoreFor(input.count),
+      metadata: { window: '24h', email: input.email, phone: input.phone, count: input.count },
+    }),
+  );
 }
 
 export async function recordUnusualMessageVolume(userId: Types.ObjectId, messageCount: number) {
-  await recordDedupedFraudEvent({
-    userId,
-    rule: 'UNUSUAL_MESSAGE_VOLUME',
-    severity: FRAUD_RULES.UNUSUAL_MESSAGE_VOLUME.severityFor(messageCount),
-    score: FRAUD_RULES.UNUSUAL_MESSAGE_VOLUME.scoreFor(messageCount),
-    metadata: { window: '1h', messageCount },
-  });
+  await safeFraudWrite('UNUSUAL_MESSAGE_VOLUME', () =>
+    recordDedupedFraudEvent({
+      userId,
+      rule: 'UNUSUAL_MESSAGE_VOLUME',
+      severity: FRAUD_RULES.UNUSUAL_MESSAGE_VOLUME.severityFor(messageCount),
+      score: FRAUD_RULES.UNUSUAL_MESSAGE_VOLUME.scoreFor(messageCount),
+      metadata: { window: '1h', messageCount },
+    }),
+  );
 }
 
 export async function recordRepeatedOtpFailures(input: {
@@ -157,17 +198,23 @@ export async function recordRepeatedOtpFailures(input: {
   mobile: string;
   attempts: number;
 }) {
-  await recordDedupedFraudEvent({
-    userId: input.userId,
-    rule: 'REPEATED_OTP_FAILURES',
-    severity: FRAUD_RULES.REPEATED_OTP_FAILURES.severityFor(input.attempts),
-    score: FRAUD_RULES.REPEATED_OTP_FAILURES.scoreFor(input.attempts),
-    metadata: { mobile: input.mobile, attempts: input.attempts },
-  });
+  await safeFraudWrite('REPEATED_OTP_FAILURES', () =>
+    recordDedupedFraudEvent({
+      userId: input.userId,
+      rule: 'REPEATED_OTP_FAILURES',
+      severity: FRAUD_RULES.REPEATED_OTP_FAILURES.severityFor(input.attempts),
+      score: FRAUD_RULES.REPEATED_OTP_FAILURES.scoreFor(input.attempts),
+      metadata: { mobile: input.mobile, attempts: input.attempts },
+    }),
+  );
 }
 
 export function fraudRuleLabel(rule: string) {
   return FRAUD_RULES[rule as keyof typeof FRAUD_RULES]?.label ?? rule;
+}
+
+export function fraudRuleOptions() {
+  return Object.entries(FRAUD_RULES).map(([rule, def]) => ({ rule, label: def.label }));
 }
 
 const reportedUserRiskStatuses = [ReportStatus.OPEN, ReportStatus.ASSIGNED] as const;

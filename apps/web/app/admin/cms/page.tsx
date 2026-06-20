@@ -16,7 +16,15 @@ import AdminShell from '../admin-shell';
 import { formString, optionalString, useMemberRequest, validationMessage } from '@/lib/member-api';
 import { AlertCircle, FileEdit, Trash2, ShieldAlert, Eye } from 'lucide-react';
 
-type SectionKey = 'home' | 'sections' | 'pages' | 'blogs' | 'stories' | 'testimonials' | 'banners' | 'faqs';
+type SectionKey =
+  | 'home'
+  | 'sections'
+  | 'pages'
+  | 'blogs'
+  | 'stories'
+  | 'testimonials'
+  | 'banners'
+  | 'faqs';
 
 interface CmsSection {
   _id: string;
@@ -174,14 +182,14 @@ const emptyHome: HomeContent = {
 };
 
 const sections: Array<{ key: SectionKey; label: string }> = [
-  { key: 'home', label: 'Homepage' },
-  { key: 'sections', label: 'Dynamic Sections' },
-  { key: 'pages', label: 'Pages' },
+  // { key: 'home', label: 'Homepage' },
+  // { key: 'sections', label: 'Dynamic Sections' },
+  // { key: 'pages', label: 'Pages' },
   { key: 'blogs', label: 'Blogs' },
-  { key: 'stories', label: 'Success stories' },
-  { key: 'testimonials', label: 'Testimonials' },
-  { key: 'banners', label: 'Banners' },
-  { key: 'faqs', label: 'FAQs' },
+  // { key: 'stories', label: 'Success stories' },
+  // { key: 'testimonials', label: 'Testimonials' },
+  // { key: 'banners', label: 'Banners' },
+  // { key: 'faqs', label: 'FAQs' },
 ];
 
 export default function AdminCmsPage() {
@@ -206,17 +214,25 @@ export default function AdminCmsPage() {
   } | null>(null);
 
   async function loadAll() {
-    const [homeResult, pageResult, blogResult, storyResult, testimonialResult, bannerResult, sectionResult, faqResult] =
-      await Promise.all([
-        memberRequest('/api/admin/cms/home'),
-        memberRequest('/api/admin/cms/pages'),
-        memberRequest('/api/admin/cms/blogs'),
-        memberRequest('/api/admin/cms/success-stories'),
-        memberRequest('/api/admin/cms/testimonials'),
-        memberRequest('/api/admin/cms/banners'),
-        memberRequest('/api/admin/cms/sections'),
-        memberRequest('/api/admin/cms/faqs'),
-      ]);
+    const [
+      homeResult,
+      pageResult,
+      blogResult,
+      storyResult,
+      testimonialResult,
+      bannerResult,
+      sectionResult,
+      faqResult,
+    ] = await Promise.all([
+      memberRequest('/api/admin/cms/home'),
+      memberRequest('/api/admin/cms/pages'),
+      memberRequest('/api/admin/cms/blogs'),
+      memberRequest('/api/admin/cms/success-stories'),
+      memberRequest('/api/admin/cms/testimonials'),
+      memberRequest('/api/admin/cms/banners'),
+      memberRequest('/api/admin/cms/sections'),
+      memberRequest('/api/admin/cms/faqs'),
+    ]);
 
     if (homeResult.ok) {
       setHome((homeResult.data as { content?: HomeContent }).content ?? emptyHome);
@@ -331,7 +347,9 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
-            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/pages', id, label })}
+            onDeleteTrigger={(id, label) =>
+              setDeleteTarget({ path: '/api/admin/cms/pages', id, label })
+            }
           />
         )}
 
@@ -348,7 +366,9 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
-            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/blogs', id, label })}
+            onDeleteTrigger={(id, label) =>
+              setDeleteTarget({ path: '/api/admin/cms/blogs', id, label })
+            }
           />
         )}
 
@@ -366,7 +386,9 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
-            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/success-stories', id, label })}
+            onDeleteTrigger={(id, label) =>
+              setDeleteTarget({ path: '/api/admin/cms/success-stories', id, label })
+            }
           />
         )}
 
@@ -378,7 +400,9 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
-            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/testimonials', id, label })}
+            onDeleteTrigger={(id, label) =>
+              setDeleteTarget({ path: '/api/admin/cms/testimonials', id, label })
+            }
           />
         )}
 
@@ -390,7 +414,9 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
-            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/banners', id, label })}
+            onDeleteTrigger={(id, label) =>
+              setDeleteTarget({ path: '/api/admin/cms/banners', id, label })
+            }
           />
         )}
 
@@ -402,7 +428,9 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
-            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/sections', id, label })}
+            onDeleteTrigger={(id, label) =>
+              setDeleteTarget({ path: '/api/admin/cms/sections', id, label })
+            }
           />
         )}
 
@@ -414,7 +442,9 @@ export default function AdminCmsPage() {
             setMessage={setMessage}
             reload={loadAll}
             request={memberRequest}
-            onDeleteTrigger={(id, label) => setDeleteTarget({ path: '/api/admin/cms/faqs', id, label })}
+            onDeleteTrigger={(id, label) =>
+              setDeleteTarget({ path: '/api/admin/cms/faqs', id, label })
+            }
           />
         )}
       </div>
@@ -428,9 +458,7 @@ export default function AdminCmsPage() {
             aria-label="Close Dialog"
           />
           <div className="relative w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
-            <h3 className="text-lg font-bold text-neutral-900">
-              Confirm Resource Deletion
-            </h3>
+            <h3 className="text-lg font-bold text-neutral-900">Confirm Resource Deletion</h3>
             <p className="text-xs text-neutral-500 mt-1">
               Are you sure you want to permanently delete this {deleteTarget.label.toLowerCase()}?
             </p>
@@ -438,7 +466,8 @@ export default function AdminCmsPage() {
             <div className="mt-4 flex gap-2.5 items-start bg-rose-50 border border-rose-200 p-3 rounded-xl">
               <ShieldAlert className="h-4.5 w-4.5 text-rose-700 shrink-0 mt-0.5" />
               <p className="text-[10px] text-rose-800 leading-relaxed">
-                <strong>Warning:</strong> Deleting CMS nodes instantly affects public page routing and invalidates static caching indexes.
+                <strong>Warning:</strong> Deleting CMS nodes instantly affects public page routing
+                and invalidates static caching indexes.
               </p>
             </div>
 
@@ -793,18 +822,30 @@ function ContentManager({
                 label="Tags (comma separated)"
                 name="tags"
                 value={(editor.tags || []).join(', ')}
-                onChange={(tagsStr) => setEditor((current) => ({ 
-                  ...current, 
-                  tags: tagsStr.split(',').map(t => t.trim()).filter(Boolean) 
-                }))}
+                onChange={(tagsStr) =>
+                  setEditor((current) => ({
+                    ...current,
+                    tags: tagsStr
+                      .split(',')
+                      .map((t) => t.trim())
+                      .filter(Boolean),
+                  }))
+                }
               />
               <div className="grid gap-1.5 text-xs font-bold text-neutral-800">
-                <span className="uppercase tracking-wider text-neutral-400">Read Time (Minutes)</span>
+                <span className="uppercase tracking-wider text-neutral-400">
+                  Read Time (Minutes)
+                </span>
                 <input
                   type="number"
                   name="readTimeMinutes"
                   value={editor.readTimeMinutes || 3}
-                  onChange={(e) => setEditor((current) => ({ ...current, readTimeMinutes: parseInt(e.target.value) || 3 }))}
+                  onChange={(e) =>
+                    setEditor((current) => ({
+                      ...current,
+                      readTimeMinutes: parseInt(e.target.value) || 3,
+                    }))
+                  }
                   className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
                 />
               </div>
@@ -1020,7 +1061,9 @@ function SectionManager({
         }}
         onSelect={selectItem}
         labelFor={(item) => `${item.pageKey} / ${item.key}`}
-        metaFor={(item) => `${item.title || 'No Title'} · ${item.status} · Order: ${item.sortOrder}`}
+        metaFor={(item) =>
+          `${item.title || 'No Title'} · ${item.status} · Order: ${item.sortOrder}`
+        }
       />
       <form
         onSubmit={(event) =>
@@ -1094,7 +1137,9 @@ function SectionManager({
               type="number"
               name="sortOrder"
               value={editor.sortOrder}
-              onChange={(e) => setEditor((current) => ({ ...current, sortOrder: parseInt(e.target.value) || 0 }))}
+              onChange={(e) =>
+                setEditor((current) => ({ ...current, sortOrder: parseInt(e.target.value) || 0 }))
+              }
               className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             />
           </div>
@@ -1102,7 +1147,12 @@ function SectionManager({
             <span className="uppercase tracking-wider text-neutral-400">Status</span>
             <select
               value={editor.status}
-              onChange={(e) => setEditor((current) => ({ ...current, status: e.target.value as 'DRAFT' | 'PUBLISHED' }))}
+              onChange={(e) =>
+                setEditor((current) => ({
+                  ...current,
+                  status: e.target.value as 'DRAFT' | 'PUBLISHED',
+                }))
+              }
               className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             >
               <option value="DRAFT">Draft</option>
@@ -1257,7 +1307,9 @@ function FaqManager({
                   : 'border-neutral-200 bg-white/75 hover:bg-white'
               }`}
             >
-              <span className="text-xs font-bold text-neutral-800 truncate w-full">{item.question}</span>
+              <span className="text-xs font-bold text-neutral-800 truncate w-full">
+                {item.question}
+              </span>
               <span className="mt-1 text-[10px] font-semibold text-neutral-450 uppercase">
                 {item.category} · Order: {item.displayOrder} · {item.active ? 'Active' : 'Inactive'}
               </span>
@@ -1307,7 +1359,12 @@ function FaqManager({
             <span className="uppercase tracking-wider text-neutral-400">Category</span>
             <select
               value={editor.category}
-              onChange={(e) => setEditor((current) => ({ ...current, category: e.target.value as Faq['category'] }))}
+              onChange={(e) =>
+                setEditor((current) => ({
+                  ...current,
+                  category: e.target.value as Faq['category'],
+                }))
+              }
               className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             >
               <option value="GENERAL">General</option>
@@ -1323,7 +1380,12 @@ function FaqManager({
               type="number"
               name="displayOrder"
               value={editor.displayOrder}
-              onChange={(e) => setEditor((current) => ({ ...current, displayOrder: parseInt(e.target.value) || 0 }))}
+              onChange={(e) =>
+                setEditor((current) => ({
+                  ...current,
+                  displayOrder: parseInt(e.target.value) || 0,
+                }))
+              }
               className="h-9 w-full rounded-xl border border-neutral-250 bg-white px-3.5 text-xs font-semibold text-neutral-700 outline-none focus:border-[#A10E4D] transition"
             />
           </div>
@@ -1371,9 +1433,7 @@ async function saveFaq(
     return;
   }
   const result = await options.request(
-    options.selectedId
-      ? `/api/admin/cms/faqs/${options.selectedId}`
-      : '/api/admin/cms/faqs',
+    options.selectedId ? `/api/admin/cms/faqs/${options.selectedId}` : '/api/admin/cms/faqs',
     { method: options.selectedId ? 'PUT' : 'POST', body: parsed.data },
   );
   options.setPending(false);
@@ -1430,7 +1490,9 @@ function RichTextEditor({
           {value.split('\n').map((line, index) => (
             <p
               key={`${line}-${index}`}
-              className={line.startsWith('## ') ? 'text-sm font-bold text-neutral-800 mt-2 mb-1' : 'mb-1'}
+              className={
+                line.startsWith('## ') ? 'text-sm font-bold text-neutral-800 mt-2 mb-1' : 'mb-1'
+              }
             >
               {line.replace(/^## /, '').replace(/\*\*/g, '').replace(/_/g, '') || '\u00a0'}
             </p>
@@ -1492,7 +1554,9 @@ function ContentList<T extends { _id: string }>({
                 : 'border-neutral-200/60 bg-white/70 hover:bg-white'
             }`}
           >
-            <span className="text-xs font-bold text-neutral-800 truncate w-full">{labelFor(item)}</span>
+            <span className="text-xs font-bold text-neutral-800 truncate w-full">
+              {labelFor(item)}
+            </span>
             <span className="mt-1 text-[10px] font-semibold text-neutral-450">{metaFor(item)}</span>
           </button>
         ))}
@@ -1709,11 +1773,13 @@ async function saveContent(
     body: options.editor.body,
     ...(options.showCoupleName ? { coupleName: optionalString(form.get('coupleName')) } : {}),
     published: options.editor.published,
-    ...(options.collectionLabel === 'Blog' ? {
-      coverImage: optionalString(form.get('coverImage')),
-      tags: options.editor.tags,
-      readTimeMinutes: options.editor.readTimeMinutes,
-    } : {}),
+    ...(options.collectionLabel === 'Blog'
+      ? {
+          coverImage: optionalString(form.get('coverImage')),
+          tags: options.editor.tags,
+          readTimeMinutes: options.editor.readTimeMinutes,
+        }
+      : {}),
   };
   const parsed = options.schema.safeParse(payload);
   if (!parsed.success) {
