@@ -189,14 +189,25 @@ const navGroups: NavGroup[] = [
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000').trim();
 
+// MemberShell is rendered per page (there is no shared member/layout.tsx), so it
+// fully remounts on every navigation. Cache the fetched shell data at module scope
+// so a remount starts from the last known values instead of flashing the fallback
+// avatar initial / empty unread badge while the re-fetch is in flight.
+let cachedShellProfile: ShellProfileData | null = null;
+let cachedUnreadCount = 0;
+
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
 
 function pathMatches(pathname: string, matches: string[]) {
-  return matches.some(
-    (candidate) => pathname === candidate || pathname.startsWith(`${candidate}/`),
-  );
+  return matches.some((candidate) => {
+    if (pathname === candidate) return true;
+    // The dashboard root (`/member`) must match exactly; otherwise it would
+    // stay active on every `/member/*` sub-route.
+    if (candidate === '/member') return false;
+    return pathname.startsWith(`${candidate}/`);
+  });
 }
 
 function DesktopRail({
@@ -280,9 +291,19 @@ export default function MemberShell({
   const router = useRouter();
   const { initialized, token, clearToken } = useAuth();
   const memberRequest = useMemberRequest();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(cachedUnreadCount);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [shellProfile, setShellProfile] = useState<ShellProfileData | null>(null);
+  const [shellProfile, setShellProfile] = useState<ShellProfileData | null>(cachedShellProfile);
+
+  // Keep the module-level cache in sync so the next remount (on navigation)
+  // can render the real avatar / badge immediately instead of the fallback.
+  useEffect(() => {
+    cachedUnreadCount = unreadCount;
+  }, [unreadCount]);
+
+  useEffect(() => {
+    cachedShellProfile = shellProfile;
+  }, [shellProfile]);
 
   useEffect(() => {
     if (initialized && !token) {

@@ -33,6 +33,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
+import { useMemberRequest } from '@/lib/member-api';
 
 export const premiumTokens = {
   burgundy: '#A10E4D', // Deep Maroon
@@ -402,7 +403,7 @@ export function VerificationBadge({ level }: Readonly<{ level?: string | undefin
         <ShieldCheck className="size-3.5" />
         {label}
       </span>
-      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-56 -translate-x-1/2 rounded-2xl border border-[#A10E4D]/10 bg-white p-3 text-left text-[11px] font-medium leading-5 text-[#5F5F5F] shadow-xl group-hover:block group-focus-within:block">
+      <span className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-56 rounded-2xl border border-[#A10E4D]/10 bg-white p-3 text-left text-[11px] font-medium leading-5 text-[#5F5F5F] shadow-xl group-hover:block group-focus-within:block">
         <span className="block text-xs font-bold uppercase tracking-[0.16em] text-[#A10E4D]">
           Verification
         </span>
@@ -636,23 +637,75 @@ const memberLinks = [
   ['Dashboard', '/member'],
   ['Matches', '/member/matches'],
   ['Messages', '/member/messages'],
-  ['Notifications', '/member/notifications'],
+  // ['Notifications', '/member/notifications'],
   ['Profile', '/member/profile'],
 ] as const;
 
-export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dark' | 'transparent' | 'full-maroon' | 'white' } = {}) {
+// The Profile link should point straight at the public profile (/profiles/:id)
+// instead of /member/profile, which only exists to fetch the identifier and
+// client-side redirect. We resolve the identifier once and cache it at module
+// scope so re-mounts of the header don't re-fetch or flash the fallback href.
+let cachedProfileIdentifier: string | null = null;
+
+export function PublicHeader({
+  variant = 'white',
+}: { variant?: 'default' | 'dark' | 'transparent' | 'full-maroon' | 'white' } = {}) {
   const { clearToken, initialized, token } = useAuth();
+  const memberRequest = useMemberRequest();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [profileIdentifier, setProfileIdentifier] = useState<string | null>(
+    cachedProfileIdentifier,
+  );
   const resourcesRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
-  const links = initialized && token ? memberLinks : publicLinks;
+
+  // Resolve the member's public profile identifier so the Profile link can go
+  // directly to /profiles/:id, skipping the /member/profile redirect hop.
+  useEffect(() => {
+    if (!initialized || !token || profileIdentifier) {
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      const result = await memberRequest('/api/me/profile');
+      if (cancelled || !result.ok || !result.data) {
+        return;
+      }
+      const profile = (
+        result.data as {
+          profile?: { id?: string; displayId?: string; slug?: string };
+        }
+      ).profile;
+      const identifier = profile?.slug || profile?.displayId || profile?.id;
+      if (identifier) {
+        cachedProfileIdentifier = identifier;
+        setProfileIdentifier(identifier);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialized, token, profileIdentifier, memberRequest]);
+
+  const links =
+    initialized && token
+      ? memberLinks.map(([label, href]) =>
+          href === '/member/profile' && profileIdentifier
+            ? ([label, `/profiles/${profileIdentifier}`] as const)
+            : ([label, href] as const),
+        )
+      : publicLinks;
   const MotionLink = motion(Link);
   const pathname = usePathname();
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!resourcesOpen) return;
@@ -682,7 +735,8 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
 
     const focusableSelector =
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousFocus =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
     window.setTimeout(() => {
       const first = drawerRef.current?.querySelector<HTMLElement>(focusableSelector);
@@ -725,17 +779,17 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
     };
   }, [open]);
 
-  let headerClass = "sticky top-0 z-50 transition-all font-poppins ";
+  let headerClass = 'sticky top-0 z-50 transition-all font-poppins ';
   if (variant === 'dark') {
-    headerClass += "bg-[#1A060B]/80 backdrop-blur-md border-b border-white/5";
+    headerClass += 'bg-[#1A060B]/80 backdrop-blur-md border-b border-white/5';
   } else if (variant === 'transparent') {
-    headerClass += "bg-transparent border-b border-white/10";
+    headerClass += 'bg-transparent border-b border-white/10';
   } else if (variant === 'full-maroon') {
-    headerClass += "bg-brand-maroon border-b border-white/10 shadow-md";
+    headerClass += 'bg-brand-maroon border-b border-white/10 shadow-md';
   } else if (variant === 'white') {
-    headerClass += "bg-white border-b border-gray-100 shadow-sm";
+    headerClass += 'bg-white border-b border-gray-100 shadow-sm';
   } else {
-    headerClass += "bg-brand-maroon/80 backdrop-blur-md border-b border-white/10";
+    headerClass += 'bg-brand-maroon/80 backdrop-blur-md border-b border-white/10';
   }
 
   const isLight = variant === 'white';
@@ -746,7 +800,7 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
         <div className="mx-auto flex min-h-[54px] container items-center justify-between gap-3 py-2 lg:h-[72px] lg:py-0">
           <Link href="/" aria-label="Vivah Australia home" className="flex shrink-0 items-center">
             <Image
-              src={isLight ? "/logo-color.png" : "/logo-white.png"}
+              src={isLight ? '/logo-color.png' : '/logo-white.png'}
               alt="Vivah Australia Logo"
               width={320}
               height={100}
@@ -754,11 +808,25 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
               priority
             />
           </Link>
-          <nav className={cx("hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-sm font-semibold lg:flex", isLight ? "text-gray-600" : "text-white/80")}>
+          <nav
+            className={cx(
+              'hidden min-w-0 flex-1 items-center justify-center gap-5 whitespace-nowrap text-sm font-semibold lg:flex',
+              isLight ? 'text-gray-600' : 'text-white/80',
+            )}
+          >
             {!(initialized && token) && (
               <Link
                 href="/"
-                className={cx("transition", pathname === '/' ? (isLight ? "text-brand-maroon" : "text-white") : (isLight ? "hover:text-brand-maroon" : "hover:text-white"))}
+                className={cx(
+                  'transition',
+                  pathname === '/'
+                    ? isLight
+                      ? 'text-brand-maroon'
+                      : 'text-white'
+                    : isLight
+                      ? 'hover:text-brand-maroon'
+                      : 'hover:text-white',
+                )}
               >
                 Home
               </Link>
@@ -767,7 +835,16 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
               <MotionLink
                 key={href}
                 href={href}
-                className={cx("transition", pathname === href ? (isLight ? "text-brand-maroon" : "text-white") : (isLight ? "hover:text-brand-maroon" : "hover:text-white"))}
+                className={cx(
+                  'transition',
+                  pathname === href
+                    ? isLight
+                      ? 'text-brand-maroon'
+                      : 'text-white'
+                    : isLight
+                      ? 'hover:text-brand-maroon'
+                      : 'hover:text-white',
+                )}
                 {...{ whileHover: { y: -1 } }}
                 {...{ whileTap: { scale: 0.98 } }}
               >
@@ -780,7 +857,10 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
                   type="button"
                   aria-expanded={resourcesOpen}
                   aria-controls="public-resources-menu"
-                  className={cx("inline-flex items-center gap-1 transition focus:outline-none focus:ring-2 focus:ring-brand-gold/60", isLight ? "hover:text-brand-maroon" : "hover:text-white")}
+                  className={cx(
+                    'inline-flex items-center gap-1 transition focus:outline-none focus:ring-2 focus:ring-brand-gold/60',
+                    isLight ? 'hover:text-brand-maroon' : 'hover:text-white',
+                  )}
                   onClick={() => setResourcesOpen((current) => !current)}
                   onKeyDown={(event) => {
                     if (event.key === 'ArrowDown') {
@@ -793,20 +873,49 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
                   }}
                 >
                   Resources
-                  <ChevronDown className={cx("size-3.5 transition-transform duration-200", resourcesOpen && "rotate-180")} />
+                  <ChevronDown
+                    className={cx(
+                      'size-3.5 transition-transform duration-200',
+                      resourcesOpen && 'rotate-180',
+                    )}
+                  />
                 </button>
                 <div
                   id="public-resources-menu"
                   className={cx(
-                    "absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 transition-all duration-200",
-                    resourcesOpen ? "visible opacity-100" : "invisible opacity-0",
+                    'absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 transition-all duration-200',
+                    resourcesOpen ? 'visible opacity-100' : 'invisible opacity-0',
                   )}
                 >
                   <div className="w-52 overflow-hidden rounded-xl border border-white/10 bg-brand-charcoal p-2 shadow-2xl">
-                    <Link href="/blog" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">Blog & Advice</Link>
-                    <Link href="/help" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">Help Center</Link>
-                    <Link href="/safety" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">Safety Guidelines</Link>
-                    <Link href="/faq" onClick={() => setResourcesOpen(false)} className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition">FAQ</Link>
+                    <Link
+                      href="/blog"
+                      onClick={() => setResourcesOpen(false)}
+                      className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition"
+                    >
+                      Blog & Advice
+                    </Link>
+                    <Link
+                      href="/help"
+                      onClick={() => setResourcesOpen(false)}
+                      className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition"
+                    >
+                      Help Center
+                    </Link>
+                    <Link
+                      href="/safety"
+                      onClick={() => setResourcesOpen(false)}
+                      className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition"
+                    >
+                      Safety Guidelines
+                    </Link>
+                    <Link
+                      href="/faq"
+                      onClick={() => setResourcesOpen(false)}
+                      className="block rounded-lg px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none transition"
+                    >
+                      FAQ
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -831,7 +940,12 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
               <>
                 <Link
                   href="/login"
-                  className={cx("hidden sm:flex items-center justify-center rounded border px-6 py-2.5 text-sm font-medium transition", isLight ? "border-brand-maroon/20 text-brand-maroon hover:bg-brand-maroon/5" : "border-brand-gold/50 text-white hover:bg-white/5")}
+                  className={cx(
+                    'hidden sm:flex items-center justify-center rounded border px-6 py-2.5 text-sm font-medium transition',
+                    isLight
+                      ? 'border-brand-maroon/20 text-brand-maroon hover:bg-brand-maroon/5'
+                      : 'border-brand-gold/50 text-white hover:bg-white/5',
+                  )}
                 >
                   Sign In
                 </Link>
@@ -849,92 +963,109 @@ export function PublicHeader({ variant = 'white' }: { variant?: 'default' | 'dar
             type="button"
             aria-label="Open menu"
             aria-expanded={open}
-            className={cx("rounded-full border p-2 lg:hidden transition", isLight ? "border-gray-200 bg-white text-brand-charcoal hover:bg-gray-50" : "border-white/40 bg-white/20 text-white hover:bg-white/30")}
+            className={cx(
+              'rounded-full border p-2 lg:hidden transition',
+              isLight
+                ? 'border-gray-200 bg-white text-brand-charcoal hover:bg-gray-50'
+                : 'border-white/40 bg-white/20 text-white hover:bg-white/30',
+            )}
             onClick={() => setOpen(true)}
           >
             <Menu className="size-5" />
           </button>
         </div>
       </div>
-      {mounted && open ? createPortal(
-        <div className="fixed inset-0 z-[200] lg:hidden">
-          <button
-            aria-label="Close menu"
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            type="button"
-            onClick={() => setOpen(false)}
-          />
-          <aside
-            ref={drawerRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Main menu"
-            className="absolute right-0 top-0 h-full w-80 max-w-[85vw] p-6 flex flex-col border-l border-white/10 text-white"
-            style={{ backgroundColor: '#A10E4D', boxShadow: '-20px 0 40px rgba(0,0,0,0.4)' }}
-          >
-            <div className="flex items-center justify-end mb-8">
+      {mounted && open
+        ? createPortal(
+            <div className="fixed inset-0 z-[200] lg:hidden">
               <button
-                type="button"
                 aria-label="Close menu"
-                className="rounded-full border border-white/20 p-2 text-white transition hover:bg-white/10"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                type="button"
                 onClick={() => setOpen(false)}
+              />
+              <aside
+                ref={drawerRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Main menu"
+                className="absolute right-0 top-0 h-full w-80 max-w-[85vw] p-6 flex flex-col border-l border-white/10 text-white"
+                style={{ backgroundColor: '#A10E4D', boxShadow: '-20px 0 40px rgba(0,0,0,0.4)' }}
               >
-                <X className="size-5" />
-              </button>
-            </div>
-
-            <nav className="grid gap-2 flex-1">
-              {!(initialized && token) && (
-                <MotionLink
-                  href="/"
-                  onClick={() => setOpen(false)}
-                  className={cx("rounded-2xl px-4 py-3.5 text-base font-bold transition hover:bg-white/10 hover:text-white", pathname === '/' ? "bg-white/15 text-white" : "text-white/90")}
-                  {...{ whileHover: { x: 4 } }}
-                  {...{ whileTap: { scale: 0.98 } }}
-                >
-                  Home
-                </MotionLink>
-              )}
-              {links.map(([label, href]) => (
-                <MotionLink
-                  key={href}
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className={cx("rounded-2xl px-4 py-3.5 text-base font-bold transition hover:bg-white/10 hover:text-white", pathname === href ? "bg-white/15 text-white" : "text-white/90")}
-                  {...{ whileHover: { x: 4 } }}
-                  {...{ whileTap: { scale: 0.98 } }}
-                >
-                  {label}
-                </MotionLink>
-              ))}
-            </nav>
-
-            <div className="mt-8 grid gap-4 pb-6">
-              {initialized && token ? (
-                <PremiumButton variant="primary" onClick={clearToken} className="w-full min-h-[50px]">
-                  Logout
-                </PremiumButton>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="flex items-center justify-center w-full min-h-[50px] rounded-xl border border-white/20 text-base font-bold text-white transition hover:bg-white/10"
+                <div className="flex items-center justify-end mb-8">
+                  <button
+                    type="button"
+                    aria-label="Close menu"
+                    className="rounded-full border border-white/20 p-2 text-white transition hover:bg-white/10"
+                    onClick={() => setOpen(false)}
                   >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="flex items-center justify-center w-full min-h-[50px] rounded-xl bg-brand-gold text-brand-charcoal text-base font-bold transition hover:bg-brand-gold/90 shadow-md"
-                  >
-                    Register Free
-                  </Link>
-                </>
-              )}
-            </div>
-          </aside>
-        </div>,
-        document.body
-      ) : null}
+                    <X className="size-5" />
+                  </button>
+                </div>
+
+                <nav className="grid gap-2 flex-1">
+                  {!(initialized && token) && (
+                    <MotionLink
+                      href="/"
+                      onClick={() => setOpen(false)}
+                      className={cx(
+                        'rounded-2xl px-4 py-3.5 text-base font-bold transition hover:bg-white/10 hover:text-white',
+                        pathname === '/' ? 'bg-white/15 text-white' : 'text-white/90',
+                      )}
+                      {...{ whileHover: { x: 4 } }}
+                      {...{ whileTap: { scale: 0.98 } }}
+                    >
+                      Home
+                    </MotionLink>
+                  )}
+                  {links.map(([label, href]) => (
+                    <MotionLink
+                      key={href}
+                      href={href}
+                      onClick={() => setOpen(false)}
+                      className={cx(
+                        'rounded-2xl px-4 py-3.5 text-base font-bold transition hover:bg-white/10 hover:text-white',
+                        pathname === href ? 'bg-white/15 text-white' : 'text-white/90',
+                      )}
+                      {...{ whileHover: { x: 4 } }}
+                      {...{ whileTap: { scale: 0.98 } }}
+                    >
+                      {label}
+                    </MotionLink>
+                  ))}
+                </nav>
+
+                <div className="mt-8 grid gap-4 pb-6">
+                  {initialized && token ? (
+                    <PremiumButton
+                      variant="primary"
+                      onClick={clearToken}
+                      className="w-full min-h-[50px]"
+                    >
+                      Logout
+                    </PremiumButton>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="flex items-center justify-center w-full min-h-[50px] rounded-xl border border-white/20 text-base font-bold text-white transition hover:bg-white/10"
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="flex items-center justify-center w-full min-h-[50px] rounded-xl bg-brand-gold text-brand-charcoal text-base font-bold transition hover:bg-brand-gold/90 shadow-md"
+                      >
+                        Register Free
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </aside>
+            </div>,
+            document.body,
+          )
+        : null}
     </header>
   );
 }
@@ -949,11 +1080,14 @@ export function PublicFooter() {
           <div className="flex flex-wrap justify-center gap-6 sm:gap-10">
             {[
               { icon: ShieldCheck, label: 'Verified community' },
-              { icon: MapPin,      label: 'Australia-wide' },
-              { icon: Star,        label: '500+ success stories' },
-              { icon: Users,       label: '10,000+ members' },
+              { icon: MapPin, label: 'Australia-wide' },
+              { icon: Star, label: '500+ success stories' },
+              { icon: Users, label: '10,000+ members' },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-xs font-semibold text-white/60">
+              <div
+                key={label}
+                className="flex items-center gap-2 text-xs font-semibold text-white/60"
+              >
                 <Icon className="size-3.5 text-brand-gold" />
                 {label}
               </div>
@@ -965,7 +1099,6 @@ export function PublicFooter() {
       {/* Main footer grid */}
       <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pt-14 pb-10">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1fr_1fr]">
-
           {/* Brand column */}
           <div className="lg:pr-8">
             <Image
@@ -986,9 +1119,32 @@ export function PublicFooter() {
             {/* Social icons */}
             <div className="mt-6 flex gap-3">
               {[
-                { label: 'Facebook',  svg: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /> },
-                { label: 'Instagram', svg: <><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></> },
-                { label: 'LinkedIn',  svg: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></> },
+                {
+                  label: 'Facebook',
+                  svg: (
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                  ),
+                },
+                {
+                  label: 'Instagram',
+                  svg: (
+                    <>
+                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                    </>
+                  ),
+                },
+                {
+                  label: 'LinkedIn',
+                  svg: (
+                    <>
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                      <rect width="4" height="12" x="2" y="9" />
+                      <circle cx="4" cy="4" r="2" />
+                    </>
+                  ),
+                },
               ].map(({ label, svg }) => (
                 <a
                   key={label}
@@ -996,7 +1152,13 @@ export function PublicFooter() {
                   aria-label={label}
                   className="size-8 rounded-lg bg-white/8 flex items-center justify-center hover:bg-brand-gold/20 hover:text-brand-gold transition"
                 >
-                  <svg viewBox="0 0 24 24" className="size-3.5 fill-none stroke-current" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="size-3.5 fill-none stroke-current"
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     {svg}
                   </svg>
                 </a>
@@ -1008,38 +1170,38 @@ export function PublicFooter() {
           <FooterList
             title="Discover"
             links={[
-              ['How It Works',     '/how-it-works'],
-              ['Success Stories',  '/success-stories'],
-              ['Community',        '/community'],
-              ['About Us',         '/about'],
-              ['Browse Profiles',  '/search'],
+              ['How It Works', '/how-it-works'],
+              ['Success Stories', '/success-stories'],
+              ['Community', '/community'],
+              ['About Us', '/about'],
+              ['Browse Profiles', '/search'],
             ]}
           />
           <FooterList
             title="Membership"
             links={[
               ['Plans & Pricing', '/pricing'],
-              ['Membership',      '/membership'],
-              ['FAQ',             '/faq'],
+              ['Membership', '/membership'],
+              ['FAQ', '/faq'],
             ]}
           />
           <FooterList
             title="Resources"
             links={[
-              ['Blog & Advice',    '/blog'],
-              ['Help Center',      '/help'],
-              ['Safety Guidelines','/safety'],
-              ['Contact Us',       '/contact'],
+              ['Blog & Advice', '/blog'],
+              ['Help Center', '/help'],
+              ['Safety Guidelines', '/safety'],
+              ['Contact Us', '/contact'],
             ]}
           />
           <FooterList
             title="Legal"
             links={[
-              ['Privacy Policy',       '/privacy'],
-              ['Terms of Service',     '/terms'],
-              ['Refund Policy',        '/refund-policy'],
+              ['Privacy Policy', '/privacy'],
+              ['Terms of Service', '/terms'],
+              ['Refund Policy', '/refund-policy'],
               ['Community Guidelines', '/community-guidelines'],
-              ['Verification Policy',  '/verification-policy'],
+              ['Verification Policy', '/verification-policy'],
             ]}
           />
         </div>
@@ -1050,7 +1212,15 @@ export function PublicFooter() {
             © {year} Vivah Australia Pty Ltd. All rights reserved.
           </p>
           <p className="text-sm text-white/90 font-medium flex items-center gap-1.5">
-            Made with ❤️ by <a href="https://rokoautomations.com/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-brand-gold transition-colors font-bold">RokoAutomations</a>
+            Made with ❤️ by{' '}
+            <a
+              href="https://rokoautomations.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white hover:text-brand-gold transition-colors font-bold"
+            >
+              RokoAutomations
+            </a>
           </p>
         </div>
       </div>
@@ -1068,7 +1238,10 @@ function FooterList({
       <ul className="grid gap-3">
         {links.map(([label, href]) => (
           <li key={`${title}-${href}`}>
-            <Link href={href} className="text-sm text-white/80 hover:text-white transition font-medium">
+            <Link
+              href={href}
+              className="text-sm text-white/80 hover:text-white transition font-medium"
+            >
               {label}
             </Link>
           </li>
