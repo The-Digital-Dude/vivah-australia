@@ -107,12 +107,12 @@ export default function AdminShell({
   const pathname = usePathname();
   const router = useRouter();
   const { clearToken } = useAuth();
-  
+
   // State management
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
-  
+
   // Track open states for collapsible navigation groups
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
@@ -139,9 +139,9 @@ export default function AdminShell({
   };
 
   const toggleGroup = (title: string) => {
-    setCollapsedGroups(prev => ({
+    setCollapsedGroups((prev) => ({
       ...prev,
-      [title]: !prev[title]
+      [title]: !prev[title],
     }));
   };
 
@@ -150,7 +150,7 @@ export default function AdminShell({
 
   const navContent = (
     <div className="flex h-full flex-col justify-between bg-[#1F1F2E] text-white">
-      <div className="space-y-6 py-4">
+      <div className="space-y-3">
         {/* Branding header */}
         <div className="flex h-20 items-center px-6 border-b border-white/5 bg-[#181824]/50">
           <Link href="/admin/dashboard" className="flex items-center gap-2">
@@ -163,7 +163,9 @@ export default function AdminShell({
               style={{ width: 'auto', height: '32px' }}
               priority
             />
-            <span className="text-[10px] font-bold text-[#D4A04C] tracking-[0.2em] uppercase shrink-0">OPS</span>
+            <span className="text-[10px] font-bold text-[#D4A04C] tracking-[0.2em] uppercase shrink-0">
+              OPS
+            </span>
           </Link>
         </div>
 
@@ -206,12 +208,12 @@ export default function AdminShell({
                           }`}
                         >
                           <span className="flex items-center gap-3">
-                            <Icon className={`h-4.5 w-4.5 transition-colors ${active ? 'text-[#D4A04C]' : 'text-neutral-500 group-hover:text-white'}`} />
+                            <Icon
+                              className={`h-4.5 w-4.5 transition-colors ${active ? 'text-[#D4A04C]' : 'text-neutral-500 group-hover:text-white'}`}
+                            />
                             {item.label}
                           </span>
-                          {active && (
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#D4A04C]" />
-                          )}
+                          {active && <span className="h-1.5 w-1.5 rounded-full bg-[#D4A04C]" />}
                         </Link>
                       );
                     })}
@@ -240,9 +242,8 @@ export default function AdminShell({
   return (
     <AdminGuard>
       <div className="flex min-h-screen bg-[#FBFBFC] text-[#2F2F2F] antialiased font-sans">
-        
         {/* DESKTOP SIDEBAR */}
-        <aside className="hidden w-64 shrink-0 border-r border-[#2F2F2F]/10 bg-[#1F1F2E] text-white lg:block">
+        <aside className="hidden lg:flex fixed inset-y-0 left-0 z-40 h-[100dvh] max-h-[100dvh] w-64 shrink-0 flex-col border-r border-[#2F2F2F]/10 bg-[#1F1F2E] text-white">
           {navContent}
         </aside>
 
@@ -269,10 +270,9 @@ export default function AdminShell({
         )}
 
         {/* WORKSPACE AREA */}
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden lg:pl-64">
           {/* HEADER */}
           <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#2F2F2F]/10 bg-white/95 px-6 backdrop-blur shadow-sm">
-            
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setMobileOpen(true)}
@@ -284,7 +284,9 @@ export default function AdminShell({
 
               {/* Breadcrumb Navigation */}
               <nav className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-400">
-                <Link href="/admin/dashboard" className="hover:text-[#A10E4D] transition">Admin</Link>
+                <Link href="/admin/dashboard" className="hover:text-[#A10E4D] transition">
+                  Admin
+                </Link>
                 <span>/</span>
                 {breadcrumbs.slice(1).map((crumb, idx, arr) => {
                   const href = `/admin/${arr.slice(0, idx + 1).join('/')}`;
@@ -296,7 +298,9 @@ export default function AdminShell({
                         <span className="text-[#A10E4D] font-bold">{label}</span>
                       ) : (
                         <>
-                          <Link href={href} className="hover:text-[#A10E4D] transition">{label}</Link>
+                          <Link href={href} className="hover:text-[#A10E4D] transition">
+                            {label}
+                          </Link>
                           <span>/</span>
                         </>
                       )}
@@ -341,11 +345,15 @@ export default function AdminShell({
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs p-1.5 hover:bg-neutral-50 rounded-lg">
                         <span className="text-neutral-500 font-medium">Pending Verifications</span>
-                        <span className="rounded-full bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 text-[10px] font-bold">Action Needed</span>
+                        <span className="rounded-full bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 text-[10px] font-bold">
+                          Action Needed
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-xs p-1.5 hover:bg-neutral-50 rounded-lg">
                         <span className="text-neutral-500 font-medium">Flagged Photo Queue</span>
-                        <span className="rounded-full bg-rose-50 text-rose-800 border border-rose-200 px-2 py-0.5 text-[10px] font-bold">Priority Review</span>
+                        <span className="rounded-full bg-rose-50 text-rose-800 border border-rose-200 px-2 py-0.5 text-[10px] font-bold">
+                          Priority Review
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -375,7 +383,10 @@ export default function AdminShell({
                       <p className="font-extrabold text-neutral-800">Role</p>
                       <p className="text-neutral-500">System Administrator</p>
                     </div>
-                    <Link href="/admin/settings" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition">
+                    <Link
+                      href="/admin/settings"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition"
+                    >
                       <Settings className="h-4 w-4 text-neutral-500" />
                       <span>Settings</span>
                     </Link>
@@ -395,7 +406,7 @@ export default function AdminShell({
 
           {/* PAGE BODY */}
           <main className="flex-1 overflow-y-auto px-6 py-6">
-            <div className="mx-auto max-w-6xl space-y-4">
+            <div className="mx-auto container space-y-4">
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-neutral-900">{title}</h1>
                 {subtitle && <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>}
@@ -404,7 +415,6 @@ export default function AdminShell({
             </div>
           </main>
         </div>
-
       </div>
     </AdminGuard>
   );

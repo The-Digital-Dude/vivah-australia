@@ -19,7 +19,9 @@ interface UserItem {
   role: string;
   status: string;
   emailVerified: boolean;
+  mobileVerified?: boolean;
   createdAt: string;
+  lastLoginAt?: string | null;
   profile?: {
     displayId?: string;
     firstName?: string;
@@ -338,47 +340,72 @@ export default function AdminUsersPage() {
         emptyDescription="Please adjust filters or retry your search query."
       />
 
-      {/* USER DETAIL INSPECT PANELS */}
-      {detail ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm space-y-4">
-          <div className="flex items-start justify-between gap-4 border-b border-neutral-150 pb-4">
-            <div>
-              <h3 className="text-lg font-bold text-neutral-900">User Audit details</h3>
-              <p className="text-xs text-neutral-500 mt-1">
-                Account ID: {detail.user?.email ?? 'Member'} · Role: {detail.user?.role} · Status: {detail.user?.status}
-              </p>
-              <p className="text-xs text-neutral-500">
-                Display code: {detail.profile?.displayId ?? 'No display ID'} · Level Badge: {detail.profile?.verificationLevel ?? 'No level badge'}
-              </p>
-            </div>
-            <button
-              onClick={() => setDetail(null)}
-              className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-semibold hover:bg-neutral-50"
-              type="button"
-            >
-              Close Details
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Internal Audit Notes</h4>
-            {detail.notes?.length ? (
-              <div className="space-y-2">
-                {detail.notes.map((note) => (
-                  <div key={note.id} className="rounded-xl border border-neutral-100 bg-neutral-50/50 p-4">
-                    <p className="text-sm text-neutral-750 font-medium leading-relaxed">{note.note}</p>
-                    <p className="text-[10px] text-neutral-400 mt-2 font-semibold">
-                      Author: {note.authorId} · Created: {new Date(note.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                ))}
+      {/* USER DETAIL INSPECT MODAL */}
+      {detail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            onClick={() => setDetail(null)}
+            className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
+            aria-label="Close Details"
+          />
+          <div className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200 space-y-5">
+            <div className="flex items-start justify-between gap-4 border-b border-neutral-150 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900">
+                  {[detail.profile?.firstName, detail.profile?.lastName].filter(Boolean).join(' ') ||
+                    'Unnamed member'}
+                </h3>
+                <p className="text-xs text-neutral-500 mt-1">{detail.user?.email ?? detail.user?.id}</p>
               </div>
-            ) : (
-              <p className="text-xs text-neutral-500 italic">No notes exist for this member.</p>
-            )}
+              <button
+                onClick={() => setDetail(null)}
+                className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-semibold hover:bg-neutral-50"
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+
+            {/* ACCOUNT OVERVIEW */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+              <DetailField label="Display ID" value={detail.profile?.displayId} />
+              <DetailField label="Role" value={detail.user?.role?.replace('_', ' ')} />
+              <DetailField label="Account status" value={detail.user?.status} />
+              <DetailField label="Approval status" value={detail.profile?.approvalStatus} />
+              <DetailField label="Verification level" value={detail.profile?.verificationLevel} />
+              <DetailField label="Email verified" value={detail.user?.emailVerified ? 'Yes' : 'No'} />
+              <DetailField label="Mobile verified" value={detail.user?.mobileVerified ? 'Yes' : 'No'} />
+              <DetailField
+                label="Joined"
+                value={detail.user?.createdAt ? new Date(detail.user.createdAt).toLocaleString() : undefined}
+              />
+              <DetailField
+                label="Last login"
+                value={detail.user?.lastLoginAt ? new Date(detail.user.lastLoginAt).toLocaleString() : 'Never'}
+              />
+            </div>
+
+            {/* AUDIT NOTES */}
+            <div className="space-y-3 border-t border-neutral-150 pt-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Internal Audit Notes</h4>
+              {detail.notes?.length ? (
+                <div className="space-y-2">
+                  {detail.notes.map((note) => (
+                    <div key={note.id} className="rounded-xl border border-neutral-100 bg-neutral-50/50 p-4">
+                      <p className="text-sm text-neutral-750 font-medium leading-relaxed">{note.note}</p>
+                      <p className="text-[10px] text-neutral-400 mt-2 font-semibold">
+                        Author: {note.authorId} · Created: {new Date(note.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-neutral-500 italic">No notes exist for this member.</p>
+              )}
+            </div>
           </div>
-        </section>
-      ) : null}
+        </div>
+      )}
 
       {/* NOTE MODAL */}
       {noteUser && (
@@ -437,5 +464,14 @@ export default function AdminUsersPage() {
         </div>
       )}
     </AdminShell>
+  );
+}
+
+function DetailField({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{label}</p>
+      <p className="text-sm font-semibold text-neutral-800 mt-0.5">{value || '-'}</p>
+    </div>
   );
 }
