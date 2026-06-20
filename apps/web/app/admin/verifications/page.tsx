@@ -3,7 +3,16 @@
 import { useEffect, useState } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
-import { FileCheck, Sparkles, AlertCircle, Eye, Check, X, AlertTriangle, ShieldCheck } from 'lucide-react';
+import {
+  FileCheck,
+  Sparkles,
+  AlertCircle,
+  Eye,
+  Check,
+  X,
+  AlertTriangle,
+  ShieldCheck,
+} from 'lucide-react';
 import { AdminStatusBadge } from '../components/admin-status-badge';
 
 interface VerificationItem {
@@ -31,7 +40,13 @@ interface VerificationDocument {
   createdAt: string;
 }
 
-function MembershipBadge({ tier, label }: { tier?: number | undefined; label?: string | undefined }) {
+function MembershipBadge({
+  tier,
+  label,
+}: {
+  tier?: number | undefined;
+  label?: string | undefined;
+}) {
   const isPremium = (tier ?? 0) > 0;
   const text = label ?? (isPremium ? 'Premium' : 'Free');
   return (
@@ -80,7 +95,9 @@ export default function AdminVerificationsPage() {
 
     // Enforce rejection reason
     if (targetStatus !== 'APPROVED' && !memberReason.trim()) {
-      setMessage('A justification reason must be provided to the member for rejections or resubmissions.');
+      setMessage(
+        'A justification reason must be provided to the member for rejections or resubmissions.',
+      );
       return;
     }
 
@@ -98,7 +115,7 @@ export default function AdminVerificationsPage() {
     setMemberReason('');
     setInternalNote('');
     setConfirmApprove(false);
-    
+
     if (result.ok) {
       setDetail(null);
       await load();
@@ -125,42 +142,40 @@ export default function AdminVerificationsPage() {
     // Short-circuit documents that were never actually uploaded (e.g. demo/seed data),
     // so the admin gets a clear message instead of a blank tab pointing at a 404.
     if (doc.uploadStatus !== 'UPLOADED') {
-      setMessage('No file is available for this document — the member has not completed the upload.');
+      setMessage(
+        'No file is available for this document — the member has not completed the upload.',
+      );
       return;
     }
+
+    // Open the tab synchronously inside the click gesture to avoid popup blockers, then
+    // point it at the signed URL once we have it. We use a top-level navigation (not fetch)
+    // because the preview endpoint redirects to an authenticated Cloudinary URL that returns
+    // a wildcard CORS header — a credentialed fetch to it is blocked, but a navigation is not.
+    const previewWindow = window.open('', '_blank');
 
     const result = await memberRequest(
       `/api/admin/verifications/${detail._id}/documents/${doc._id}/access`,
     );
     if (!result.ok) {
+      previewWindow?.close();
       setMessage(result.message);
       return;
     }
-    const preview = (result.data as { preview?: { previewUrl?: string; expiresAt?: string } }).preview;
+    const preview = (result.data as { preview?: { previewUrl?: string; expiresAt?: string } })
+      .preview;
     if (!preview?.previewUrl) {
+      previewWindow?.close();
       setMessage('Secure document preview link could not be loaded.');
       return;
     }
 
-    // Fetch the file through the authenticated session first so we can surface a clear
-    // error rather than navigating a new tab to a raw URL that may fail silently.
-    try {
-      const response = await fetch(preview.previewUrl, { credentials: 'include' });
-      if (!response.ok) {
-        setMessage(
-          response.status === 404
-            ? 'The document file could not be found in secure storage.'
-            : `The document preview could not be loaded (error ${response.status}).`,
-        );
-        return;
-      }
-      const blobUrl = URL.createObjectURL(await response.blob());
-      window.open(blobUrl, '_blank');
-      // Release the object URL once the new tab has had time to load it.
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
-      setMessage('Secure document preview opened in a new tab.');
-    } catch {
-      setMessage('Could not load the document preview. Please check your connection and try again.');
+    if (previewWindow) {
+      previewWindow.location.href = preview.previewUrl;
+      setMessage('Secure document preview opened in a new tab. The link expires shortly.');
+    } else {
+      // Popup was blocked — keep the admin on the queue and tell them how to recover.
+      setMessage('Please allow pop-ups for this site, then click Preview again.');
     }
   }
 
@@ -221,7 +236,6 @@ export default function AdminVerificationsPage() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        
         {/* REQUESTS LIST */}
         <div className="space-y-4">
           {loading ? (
@@ -236,7 +250,9 @@ export default function AdminVerificationsPage() {
               <div
                 key={item._id}
                 className={`rounded-2xl border p-5 shadow-sm transition hover:shadow-md bg-white ${
-                  detail?._id === item._id ? 'border-[#A10E4D] ring-2 ring-[#A10E4D]/10' : 'border-[#2F2F2F]/10'
+                  detail?._id === item._id
+                    ? 'border-[#A10E4D] ring-2 ring-[#A10E4D]/10'
+                    : 'border-[#2F2F2F]/10'
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -287,7 +303,9 @@ export default function AdminVerificationsPage() {
                           <span>Approve</span>
                         </button>
                         <button
-                          onClick={() => setReviewItem({ id: item._id, targetStatus: 'NEEDS_RESUBMISSION' })}
+                          onClick={() =>
+                            setReviewItem({ id: item._id, targetStatus: 'NEEDS_RESUBMISSION' })
+                          }
                           className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-neutral-250 px-3 text-xs font-bold text-[#2F2F2F] hover:bg-neutral-50 transition bg-white shadow-sm"
                           type="button"
                         >
@@ -311,7 +329,9 @@ export default function AdminVerificationsPage() {
             <div className="flex min-h-[250px] flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-300 p-8 text-center bg-white">
               <span className="text-3xl">🎉</span>
               <h3 className="mt-3 text-sm font-bold text-neutral-800">Queue is Clear</h3>
-              <p className="mt-1 text-xs text-neutral-450">No verification requests found in this category.</p>
+              <p className="mt-1 text-xs text-neutral-450">
+                No verification requests found in this category.
+              </p>
             </div>
           )}
         </div>
@@ -319,11 +339,13 @@ export default function AdminVerificationsPage() {
         {/* DETAILS SECTION */}
         <div>
           {detail ? (
-            <section className="rounded-2xl border border-[#2F2F2F]/10 bg-white p-5 shadow-sm space-y-5 animate-in fade-in duration-200">
+            <section className="sticky top-0 rounded-2xl border border-[#2F2F2F]/10 bg-white p-5 shadow-sm space-y-5 animate-in fade-in duration-200">
               <div className="flex items-start justify-between gap-4 border-b border-neutral-100 pb-4">
                 <div>
                   <h3 className="text-sm font-extrabold text-neutral-900">{detail.type} Review</h3>
-                  <p className="text-[10px] text-neutral-450 mt-1 font-mono">User ID: {detail.userId}</p>
+                  <p className="text-[10px] text-neutral-450 mt-1 font-mono">
+                    User ID: {detail.userId}
+                  </p>
                 </div>
                 <button
                   onClick={() => setDetail(null)}
@@ -336,7 +358,9 @@ export default function AdminVerificationsPage() {
 
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Document Review Files</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+                    Document Review Files
+                  </h4>
                   <div className="space-y-2">
                     {documents.map((doc) => (
                       <div
@@ -344,14 +368,18 @@ export default function AdminVerificationsPage() {
                         className="flex items-center justify-between gap-3 rounded-xl border border-neutral-150 bg-neutral-50/50 p-3"
                       >
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-neutral-700 truncate">{doc.documentType}</p>
+                          <p className="text-xs font-bold text-neutral-700 truncate">
+                            {doc.documentType}
+                          </p>
                           <p className="text-[9px] text-neutral-400 mt-0.5">
                             Standard access-controlled storage
                           </p>
                           {doc.originalFilename ? (
                             <p className="text-[9px] text-neutral-500 mt-1 truncate">
                               {doc.originalFilename}
-                              {doc.fileSizeBytes ? ` · ${Math.ceil(doc.fileSizeBytes / 1024)} KB` : ''}
+                              {doc.fileSizeBytes
+                                ? ` · ${Math.ceil(doc.fileSizeBytes / 1024)} KB`
+                                : ''}
                             </p>
                           ) : null}
                         </div>
@@ -383,7 +411,9 @@ export default function AdminVerificationsPage() {
 
                 {detail.reviewReason && (
                   <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Review Reason (Member Facing)</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                      Review Reason (Member Facing)
+                    </h4>
                     <p className="mt-1.5 text-xs text-neutral-600 bg-neutral-50 p-2.5 rounded-xl border border-neutral-100 leading-relaxed">
                       {detail.reviewReason}
                     </p>
@@ -392,7 +422,9 @@ export default function AdminVerificationsPage() {
 
                 {detail.adminNote && (
                   <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Internal Audit Logs Note</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                      Internal Audit Logs Note
+                    </h4>
                     <p className="mt-1.5 text-xs text-neutral-600 bg-neutral-50 p-2.5 rounded-xl border border-neutral-100 leading-relaxed">
                       {detail.adminNote}
                     </p>
@@ -403,7 +435,9 @@ export default function AdminVerificationsPage() {
           ) : (
             <div className="hidden lg:flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-300 p-8 text-center text-neutral-400 bg-white">
               <FileCheck className="h-8 w-8 text-neutral-300" />
-              <p className="mt-2 text-xs">Select a request on the left to inspect secure files and details.</p>
+              <p className="mt-2 text-xs">
+                Select a request on the left to inspect secure files and details.
+              </p>
             </div>
           )}
         </div>
@@ -416,7 +450,7 @@ export default function AdminVerificationsPage() {
             onClick={() => setReviewItem(null)}
             className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
           />
-          
+
           <div className="relative w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
             <h3 className="text-base font-extrabold text-neutral-900 flex items-center gap-2">
               {reviewItem.targetStatus === 'APPROVED' ? (
@@ -431,9 +465,13 @@ export default function AdminVerificationsPage() {
                 </>
               )}
             </h3>
-            
+
             <p className="text-xs text-neutral-500 mt-1.5 leading-relaxed">
-              Applying state change to <strong className="text-[#A10E4D] uppercase">{reviewItem.targetStatus.replace('_', ' ')}</strong>.
+              Applying state change to{' '}
+              <strong className="text-[#A10E4D] uppercase">
+                {reviewItem.targetStatus.replace('_', ' ')}
+              </strong>
+              .
             </p>
 
             <div className="mt-4 space-y-4">
@@ -447,8 +485,12 @@ export default function AdminVerificationsPage() {
                     onChange={(e) => setConfirmApprove(e.target.checked)}
                     className="mt-1 h-3.5 w-3.5 rounded text-[#A10E4D] focus:ring-[#A10E4D]/20 cursor-pointer"
                   />
-                  <label htmlFor="confirm-app" className="text-xs text-neutral-600 font-semibold cursor-pointer">
-                    I confirm that I have reviewed the submitted documents and verified the member's authenticity.
+                  <label
+                    htmlFor="confirm-app"
+                    className="text-xs text-neutral-600 font-semibold cursor-pointer"
+                  >
+                    I confirm that I have reviewed the submitted documents and verified the member's
+                    authenticity.
                   </label>
                 </div>
               ) : (

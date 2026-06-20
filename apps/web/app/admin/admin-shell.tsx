@@ -241,7 +241,7 @@ export default function AdminShell({
 
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-[#FBFBFC] text-[#2F2F2F] antialiased font-sans">
+      <div className="flex h-screen overflow-hidden bg-[#FBFBFC] text-[#2F2F2F] antialiased font-sans">
         {/* DESKTOP SIDEBAR */}
         <aside className="hidden lg:flex fixed inset-y-0 left-0 z-40 h-[100dvh] max-h-[100dvh] w-64 shrink-0 flex-col border-r border-[#2F2F2F]/10 bg-[#1F1F2E] text-white">
           {navContent}
