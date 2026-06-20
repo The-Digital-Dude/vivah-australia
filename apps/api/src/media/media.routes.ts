@@ -139,6 +139,10 @@ export function createMediaRouter(config: AuthConfig): Router {
         variant ?? 'original',
       );
 
+      // These images are embedded cross-origin by the web app (different origin
+      // than the API), so relax Helmet's default same-origin CORP for this route.
+      response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+
       if (result.mode === 'redirect') {
         response.redirect(result.assetUrl);
         return;

@@ -542,7 +542,14 @@ function PhotoLightbox({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden bg-brand-charcoal p-0 text-white">
         <div className="relative aspect-[4/5] w-full bg-[#111111]">
-          <Image src={imageUrl} alt={title} fill sizes="100vw" className="object-contain" />
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            unoptimized
+            sizes="100vw"
+            className="object-contain"
+          />
         </div>
         <div className="p-5 text-left">
           <DialogTitle className="text-white">{title}</DialogTitle>
@@ -854,6 +861,7 @@ function PrivateGalleryAccessCard({
                   src={photo.thumbnailUrl ?? photo.videoPosterUrl ?? photo.assetUrl}
                   alt="Private gallery photo"
                   fill
+                  unoptimized
                   sizes="(min-width: 768px) 20vw, 50vw"
                   className="object-cover transition duration-300 hover:scale-105"
                   onContextMenu={(event) => event.preventDefault()}
