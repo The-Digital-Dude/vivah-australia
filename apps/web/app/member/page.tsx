@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MemberShell from './member-shell';
+import { useAuth } from '@/app/auth-context';
 import { useMemberRequest } from '@/lib/member-api';
 import { useEntitlement } from '@/lib/use-entitlement';
 import ProfileStrengthMeter, { type ProfileStrength } from './profile-strength-meter';
@@ -158,6 +159,7 @@ function formatDate(value?: string) {
 
 export default function MemberDashboardPage() {
   const router = useRouter();
+  const { initialized, token } = useAuth();
   const memberRequest = useMemberRequest();
   const entitlement = useEntitlement();
 
@@ -244,8 +246,19 @@ export default function MemberDashboardPage() {
   }
 
   useEffect(() => {
+    // Wait for the auth context to hydrate the token from localStorage before
+    // firing requests, otherwise the first load races ahead with a null token
+    // and every request fails with "Not authenticated. Please log in."
+    if (!initialized) {
+      return;
+    }
+    if (!token) {
+      // MemberShell handles the redirect to /login when there is no session.
+      return;
+    }
     void loadDashboardData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized, token]);
 
   async function handleActivateBoost() {
     setActivatingBoost(true);

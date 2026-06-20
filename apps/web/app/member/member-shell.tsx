@@ -194,7 +194,9 @@ function cx(...classes: Array<string | false | null | undefined>) {
 }
 
 function pathMatches(pathname: string, matches: string[]) {
-  return matches.some((candidate) => pathname === candidate || pathname.startsWith(`${candidate}/`));
+  return matches.some(
+    (candidate) => pathname === candidate || pathname.startsWith(`${candidate}/`),
+  );
 }
 
 function DesktopRail({
@@ -377,7 +379,10 @@ export default function MemberShell({
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { notifications, markRead } = useNotifications();
-  const unreadNotifications = useMemo(() => notifications.filter((n) => !n.readAt), [notifications]);
+  const unreadNotifications = useMemo(
+    () => notifications.filter((n) => !n.readAt),
+    [notifications],
+  );
 
   if (!initialized || !token) {
     return (
@@ -398,7 +403,7 @@ export default function MemberShell({
         <PublicHeader />
       </div>
 
-      <div className="mx-auto max-w-[1600px] lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="mx-auto lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
         <div className="hidden lg:block">
           <DesktopRail firstName={firstName} pathname={pathname} unreadCount={unreadCount} />
         </div>
@@ -406,7 +411,7 @@ export default function MemberShell({
         <div className="min-w-0">
           <main
             className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8"
-            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8.5rem)' }}
+            // style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8.5rem)' }}
           >
             <div className="overflow-hidden rounded-[32px] border border-[#A10E4D]/10 bg-white shadow-[0_18px_50px_rgba(122,31,43,0.08)]">
               <div className="border-b border-[#A10E4D]/10 bg-[linear-gradient(180deg,rgba(252,250,247,0.95)_0%,rgba(255,255,255,1)_100%)] px-4 py-4 sm:px-6 sm:py-5">
@@ -439,10 +444,13 @@ export default function MemberShell({
                             </span>
                           ) : null}
                         </button>
-                        
+
                         {isNotificationsOpen && (
                           <>
-                            <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
+                            <div
+                              className="fixed inset-0 z-40"
+                              onClick={() => setIsNotificationsOpen(false)}
+                            />
                             <div className="absolute right-0 top-full mt-2 w-80 z-50 overflow-hidden rounded-2xl border border-[#A10E4D]/10 bg-white shadow-xl">
                               <div className="border-b border-[#A10E4D]/10 px-4 py-3 bg-[#FFF9F5]">
                                 <h3 className="font-semibold text-[#2F2F2F]">Notifications</h3>
@@ -463,8 +471,14 @@ export default function MemberShell({
                                       }}
                                       className="block border-b border-[#A10E4D]/5 p-4 hover:bg-[#FFF9F5] transition"
                                     >
-                                      <p className="text-sm font-medium text-[#2F2F2F] leading-snug">{n.title}</p>
-                                      {n.body && <p className="mt-1 text-xs text-[#6B7280] line-clamp-2">{n.body}</p>}
+                                      <p className="text-sm font-medium text-[#2F2F2F] leading-snug">
+                                        {n.title}
+                                      </p>
+                                      {n.body && (
+                                        <p className="mt-1 text-xs text-[#6B7280] line-clamp-2">
+                                          {n.body}
+                                        </p>
+                                      )}
                                     </Link>
                                   ))
                                 )}
@@ -490,7 +504,6 @@ export default function MemberShell({
                       </Link>
                     </div>
                   </div>
-
                 </div>
               </div>
 
@@ -576,9 +589,7 @@ export default function MemberShell({
                 </div>
               ) : null}
 
-              <section className="px-4 py-5 sm:px-6 sm:py-6">
-                {children}
-              </section>
+              <section className="px-4 py-5 sm:px-6 sm:py-6">{children}</section>
             </div>
           </main>
         </div>
@@ -603,7 +614,12 @@ export default function MemberShell({
                     : 'text-[#6B7280] hover:bg-[#FFF0F3]/50 hover:text-[#A10E4D]',
                 )}
               >
-                <Icon className={cx('mb-1 h-[18px] w-[18px]', active ? 'text-[#D4A04C]' : 'text-current')} />
+                <Icon
+                  className={cx(
+                    'mb-1 h-[18px] w-[18px]',
+                    active ? 'text-[#D4A04C]' : 'text-current',
+                  )}
+                />
                 <span className={cx(active ? 'font-bold' : 'font-medium')}>{item.label}</span>
               </Link>
             );

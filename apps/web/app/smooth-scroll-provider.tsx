@@ -1,11 +1,19 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 
 export default function SmoothScrollProvider() {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
+
+    // Disable smooth scrolling on member and admin routes.
+    if (pathname?.startsWith('/member') || pathname?.startsWith('/admin')) {
+      return undefined;
+    }
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return undefined;
@@ -28,7 +36,7 @@ export default function SmoothScrollProvider() {
       window.cancelAnimationFrame(frame);
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }
