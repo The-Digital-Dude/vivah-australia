@@ -1598,7 +1598,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
             >
               <option value="PROFILE_PHOTO">Profile photo</option>
               <option value="PUBLIC_GALLERY">Public gallery</option>
-              <option value="PRIVATE_GALLERY">Private gallery</option>
+              <option value="PRIVATE_GALLERY">More Photos</option>
               <option value="VIDEO_INTRO">Video intro</option>
             </select>
           </label>
@@ -1611,7 +1611,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
             >
               <option value="PUBLIC">Public</option>
               <option value="MATCHES_ONLY">Matches only</option>
-              <option value="PRIVATE">Private</option>
+              <option value="PRIVATE">Request to view</option>
             </select>
           </label>
           <label className="grid gap-1.5 text-xs font-bold text-[#2F2F2F]">

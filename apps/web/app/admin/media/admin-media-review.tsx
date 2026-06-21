@@ -32,6 +32,27 @@ function dataAs<T>(data: unknown): T {
   return data as T;
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  PROFILE_PHOTO: 'Profile photo',
+  PUBLIC_GALLERY: 'Public gallery',
+  PRIVATE_GALLERY: 'More Photos',
+  VIDEO_INTRO: 'Video intro',
+};
+
+const VISIBILITY_LABELS: Record<string, string> = {
+  PUBLIC: 'Public',
+  MATCHES_ONLY: 'Matches only',
+  PRIVATE: 'Request to view',
+};
+
+function categoryLabel(value: string) {
+  return CATEGORY_LABELS[value] ?? value.replace('_', ' ');
+}
+
+function visibilityLabel(value: string) {
+  return VISIBILITY_LABELS[value] ?? value.replace('_', ' ');
+}
+
 export default function AdminMediaReview() {
   const memberRequest = useMemberRequest();
   const [media, setMedia] = useState<ReviewMediaItem[]>([]);
@@ -152,10 +173,10 @@ export default function AdminMediaReview() {
               )}
               <div className="absolute left-3 top-3 flex items-center gap-1.5">
                 <span className="rounded-lg bg-black/60 px-2.5 py-1 text-[9px] font-bold text-white uppercase tracking-wider backdrop-blur-sm">
-                  {item.visibility}
+                  {visibilityLabel(item.visibility)}
                 </span>
                 <span className="rounded-lg bg-neutral-900/60 px-2.5 py-1 text-[9px] font-bold text-[#D4A04C] uppercase tracking-wider backdrop-blur-sm">
-                  {item.category.replace('_', ' ')}
+                  {categoryLabel(item.category)}
                 </span>
               </div>
             </div>
@@ -280,10 +301,10 @@ export default function AdminMediaReview() {
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-black/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-                      {reviewItem.item.visibility}
+                      {visibilityLabel(reviewItem.item.visibility)}
                     </span>
                     <span className="rounded-full bg-[#D4A04C]/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#8A651F]">
-                      {reviewItem.item.category.replace('_', ' ')}
+                      {categoryLabel(reviewItem.item.category)}
                     </span>
                     <AdminStatusBadge status={reviewItem.item.approvalStatus} />
                   </div>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { AlertTriangle, Ban, CheckCircle2, Flag, Heart, Send, ShieldAlert, X, MessageCircle, Undo2 } from 'lucide-react';
+import { AlertTriangle, Ban, CheckCircle2, Flag, Heart, MoreHorizontal, Send, ShieldAlert, X, MessageCircle, Undo2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { reportCreateSchema } from '@vivah/shared';
 import { useMemberRequest, validationMessage } from '@/lib/member-api';
@@ -19,8 +19,9 @@ export default function ProfileActions({
   profileId,
   compact = false,
   stacked = false,
+  dropdown = false,
   onProfileHidden,
-}: Readonly<{ profileId: string; compact?: boolean; stacked?: boolean; onProfileHidden?: () => void }>) {
+}: Readonly<{ profileId: string; compact?: boolean; stacked?: boolean; dropdown?: boolean; onProfileHidden?: () => void }>) {
   const router = useRouter();
   const memberRequest = useMemberRequest();
   const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
@@ -28,6 +29,8 @@ export default function ProfileActions({
   const [blockOpen, setBlockOpen] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [status, setStatus] = useState<InteractionStatus | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!profileId) return;
@@ -37,6 +40,17 @@ export default function ProfileActions({
       }
     });
   }, [profileId]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!feedback) return;
@@ -137,6 +151,127 @@ export default function ProfileActions({
   const interestAccepted = status?.interestStatus === 'ACCEPTED';
   const isFavourited = status?.isFavourited ?? false;
 
+  const overlays = (
+    <>
+      {feedback ? (
+        <div
+          className={`fixed inset-x-4 bottom-24 z-40 mx-auto w-full max-w-sm rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl md:inset-x-auto md:right-6 md:bottom-6 ${
+            feedback.tone === 'success'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'border-[#F0D6DA] bg-white text-[#7A1E3A]'
+          }`}
+          style={{ bottom: 'calc(env(safe-area-inset-bottom) + 6rem)' }}
+        >
+          <div className="flex items-start gap-3">
+            {feedback.tone === 'success' ? (
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+            ) : (
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            )}
+            <span>{feedback.message}</span>
+          </div>
+        </div>
+      ) : null}
+      {reportOpen ? (
+        <ReportModal
+          onClose={() => setReportOpen(false)}
+          onSubmit={(reason, severity) => void submitReport(reason, severity)}
+        />
+      ) : null}
+      {blockOpen ? (
+        <ConfirmModal
+          title="Block this member?"
+          body="They will disappear from search and recommendations, and pending interests between you will be withdrawn."
+          confirmLabel={pending === 'block' ? 'Blocking…' : 'Block member'}
+          onClose={() => setBlockOpen(false)}
+          onConfirm={() => void block()}
+        />
+      ) : null}
+    </>
+  );
+
+  if (dropdown) {
+    return (
+      <div className="relative" ref={menuRef}>
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-label="Profile actions"
+          className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-[#F0D6DA] bg-white px-3 text-[#7A1E3A] transition hover:bg-[#FFF8F1]"
+        >
+          <MoreHorizontal className="size-4" />
+        </button>
+        {menuOpen ? (
+          <div
+            role="menu"
+            className="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-[#F0D6DA] bg-white py-1 shadow-[0_18px_40px_rgba(122,31,43,0.12)]"
+          >
+            {interestAccepted ? null : interestSent && status?.isSender ? (
+              <MenuItem
+                label={pending === 'withdraw' ? 'Withdrawing…' : 'Withdraw'}
+                icon={<Undo2 className="size-3.5" />}
+                tone="safety"
+                onClick={() => {
+                  setMenuOpen(false);
+                  void withdrawInterest();
+                }}
+              />
+            ) : (
+              <MenuItem
+                label={pending === 'interest' ? 'Sending…' : interestSent ? 'Interest Sent' : 'Interest'}
+                icon={<Send className="size-3.5" />}
+                disabled={interestSent}
+                onClick={() => {
+                  setMenuOpen(false);
+                  void sendInterest();
+                }}
+              />
+            )}
+            <MenuItem
+              label={pending === 'favourite' ? (isFavourited ? 'Removing…' : 'Saving…') : isFavourited ? 'Saved' : 'Save'}
+              icon={<Heart className={`size-3.5 ${isFavourited ? 'fill-current' : ''}`} />}
+              active={isFavourited}
+              onClick={() => {
+                setMenuOpen(false);
+                void toggleFavourite();
+              }}
+            />
+            <MenuItem
+              label={pending === 'hide' ? 'Hiding…' : 'Ignore'}
+              icon={<X className="size-3.5" />}
+              onClick={() => {
+                setMenuOpen(false);
+                void hide();
+              }}
+            />
+            <div className="my-1 border-t border-[#F0D6DA]/70" />
+            <MenuItem
+              label="Report issue"
+              icon={<Flag className="size-3.5" />}
+              tone="safety"
+              onClick={() => {
+                setMenuOpen(false);
+                setReportOpen(true);
+              }}
+            />
+            <MenuItem
+              label="Block member"
+              icon={<Ban className="size-3.5" />}
+              tone="safety"
+              onClick={() => {
+                setMenuOpen(false);
+                setBlockOpen(true);
+              }}
+            />
+          </div>
+        ) : null}
+        {overlays}
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-2">
       <div className="grid gap-2">
@@ -205,41 +340,43 @@ export default function ProfileActions({
           </div>
         </div>
       </div>
-      {feedback ? (
-        <div
-          className={`fixed inset-x-4 bottom-24 z-40 mx-auto w-full max-w-sm rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl md:inset-x-auto md:right-6 md:bottom-6 ${
-            feedback.tone === 'success'
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-              : 'border-[#F0D6DA] bg-white text-[#7A1E3A]'
-          }`}
-          style={{ bottom: 'calc(env(safe-area-inset-bottom) + 6rem)' }}
-        >
-          <div className="flex items-start gap-3">
-            {feedback.tone === 'success' ? (
-              <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-            ) : (
-              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-            )}
-            <span>{feedback.message}</span>
-          </div>
-        </div>
-      ) : null}
-      {reportOpen ? (
-        <ReportModal
-          onClose={() => setReportOpen(false)}
-          onSubmit={(reason, severity) => void submitReport(reason, severity)}
-        />
-      ) : null}
-      {blockOpen ? (
-        <ConfirmModal
-          title="Block this member?"
-          body="They will disappear from search and recommendations, and pending interests between you will be withdrawn."
-          confirmLabel={pending === 'block' ? 'Blocking…' : 'Block member'}
-          onClose={() => setBlockOpen(false)}
-          onConfirm={() => void block()}
-        />
-      ) : null}
+      {overlays}
     </div>
+  );
+}
+
+function MenuItem({
+  label,
+  icon,
+  onClick,
+  disabled = false,
+  active = false,
+  tone = 'default',
+}: Readonly<{
+  label: string;
+  icon: ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  active?: boolean;
+  tone?: 'default' | 'safety';
+}>) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+        tone === 'safety'
+          ? 'text-[#7A1E3A] hover:bg-[#FFF4D9]'
+          : active
+          ? 'text-[#A10E4D] hover:bg-[#FFF0F3]'
+          : 'text-[#5E6470] hover:bg-[#FFF8F1]'
+      }`}
+    >
+      <span className="shrink-0">{icon}</span>
+      {label}
+    </button>
   );
 }
 

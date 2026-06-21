@@ -47,6 +47,27 @@ function previewAssetUrl(item: MediaItem) {
   return item.thumbnailUrl ?? item.assetUrl;
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  PROFILE_PHOTO: 'Profile photo',
+  PUBLIC_GALLERY: 'Public gallery',
+  PRIVATE_GALLERY: 'More Photos',
+  VIDEO_INTRO: 'Video intro',
+};
+
+const VISIBILITY_LABELS: Record<string, string> = {
+  PUBLIC: 'Public',
+  MATCHES_ONLY: 'Matches only',
+  PRIVATE: 'Request to view',
+};
+
+function categoryLabel(value: string) {
+  return CATEGORY_LABELS[value] ?? value.replaceAll('_', ' ');
+}
+
+function visibilityLabel(value: string) {
+  return VISIBILITY_LABELS[value] ?? value.replaceAll('_', ' ');
+}
+
 async function getVideoDurationSeconds(file: File) {
   const objectUrl = URL.createObjectURL(file);
 
@@ -246,7 +267,7 @@ export default function MediaManager() {
             >
               <option value="PROFILE_PHOTO">Profile photo</option>
               <option value="PUBLIC_GALLERY">Public gallery</option>
-              <option value="PRIVATE_GALLERY">Private gallery</option>
+              <option value="PRIVATE_GALLERY">More Photos</option>
               <option value="VIDEO_INTRO">Video intro</option>
             </select>
           </label>
@@ -258,7 +279,7 @@ export default function MediaManager() {
             >
               <option value="PUBLIC">Public</option>
               <option value="MATCHES_ONLY">Matches only</option>
-              <option value="PRIVATE">Private</option>
+              <option value="PRIVATE">Request to view</option>
             </select>
           </label>
           <label className="grid gap-1.5 text-xs font-semibold text-[#6B7280]">
@@ -310,8 +331,8 @@ export default function MediaManager() {
             </div>
             <div className="p-3">
               <div className="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase tracking-wide">
-                <span className="rounded-full bg-[#FFF0F3] px-2 py-0.5 text-[#7A1E3A]">{item.category.replaceAll('_', ' ')}</span>
-                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-600">{item.visibility}</span>
+                <span className="rounded-full bg-[#FFF0F3] px-2 py-0.5 text-[#7A1E3A]">{categoryLabel(item.category)}</span>
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-600">{visibilityLabel(item.visibility)}</span>
                 <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-neutral-600">{item.approvalStatus}</span>
                 {item.isPrimary && <span className="rounded-full bg-[#FFF1D2] px-2 py-0.5 text-[#7A1E3A]">Primary</span>}
               </div>

@@ -335,8 +335,8 @@ const FAQ_ITEMS = [
   },
   {
     id: 'photos',
-    question: 'Who can see my private photos?',
-    answer: 'Your photo visibility is always controlled by you. Paid plans do not override your privacy settings. You decide exactly who can request access to your private gallery.',
+    question: 'Who can see my photos?',
+    answer: 'Your photo visibility is always controlled by you. Paid plans do not override your privacy settings. You decide exactly who can request access to your More Photos gallery.',
   },
   {
     id: 'boost',

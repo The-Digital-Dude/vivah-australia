@@ -73,7 +73,7 @@ const steps = [
     subtitle: 'Start meaningful conversations',
     description:
       'Express interest in profiles you like. When the interest is mutual, start a private, secure conversation. Premium members can message anyone directly — no waiting required.',
-    details: ['Express interest feature', 'Mutual match messaging', 'Private photo sharing', 'Secure encrypted chat'],
+    details: ['Express interest feature', 'Mutual match messaging', 'More Photos sharing', 'Secure encrypted chat'],
     color: 'bg-[#8A0C41]',
   },
   {

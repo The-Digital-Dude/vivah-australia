@@ -5,7 +5,7 @@ export default function AdminMediaPage() {
   return (
     <AdminShell
       title="Media Approval Queue"
-      subtitle="Review uploaded profile photos, public gallery media, and private gallery media before member-facing display."
+      subtitle="Review uploaded profile photos, public gallery media, and More Photos gallery media before member-facing display."
     >
       <AdminMediaReview />
     </AdminShell>

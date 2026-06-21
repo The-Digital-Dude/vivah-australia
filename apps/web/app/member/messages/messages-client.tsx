@@ -772,9 +772,6 @@ export default function MessagesClient() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {selectedProfileId ? (
-                    <ProfileActions profileId={selectedProfileId} compact />
-                  ) : null}
                   {selected ? (
                     <button
                       type="button"
@@ -784,6 +781,9 @@ export default function MessagesClient() {
                       <Trash2 className="size-3.5" />
                       Delete chat
                     </button>
+                  ) : null}
+                  {selectedProfileId ? (
+                    <ProfileActions profileId={selectedProfileId} dropdown />
                   ) : null}
                 </div>
               </div>

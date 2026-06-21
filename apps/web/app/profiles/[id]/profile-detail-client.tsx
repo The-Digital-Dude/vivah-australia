@@ -644,7 +644,7 @@ function GalleryExperienceSection({
                 </p>
                 <p className="mt-2 max-w-md text-sm leading-6 text-gray-500">
                   This member has not added public gallery photos yet, but you can still review
-                  their trust signals, compatibility, and request access to private photos.
+                  their trust signals, compatibility, and request access to their More Photos gallery.
                 </p>
               </div>
             </div>
@@ -805,9 +805,9 @@ function PrivateGalleryAccessCard({
     return (
       <div className="rounded-[28px] border border-dashed border-brand-gold/50 bg-white p-6 text-center">
         <Lock className="mx-auto size-8 text-brand-gold" />
-        <p className="mt-4 text-lg font-semibold text-brand-charcoal">Sign in for private photos</p>
+        <p className="mt-4 text-lg font-semibold text-brand-charcoal">Sign in to see more photos</p>
         <p className="mt-2 text-sm leading-6 text-gray-500">
-          Private gallery access is only available to signed-in members so photo sharing stays in
+          More Photos access is only available to signed-in members so photo sharing stays in
           the member community.
         </p>
       </div>
@@ -840,11 +840,11 @@ function PrivateGalleryAccessCard({
         </div>
 
         <p className="mt-4 text-sm leading-6 text-gray-500">
-          You can now view the private gallery that {profileName} chose to share with you.
+          You can now view the More Photos gallery that {profileName} chose to share with you.
         </p>
 
         {loadingPhotos ? (
-          <p className="mt-4 text-sm text-gray-500">Loading private photos...</p>
+          <p className="mt-4 text-sm text-gray-500">Loading photos...</p>
         ) : photos.length > 0 ? (
           <div className="mt-4 grid grid-cols-2 gap-3">
             {photos.slice(0, 4).map((photo) => (
@@ -859,7 +859,7 @@ function PrivateGalleryAccessCard({
               >
                 <Image
                   src={photo.thumbnailUrl ?? photo.videoPosterUrl ?? photo.assetUrl}
-                  alt="Private gallery photo"
+                  alt="More photos gallery photo"
                   fill
                   unoptimized
                   sizes="(min-width: 768px) 20vw, 50vw"
@@ -868,14 +868,14 @@ function PrivateGalleryAccessCard({
                 />
                 <span className="block aspect-[4/4.6]" aria-hidden="true" />
                 <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-full bg-brand-charcoal/70 px-2 py-1 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-white/90">
-                  Private
+                  More photos
                 </div>
               </motion.button>
             ))}
           </div>
         ) : (
           <div className="mt-4 rounded-2xl border border-dashed border-brand-gold/40 bg-brand-ivory p-4 text-sm text-gray-500">
-            No private photos have been added yet.
+            No additional photos have been added yet.
           </div>
         )}
       </div>
@@ -887,10 +887,10 @@ function PrivateGalleryAccessCard({
       <div className="rounded-[28px] border border-brand-gold/30 bg-[linear-gradient(135deg,#FFF8EC_0%,#FFF9F5_100%)] p-5 text-center">
         <Clock3 className="mx-auto size-8 text-brand-gold" />
         <p className="mt-4 text-lg font-semibold text-brand-charcoal">
-          Private photo request pending
+          Photo request pending
         </p>
         <p className="mt-2 text-sm leading-6 text-gray-500">
-          Your request is waiting for a response. We will surface the private gallery here if access
+          Your request is waiting for a response. We will surface the More Photos gallery here if access
           is granted.
         </p>
         {feedback ? (
@@ -914,7 +914,7 @@ function PrivateGalleryAccessCard({
     <div className="rounded-[28px] border border-dashed border-brand-gold/50 bg-white p-5">
       <div className="text-center">
         <Lock className="mx-auto size-8 text-brand-maroon/50" />
-        <p className="mt-4 text-lg font-semibold text-brand-charcoal">Private gallery</p>
+        <p className="mt-4 text-lg font-semibold text-brand-charcoal">More Photos</p>
         <p className="mt-2 text-sm leading-6 text-gray-500">
           Ask for access if you want to see more photos after the profile already feels promising.
         </p>
@@ -961,7 +961,7 @@ function PrivateGalleryAccessCard({
         <div className="mt-5 flex justify-center">
           <PremiumButton onClick={() => setShowMessageBox(true)}>
             <Camera className="size-4" />
-            Request private photos
+            Request to view photos
           </PremiumButton>
         </div>
       )}

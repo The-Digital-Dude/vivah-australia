@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
       title: 'Media approvals',
       href: '/admin/media',
       count: summary?.pendingMedia ?? 0,
-      description: 'Audit gallery uploads and private-photo states.',
+      description: 'Audit gallery uploads and More Photos states.',
       tone: 'slate',
       icon: ImageIcon,
     },

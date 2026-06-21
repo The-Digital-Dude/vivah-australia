@@ -111,11 +111,11 @@ export async function sendPhotoRequest(
     userId: ownerId,
     type: 'PHOTO_REQUEST_RECEIVED',
     title: 'New photo access request',
-    body: `${requesterName} has requested to view your private photos.`,
+    body: `${requesterName} has requested to view your More Photos gallery.`,
     data: { photoRequestId: String(photoRequest?._id), requesterId: String(requesterId) },
-    pushBody: `${requesterName} wants to see your private photos.`,
+    pushBody: `${requesterName} wants to see your More Photos gallery.`,
     emailSubject: 'New photo access request',
-    emailBody: `${requesterName} has requested to view your private photos. Log in to Vivah Australia to respond.`
+    emailBody: `${requesterName} has requested to view your More Photos gallery. Log in to Vivah Australia to respond.`
   });
 
   return photoRequest;
@@ -162,7 +162,7 @@ export async function respondToPhotoRequest(
     action === 'ACCEPT' ? 'Photo access request accepted!' : 'Photo access request declined';
   const body =
     action === 'ACCEPT'
-      ? `${ownerName} has accepted your request. You can now view their private photos for ${ACCESS_GRANT_DAYS} days.`
+      ? `${ownerName} has accepted your request. You can now view their More Photos gallery for ${ACCESS_GRANT_DAYS} days.`
       : `${ownerName} has declined your photo access request.`;
 
   await createNotification({

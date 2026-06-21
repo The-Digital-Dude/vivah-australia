@@ -298,7 +298,7 @@ export default function PhotoRequestsPage() {
   const pendingIncoming = incoming.filter((r) => r.status === 'PENDING').length;
 
   return (
-    <MemberShell title="Photo Requests" subtitle="Manage private photo access">
+    <MemberShell title="Photo Requests" subtitle="Manage access to your More Photos gallery">
       {loading ? (
         <LoadingState label="Loading photo requests" />
       ) : error ? (
@@ -350,7 +350,7 @@ export default function PhotoRequestsPage() {
                 incoming.length === 0 ? (
                   <div className="p-6">
                     <EmptyState title="No requests received yet">
-                      When members request access to your private photos, they&apos;ll appear here.
+                      When members request access to your More Photos gallery, they&apos;ll appear here.
                     </EmptyState>
                   </div>
                 ) : (
@@ -374,7 +374,7 @@ export default function PhotoRequestsPage() {
                       </PremiumButton>
                     }
                   >
-                    Visit a member profile and request access to their private gallery.
+                    Visit a member profile and request access to their More Photos gallery.
                   </EmptyState>
                 </div>
               ) : (
@@ -393,11 +393,11 @@ export default function PhotoRequestsPage() {
 
           {/* Upload tip */}
           <p className="text-xs text-center text-[#6B7280]">
-            To add private photos for others to request access to, go to{' '}
+            To add More Photos for others to request access to, go to{' '}
             <Link href="/member/media" className="font-semibold text-[#A10E4D] hover:underline">
               Media uploads
             </Link>{' '}
-            and set the visibility to Private.
+            and set the visibility to Request to view.
           </p>
         </div>
       )}
