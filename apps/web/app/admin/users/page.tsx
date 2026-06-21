@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import { AdminDataTable } from '../components/admin-data-table';
@@ -31,9 +31,37 @@ interface UserItem {
   } | null;
 }
 
+interface FullUser {
+  id: string;
+  email?: string;
+  mobile?: string;
+  role?: string;
+  status?: string;
+  emailVerified?: boolean;
+  mobileVerified?: boolean;
+  authProviders?: string[];
+  googleId?: string;
+  facebookId?: string;
+  appleId?: string;
+  lastLoginAt?: string | null;
+  passwordChangedAt?: string | null;
+  failedLoginAttempts?: number;
+  lockUntil?: string | null;
+  activeSessionCount?: number;
+  termsAcceptedAt?: string | null;
+  privacyAcceptedAt?: string | null;
+  marketingConsent?: boolean;
+  notificationPreferences?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+  isDeleted?: boolean;
+  deletedAt?: string | null;
+}
+
 interface UserDetail {
-  user?: UserItem;
-  profile?: UserItem['profile'];
+  user?: FullUser;
+  profile?: Record<string, unknown> | null;
   notes?: Array<{ id: string; note: string; authorId: string; createdAt: string }>;
 }
 
@@ -174,13 +202,17 @@ export default function AdminUsersPage() {
     {
       header: 'Member details',
       accessor: (user) => (
-        <div>
-          <p className="font-bold text-neutral-900">
+        <button
+          type="button"
+          onClick={() => void showNotes(user.id)}
+          className="text-left group"
+        >
+          <p className="font-bold text-neutral-900 group-hover:text-[#A10E4D] group-hover:underline transition">
             {[user.profile?.firstName, user.profile?.lastName].filter(Boolean).join(' ') ||
               'Unnamed member'}
           </p>
           <p className="text-xs text-neutral-500 font-medium mt-0.5">{user.email ?? user.id}</p>
-        </div>
+        </button>
       ),
     },
     {
@@ -348,12 +380,11 @@ export default function AdminUsersPage() {
             className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
             aria-label="Close Details"
           />
-          <div className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200 space-y-5">
-            <div className="flex items-start justify-between gap-4 border-b border-neutral-150 pb-4">
+          <div className="relative w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200 space-y-5">
+            <div className="sticky -top-6 z-10 -mx-6 -mt-6 mb-1 flex items-start justify-between gap-4 border-b border-neutral-150 bg-white/95 backdrop-blur px-6 pt-6 pb-4">
               <div>
                 <h3 className="text-lg font-bold text-neutral-900">
-                  {[detail.profile?.firstName, detail.profile?.lastName].filter(Boolean).join(' ') ||
-                    'Unnamed member'}
+                  {fullProfileName(detail.profile)}
                 </h3>
                 <p className="text-xs text-neutral-500 mt-1">{detail.user?.email ?? detail.user?.id}</p>
               </div>
@@ -366,24 +397,47 @@ export default function AdminUsersPage() {
               </button>
             </div>
 
-            {/* ACCOUNT OVERVIEW */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-              <DetailField label="Display ID" value={detail.profile?.displayId} />
-              <DetailField label="Role" value={detail.user?.role?.replace('_', ' ')} />
-              <DetailField label="Account status" value={detail.user?.status} />
-              <DetailField label="Approval status" value={detail.profile?.approvalStatus} />
-              <DetailField label="Verification level" value={detail.profile?.verificationLevel} />
-              <DetailField label="Email verified" value={detail.user?.emailVerified ? 'Yes' : 'No'} />
-              <DetailField label="Mobile verified" value={detail.user?.mobileVerified ? 'Yes' : 'No'} />
-              <DetailField
-                label="Joined"
-                value={detail.user?.createdAt ? new Date(detail.user.createdAt).toLocaleString() : undefined}
-              />
-              <DetailField
-                label="Last login"
-                value={detail.user?.lastLoginAt ? new Date(detail.user.lastLoginAt).toLocaleString() : 'Never'}
-              />
-            </div>
+            {/* ACCOUNT */}
+            {detail.user && (
+              <DetailSection title="Account">
+                <DetailGrid>
+                  <DetailField label="User ID" value={detail.user.id} />
+                  <DetailField label="Email" value={detail.user.email} />
+                  <DetailField label="Mobile" value={detail.user.mobile} />
+                  <DetailField label="Role" value={detail.user.role?.replace('_', ' ')} />
+                  <DetailField label="Account status" value={detail.user.status} />
+                  <DetailField label="Email verified" value={formatDetailValue(detail.user.emailVerified)} />
+                  <DetailField label="Mobile verified" value={formatDetailValue(detail.user.mobileVerified)} />
+                  <DetailField label="Auth providers" value={formatDetailValue(detail.user.authProviders)} />
+                  <DetailField label="Google ID" value={detail.user.googleId} />
+                  <DetailField label="Facebook ID" value={detail.user.facebookId} />
+                  <DetailField label="Apple ID" value={detail.user.appleId} />
+                  <DetailField label="Marketing consent" value={formatDetailValue(detail.user.marketingConsent)} />
+                  <DetailField label="Failed login attempts" value={formatDetailValue(detail.user.failedLoginAttempts)} />
+                  <DetailField label="Active sessions" value={formatDetailValue(detail.user.activeSessionCount)} />
+                  <DetailField label="Locked until" value={formatDetailValue(detail.user.lockUntil)} />
+                  <DetailField label="Password changed" value={formatDetailValue(detail.user.passwordChangedAt)} />
+                  <DetailField label="Terms accepted" value={formatDetailValue(detail.user.termsAcceptedAt)} />
+                  <DetailField label="Privacy accepted" value={formatDetailValue(detail.user.privacyAcceptedAt)} />
+                  <DetailField label="Last login" value={detail.user.lastLoginAt ? new Date(detail.user.lastLoginAt).toLocaleString() : 'Never'} />
+                  <DetailField label="Joined" value={formatDetailValue(detail.user.createdAt)} />
+                  <DetailField label="Last updated" value={formatDetailValue(detail.user.updatedAt)} />
+                  <DetailField label="Deleted" value={formatDetailValue(detail.user.isDeleted)} />
+                  <DetailField label="Deleted at" value={formatDetailValue(detail.user.deletedAt)} />
+                </DetailGrid>
+                {detail.user.notificationPreferences && (
+                  <ObjectBlock title="Notification preferences" data={detail.user.notificationPreferences} />
+                )}
+                {detail.user.metadata && <ObjectBlock title="Metadata" data={detail.user.metadata} />}
+              </DetailSection>
+            )}
+
+            {/* PROFILE — every field */}
+            {detail.profile ? (
+              <ProfileSections profile={detail.profile} />
+            ) : (
+              <p className="text-xs text-neutral-500 italic">No profile record exists for this member.</p>
+            )}
 
             {/* AUDIT NOTES */}
             <div className="space-y-3 border-t border-neutral-150 pt-4">
@@ -471,7 +525,118 @@ function DetailField({ label, value }: { label: string; value: string | null | u
   return (
     <div>
       <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{label}</p>
-      <p className="text-sm font-semibold text-neutral-800 mt-0.5">{value || '-'}</p>
+      <p className="text-sm font-semibold text-neutral-800 mt-0.5 break-words">{value || '-'}</p>
     </div>
+  );
+}
+
+function humanizeLabel(key: string) {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/^./, (char) => char.toUpperCase());
+}
+
+function isIsoDateString(value: string) {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value);
+}
+
+function formatDetailValue(value: unknown): string {
+  if (value === null || value === undefined || value === '') return '-';
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'number' || typeof value === 'bigint') return String(value);
+  if (typeof value === 'string') {
+    return isIsoDateString(value) ? new Date(value).toLocaleString() : value;
+  }
+  if (Array.isArray(value)) {
+    return value.length ? value.map((item) => formatDetailValue(item)).join(', ') : '-';
+  }
+  return JSON.stringify(value) ?? '-';
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function fullProfileName(profile: Record<string, unknown> | null | undefined): string {
+  const personal = isPlainObject(profile?.personal) ? profile.personal : {};
+  const name = [personal.firstName, personal.lastName]
+    .filter((part): part is string => typeof part === 'string' && part.length > 0)
+    .join(' ');
+  return name || 'Unnamed member';
+}
+
+function DetailGrid({ children }: { children: ReactNode }) {
+  return <div className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-3">{children}</div>;
+}
+
+function DetailSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="space-y-3 border-t border-neutral-150 pt-4">
+      <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">{title}</h4>
+      {children}
+    </div>
+  );
+}
+
+function ObjectBlock({ title, data }: { title: string; data: Record<string, unknown> }) {
+  const entries = Object.entries(data);
+  if (entries.length === 0) return null;
+  return (
+    <div className="rounded-xl border border-neutral-100 bg-neutral-50/50 p-4 space-y-3">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{title}</p>
+      <DetailGrid>
+        {entries.map(([key, value]) => (
+          <DetailField key={key} label={humanizeLabel(key)} value={formatDetailValue(value)} />
+        ))}
+      </DetailGrid>
+    </div>
+  );
+}
+
+function ProfileSections({ profile }: { profile: Record<string, unknown> }) {
+  const entries = Object.entries(profile);
+  const scalars = entries.filter(([, value]) => !isPlainObject(value));
+  const sections = entries.filter((entry): entry is [string, Record<string, unknown>] =>
+    isPlainObject(entry[1]),
+  );
+
+  return (
+    <>
+      {scalars.length > 0 && (
+        <DetailSection title="Profile overview">
+          <DetailGrid>
+            {scalars.map(([key, value]) => (
+              <DetailField key={key} label={humanizeLabel(key)} value={formatDetailValue(value)} />
+            ))}
+          </DetailGrid>
+        </DetailSection>
+      )}
+      {sections.map(([key, section]) => {
+        const sectionEntries = Object.entries(section);
+        const sectionScalars = sectionEntries.filter(([, value]) => !isPlainObject(value));
+        const sectionNested = sectionEntries.filter(
+          (entry): entry is [string, Record<string, unknown>] => isPlainObject(entry[1]),
+        );
+        return (
+          <DetailSection key={key} title={humanizeLabel(key)}>
+            {sectionScalars.length > 0 && (
+              <DetailGrid>
+                {sectionScalars.map(([childKey, value]) => (
+                  <DetailField
+                    key={childKey}
+                    label={humanizeLabel(childKey)}
+                    value={formatDetailValue(value)}
+                  />
+                ))}
+              </DetailGrid>
+            )}
+            {sectionNested.map(([childKey, nested]) => (
+              <ObjectBlock key={childKey} title={humanizeLabel(childKey)} data={nested} />
+            ))}
+          </DetailSection>
+        );
+      })}
+    </>
   );
 }

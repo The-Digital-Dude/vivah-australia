@@ -225,6 +225,69 @@ function publicProfileSummary(profile: Awaited<ReturnType<typeof ProfileModel.fi
   };
 }
 
+function adminUserFull(user: Awaited<ReturnType<typeof UserModel.findOne>>) {
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    mobile: user.mobile,
+    role: user.role,
+    status: user.status,
+    emailVerified: user.emailVerified,
+    mobileVerified: user.mobileVerified,
+    authProviders: user.authProviders,
+    googleId: user.googleId,
+    facebookId: user.facebookId,
+    appleId: user.appleId,
+    lastLoginAt: user.lastLoginAt,
+    passwordChangedAt: user.passwordChangedAt,
+    failedLoginAttempts: user.failedLoginAttempts,
+    lockUntil: user.lockUntil,
+    activeSessionCount: user.activeSessions?.length ?? 0,
+    termsAcceptedAt: user.termsAcceptedAt,
+    privacyAcceptedAt: user.privacyAcceptedAt,
+    marketingConsent: user.marketingConsent,
+    notificationPreferences: user.notificationPreferences,
+    metadata: user.metadata,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    isDeleted: user.isDeleted,
+    deletedAt: user.deletedAt,
+  };
+}
+
+function adminProfileFull(profile: Awaited<ReturnType<typeof ProfileModel.findOne>>) {
+  if (!profile) return null;
+  return {
+    id: profile.id,
+    displayId: profile.displayId,
+    slug: profile.slug,
+    completionPercentage: profile.completionPercentage,
+    personal: profile.personal,
+    religion: profile.religion,
+    location: profile.location,
+    education: profile.education,
+    employment: profile.employment,
+    family: profile.family,
+    lifestyle: profile.lifestyle,
+    compatibility: profile.compatibility,
+    about: profile.about,
+    partnerPreference: profile.partnerPreference,
+    verification: profile.verification,
+    visibility: profile.visibility,
+    stats: profile.stats,
+    moderation: {
+      approvalStatus: profile.moderation.approvalStatus,
+      reviewedBy: profile.moderation.reviewedBy ? String(profile.moderation.reviewedBy) : undefined,
+      reviewedAt: profile.moderation.reviewedAt,
+      rejectionReason: profile.moderation.rejectionReason,
+      internalNote: profile.moderation.internalNote,
+    },
+    createdAt: profile.createdAt,
+    updatedAt: profile.updatedAt,
+  };
+}
+
 function profileCardSummary(profile: Awaited<ReturnType<typeof ProfileModel.findOne>>) {
   if (!profile) {
     return null;
@@ -748,8 +811,8 @@ export async function getUserDetail(targetUserId: string) {
     AdminNoteModel.find({ userId: user._id, isDeleted: false }).sort({ createdAt: -1 }).limit(25),
   ]);
   return {
-    user: publicUser(user),
-    profile: publicProfileSummary(profile),
+    user: adminUserFull(user),
+    profile: adminProfileFull(profile),
     notes: notes.map((note) => ({
       id: note.id,
       authorId: String(note.authorId),
