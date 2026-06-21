@@ -243,19 +243,9 @@ export function createProfileRouter(config: AuthConfig): Router {
 
   router.get(
     '/profiles/:id',
+    requireAuth(config),
     asyncHandler(async (request: AuthenticatedRequest, response) => {
-      let viewerId = request.auth?.userId;
-
-      if (!viewerId) {
-        await new Promise<void>((resolve) => {
-          requireAuth(config)(request, response, (error?: unknown) => {
-            if (!error) {
-              viewerId = request.auth?.userId;
-            }
-            resolve();
-          });
-        });
-      }
+      const viewerId = request.auth?.userId;
 
       const profileId = request.params.id;
 
@@ -284,16 +274,6 @@ export function createProfileRouter(config: AuthConfig): Router {
         }
 
         isPaid = await isPaidMember(viewerId);
-        if (rawCandidateProfile) {
-          const [premiumStatus, responsiveness] = await Promise.all([
-            isPaidMember(rawCandidateProfile.userId),
-            getResponsivenessSignal(rawCandidateProfile.userId),
-          ]);
-          isPremiumProfile = premiumStatus;
-          responsivenessLabel = responsiveness?.label;
-        }
-      } else if (profile._id) {
-        const rawCandidateProfile = await ProfileModel.findOne({ _id: profile._id, isDeleted: false });
         if (rawCandidateProfile) {
           const [premiumStatus, responsiveness] = await Promise.all([
             isPaidMember(rawCandidateProfile.userId),

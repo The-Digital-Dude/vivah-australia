@@ -136,12 +136,12 @@ const navGroups: NavGroup[] = [
         icon: Camera,
         matches: ['/member/photo-requests'],
       },
-      {
-        label: 'Community',
-        href: '/member/community',
-        icon: Users2,
-        matches: ['/member/community'],
-      },
+      // {
+      //   label: 'Community',
+      //   href: '/member/community',
+      //   icon: Users2,
+      //   matches: ['/member/community'],
+      // },
     ],
   },
   {

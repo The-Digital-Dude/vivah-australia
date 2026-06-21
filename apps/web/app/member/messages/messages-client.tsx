@@ -134,6 +134,7 @@ export default function MessagesClient() {
   const [typing, setTyping] = useState<string | null>(null);
   const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [sending, setSending] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [loadingMoreConversations, setLoadingMoreConversations] = useState(false);
   const [writeLocked, setWriteLocked] = useState(false);
@@ -442,7 +443,7 @@ export default function MessagesClient() {
 
   async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selected) {
+    if (!selected || sending) {
       return;
     }
 
@@ -460,24 +461,29 @@ export default function MessagesClient() {
       return;
     }
 
-    const result = await memberRequest(`/api/me/conversations/${selected.id}/messages`, {
-      method: 'POST',
-      body: parsed.data,
-    });
+    setSending(true);
+    try {
+      const result = await memberRequest(`/api/me/conversations/${selected.id}/messages`, {
+        method: 'POST',
+        body: parsed.data,
+      });
 
-    if (result.status === 403) {
-      setWriteLocked(true);
-      setMessage('You cannot reply to this conversation.');
-      return;
-    }
+      if (result.status === 403) {
+        setWriteLocked(true);
+        setMessage('You cannot reply to this conversation.');
+        return;
+      }
 
-    setMessage(result.message);
-    if (result.ok) {
-      formEl.reset();
-      setPendingAttachments([]);
-      stopTyping();
-      await loadMessages(selected.id, page);
-      socketRef.current?.emit('message:read', { conversationId: selected.id });
+      setMessage(result.message);
+      if (result.ok) {
+        formEl.reset();
+        setPendingAttachments([]);
+        stopTyping();
+        await loadMessages(selected.id, page);
+        socketRef.current?.emit('message:read', { conversationId: selected.id });
+      }
+    } finally {
+      setSending(false);
     }
   }
 
@@ -970,6 +976,12 @@ export default function MessagesClient() {
                         rows={2}
                         onChange={handleTypingActivity}
                         onBlur={stopTyping}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' && !event.shiftKey) {
+                            event.preventDefault();
+                            event.currentTarget.form?.requestSubmit();
+                          }
+                        }}
                         placeholder="Write a thoughtful, respectful message…"
                         className="w-full resize-none rounded-[20px] border border-[#E8D5D8] bg-[#FFF9F5] px-4 py-3 text-sm outline-none transition focus:border-[#A10E4D] focus:bg-white focus:ring-4 focus:ring-[#FFF0F3]"
                       />
@@ -977,9 +989,14 @@ export default function MessagesClient() {
                     <div className="flex shrink-0 flex-col gap-2">
                       <button
                         type="submit"
-                        className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A10E4D] text-white shadow-[0_8px_20px_rgba(161,14,77,0.25)] transition hover:bg-[#890B40] active:scale-95"
+                        disabled={sending}
+                        className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A10E4D] text-white shadow-[0_8px_20px_rgba(161,14,77,0.25)] transition hover:bg-[#890B40] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#A10E4D] disabled:active:scale-100"
                       >
-                        <Send className="size-4" />
+                        {sending ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Send className="size-4" />
+                        )}
                       </button>
                       <label className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[#F0D6DA] bg-white text-[#A10E4D] transition hover:bg-[#FFF0F3]">
                         <Paperclip className="size-4" />

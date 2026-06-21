@@ -8,12 +8,8 @@ import { useAuth } from '@/app/auth-context';
 import { useMemberRequest } from '@/lib/member-api';
 import { useEntitlement } from '@/lib/use-entitlement';
 import ProfileStrengthMeter, { type ProfileStrength } from './profile-strength-meter';
-import {
-  EmptyState,
-  PremiumButton,
-  PremiumCard,
-  ProfileMatchCard,
-} from '@/app/components';
+import ProfileCompletionGate from './profile-completion-gate';
+import { EmptyState, PremiumButton, PremiumCard, ProfileMatchCard } from '@/app/components';
 import {
   AlertCircle,
   ArrowRight,
@@ -21,6 +17,7 @@ import {
   Eye,
   Heart,
   Loader2,
+  Lock,
   MessageSquare,
   Rocket,
   Search,
@@ -68,6 +65,7 @@ interface MatchCard {
   matchScore: number;
   matchReasons: string[];
   responsivenessLabel?: string;
+  isBoosted?: boolean;
 }
 
 interface ProfileStats {
@@ -145,6 +143,11 @@ interface SummaryCard {
   icon: React.ComponentType<{ className?: string }>;
   href: string;
 }
+
+// New / incomplete profiles below this completion percentage are hard-gated:
+// the dashboard is shown blurred behind a blocking "complete your profile" card
+// so members feel the urgency to finish setup before browsing.
+const PROFILE_GATE_THRESHOLD = 60;
 
 function formatDate(value?: string) {
   if (!value) {
@@ -224,9 +227,7 @@ export default function MemberDashboardPage() {
       }
 
       if (convRes.ok && convRes.data) {
-        setConversations(
-          (convRes.data as { data?: ConversationItem[] }).data ?? [],
-        );
+        setConversations((convRes.data as { data?: ConversationItem[] }).data ?? []);
       }
 
       if (viewersRes.ok && viewersRes.data) {
@@ -298,27 +299,69 @@ export default function MemberDashboardPage() {
   const profileViewsCount = profileViewersTotal ?? profile?.stats?.profileViews ?? 0;
 
   const summaryCards: SummaryCard[] = [
-    { label: 'Profile views', value: String(profileViewsCount), description: 'See who noticed you recently', icon: Eye, href: '/member/profile-viewers' },
-    { label: 'New matches', value: String(newMatchesCount), description: 'Fresh recommendations for today', icon: Sparkles, href: '/member/matches' },
-    { label: 'Received interests', value: String(receivedInterestCount), description: 'People waiting on your reply', icon: Heart, href: '/member/interests' },
-    { label: 'Messages', value: String(unreadMessagesCount), description: 'Open conversations and replies', icon: MessageSquare, href: '/member/messages' },
+    {
+      label: 'Profile views',
+      value: String(profileViewsCount),
+      description: 'See who noticed you recently',
+      icon: Eye,
+      href: '/member/profile-viewers',
+    },
+    {
+      label: 'New matches',
+      value: String(newMatchesCount),
+      description: 'Fresh recommendations for today',
+      icon: Sparkles,
+      href: '/member/matches',
+    },
+    {
+      label: 'Received interests',
+      value: String(receivedInterestCount),
+      description: 'People waiting on your reply',
+      icon: Heart,
+      href: '/member/interests',
+    },
+    {
+      label: 'Messages',
+      value: String(unreadMessagesCount),
+      description: 'Open conversations and replies',
+      icon: MessageSquare,
+      href: '/member/messages',
+    },
   ];
 
   const membershipName = entitlement.plan?.name ?? 'Free';
 
   const heroHighlights = [
     { label: 'Profile', value: `${strengthPercentage}%`, icon: CheckCircle2 },
-    { label: 'Verification', value: profile?.verification?.level?.replaceAll('_', ' ') ?? 'Unverified', icon: ShieldCheck },
+    {
+      label: 'Verification',
+      value: profile?.verification?.level?.replaceAll('_', ' ') ?? 'Unverified',
+      icon: ShieldCheck,
+    },
     { label: 'Plan', value: membershipName, icon: Crown },
   ];
 
-  const discoverToday = [...recommended, ...recentlyActive].reduce<MatchCard[]>((items, match) => {
-    if (items.some((item) => item.id === match.id) || items.length >= 4) return items;
+  const dedupedMatches = [...recommended, ...recentlyActive].reduce<MatchCard[]>((items, match) => {
+    if (items.some((item) => item.id === match.id)) return items;
     items.push(match);
     return items;
   }, []);
 
-  const recentVisitorProfiles = discoverToday.slice(0, 4);
+  // "Recommended today" only surfaces members with an active profile boost.
+  const boostedRecommendations = dedupedMatches.filter((match) => match.isBoosted).slice(0, 4);
+
+  const recentVisitorProfiles = dedupedMatches.slice(0, 4);
+
+  // Hard gate for new / incomplete profiles. We wait until the profile has
+  // loaded so established members never flash the lock on a slow request.
+  const isGated = Boolean(profile) && strengthPercentage < PROFILE_GATE_THRESHOLD;
+  const gateNextActionHref = profileStrength?.nextAction?.href ?? '/member/profile/edit';
+
+  // Recommendations rely on partner preferences + compatibility answers to be
+  // meaningful, so we lock the section until both are filled in.
+  const missingProfileKeys = new Set((profileStrength?.missing ?? []).map((item) => item.key));
+  const recommendationsLocked =
+    missingProfileKeys.has('partnerPreference') || missingProfileKeys.has('compatibility');
 
   if (loading) {
     return (
@@ -335,10 +378,7 @@ export default function MemberDashboardPage() {
   }
 
   return (
-    <MemberShell
-      title="Dashboard"
-      subtitle="Your matchmaking overview."
-    >
+    <MemberShell title="Dashboard" subtitle="Your matchmaking overview.">
       {errorMessage ? (
         <div className="mb-4 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           <AlertCircle className="size-5 shrink-0" />
@@ -346,272 +386,389 @@ export default function MemberDashboardPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-5">
-        {/* Slim hero */}
-        <PremiumCard className="relative overflow-hidden border border-[#A10E4D]/10 bg-[linear-gradient(135deg,#A10E4D_0%,#890B40_48%,#4A0A14_100%)] px-5 py-5 text-white shadow-[0_16px_48px_rgba(122,31,43,0.22)]">
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#D4A04C]/10 blur-3xl" />
-          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-[#FFF9F5] sm:text-2xl">
-                Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
-              </h1>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {heroHighlights.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={item.label} className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur">
-                      <Icon className="size-3 text-[#D4A04C]" />
-                      <span className="text-white/70">{item.label}:</span>
-                      <span className="text-white">{item.value}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <PremiumButton href="/member/matches" variant="gold" className="text-sm">
-                Find matches
-              </PremiumButton>
-              <PremiumButton href="/member/profile/edit" variant="secondary" className="text-sm">
-                Edit profile
-              </PremiumButton>
-            </div>
-          </div>
-        </PremiumCard>
-
-        {profileStrength && strengthPercentage < 80 ? (
-          <PremiumCard className="rounded-2xl border border-[#D4A04C]/25 bg-[#FFF8EC] p-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-sm font-bold text-[#2F2F2F]">
-                  Complete your profile to get more matches
-                </p>
-                <p className="mt-1 text-xs text-[#6B7280]">
-                  Stronger profiles help members and families feel confident before they connect.
-                </p>
-              </div>
-              {profileStrength.nextAction ? (
-                <PremiumButton href={profileStrength.nextAction.href} className="text-sm">
-                  {profileStrength.nextAction.actionLabel}
-                </PremiumButton>
-              ) : null}
-            </div>
-          </PremiumCard>
+      <div className={isGated ? 'relative min-h-[600px]' : undefined}>
+        {isGated ? (
+          <ProfileCompletionGate
+            percentage={strengthPercentage}
+            threshold={PROFILE_GATE_THRESHOLD}
+            missing={profileStrength?.missing ?? []}
+            nextActionHref={gateNextActionHref}
+          />
         ) : null}
 
-        {/* 4 summary stat cards */}
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {summaryCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Link key={card.label} href={card.href} className="group">
-                <PremiumCard className="flex items-center gap-4 rounded-2xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                  <div className="rounded-xl bg-[#FFF0F3] p-2.5 text-[#A10E4D]">
-                    <Icon className="size-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-2xl font-bold text-[#2F2F2F]">{card.value}</p>
-                    <p className="text-xs font-semibold text-[#6B7280]">{card.label}</p>
-                    {card.description ? (
-                      <p className="mt-1 text-[11px] text-[#8A8F99]">{card.description}</p>
-                    ) : null}
-                  </div>
-                  <ArrowRight className="ml-auto size-4 text-[#A10E4D]/40 transition group-hover:translate-x-0.5 group-hover:text-[#A10E4D]" />
-                </PremiumCard>
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <div
+          className={
+            isGated
+              ? 'pointer-events-none max-h-[600px] select-none overflow-hidden blur-sm'
+              : undefined
+          }
+          aria-hidden={isGated || undefined}
+        >
           <div className="grid gap-5">
-            {/* Recommended matches */}
-            <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm font-bold text-[#2F2F2F]">Recommended today</p>
-                <Link href="/member/matches" className="inline-flex items-center gap-1 text-sm font-semibold text-[#A10E4D]">
-                  View all <ArrowRight className="size-3.5" />
-                </Link>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {discoverToday.length > 0 ? (
-                  discoverToday.map((match) => (
-                    <ProfileMatchCard
-                      key={match.id}
-                      compact
-                      profile={{
-                        id: match.id,
-                        name: match.firstName ?? 'Vivah member',
-                        age: match.age,
-                        city: match.city || match.state || match.country || 'Australia',
-                        community: match.community ?? match.motherTongue,
-                        education: match.education,
-                        matchScore: match.matchScore,
-                        occupation: match.occupation,
-                        photoUrl: match.photoUrl,
-                        religion: match.religion,
-                        responsivenessLabel: match.responsivenessLabel,
-                        verificationLevel: match.verificationLevel,
-                        slug: match.id,
-                      }}
-                    />
-                  ))
-                ) : (
-                  <div className="md:col-span-2 xl:col-span-4">
-                    <EmptyState title="No picks yet">
-                      Complete your profile to get personalised recommendations.
-                    </EmptyState>
+            {/* Slim hero */}
+            <PremiumCard className="relative overflow-hidden border border-[#A10E4D]/10 bg-[linear-gradient(135deg,#A10E4D_0%,#890B40_48%,#4A0A14_100%)] px-5 py-5 text-white shadow-[0_16px_48px_rgba(122,31,43,0.22)]">
+              <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#D4A04C]/10 blur-3xl" />
+              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h1 className="text-xl font-bold text-[#FFF9F5] sm:text-2xl">
+                    Namaste, {profile?.personal?.firstName ?? 'Vivah Member'}
+                  </h1>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {heroHighlights.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <div
+                          key={item.label}
+                          className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur"
+                        >
+                          <Icon className="size-3 text-[#D4A04C]" />
+                          <span className="text-white/70">{item.label}:</span>
+                          <span className="text-white">{item.value}</span>
+                        </div>
+                      );
+                    })}
                   </div>
-                )}
+                </div>
+                <div className="flex gap-2">
+                  <PremiumButton href="/member/matches" variant="gold" className="text-sm">
+                    Find matches
+                  </PremiumButton>
+                  <PremiumButton
+                    href="/member/profile/edit"
+                    variant="secondary"
+                    className="text-sm"
+                  >
+                    Edit profile
+                  </PremiumButton>
+                </div>
               </div>
             </PremiumCard>
 
-            {/* Pending interests + Recent conversations */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-bold text-[#2F2F2F]">Pending interests</p>
-                  <Link href="/member/interests" className="text-xs font-semibold text-[#A10E4D]">View all</Link>
+            {profileStrength && strengthPercentage < 80 ? (
+              <PremiumCard className="rounded-2xl border border-[#D4A04C]/25 bg-[#FFF8EC] p-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-[#2F2F2F]">
+                      Complete your profile to get more matches
+                    </p>
+                    <p className="mt-1 text-xs text-[#6B7280]">
+                      Stronger profiles help members and families feel confident before they
+                      connect.
+                    </p>
+                  </div>
+                  {profileStrength.nextAction ? (
+                    <PremiumButton href={profileStrength.nextAction.href} className="text-sm">
+                      {profileStrength.nextAction.actionLabel}
+                    </PremiumButton>
+                  ) : null}
                 </div>
-                {interests.filter((i) => i.status === 'PENDING').length > 0 ? (
-                  <div className="grid gap-2">
-                    {interests.filter((i) => i.status === 'PENDING').slice(0, 4).map((item) => {
-                      const p = item.sender ?? item.receiver;
+              </PremiumCard>
+            ) : null}
+
+            {/* 4 summary stat cards */}
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {summaryCards.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <Link key={card.label} href={card.href} className="group">
+                    <PremiumCard className="flex items-center gap-4 rounded-2xl border border-[#A10E4D]/10 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                      <div className="rounded-xl bg-[#FFF0F3] p-2.5 text-[#A10E4D]">
+                        <Icon className="size-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-2xl font-bold text-[#2F2F2F]">{card.value}</p>
+                        <p className="text-xs font-semibold text-[#6B7280]">{card.label}</p>
+                        {card.description ? (
+                          <p className="mt-1 text-[11px] text-[#8A8F99]">{card.description}</p>
+                        ) : null}
+                      </div>
+                      <ArrowRight className="ml-auto size-4 text-[#A10E4D]/40 transition group-hover:translate-x-0.5 group-hover:text-[#A10E4D]" />
+                    </PremiumCard>
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+              <div className="grid gap-5">
+                {/* Recommended matches */}
+                <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-5">
+                  <div className="mb-4 flex items-center justify-between">
+                    <p className="text-sm font-bold text-[#2F2F2F]">Recommended today</p>
+                    {recommendationsLocked ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#A10E4D]/70">
+                        <Lock className="size-3.5" /> Locked
+                      </span>
+                    ) : (
+                      <Link
+                        href="/member/matches"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-[#A10E4D]"
+                      >
+                        View all <ArrowRight className="size-3.5" />
+                      </Link>
+                    )}
+                  </div>
+                  {recommendationsLocked ? (
+                    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-[#A10E4D]/20 bg-[#FFF9F5] px-5 py-8 text-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF0F3] text-[#A10E4D]">
+                        <Lock className="size-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#2F2F2F]">
+                          Add your partner preferences & compatibility to unlock matches
+                        </p>
+                        <p className="mx-auto mt-1 max-w-md text-xs text-[#6B7280]">
+                          We use your partner preferences and compatibility answers to find people
+                          who actually fit. Complete both to reveal your personalised
+                          recommendations.
+                        </p>
+                      </div>
+                      <Link
+                        href="/member/profile/edit"
+                        className="inline-flex items-center gap-1.5 rounded-2xl bg-[#A10E4D] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#890B40]"
+                      >
+                        Add preferences & compatibility
+                        <ArrowRight className="size-4" />
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+                      {boostedRecommendations.length > 0 ? (
+                        boostedRecommendations.map((match) => (
+                          <ProfileMatchCard
+                            key={match.id}
+                            compact
+                            profile={{
+                              id: match.id,
+                              name: match.firstName ?? 'Vivah member',
+                              age: match.age,
+                              city: match.city || match.state || match.country || 'Australia',
+                              community: match.community ?? match.motherTongue,
+                              education: match.education,
+                              matchScore: match.matchScore,
+                              occupation: match.occupation,
+                              photoUrl: match.photoUrl,
+                              religion: match.religion,
+                              responsivenessLabel: match.responsivenessLabel,
+                              verificationLevel: match.verificationLevel,
+                              isBoosted: match.isBoosted,
+                              slug: match.id,
+                            }}
+                          />
+                        ))
+                      ) : (
+                        <div className="md:col-span-2 xl:col-span-4">
+                          <EmptyState title="No recommended profiles right now">
+                            Check back soon — recommended profiles appear here.
+                          </EmptyState>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </PremiumCard>
+
+                {/* Pending interests + Recent conversations */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-5">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm font-bold text-[#2F2F2F]">Pending interests</p>
+                      <Link
+                        href="/member/interests"
+                        className="text-xs font-semibold text-[#A10E4D]"
+                      >
+                        View all
+                      </Link>
+                    </div>
+                    {interests.filter((i) => i.status === 'PENDING').length > 0 ? (
+                      <div className="grid gap-2">
+                        {interests
+                          .filter((i) => i.status === 'PENDING')
+                          .slice(0, 4)
+                          .map((item) => {
+                            const p = item.sender ?? item.receiver;
+                            return (
+                              <Link
+                                key={item.id}
+                                href="/member/interests"
+                                className="flex items-center gap-3 rounded-xl bg-[#FFF9F5] px-3 py-2.5 transition hover:bg-white"
+                              >
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-sm font-bold text-[#A10E4D]">
+                                  {(p?.firstName ?? 'V').slice(0, 1)}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-semibold text-[#2F2F2F]">
+                                    {p?.firstName ?? 'Member'}
+                                  </p>
+                                  <p className="text-xs text-[#6B7280]">
+                                    {p?.age ? `${p.age} yrs` : ''}
+                                    {p?.city ? ` · ${p.city}` : ''}
+                                  </p>
+                                </div>
+                                <Heart className="ml-auto size-4 shrink-0 text-[#A10E4D]/50" />
+                              </Link>
+                            );
+                          })}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[#6B7280]">No pending interests right now.</p>
+                    )}
+                  </PremiumCard>
+
+                  <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-5">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm font-bold text-[#2F2F2F]">Recent messages</p>
+                      <Link
+                        href="/member/messages"
+                        className="text-xs font-semibold text-[#A10E4D]"
+                      >
+                        View all
+                      </Link>
+                    </div>
+                    {conversations.length > 0 ? (
+                      <div className="grid gap-2">
+                        {conversations.slice(0, 4).map((conv) => (
+                          <Link
+                            key={conv.id}
+                            href="/member/messages"
+                            className="flex items-center gap-3 rounded-xl bg-[#FFF9F5] px-3 py-2.5 transition hover:bg-white"
+                          >
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-sm font-bold text-[#A10E4D]">
+                              {(conv.otherProfile?.firstName ?? 'V').slice(0, 1)}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-[#2F2F2F]">
+                                {conv.otherProfile?.firstName ?? 'Member'}
+                              </p>
+                              <p className="text-xs text-[#6B7280]">
+                                {conv.lastMessageAt ? formatDate(conv.lastMessageAt) : 'Active'}
+                              </p>
+                            </div>
+                            <MessageSquare className="ml-auto size-4 shrink-0 text-[#A10E4D]/50" />
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[#6B7280]">No active conversations yet.</p>
+                    )}
+                  </PremiumCard>
+                </div>
+              </div>
+
+              {/* Sidebar */}
+              <div className="grid gap-4 self-start">
+                {/* <ProfileStrengthMeter strength={profileStrength} compact /> */}
+
+                {/* Quick actions */}
+                <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
+                  <p className="mb-3 text-sm font-bold text-[#2F2F2F]">Quick actions</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: 'Matches', href: '/member/matches', icon: Search },
+                      { label: 'Upgrade', href: '/member/subscription', icon: Crown },
+                      { label: 'Verify', href: '/member/verification', icon: ShieldCheck },
+                      { label: 'Profile', href: '/member/profile/edit', icon: Star },
+                      { label: 'Photos', href: '/member/media', icon: Eye },
+                      { label: 'Activity', href: '/member/activity', icon: Heart },
+                    ].map((action) => {
+                      const Icon = action.icon;
                       return (
-                        <Link key={item.id} href="/member/interests" className="flex items-center gap-3 rounded-xl bg-[#FFF9F5] px-3 py-2.5 transition hover:bg-white">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-sm font-bold text-[#A10E4D]">
-                            {(p?.firstName ?? 'V').slice(0, 1)}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-[#2F2F2F]">{p?.firstName ?? 'Member'}</p>
-                            <p className="text-xs text-[#6B7280]">{p?.age ? `${p.age} yrs` : ''}{p?.city ? ` · ${p.city}` : ''}</p>
-                          </div>
-                          <Heart className="ml-auto size-4 shrink-0 text-[#A10E4D]/50" />
+                        <Link
+                          key={action.label}
+                          href={action.href}
+                          className="flex flex-col items-center gap-1.5 rounded-xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-2.5 transition hover:bg-white"
+                        >
+                          <Icon className="size-4 text-[#A10E4D]" />
+                          <span className="text-[11px] font-semibold text-[#2F2F2F]">
+                            {action.label}
+                          </span>
                         </Link>
                       );
                     })}
                   </div>
-                ) : (
-                  <p className="text-sm text-[#6B7280]">No pending interests right now.</p>
-                )}
-              </PremiumCard>
+                </PremiumCard>
 
-              <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-bold text-[#2F2F2F]">Recent messages</p>
-                  <Link href="/member/messages" className="text-xs font-semibold text-[#A10E4D]">View all</Link>
-                </div>
-                {conversations.length > 0 ? (
-                  <div className="grid gap-2">
-                    {conversations.slice(0, 4).map((conv) => (
-                      <Link key={conv.id} href="/member/messages" className="flex items-center gap-3 rounded-xl bg-[#FFF9F5] px-3 py-2.5 transition hover:bg-white">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FFF0F3] text-sm font-bold text-[#A10E4D]">
-                          {(conv.otherProfile?.firstName ?? 'V').slice(0, 1)}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-[#2F2F2F]">{conv.otherProfile?.firstName ?? 'Member'}</p>
-                          <p className="text-xs text-[#6B7280]">{conv.lastMessageAt ? formatDate(conv.lastMessageAt) : 'Active'}</p>
-                        </div>
-                        <MessageSquare className="ml-auto size-4 shrink-0 text-[#A10E4D]/50" />
-                      </Link>
-                    ))}
+                {/* Boost */}
+                <PremiumCard className="rounded-2xl border border-[#D4A04C]/20 bg-[#FFF8EC] p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Rocket className="size-4 text-[#A10E4D]" />
+                    <p className="text-sm font-bold text-[#2F2F2F]">Profile boost</p>
                   </div>
-                ) : (
-                  <p className="text-sm text-[#6B7280]">No active conversations yet.</p>
-                )}
-              </PremiumCard>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="grid gap-4 self-start">
-            <ProfileStrengthMeter strength={profileStrength} compact />
-
-            {/* Quick actions */}
-            <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
-              <p className="mb-3 text-sm font-bold text-[#2F2F2F]">Quick actions</p>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { label: 'Matches', href: '/member/matches', icon: Search },
-                  { label: 'Upgrade', href: '/member/subscription', icon: Crown },
-                  { label: 'Verify', href: '/member/verification', icon: ShieldCheck },
-                  { label: 'Profile', href: '/member/profile/edit', icon: Star },
-                  { label: 'Photos', href: '/member/media', icon: Eye },
-                  { label: 'Activity', href: '/member/activity', icon: Heart },
-                ].map((action) => {
-                  const Icon = action.icon;
-                  return (
-                    <Link
-                      key={action.label}
-                      href={action.href}
-                      className="flex flex-col items-center gap-1.5 rounded-xl border border-[#A10E4D]/10 bg-[#FFF9F5] p-2.5 transition hover:bg-white"
-                    >
-                      <Icon className="size-4 text-[#A10E4D]" />
-                      <span className="text-[11px] font-semibold text-[#2F2F2F]">{action.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </PremiumCard>
-
-            {/* Boost */}
-            <PremiumCard className="rounded-2xl border border-[#D4A04C]/20 bg-[#FFF8EC] p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <Rocket className="size-4 text-[#A10E4D]" />
-                <p className="text-sm font-bold text-[#2F2F2F]">Profile boost</p>
-              </div>
-              <p className="mb-3 text-xs text-[#6B7280]">
-                {activeBoost
-                  ? `Boost active · ${boostHoursLeft}h left`
-                  : boostsRemaining === Infinity
-                    ? 'Unlimited boosts on your plan'
-                    : `${boostsRemaining} credit${boostsRemaining === 1 ? '' : 's'} remaining`}
-              </p>
-              <PremiumButton
-                onClick={() => void handleActivateBoost()}
-                disabled={Boolean(activeBoost) || boostsRemaining === 0 || activatingBoost}
-                className="w-full text-sm"
-              >
-                {activatingBoost ? <><Loader2 className="size-3.5 animate-spin" /> Activating…</> : activeBoost ? 'Boost running' : 'Activate boost'}
-              </PremiumButton>
-              {boostMessage && <p className="mt-2 text-xs font-semibold text-[#A10E4D]">{boostMessage}</p>}
-            </PremiumCard>
-
-            {/* Recent visitors */}
-            <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-bold text-[#2F2F2F]">Profile views</p>
-                <Link href="/member/profile-viewers" className="text-xs font-semibold text-[#A10E4D]">View all</Link>
-              </div>
-              <p className="mb-3 text-2xl font-bold text-[#2F2F2F]">{profileViewsCount}</p>
-              <p className="mb-3 text-xs text-[#6B7280]">
-                Keep an eye on who is discovering your profile and follow up while the interest is fresh.
-              </p>
-              {recentVisitorProfiles.length > 0 ? (
-                <div className="flex -space-x-2">
-                  {recentVisitorProfiles.map((profileCard) => (
-                    <div
-                      key={`visitor-${profileCard.id}`}
-                      className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-[#FFF0F3] text-sm font-bold text-[#A10E4D]"
-                    >
-                      {(profileCard.firstName || 'V').slice(0, 1)}
-                    </div>
-                  ))}
-                  {profileViewsCount > recentVisitorProfiles.length && (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-[#FFF7EC] text-xs font-semibold text-[#A10E4D]">
-                      +{profileViewsCount - recentVisitorProfiles.length}
-                    </div>
+                  <p className="mb-3 text-xs text-[#6B7280]">
+                    {activeBoost
+                      ? `Boost active · ${boostHoursLeft}h left`
+                      : boostsRemaining === Infinity
+                        ? 'Unlimited boosts on your plan'
+                        : `${boostsRemaining} credit${boostsRemaining === 1 ? '' : 's'} remaining`}
+                  </p>
+                  <PremiumButton
+                    onClick={() => void handleActivateBoost()}
+                    disabled={Boolean(activeBoost) || boostsRemaining === 0 || activatingBoost}
+                    className="w-full text-sm"
+                  >
+                    {activatingBoost ? (
+                      <>
+                        <Loader2 className="size-3.5 animate-spin" /> Activating…
+                      </>
+                    ) : activeBoost ? (
+                      'Boost running'
+                    ) : (
+                      'Activate boost'
+                    )}
+                  </PremiumButton>
+                  {boostMessage && (
+                    <p className="mt-2 text-xs font-semibold text-[#A10E4D]">{boostMessage}</p>
                   )}
-                </div>
-              ) : (
-                <p className="text-xs text-[#6B7280]">Views will appear as members discover you.</p>
-              )}
-              <div className="mt-4">
-                <PremiumButton href="/member/profile-viewers" variant="secondary" className="w-full text-sm">
-                  Open viewers list
-                </PremiumButton>
+                </PremiumCard>
+
+                {/* Recent visitors */}
+                <PremiumCard className="rounded-2xl border border-[#A10E4D]/10 bg-white p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-sm font-bold text-[#2F2F2F]">Profile views</p>
+                    <Link
+                      href="/member/profile-viewers"
+                      className="text-xs font-semibold text-[#A10E4D]"
+                    >
+                      View all
+                    </Link>
+                  </div>
+                  <p className="mb-3 text-2xl font-bold text-[#2F2F2F]">{profileViewsCount}</p>
+                  <p className="mb-3 text-xs text-[#6B7280]">
+                    Keep an eye on who is discovering your profile and follow up while the interest
+                    is fresh.
+                  </p>
+                  {recentVisitorProfiles.length > 0 ? (
+                    <div className="flex -space-x-2">
+                      {recentVisitorProfiles.map((profileCard) => (
+                        <div
+                          key={`visitor-${profileCard.id}`}
+                          className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-[#FFF0F3] text-sm font-bold text-[#A10E4D]"
+                        >
+                          {(profileCard.firstName || 'V').slice(0, 1)}
+                        </div>
+                      ))}
+                      {profileViewsCount > recentVisitorProfiles.length && (
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-[#FFF7EC] text-xs font-semibold text-[#A10E4D]">
+                          +{profileViewsCount - recentVisitorProfiles.length}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[#6B7280]">
+                      Views will appear as members discover you.
+                    </p>
+                  )}
+                  <div className="mt-4">
+                    <PremiumButton
+                      href="/member/profile-viewers"
+                      variant="secondary"
+                      className="w-full text-sm"
+                    >
+                      Open viewers list
+                    </PremiumButton>
+                  </div>
+                </PremiumCard>
               </div>
-            </PremiumCard>
+            </div>
           </div>
         </div>
       </div>

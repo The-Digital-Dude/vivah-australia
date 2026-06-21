@@ -237,6 +237,7 @@ describe('profile routes', () => {
 
   it('applies privacy controls on profile view', async () => {
     const { user } = await createUser('visible@example.com');
+    const viewer = await createUser('privacy-viewer@example.com');
     const profile = await createProfile(user._id);
     profile.set({
       'personal.gender': 'MALE',
@@ -258,7 +259,10 @@ describe('profile routes', () => {
     });
     await profile.save();
 
-    const response = await request(app).get(`/api/profiles/${profile.id}`).expect(200);
+    const response = await request(app)
+      .get(`/api/profiles/${profile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
 
     const body = bodyAs<ProfileResponseBody>(response);
 
@@ -269,6 +273,7 @@ describe('profile routes', () => {
 
   it('serves approved public profiles by slug', async () => {
     const { user } = await createUser('slug-visible@example.com');
+    const viewer = await createUser('slug-viewer@example.com');
     const profile = await createProfile(user._id, 'VA100001');
     profile.set({
       slug: 'amit-sharma-va100001',
@@ -281,7 +286,10 @@ describe('profile routes', () => {
     });
     await profile.save();
 
-    const response = await request(app).get('/api/profiles/amit-sharma-va100001').expect(200);
+    const response = await request(app)
+      .get('/api/profiles/amit-sharma-va100001')
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
 
     expect(
       bodyAs<{ profile: { displayId: string; slug: string } }>(response).profile,
@@ -291,8 +299,23 @@ describe('profile routes', () => {
     });
   });
 
+  it('requires authentication to view a profile', async () => {
+    const { user } = await createUser('guest-blocked@example.com');
+    const profile = await createProfile(user._id, 'VA100002');
+    profile.set({
+      slug: 'guest-blocked-va100002',
+      'moderation.approvalStatus': ProfileApprovalStatus.APPROVED,
+      'visibility.status': 'PUBLIC',
+    });
+    await profile.save();
+
+    await request(app).get(`/api/profiles/${profile.id}`).expect(401);
+    await request(app).get('/api/profiles/guest-blocked-va100002').expect(401);
+  });
+
   it('includes a responsiveness label for profiles with strong reply behavior', async () => {
     const owner = await createUser('responsive-profile-owner@example.com');
+    const viewer = await createUser('responsive-profile-viewer@example.com');
     const profile = await createProfile(owner.user._id, 'VA100777');
     profile.set({
       slug: 'responsive-riya-va100777',
@@ -342,7 +365,10 @@ describe('profile routes', () => {
       },
     ]);
 
-    const response = await request(app).get(`/api/profiles/${profile.id}`).expect(200);
+    const response = await request(app)
+      .get(`/api/profiles/${profile.id}`)
+      .set('Authorization', `Bearer ${viewer.accessToken}`)
+      .expect(200);
 
     expect(bodyAs<ProfileResponseBody>(response).responsivenessLabel).toBe('Very Responsive');
   });
