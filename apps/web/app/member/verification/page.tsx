@@ -36,8 +36,8 @@ interface ProfileData {
 }
 
 const verificationTypes = [
-  { value: 'EMAIL', label: 'Email Address' },
-  { value: 'MOBILE', label: 'Mobile Number OTP' },
+  // { value: 'EMAIL', label: 'Email Address' },
+  // { value: 'MOBILE', label: 'Mobile Number OTP' },
   { value: 'IDENTITY', label: 'Identity (Passport/Driver License)' },
   { value: 'ADDRESS', label: 'Physical Address (Utility Bill)' },
   { value: 'EMPLOYMENT', label: 'Employment Status (Payslip/Contract)' },
@@ -71,14 +71,46 @@ function cx(...classes: Array<string | false | null | undefined>) {
 }
 
 const verificationRoadmap = [
-  { key: 'EMAIL', title: 'Email verification', helper: 'Protect account recovery and approval updates.' },
-  { key: 'MOBILE', title: 'Mobile verification', helper: 'Build immediate trust and unlock onboarding access.' },
-  { key: 'IDENTITY', title: 'Identity verification', helper: 'Confirm authenticity with passport or licence.' },
-  { key: 'ADDRESS', title: 'Address verification', helper: 'Show Australian residence and stronger trust.' },
-  { key: 'EMPLOYMENT', title: 'Employment verification', helper: 'Support professional credibility and profile strength.' },
-  { key: 'VISA', title: 'Visa status verification', helper: 'Clarify residency and long-term location confidence.' },
-  { key: 'FACIAL', title: 'Facial match selfie', helper: 'Reinforce that the profile matches the member.' },
-  { key: 'POLICE_CLEARANCE', title: 'Police clearance', helper: 'Highest trust signal for serious introductions.' },
+  {
+    key: 'EMAIL',
+    title: 'Email verification',
+    helper: 'Protect account recovery and approval updates.',
+  },
+  {
+    key: 'MOBILE',
+    title: 'Mobile verification',
+    helper: 'Build immediate trust and unlock onboarding access.',
+  },
+  {
+    key: 'IDENTITY',
+    title: 'Identity verification',
+    helper: 'Confirm authenticity with passport or licence.',
+  },
+  {
+    key: 'ADDRESS',
+    title: 'Address verification',
+    helper: 'Show Australian residence and stronger trust.',
+  },
+  {
+    key: 'EMPLOYMENT',
+    title: 'Employment verification',
+    helper: 'Support professional credibility and profile strength.',
+  },
+  {
+    key: 'VISA',
+    title: 'Visa status verification',
+    helper: 'Clarify residency and long-term location confidence.',
+  },
+  {
+    key: 'FACIAL',
+    title: 'Facial match selfie',
+    helper: 'Reinforce that the profile matches the member.',
+  },
+  {
+    key: 'POLICE_CLEARANCE',
+    title: 'Police clearance',
+    helper: 'Highest trust signal for serious introductions.',
+  },
 ] as const;
 
 function trustScoreForLevel(level?: string) {
@@ -99,11 +131,15 @@ function trustScoreForLevel(level?: string) {
 }
 
 function uniqueApprovedTypes(requests: VerificationRequestItem[]) {
-  return new Set(requests.filter((request) => request.status === 'APPROVED').map((request) => request.type));
+  return new Set(
+    requests.filter((request) => request.status === 'APPROVED').map((request) => request.type),
+  );
 }
 
 function uniquePendingTypes(requests: VerificationRequestItem[]) {
-  return new Set(requests.filter((request) => request.status === 'PENDING').map((request) => request.type));
+  return new Set(
+    requests.filter((request) => request.status === 'PENDING').map((request) => request.type),
+  );
 }
 
 export default function MemberVerificationPage() {
@@ -185,7 +221,8 @@ export default function MemberVerificationPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const type = formString(form.get('type'));
     const documentType = optionalString(form.get('documentType'));
     const file = form.get('documentFile');
@@ -317,7 +354,7 @@ export default function MemberVerificationPage() {
     setIsSuccess(result.ok);
     if (result.ok) {
       setFileName(null);
-      event.currentTarget.reset();
+      formElement.reset();
       await load();
     }
   }
@@ -346,7 +383,13 @@ export default function MemberVerificationPage() {
   const totalCheckpoints = verificationRoadmap.length;
   const progressPercent = Math.min(100, Math.round((completedCount / totalCheckpoints) * 100));
   const trustTierLabel =
-    trustScore >= 90 ? 'Exceptional trust' : trustScore >= 70 ? 'High trust' : trustScore >= 45 ? 'Growing trust' : 'Early trust';
+    trustScore >= 90
+      ? 'Exceptional trust'
+      : trustScore >= 70
+        ? 'High trust'
+        : trustScore >= 45
+          ? 'Growing trust'
+          : 'Early trust';
 
   return (
     <MemberShell
@@ -356,12 +399,21 @@ export default function MemberVerificationPage() {
       <div className="mb-6 flex flex-wrap gap-3">
         {[
           { label: 'Trust score', value: `${trustScore}%`, sub: trustTierLabel },
-          { label: 'Completed', value: `${completedCount} / ${totalCheckpoints}`, sub: 'checkpoints' },
+          {
+            label: 'Completed',
+            value: `${completedCount} / ${totalCheckpoints}`,
+            sub: 'checkpoints',
+          },
           { label: 'Under review', value: String(pendingTypes.size), sub: 'awaiting moderation' },
         ].map((stat) => (
-          <div key={stat.label} className="flex items-center gap-3 rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-3">
+          <div
+            key={stat.label}
+            className="flex items-center gap-3 rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-3"
+          >
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">{stat.label}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+                {stat.label}
+              </p>
               <p className="text-xl font-bold text-[#2F2F2F]">{stat.value}</p>
               <p className="text-xs text-[#6B7280]">{stat.sub}</p>
             </div>
@@ -369,9 +421,14 @@ export default function MemberVerificationPage() {
         ))}
         <div className="flex flex-1 items-center gap-3 rounded-2xl border border-[#A10E4D]/10 bg-white px-4 py-3 min-w-[180px]">
           <div className="flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">Progress</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#D4A04C]">
+              Progress
+            </p>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#F6E7EA]">
-              <div className="h-full rounded-full bg-[linear-gradient(90deg,#A10E4D_0%,#D4A04C_100%)] transition-all" style={{ width: `${progressPercent}%` }} />
+              <div
+                className="h-full rounded-full bg-[linear-gradient(90deg,#A10E4D_0%,#D4A04C_100%)] transition-all"
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
             <p className="mt-1 text-xs text-[#6B7280]">{progressPercent}% complete</p>
           </div>
@@ -407,11 +464,10 @@ export default function MemberVerificationPage() {
                 </div>
                 <div className="flex-1 space-y-4">
                   <div>
-                    <h2 className="text-lg font-bold text-emerald-900">
-                      Mobile Number Verified
-                    </h2>
+                    <h2 className="text-lg font-bold text-emerald-900">Mobile Number Verified</h2>
                     <p className="text-sm text-emerald-700/90 mt-1">
-                      Excellent! Your basic level trust verification is now unlocked. You are ready to complete your profile wizard.
+                      Excellent! Your basic level trust verification is now unlocked. You are ready
+                      to complete your profile wizard.
                     </p>
                   </div>
                   <PremiumButton
@@ -435,7 +491,8 @@ export default function MemberVerificationPage() {
                     Verify Mobile Number via OTP
                   </h2>
                   <p className="text-xs text-[#6B7280]">
-                    Verify your phone number to establish basic trust and gain access to the onboarding wizard.
+                    Verify your phone number to establish basic trust and gain access to the
+                    onboarding wizard.
                   </p>
                 </div>
               </div>
@@ -469,7 +526,8 @@ export default function MemberVerificationPage() {
                 <form onSubmit={(event) => void verifyOtp(event)} className="grid gap-4">
                   <div className="grid gap-2">
                     <p className="text-xs font-semibold text-[#6B7280]">
-                      Verification code sent to <strong className="text-[#2F2F2F]">{mobileNumber}</strong>.
+                      Verification code sent to{' '}
+                      <strong className="text-[#2F2F2F]">{mobileNumber}</strong>.
                     </p>
                   </div>
                   <div className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
@@ -485,7 +543,10 @@ export default function MemberVerificationPage() {
                   </div>
 
                   <div className="flex items-center gap-2 rounded-2xl bg-amber-50/50 p-3 border border-amber-200/50 text-[#A10E4D] text-xs">
-                    <span>💡 <strong>Sandbox Tip:</strong> Enter <strong>123456</strong> to automatically verify.</span>
+                    <span>
+                      💡 <strong>Sandbox Tip:</strong> Enter <strong>123456</strong> to
+                      automatically verify.
+                    </span>
                   </div>
 
                   {otpMessage && (
@@ -529,12 +590,12 @@ export default function MemberVerificationPage() {
             </div>
 
             <form onSubmit={(event) => void submit(event)} className="grid gap-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="grid min-w-0 gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                   Verification Type
                   <select
                     name="type"
-                    className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
+                    className="h-12 w-full min-w-0 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                   >
                     {verificationTypes.map((t) => (
                       <option key={t.value} value={t.value}>
@@ -544,13 +605,13 @@ export default function MemberVerificationPage() {
                   </select>
                 </label>
 
-                <label className="grid gap-1.5 text-sm font-semibold text-[#2F2F2F]">
+                <label className="grid min-w-0 gap-1.5 text-sm font-semibold text-[#2F2F2F]">
                   Document Title
                   <input
                     name="documentType"
                     placeholder="e.g. Passport, Australian Visa Card"
                     required
-                    className="h-12 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
+                    className="h-12 w-full min-w-0 rounded-2xl border border-[#A10E4D]/15 bg-[#FFF9F5]/40 px-4 text-sm outline-none transition focus:bg-white focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3]"
                   />
                 </label>
               </div>
@@ -623,6 +684,7 @@ export default function MemberVerificationPage() {
                           bg: 'bg-emerald-50 border-emerald-100',
                           badge: 'bg-emerald-100 text-emerald-800',
                           icon: <CheckCircle2 className="size-5 text-emerald-700" />,
+                          label: 'Verified',
                           desc: 'Successfully verified. Badge is credited to your public profile.',
                         };
                       case 'REJECTED':
@@ -630,6 +692,7 @@ export default function MemberVerificationPage() {
                           bg: 'bg-red-50 border-red-100',
                           badge: 'bg-red-100 text-red-800',
                           icon: <AlertCircle className="size-5 text-rose-700" />,
+                          label: 'Rejected',
                           desc:
                             r.reviewReason ||
                             'Rejected. The uploaded document did not meet eligibility or legibility requirements.',
@@ -640,6 +703,7 @@ export default function MemberVerificationPage() {
                           bg: 'bg-amber-50 border-amber-100',
                           badge: 'bg-amber-100 text-amber-800',
                           icon: <Clock className="size-5 text-amber-700" />,
+                          label: 'Under Review',
                           desc: 'Under manual review by our Australian moderator panel. Usually processed in 2–4 hours.',
                         };
                     }
@@ -657,7 +721,7 @@ export default function MemberVerificationPage() {
                       <div className="min-w-0 flex-1 grid gap-1.5">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <h3 className="font-semibold text-sm text-[#2F2F2F]">
-                            {r.type.replaceAll('_', ' ')} Verified
+                            {r.type.replaceAll('_', ' ')} — {statusInfo.label}
                           </h3>
                           <span
                             className={cx(
@@ -724,7 +788,13 @@ export default function MemberVerificationPage() {
                         !complete && !pending && 'bg-[#FFF0F3] text-[#A10E4D]',
                       )}
                     >
-                      {complete ? <CheckCircle2 className="size-4" /> : pending ? <Clock className="size-4" /> : <Circle className="size-3 fill-current" />}
+                      {complete ? (
+                        <CheckCircle2 className="size-4" />
+                      ) : pending ? (
+                        <Clock className="size-4" />
+                      ) : (
+                        <Circle className="size-3 fill-current" />
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-[#2F2F2F]">{item.title}</p>
@@ -740,17 +810,32 @@ export default function MemberVerificationPage() {
             <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-sm font-semibold text-[#2F2F2F] [&::-webkit-details-marker]:hidden">
               Trust badge ladder
               <span className="text-xs font-normal text-[#6B7280] group-open:hidden">Show</span>
-              <span className="hidden text-xs font-normal text-[#6B7280] group-open:inline">Hide</span>
+              <span className="hidden text-xs font-normal text-[#6B7280] group-open:inline">
+                Hide
+              </span>
             </summary>
             <div className="border-t border-[#A10E4D]/8 px-5 pb-4 pt-3 grid gap-2">
-              {([
-                { level: 'BASIC', label: 'Basic', unlock: 'Email + Mobile OTP' },
-                { level: 'SILVER', label: 'Silver', unlock: 'Identity + Address' },
-                { level: 'GOLD', label: 'Gold', unlock: 'Employment + Visa' },
-                { level: 'PLATINUM', label: 'Platinum', unlock: 'Police clearance + Facial selfie' },
-                { level: 'FULLY_VERIFIED', label: 'Fully verified', unlock: 'All checkpoints complete' },
-              ] as const).map((b) => (
-                <div key={b.level} className="flex items-center gap-3 rounded-xl border border-[#A10E4D]/8 bg-[#FFF9F5] px-3 py-2.5">
+              {(
+                [
+                  { level: 'BASIC', label: 'Basic', unlock: 'Email + Mobile OTP' },
+                  { level: 'SILVER', label: 'Silver', unlock: 'Identity + Address' },
+                  { level: 'GOLD', label: 'Gold', unlock: 'Employment + Visa' },
+                  {
+                    level: 'PLATINUM',
+                    label: 'Platinum',
+                    unlock: 'Police clearance + Facial selfie',
+                  },
+                  {
+                    level: 'FULLY_VERIFIED',
+                    label: 'Fully verified',
+                    unlock: 'All checkpoints complete',
+                  },
+                ] as const
+              ).map((b) => (
+                <div
+                  key={b.level}
+                  className="flex items-center gap-3 rounded-xl border border-[#A10E4D]/8 bg-[#FFF9F5] px-3 py-2.5"
+                >
                   <VerificationBadge level={b.level} />
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-[#2F2F2F]">{b.label}</p>
@@ -760,7 +845,6 @@ export default function MemberVerificationPage() {
               ))}
             </div>
           </details>
-
         </aside>
       </div>
     </MemberShell>
