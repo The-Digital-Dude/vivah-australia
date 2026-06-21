@@ -162,9 +162,9 @@ importers:
 
   apps/web:
     dependencies:
-      '@hcaptcha/react-hcaptcha':
-        specifier: ^1.10.1
-        version: 1.17.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@marsidev/react-turnstile':
+        specifier: ^1.4.0
+        version: 1.5.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@paypal/react-paypal-js':
         specifier: ^10.0.0
         version: 10.0.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -716,15 +716,6 @@ packages:
       '@noble/hashes':
         optional: true
 
-  '@hcaptcha/loader@2.3.0':
-    resolution: {integrity: sha512-i4lnNxKBe+COf3R1nFZEWaZoHIoJjvDgWqvcNrdZq8ehoSNMN6KVZ56dcQ02qKie2h3+BkbkwlJA9DOIuLlK/g==}
-
-  '@hcaptcha/react-hcaptcha@1.17.4':
-    resolution: {integrity: sha512-rIvgesG1N7SS9sAYYHFoWm+nXqRrxq7RcA9z2pKkDWV+S1GdfmrTNYA1aPyVWVe3eowphTCwyDJvl97Swwy0mw==}
-    peerDependencies:
-      react: '>= 16.3.0'
-      react-dom: '>= 16.3.0'
-
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
     engines: {node: '>=18.18.0'}
@@ -916,6 +907,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@marsidev/react-turnstile@1.5.3':
+    resolution: {integrity: sha512-8Dij2jiNGNczq1U4EKpO4do2XepcTPxSMc2ZzvHndO+gcp68tvMULm27z2P99rGkdB89hc3452NZeu2Rti4g6A==}
+    peerDependencies:
+      react: ^17.0.2 || ^18.0.0 || ^19.0
+      react-dom: ^17.0.2 || ^18.0.0 || ^19.0
 
   '@mongodb-js/saslprep@1.4.11':
     resolution: {integrity: sha512-o9rAHc0IpIjuPSxRutWpE1F62x7n+4mVS4rCNHkzhIUMQcc18bb6xEq5wd2NdN0WjepIyXIppRshYI2kQDOZVA==}
@@ -4487,15 +4484,6 @@ snapshots:
     optionalDependencies:
       '@noble/hashes': 1.8.0
 
-  '@hcaptcha/loader@2.3.0': {}
-
-  '@hcaptcha/react-hcaptcha@1.17.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
-    dependencies:
-      '@babel/runtime': 7.29.7
-      '@hcaptcha/loader': 2.3.0
-      react: 19.2.6
-      react-dom: 19.2.6(react@19.2.6)
-
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -4626,6 +4614,11 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@marsidev/react-turnstile@1.5.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   '@mongodb-js/saslprep@1.4.11':
     dependencies:

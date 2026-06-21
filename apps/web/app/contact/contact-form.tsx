@@ -1,6 +1,6 @@
 'use client';
 
-import HCaptcha from '@hcaptcha/react-hcaptcha';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { useState, useRef, type FormEvent } from 'react';
 import { submitContactInquiry } from '@/lib/public-api';
 
@@ -8,9 +8,9 @@ export default function ContactForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const captchaRef = useRef<HCaptcha>(null);
+  const captchaRef = useRef<TurnstileInstance>(null);
 
-  const sitekey = process.env.NEXT_PUBLIC_HCAPTCHA_SITEKEY;
+  const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY;
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,7 +38,7 @@ export default function ContactForm() {
     if (result.ok) {
       event.currentTarget.reset();
       setCaptchaToken(null);
-      captchaRef.current?.resetCaptcha();
+      captchaRef.current?.reset();
     }
   }
 
@@ -71,16 +71,15 @@ export default function ContactForm() {
       </label>
 
       {sitekey ? (
-        <HCaptcha
+        <Turnstile
           ref={captchaRef}
-          sitekey={sitekey}
-          onVerify={setCaptchaToken}
+          siteKey={sitekey}
+          onSuccess={setCaptchaToken}
           onExpire={() => setCaptchaToken(null)}
+          onError={() => setCaptchaToken(null)}
         />
       ) : (
-        <p className="text-sm text-red-600">
-          hCaptcha site key is not configured. Please set NEXT_PUBLIC_HCAPTCHA_SITEKEY.
-        </p>
+        <p className="text-sm text-red-600">Turnstile site key is not configured.</p>
       )}
 
       <button

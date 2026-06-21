@@ -19,7 +19,7 @@ export const apiEnvSchema = z
     CORS_ORIGINS: nonEmptyString,
     ADMIN_SEED_EMAIL: z.string().trim().email().optional(),
     ADMIN_SEED_PASSWORD: z.string().min(12).optional(),
-    HCAPTCHA_SECRET: nonEmptyString.optional(),
+    TURNSTILE_SECRET: nonEmptyString.optional(),
     MEDIA_ACCESS_SECRET: nonEmptyString.min(32).optional(),
     CLOUDINARY_CLOUD_NAME: nonEmptyString.optional(),
     CLOUDINARY_API_KEY: nonEmptyString.optional(),
@@ -44,11 +44,11 @@ export const apiEnvSchema = z
     REDIS_URI: urlString.optional(),
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV === 'production' && !env.HCAPTCHA_SECRET) {
+    if (env.NODE_ENV === 'production' && !env.TURNSTILE_SECRET) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['HCAPTCHA_SECRET'],
-        message: 'HCAPTCHA_SECRET is required in production.',
+        path: ['TURNSTILE_SECRET'],
+        message: 'TURNSTILE_SECRET is required in production.',
       });
     }
   });
@@ -56,7 +56,7 @@ export const apiEnvSchema = z
 export const webEnvSchema = z.object({
   NODE_ENV: nodeEnvSchema,
   NEXT_PUBLIC_API_BASE_URL: urlString.default('http://localhost:4000'),
-  NEXT_PUBLIC_HCAPTCHA_SITEKEY: nonEmptyString.optional(),
+  NEXT_PUBLIC_TURNSTILE_SITEKEY: nonEmptyString.optional(),
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: nonEmptyString.optional(),
   NEXT_PUBLIC_GA4_ID: nonEmptyString.optional(),
   NEXT_PUBLIC_META_PIXEL_ID: nonEmptyString.optional(),

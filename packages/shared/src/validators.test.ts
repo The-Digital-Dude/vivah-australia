@@ -56,6 +56,6 @@ describe('apiEnvSchema', () => {
         JWT_REFRESH_SECRET: 'b'.repeat(32),
         CORS_ORIGINS: 'https://vivahaustralia.com.au',
       }),
-    ).toThrow(/HCAPTCHA_SECRET/);
+    ).toThrow(/TURNSTILE_SECRET/);
   });
 });

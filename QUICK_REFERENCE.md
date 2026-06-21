@@ -59,7 +59,7 @@ JWT_REFRESH_SECRET=your-32-character-random-secret
 JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=30d
 CORS_ORIGINS=http://localhost:3000
-HCAPTCHA_SECRET=optional-hcaptcha-secret
+TURNSTILE_SECRET=optional-turnstile-secret
 ```
 
 ### Web (.env.local)
@@ -67,7 +67,7 @@ HCAPTCHA_SECRET=optional-hcaptcha-secret
 ```bash
 NODE_ENV=development
 NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
-NEXT_PUBLIC_HCAPTCHA_SITEKEY=optional-hcaptcha-sitekey
+NEXT_PUBLIC_TURNSTILE_SITEKEY=optional-turnstile-sitekey
 ```
 
 ---

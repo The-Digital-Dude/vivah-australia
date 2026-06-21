@@ -43,7 +43,7 @@ services:
         value: 30d
 
       # ── Bot protection — set real key in Render dashboard ────────────────
-      - key: HCAPTCHA_SECRET
+      - key: TURNSTILE_SECRET
         sync: false
 
       # ── Media — auto-generated signing secret; add Cloudinary keys later ─

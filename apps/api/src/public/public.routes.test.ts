@@ -292,9 +292,9 @@ describe('public web routes', () => {
   });
 
   it('validates and stores contact inquiries', async () => {
-    // Enable hCaptcha for testing
-    const originalSecret = process.env.HCAPTCHA_SECRET;
-    process.env.HCAPTCHA_SECRET = 'test-secret';
+    // Enable Turnstile for testing
+    const originalSecret = process.env.TURNSTILE_SECRET;
+    process.env.TURNSTILE_SECRET = 'test-secret';
 
     try {
       // 1. Missing CAPTCHA token
@@ -335,13 +335,13 @@ describe('public web routes', () => {
       const inquiry = await ContactInquiryModel.findOne({ email: 'amit@example.com' }).orFail();
       expect(inquiry.subject).toBe('Membership question');
     } finally {
-      process.env.HCAPTCHA_SECRET = originalSecret;
+      process.env.TURNSTILE_SECRET = originalSecret;
     }
   });
 
   it('respects user email notification preferences for auto-receipts', async () => {
-    const originalSecret = process.env.HCAPTCHA_SECRET;
-    process.env.HCAPTCHA_SECRET = 'test-secret';
+    const originalSecret = process.env.TURNSTILE_SECRET;
+    process.env.TURNSTILE_SECRET = 'test-secret';
 
     try {
       // Create a user with email notifications disabled
@@ -380,14 +380,14 @@ describe('public web routes', () => {
       const inquiry = await ContactInquiryModel.findOne({ email: 'optout@example.com' }).orFail();
       expect(inquiry.name).toBe('Opted Out User');
     } finally {
-      process.env.HCAPTCHA_SECRET = originalSecret;
+      process.env.TURNSTILE_SECRET = originalSecret;
     }
   });
 
   it('flags duplicate contact attempts for fraud review', async () => {
-    // Disable HCAPTCHA_SECRET so duplicate tests can run without captcha tokens
-    const originalSecret = process.env.HCAPTCHA_SECRET;
-    delete process.env.HCAPTCHA_SECRET;
+    // Disable TURNSTILE_SECRET so duplicate tests can run without captcha tokens
+    const originalSecret = process.env.TURNSTILE_SECRET;
+    delete process.env.TURNSTILE_SECRET;
 
     try {
       for (let index = 0; index < 3; index += 1) {
@@ -404,7 +404,7 @@ describe('public web routes', () => {
 
       expect(await FraudEventModel.countDocuments({ rule: 'DUPLICATE_CONTACT_ATTEMPTS' })).toBe(1);
     } finally {
-      process.env.HCAPTCHA_SECRET = originalSecret;
+      process.env.TURNSTILE_SECRET = originalSecret;
     }
   });
 

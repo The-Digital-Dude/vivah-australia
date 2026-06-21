@@ -47,8 +47,8 @@ Protects registration and contact forms from spam.
 
 | Variable | Description | Where to get it |
 |---|---|---|
-| `NEXT_PUBLIC_HCAPTCHA_SITEKEY` | (Frontend) Public key for the hCaptcha widget. | [hCaptcha Dashboard](https://dashboard.hcaptcha.com) -> Sites |
-| `HCAPTCHA_SECRET` | (Backend) Secret key to verify the user's captcha response. | [hCaptcha Dashboard](https://dashboard.hcaptcha.com) -> Settings |
+| `NEXT_PUBLIC_TURNSTILE_SITEKEY` | (Frontend) Public site key for the Cloudflare Turnstile widget. | [Cloudflare Dashboard](https://dash.cloudflare.com) -> Turnstile -> Sites |
+| `TURNSTILE_SECRET` | (Backend) Secret key to verify the user's Turnstile response. | [Cloudflare Dashboard](https://dash.cloudflare.com) -> Turnstile -> Settings |
 
 ---
 
@@ -169,8 +169,8 @@ ADMIN_SEED_PASSWORD=
 # -----------------------------
 # 4. CAPTCHA
 # -----------------------------
-NEXT_PUBLIC_HCAPTCHA_SITEKEY=
-HCAPTCHA_SECRET=
+NEXT_PUBLIC_TURNSTILE_SITEKEY=
+TURNSTILE_SECRET=
 
 # -----------------------------
 # 5. MEDIA (CLOUDINARY)

@@ -58,13 +58,13 @@ const contactRateLimit = rateLimit({
 });
 
 async function verifyCaptcha(token: string | undefined) {
-  const secret = process.env.HCAPTCHA_SECRET;
+  const secret = process.env.TURNSTILE_SECRET;
 
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
-      throw new HttpError(400, 'hCaptcha secret is required in production.');
+      throw new HttpError(400, 'Turnstile secret is required in production.');
     }
-    console.warn('HCAPTCHA_SECRET not set, skipping CAPTCHA verification.');
+    console.warn('TURNSTILE_SECRET not set, skipping CAPTCHA verification.');
     return;
   }
 
@@ -85,7 +85,7 @@ async function verifyCaptcha(token: string | undefined) {
     throw new HttpError(400, 'CAPTCHA token is required');
   }
 
-  const response = await fetch('https://api.hcaptcha.com/siteverify', {
+  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
