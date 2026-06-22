@@ -13,6 +13,51 @@ import { useAuth } from '@/app/auth-context';
 type RegisterMode = 'email' | 'mobile';
 const OTP_RESEND_SECONDS = 30;
 
+type RegisterField = 'firstName' | 'lastName' | 'email' | 'mobile' | 'password';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Mirrors the server-side australianMobileSchema in @vivah/shared.
+const AU_MOBILE_PATTERN = /^(\+?61|0)4\d{8}$/;
+
+function formValue(form: FormData, key: string) {
+  const value = form.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
+// Mirrors the server-side passwordSchema in @vivah/shared so the user sees the
+// requirement before submitting rather than after a round-trip.
+function validatePassword(value: string): string {
+  if (!value) return 'Password is required.';
+  if (value.length < 12) return 'Password must be at least 12 characters.';
+  if (!/[a-z]/.test(value)) return 'Password must include a lowercase letter.';
+  if (!/[A-Z]/.test(value)) return 'Password must include an uppercase letter.';
+  if (!/[0-9]/.test(value)) return 'Password must include a number.';
+  if (!/[^A-Za-z0-9]/.test(value)) return 'Password must include a symbol.';
+  return '';
+}
+
+function validateField(field: RegisterField, value: string): string {
+  const trimmed = value.trim();
+  switch (field) {
+    case 'firstName':
+      return trimmed ? '' : 'First name is required.';
+    case 'lastName':
+      return trimmed ? '' : 'Last name is required.';
+    case 'email':
+      if (!trimmed) return 'Email is required.';
+      return EMAIL_PATTERN.test(trimmed) ? '' : 'Enter a valid email address.';
+    case 'mobile':
+      if (!trimmed) return 'Mobile number is required.';
+      return AU_MOBILE_PATTERN.test(trimmed)
+        ? ''
+        : 'Enter a valid Australian mobile number (e.g. +61412345678).';
+    case 'password':
+      return validatePassword(value);
+    default:
+      return '';
+  }
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const { setSession } = useAuth();
@@ -26,6 +71,30 @@ export default function RegisterPage() {
   const [registeredMobile, setRegisteredMobile] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [resendCountdown, setResendCountdown] = useState(0);
+  const [values, setValues] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    mobile: '',
+    password: '',
+  });
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<RegisterField, string>>>({});
+  const [touched, setTouched] = useState<Partial<Record<RegisterField, boolean>>>({});
+  const [termsError, setTermsError] = useState('');
+
+  function handleFieldChange(field: RegisterField, value: string) {
+    setValues((prev) => ({ ...prev, [field]: value }));
+    // Only surface errors live once the field has been touched so we don't yell
+    // at the user mid-typing on first entry.
+    if (touched[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: validateField(field, value) }));
+    }
+  }
+
+  function handleFieldBlur(field: RegisterField) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    setFieldErrors((prev) => ({ ...prev, [field]: validateField(field, values[field]) }));
+  }
 
   function applySession(
     user: AuthSessionUser | undefined,
@@ -49,22 +118,44 @@ export default function RegisterPage() {
     event.preventDefault();
     setError(null);
     setSuccess(null);
-    setPending(true);
 
     const form = new FormData(event.currentTarget);
+    const firstName = formValue(form, 'firstName');
+    const lastName = formValue(form, 'lastName');
+    const email = formValue(form, 'email');
+    const password = formValue(form, 'password');
+    const termsAccepted = form.get('termsAccepted') === 'on';
+
+    const nextErrors = {
+      firstName: validateField('firstName', firstName),
+      lastName: validateField('lastName', lastName),
+      email: validateField('email', email),
+      password: validateField('password', password),
+    };
+    const nextTermsError = termsAccepted
+      ? ''
+      : 'You must accept the Terms of Use and Privacy Policy.';
+    setTouched((prev) => ({ ...prev, firstName: true, lastName: true, email: true, password: true }));
+    setFieldErrors((prev) => ({ ...prev, ...nextErrors }));
+    setTermsError(nextTermsError);
+    if (Object.values(nextErrors).some(Boolean) || nextTermsError) {
+      return;
+    }
+
+    setPending(true);
 
     try {
       const result = await postAuth('register/email', {
-        email: form.get('email'),
-        password: form.get('password'),
-        firstName: form.get('firstName'),
-        lastName: form.get('lastName'),
-        termsAccepted: form.get('termsAccepted') === 'on',
+        email,
+        password,
+        firstName,
+        lastName,
+        termsAccepted,
         marketingConsent: form.get('marketingConsent') === 'on',
       });
 
       if (result.ok) {
-        setRegisteredEmail(form.get('email') as string);
+        setRegisteredEmail(email);
         setEmailStep('verify');
         setResendCountdown(OTP_RESEND_SECONDS);
         setSuccess('Registration created successfully. Check your email to verify your account.');
@@ -103,19 +194,39 @@ export default function RegisterPage() {
     event.preventDefault();
     setError(null);
     setSuccess(null);
-    setPending(true);
 
     const form = new FormData(event.currentTarget);
-    const mobileVal = form.get('mobile');
-    const mobile = typeof mobileVal === 'string' ? mobileVal : '';
+    const firstName = formValue(form, 'firstName');
+    const lastName = formValue(form, 'lastName');
+    const mobile = formValue(form, 'mobile');
+    const password = formValue(form, 'password');
+    const termsAccepted = form.get('termsAccepted') === 'on';
+
+    const nextErrors = {
+      firstName: validateField('firstName', firstName),
+      lastName: validateField('lastName', lastName),
+      mobile: validateField('mobile', mobile),
+      password: validateField('password', password),
+    };
+    const nextTermsError = termsAccepted
+      ? ''
+      : 'You must accept the Terms of Use and Privacy Policy.';
+    setTouched((prev) => ({ ...prev, firstName: true, lastName: true, mobile: true, password: true }));
+    setFieldErrors((prev) => ({ ...prev, ...nextErrors }));
+    setTermsError(nextTermsError);
+    if (Object.values(nextErrors).some(Boolean) || nextTermsError) {
+      return;
+    }
+
+    setPending(true);
 
     try {
       const result = await postAuth('register/mobile', {
         mobile,
-        password: form.get('password'),
-        firstName: form.get('firstName'),
-        lastName: form.get('lastName'),
-        termsAccepted: form.get('termsAccepted') === 'on',
+        password,
+        firstName,
+        lastName,
+        termsAccepted,
         marketingConsent: form.get('marketingConsent') === 'on',
       });
 
@@ -203,6 +314,9 @@ export default function RegisterPage() {
               setMode(value);
               setError(null);
               setSuccess(null);
+              setFieldErrors({});
+              setTouched({});
+              setTermsError('');
               if (value === 'mobile' && !registeredMobile) {
                 setMobileOtpStep('register');
               }
@@ -231,11 +345,45 @@ export default function RegisterPage() {
 
           <div className="grid gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="First Name" name="firstName" autoComplete="given-name" />
-              <FormField label="Last Name" name="lastName" autoComplete="family-name" />
+              <FormField
+                label="First Name"
+                name="firstName"
+                autoComplete="given-name"
+                value={values.firstName}
+                onChange={(value) => handleFieldChange('firstName', value)}
+                onBlur={() => handleFieldBlur('firstName')}
+                error={fieldErrors.firstName}
+              />
+              <FormField
+                label="Last Name"
+                name="lastName"
+                autoComplete="family-name"
+                value={values.lastName}
+                onChange={(value) => handleFieldChange('lastName', value)}
+                onBlur={() => handleFieldBlur('lastName')}
+                error={fieldErrors.lastName}
+              />
             </div>
-            <FormField label="Email" name="email" type="email" autoComplete="email" />
-            <FormField label="Password" name="password" type="password" autoComplete="new-password" />
+            <FormField
+              label="Email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={values.email}
+              onChange={(value) => handleFieldChange('email', value)}
+              onBlur={() => handleFieldBlur('email')}
+              error={fieldErrors.email}
+            />
+            <FormField
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              value={values.password}
+              onChange={(value) => handleFieldChange('password', value)}
+              onBlur={() => handleFieldBlur('password')}
+              error={fieldErrors.password}
+            />
           </div>
 
           <div className="grid gap-3">
@@ -243,7 +391,7 @@ export default function RegisterPage() {
               <input
                 name="termsAccepted"
                 type="checkbox"
-                required
+                onChange={() => setTermsError('')}
                 className="mt-0.5 size-4 accent-brand-maroon rounded border-brand-maroon/20"
               />
               <span>
@@ -258,6 +406,7 @@ export default function RegisterPage() {
                 .
               </span>
             </label>
+            {termsError && <p className="text-xs font-semibold text-red-600">{termsError}</p>}
 
             <label className="flex items-start gap-3 text-xs leading-relaxed text-gray-500 select-none cursor-pointer">
               <input
@@ -341,11 +490,45 @@ export default function RegisterPage() {
 
           <div className="grid gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="First Name" name="firstName" autoComplete="given-name" />
-              <FormField label="Last Name" name="lastName" autoComplete="family-name" />
+              <FormField
+                label="First Name"
+                name="firstName"
+                autoComplete="given-name"
+                value={values.firstName}
+                onChange={(value) => handleFieldChange('firstName', value)}
+                onBlur={() => handleFieldBlur('firstName')}
+                error={fieldErrors.firstName}
+              />
+              <FormField
+                label="Last Name"
+                name="lastName"
+                autoComplete="family-name"
+                value={values.lastName}
+                onChange={(value) => handleFieldChange('lastName', value)}
+                onBlur={() => handleFieldBlur('lastName')}
+                error={fieldErrors.lastName}
+              />
             </div>
-            <FormField label="Australian Mobile Number" name="mobile" type="tel" autoComplete="tel" />
-            <FormField label="Password" name="password" type="password" autoComplete="new-password" />
+            <FormField
+              label="Australian Mobile Number"
+              name="mobile"
+              type="tel"
+              autoComplete="tel"
+              value={values.mobile}
+              onChange={(value) => handleFieldChange('mobile', value)}
+              onBlur={() => handleFieldBlur('mobile')}
+              error={fieldErrors.mobile}
+            />
+            <FormField
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              value={values.password}
+              onChange={(value) => handleFieldChange('password', value)}
+              onBlur={() => handleFieldBlur('password')}
+              error={fieldErrors.password}
+            />
           </div>
 
           <div className="rounded-2xl bg-brand-ivory p-4 text-sm leading-6 text-gray-500">
@@ -358,7 +541,7 @@ export default function RegisterPage() {
               <input
                 name="termsAccepted"
                 type="checkbox"
-                required
+                onChange={() => setTermsError('')}
                 className="mt-0.5 size-4 accent-brand-maroon rounded border-brand-maroon/20"
               />
               <span>
@@ -373,6 +556,7 @@ export default function RegisterPage() {
                 .
               </span>
             </label>
+            {termsError && <p className="text-xs font-semibold text-red-600">{termsError}</p>}
 
             <label className="flex items-start gap-3 text-xs leading-relaxed text-gray-500 select-none cursor-pointer">
               <input

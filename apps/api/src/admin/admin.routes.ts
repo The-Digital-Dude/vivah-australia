@@ -1345,7 +1345,7 @@ export function createAdminRouter(config: AuthConfig): Router {
     requirePermission(AdminPermission.PROFILES_REVIEW),
     asyncHandler(async (request, response) => {
       const input = profileModerationQuerySchema.parse(request.query);
-      response.status(200).json({ profiles: await listProfilesForModeration(input) });
+      response.status(200).json(await listProfilesForModeration(input));
     }),
   );
 

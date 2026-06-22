@@ -41,6 +41,11 @@ export default function AdminProfilesPage() {
   const [notes, setNotes] = useState<AdminUserNote[]>([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [gotoPage, setGotoPage] = useState('');
 
   // Review Dialog State
   const [reviewItem, setReviewItem] = useState<{ id: string; action: string } | null>(null);
@@ -50,11 +55,22 @@ export default function AdminProfilesPage() {
   const [noteContent, setNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
 
-  async function load(nextStatus = status) {
+  async function load(nextStatus = status, nextPage = page, nextPageSize = pageSize) {
     setLoading(true);
-    const result = await memberRequest(`/api/admin/profiles?status=${nextStatus}`);
+    const result = await memberRequest(
+      `/api/admin/profiles?status=${nextStatus}&page=${nextPage}&pageSize=${nextPageSize}`,
+    );
     if (result.ok) {
-      setProfiles((result.data as { profiles?: ProfileItem[] }).profiles ?? []);
+      const data = result.data as {
+        profiles?: ProfileItem[];
+        total?: number;
+        page?: number;
+        totalPages?: number;
+      };
+      setProfiles(data.profiles ?? []);
+      setTotal(data.total ?? 0);
+      setTotalPages(data.totalPages ?? 1);
+      setPage(data.page ?? nextPage);
     } else {
       setMessage(result.message);
     }
@@ -67,7 +83,9 @@ export default function AdminProfilesPage() {
 
     // Enforce rejection reason
     if (action !== 'APPROVE' && !reason.trim()) {
-      setMessage('A justification reason must be provided to the member for rejections or changes requested.');
+      setMessage(
+        'A justification reason must be provided to the member for rejections or changes requested.',
+      );
       return;
     }
 
@@ -155,7 +173,8 @@ export default function AdminProfilesPage() {
               type="button"
               onClick={() => {
                 setStatus(option);
-                void load(option);
+                setPage(1);
+                void load(option, 1);
                 setDetail(null);
               }}
               className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
@@ -178,7 +197,6 @@ export default function AdminProfilesPage() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        
         {/* REQUESTS LIST */}
         <div className="space-y-4">
           {loading ? (
@@ -193,7 +211,9 @@ export default function AdminProfilesPage() {
               <div
                 key={item._id}
                 className={`rounded-2xl border p-5 shadow-sm transition hover:shadow-md bg-white ${
-                  detail?._id === item._id ? 'border-[#A10E4D] ring-2 ring-[#A10E4D]/10' : 'border-[#2F2F2F]/10'
+                  detail?._id === item._id
+                    ? 'border-[#A10E4D] ring-2 ring-[#A10E4D]/10'
+                    : 'border-[#2F2F2F]/10'
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -205,7 +225,9 @@ export default function AdminProfilesPage() {
                       <AdminStatusBadge status={item.moderation.approvalStatus} />
                     </div>
                     <h3 className="text-sm font-bold text-neutral-900 mt-1">
-                      {item.personal?.firstName ? `${item.personal.firstName} ${item.personal.lastName ?? ''}` : 'Unnamed Profile'}
+                      {item.personal?.firstName
+                        ? `${item.personal.firstName} ${item.personal.lastName ?? ''}`
+                        : 'Unnamed Profile'}
                     </h3>
                     <p className="text-[10px] text-neutral-450">
                       Last Updated: {new Date(item.updatedAt).toLocaleDateString()}
@@ -267,19 +289,131 @@ export default function AdminProfilesPage() {
             <div className="flex min-h-[250px] flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-300 p-8 text-center bg-white shadow-sm">
               <span className="text-3xl">📇</span>
               <h3 className="mt-3 text-sm font-bold text-neutral-800">Queue is Clear</h3>
-              <p className="mt-1 text-xs text-neutral-450">No profiles currently awaiting review in this state.</p>
+              <p className="mt-1 text-xs text-neutral-450">
+                No profiles currently awaiting review in this state.
+              </p>
+            </div>
+          )}
+
+          {/* PAGINATION */}
+          {!loading && total > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-neutral-200 pt-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-xs font-semibold text-neutral-500">
+                  Page {page} of {totalPages} · {total} {total === 1 ? 'profile' : 'profiles'}
+                </p>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500">
+                  Per page
+                  <select
+                    value={pageSize}
+                    onChange={(event) => {
+                      const nextPageSize = Number(event.target.value);
+                      setPageSize(nextPageSize);
+                      setPage(1);
+                      void load(status, 1, nextPageSize);
+                    }}
+                    className="rounded-lg border border-neutral-250 bg-white px-2 py-1.5 text-xs font-bold text-[#2F2F2F] outline-none focus:border-[#A10E4D]"
+                  >
+                    {[10, 25, 50, 100].map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void load(status, page - 1)}
+                  disabled={page <= 1}
+                  className="rounded-xl border border-neutral-250 bg-white px-3 py-2 text-xs font-bold text-[#2F2F2F] shadow-sm transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Previous
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {getPageNumbers(page, totalPages).map((item, index) =>
+                    item === 'ellipsis' ? (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="px-1.5 text-xs font-bold text-neutral-400 select-none"
+                      >
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => void load(status, item)}
+                        aria-current={item === page ? 'page' : undefined}
+                        className={`h-9 min-w-9 rounded-xl border px-2.5 text-xs font-bold shadow-sm transition ${
+                          item === page
+                            ? 'border-[#A10E4D] bg-[#A10E4D] text-white'
+                            : 'border-neutral-250 bg-white text-[#2F2F2F] hover:bg-neutral-50'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => void load(status, page + 1)}
+                  disabled={page >= totalPages}
+                  className="rounded-xl border border-neutral-250 bg-white px-3 py-2 text-xs font-bold text-[#2F2F2F] shadow-sm transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                </button>
+
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const target = Number(gotoPage);
+                    if (!Number.isInteger(target) || target < 1 || target > totalPages) {
+                      return;
+                    }
+                    setGotoPage('');
+                    void load(status, target);
+                  }}
+                  className="flex items-center gap-1.5"
+                >
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500">
+                    Go to
+                    <input
+                      type="number"
+                      min={1}
+                      max={totalPages}
+                      value={gotoPage}
+                      onChange={(event) => setGotoPage(event.target.value)}
+                      placeholder={String(page)}
+                      className="h-9 w-16 rounded-xl border border-neutral-250 bg-white px-2 text-xs font-bold text-[#2F2F2F] outline-none focus:border-[#A10E4D]"
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    className="h-9 rounded-xl border border-neutral-250 bg-white px-3 text-xs font-bold text-[#2F2F2F] shadow-sm transition hover:bg-neutral-50"
+                  >
+                    Go
+                  </button>
+                </form>
+              </div>
             </div>
           )}
         </div>
 
         {/* DETAILS SECTION */}
-        <div>
+        <div className="lg:sticky lg:top-6 lg:self-start">
           {detail ? (
-            <section className="rounded-2xl border border-[#2F2F2F]/10 bg-white p-5 shadow-sm space-y-5 animate-in fade-in duration-200">
+            <section className="max-h-[80vh] overflow-y-auto rounded-2xl border border-[#2F2F2F]/10 bg-white p-5 shadow-sm space-y-5 animate-in fade-in duration-200">
               <div className="flex items-start justify-between gap-4 border-b border-neutral-100 pb-4">
                 <div>
                   <h3 className="text-sm font-extrabold text-neutral-900">Draft Comparison</h3>
-                  <p className="text-[10px] text-neutral-450 mt-1 font-mono">Profile ID: {detail._id}</p>
+                  <p className="text-[10px] text-neutral-450 mt-1 font-mono">
+                    Profile ID: {detail._id}
+                  </p>
                 </div>
                 <button
                   onClick={() => {
@@ -299,7 +433,9 @@ export default function AdminProfilesPage() {
 
                 {detail.moderation.rejectionReason && (
                   <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Previous Review Feedback</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                      Previous Review Feedback
+                    </h4>
                     <p className="mt-1.5 text-xs text-neutral-650 bg-neutral-50 p-2.5 rounded-xl border border-neutral-150 leading-relaxed font-medium">
                       {detail.moderation.rejectionReason}
                     </p>
@@ -321,7 +457,10 @@ export default function AdminProfilesPage() {
                   <div className="mt-4 space-y-2">
                     {notes.length > 0 ? (
                       notes.map((note) => (
-                        <div key={note.id} className="rounded-xl border border-neutral-150 bg-white p-3">
+                        <div
+                          key={note.id}
+                          className="rounded-xl border border-neutral-150 bg-white p-3"
+                        >
                           <p className="text-xs leading-relaxed text-neutral-700">{note.note}</p>
                           <p className="mt-2 text-[10px] font-semibold text-neutral-400">
                             Author: {note.authorId} · {new Date(note.createdAt).toLocaleString()}
@@ -362,7 +501,9 @@ export default function AdminProfilesPage() {
           ) : (
             <div className="hidden lg:flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-300 p-8 text-center text-neutral-400 bg-white shadow-sm">
               <ClipboardSignature className="h-8 w-8 text-neutral-300" />
-              <p className="mt-2 text-xs">Select a profile on the left to inspect detail draft changes.</p>
+              <p className="mt-2 text-xs">
+                Select a profile on the left to inspect detail draft changes.
+              </p>
             </div>
           )}
         </div>
@@ -375,7 +516,7 @@ export default function AdminProfilesPage() {
             onClick={() => setReviewItem(null)}
             className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
           />
-          
+
           <div className="relative w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-6 shadow-2xl animate-in fade-in duration-200">
             <h3 className="text-base font-extrabold text-neutral-900 flex items-center gap-2">
               {reviewItem.action === 'APPROVE' ? (
@@ -390,9 +531,11 @@ export default function AdminProfilesPage() {
                 </>
               )}
             </h3>
-            
+
             <p className="text-xs text-neutral-500 mt-1">
-              Applying review decision <strong className="text-[#A10E4D] uppercase">{reviewItem.action}</strong> to user profile.
+              Applying review decision{' '}
+              <strong className="text-[#A10E4D] uppercase">{reviewItem.action}</strong> to user
+              profile.
             </p>
 
             <div className="mt-4 space-y-4">
@@ -405,7 +548,10 @@ export default function AdminProfilesPage() {
                     onChange={(e) => setConfirmApprove(e.target.checked)}
                     className="mt-1 h-3.5 w-3.5 rounded text-[#A10E4D] focus:ring-[#A10E4D]/20 cursor-pointer"
                   />
-                  <label htmlFor="confirm-prof-app" className="text-xs text-neutral-600 font-semibold cursor-pointer select-none">
+                  <label
+                    htmlFor="confirm-prof-app"
+                    className="text-xs text-neutral-600 font-semibold cursor-pointer select-none"
+                  >
                     I confirm I have reviewed this profile and authorize publishing it to search.
                   </label>
                 </div>
@@ -461,6 +607,19 @@ export default function AdminProfilesPage() {
   );
 }
 
+function getPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
+  const pages = new Set<number>([1, total, current, current - 1, current + 1]);
+  const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  const result: (number | 'ellipsis')[] = [];
+  let prev = 0;
+  for (const p of sorted) {
+    if (p - prev > 1) result.push('ellipsis');
+    result.push(p);
+    prev = p;
+  }
+  return result;
+}
+
 function SnapshotComparison({
   snapshot,
 }: Readonly<{ snapshot: { previous?: unknown; current?: unknown } | undefined }>) {
@@ -477,7 +636,9 @@ function SnapshotComparison({
   if (diffRows.length === 0) {
     return (
       <div className="rounded-xl border border-neutral-150 bg-neutral-50/50 p-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Profile changes</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+          Profile changes
+        </h4>
         <p className="mt-2 rounded-xl border border-dashed border-neutral-200 bg-white p-3 text-xs italic text-neutral-500">
           No field-level changes were captured between the last approved snapshot and this draft.
         </p>
@@ -489,7 +650,9 @@ function SnapshotComparison({
     <div className="rounded-xl border border-neutral-150 bg-neutral-50/50 p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Profile changes</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+            Profile changes
+          </h4>
           <p className="mt-1 text-xs text-neutral-500">
             Review the exact before-and-after fields in this edited approved profile.
           </p>
@@ -501,9 +664,15 @@ function SnapshotComparison({
 
       <div className="mt-4 overflow-hidden rounded-xl border border-neutral-150 bg-white">
         <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] gap-0 border-b border-neutral-150 bg-neutral-50">
-          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">Field</div>
-          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">Before</div>
-          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">After</div>
+          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+            Field
+          </div>
+          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+            Before
+          </div>
+          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+            After
+          </div>
         </div>
         {diffRows.map((row) => (
           <div
@@ -512,7 +681,9 @@ function SnapshotComparison({
           >
             <div className="px-3 py-3 text-xs font-semibold text-neutral-800">{row.label}</div>
             <div className="px-3 py-3 text-xs leading-relaxed text-neutral-500">{row.before}</div>
-            <div className="bg-emerald-50/60 px-3 py-3 text-xs leading-relaxed text-neutral-700">{row.after}</div>
+            <div className="bg-emerald-50/60 px-3 py-3 text-xs leading-relaxed text-neutral-700">
+              {row.after}
+            </div>
           </div>
         ))}
       </div>

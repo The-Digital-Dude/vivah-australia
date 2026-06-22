@@ -7,7 +7,6 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { appleAuthHelpers } from 'react-apple-signin-auth';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import AuthShell from '../auth-shell';
-import FormField from '../form-field';
 import SubmitButton from '../submit-button';
 import { postAuth, type AuthSessionUser } from '@/lib/auth-api';
 import { memberRequest } from '@/lib/member-api';
@@ -25,6 +24,33 @@ function safeReturnUrl(value: string | null, fallback: string) {
   return value;
 }
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Accepts Australian / international mobile numbers: optional +, spaces, dashes
+// and parentheses, requiring at least 8 digits.
+const MOBILE_PATTERN = /^\+?[\d\s()-]{8,}$/;
+
+function validateIdentifier(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return 'Email address or mobile number is required.';
+  }
+  if (trimmed.includes('@')) {
+    return EMAIL_PATTERN.test(trimmed) ? '' : 'Enter a valid email address.';
+  }
+  const digitCount = trimmed.replace(/\D/g, '').length;
+  if (MOBILE_PATTERN.test(trimmed) && digitCount >= 8) {
+    return '';
+  }
+  return 'Enter a valid email address or mobile number.';
+}
+
+function validatePassword(value: string): string {
+  if (!value) {
+    return 'Password is required.';
+  }
+  return '';
+}
+
 interface MemberProfileSummary {
   completionPercentage?: number;
 }
@@ -40,6 +66,27 @@ function LoginContent() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
+  const [values, setValues] = useState({ email: '', password: '' });
+  const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  function runValidation(field: 'email' | 'password', value: string) {
+    return field === 'email' ? validateIdentifier(value) : validatePassword(value);
+  }
+
+  function handleFieldChange(field: 'email' | 'password', value: string) {
+    setValues((prev) => ({ ...prev, [field]: value }));
+    // Only surface errors live once the field has been touched (blurred or
+    // attempted submit) so we don't yell at the user mid-typing.
+    if (touched[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: runValidation(field, value) }));
+    }
+  }
+
+  function handleFieldBlur(field: 'email' | 'password') {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    setFieldErrors((prev) => ({ ...prev, [field]: runValidation(field, values[field]) }));
+  }
 
   function applySession(
     user: AuthSessionUser | undefined,
@@ -153,11 +200,22 @@ function LoginContent() {
     event.preventDefault();
     setError('');
     setMessage('');
-    setPending(true);
 
     const form = new FormData(event.currentTarget);
     const email = formValue(form, 'email');
     const password = formValue(form, 'password');
+
+    const nextErrors = {
+      email: validateIdentifier(email),
+      password: validatePassword(password),
+    };
+    setTouched({ email: true, password: true });
+    setFieldErrors(nextErrors);
+    if (nextErrors.email || nextErrors.password) {
+      return;
+    }
+
+    setPending(true);
 
     try {
       const result = await postAuth('login', { email, password });
@@ -230,12 +288,32 @@ function LoginContent() {
         )}
 
         <div className="grid gap-4">
-          <FormField
-            label="Email Address or Mobile Number"
-            name="email"
-            type="text"
-            autoComplete="username"
-          />
+          <div>
+            <label htmlFor="email" className="mb-2 block text-sm font-bold text-brand-charcoal">
+              Email Address or Mobile Number
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="text"
+              autoComplete="username"
+              value={values.email}
+              onChange={(event) => handleFieldChange('email', event.target.value)}
+              onBlur={() => handleFieldBlur('email')}
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+              className={`h-12 w-full rounded-2xl border bg-white px-4 text-brand-charcoal placeholder-[#6B7280] outline-none transition focus:ring-4 text-sm ${
+                fieldErrors.email
+                  ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
+                  : 'border-[#A10E4D]/20 focus:border-[#A10E4D] focus:ring-[#FFF0F3]'
+              }`}
+            />
+            {fieldErrors.email && (
+              <p id="email-error" className="mt-1.5 text-xs font-semibold text-red-600">
+                {fieldErrors.email}
+              </p>
+            )}
+          </div>
           <div>
             <div className="flex justify-between items-center mb-2">
               <label htmlFor="password" className="text-sm font-bold text-brand-charcoal">
@@ -253,10 +331,23 @@ function LoginContent() {
               name="password"
               type="password"
               autoComplete="current-password"
-              required
-              className="h-12 w-full rounded-2xl border border-[#A10E4D]/20 bg-white px-4 text-brand-charcoal placeholder-[#6B7280] outline-none transition focus:border-[#A10E4D] focus:ring-4 focus:ring-[#FFF0F3] text-sm"
+              value={values.password}
+              onChange={(event) => handleFieldChange('password', event.target.value)}
+              onBlur={() => handleFieldBlur('password')}
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+              className={`h-12 w-full rounded-2xl border bg-white px-4 text-brand-charcoal placeholder-[#6B7280] outline-none transition focus:ring-4 text-sm ${
+                fieldErrors.password
+                  ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
+                  : 'border-[#A10E4D]/20 focus:border-[#A10E4D] focus:ring-[#FFF0F3]'
+              }`}
               placeholder="••••••••"
             />
+            {fieldErrors.password && (
+              <p id="password-error" className="mt-1.5 text-xs font-semibold text-red-600">
+                {fieldErrors.password}
+              </p>
+            )}
           </div>
         </div>
 

@@ -35,7 +35,7 @@ describe('AdminProfilesPage moderator notes', () => {
   beforeEach(() => {
     memberRequestMock.mockReset();
     memberRequestMock.mockImplementation((url: string, options?: { method?: string; body?: Record<string, unknown> }) => {
-      if (url === '/api/admin/profiles?status=PENDING') {
+      if (url === '/api/admin/profiles?status=PENDING&page=1&pageSize=10') {
         return Promise.resolve({
           ok: true,
           message: '',
@@ -58,6 +58,10 @@ describe('AdminProfilesPage moderator notes', () => {
                 updatedAt: '2026-06-18T10:00:00.000Z',
               },
             ],
+            total: 1,
+            page: 1,
+            pageSize: 10,
+            totalPages: 1,
           },
         });
       }
@@ -128,7 +132,9 @@ describe('AdminProfilesPage moderator notes', () => {
     render(<AdminProfilesPage />);
 
     await waitFor(() => {
-      expect(memberRequestMock).toHaveBeenCalledWith('/api/admin/profiles?status=PENDING');
+      expect(memberRequestMock).toHaveBeenCalledWith(
+        '/api/admin/profiles?status=PENDING&page=1&pageSize=10',
+      );
     });
 
     fireEvent.click(screen.getByRole('button', { name: /compare draft/i }));

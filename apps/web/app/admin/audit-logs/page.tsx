@@ -1,11 +1,27 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import { AdminDataTable } from '../components/admin-data-table';
 import type { Column } from '../components/admin-data-table';
-import { AlertCircle, Eye, X, Filter, History, Settings, User } from 'lucide-react';
+import {
+  AlertCircle,
+  Eye,
+  X,
+  Filter,
+  History,
+  Settings,
+  User,
+  Clock,
+  Hash,
+  Target,
+  Database,
+  Copy,
+  Check,
+  CalendarClock,
+  Shield,
+} from 'lucide-react';
 
 interface AuditLogItem {
   _id: string;
@@ -19,6 +35,143 @@ interface AuditLogItem {
   metadata?: Record<string, unknown>;
 }
 
+/** Turn UPDATE_STATUS / approveMedia / refund_payment into "Update Status". */
+function humanize(value: string): string {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_\-.]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .map((word) =>
+      word.length <= 2 && word === word.toUpperCase()
+        ? word // keep short acronyms like ID, OK
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+    )
+    .join(' ');
+}
+
+/** Color-coded category derived from the action verb. */
+function actionCategory(action: string): { label: string; className: string } {
+  const a = action.toUpperCase();
+  if (/(CREATE|ADD|PROMOTE|APPROVE|GRANT|VERIFY)/.test(a))
+    return { label: 'Create / Approve', className: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+  if (/(DELETE|REMOVE|REJECT|REVOKE|BAN|REFUND)/.test(a))
+    return { label: 'Remove / Reject', className: 'bg-rose-50 text-rose-700 border-rose-200' };
+  if (/(UPDATE|EDIT|CHANGE|STATUS)/.test(a))
+    return { label: 'Update', className: 'bg-amber-50 text-amber-700 border-amber-200' };
+  return { label: 'System', className: 'bg-neutral-100 text-neutral-600 border-neutral-200' };
+}
+
+function relativeTime(iso: string): string {
+  const then = new Date(iso).getTime();
+  const diffSec = Math.round((Date.now() - then) / 1000);
+  const abs = Math.abs(diffSec);
+  const steps: { limit: number; div: number; unit: Intl.RelativeTimeFormatUnit }[] = [
+    { limit: 60, div: 1, unit: 'second' },
+    { limit: 3600, div: 60, unit: 'minute' },
+    { limit: 86400, div: 3600, unit: 'hour' },
+    { limit: 604800, div: 86400, unit: 'day' },
+    { limit: 2629800, div: 604800, unit: 'week' },
+    { limit: 31557600, div: 2629800, unit: 'month' },
+    { limit: Infinity, div: 31557600, unit: 'year' },
+  ];
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+  for (const step of steps) {
+    if (abs < step.limit) {
+      return rtf.format(-Math.round(diffSec / step.div), step.unit);
+    }
+  }
+  return new Date(iso).toLocaleString();
+}
+
+function looksLikeDate(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value) && !Number.isNaN(Date.parse(value));
+}
+
+/** Render a single metadata value in a human-readable way (recursive for objects/arrays). */
+function MetadataValue({ value }: { value: unknown }): ReactNode {
+  if (value === null || value === undefined || value === '') {
+    return <span className="text-neutral-400 italic">—</span>;
+  }
+  if (typeof value === 'boolean') {
+    return (
+      <span
+        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+          value ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-neutral-100 text-neutral-500 border-neutral-200'
+        }`}
+      >
+        {value ? 'Yes' : 'No'}
+      </span>
+    );
+  }
+  if (typeof value === 'number') {
+    return <span className="font-semibold text-neutral-800 tabular-nums">{value.toLocaleString()}</span>;
+  }
+  if (typeof value === 'string') {
+    if (looksLikeDate(value)) {
+      return <span className="font-semibold text-neutral-800">{new Date(value).toLocaleString()}</span>;
+    }
+    return <span className="font-semibold text-neutral-800 break-words">{value}</span>;
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) return <span className="text-neutral-400 italic">empty</span>;
+    return (
+      <div className="flex flex-wrap gap-1.5">
+        {value.map((item, idx) => (
+          <span
+            key={idx}
+            className="rounded-md border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-[11px] font-medium text-neutral-700"
+          >
+            {typeof item === 'object' ? JSON.stringify(item) : String(item)}
+          </span>
+        ))}
+      </div>
+    );
+  }
+  if (typeof value === 'object') {
+    return (
+      <div className="mt-1 space-y-1.5 rounded-lg border border-neutral-150 bg-neutral-50/60 p-2.5">
+        {Object.entries(value as Record<string, unknown>).map(([k, v]) => (
+          <div key={k} className="flex items-start justify-between gap-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">{humanize(k)}</span>
+            <div className="text-right text-[11px]">
+              <MetadataValue value={v} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return <span className="font-semibold text-neutral-800">{String(value)}</span>;
+}
+
+/** Reusable copyable ID chip. */
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div>
+      <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">{label}</span>
+      <button
+        type="button"
+        onClick={() => {
+          void navigator.clipboard?.writeText(value);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        }}
+        className="group inline-flex max-w-full items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1 text-[11px] font-mono text-neutral-700 hover:bg-neutral-100 transition"
+        title="Click to copy"
+      >
+        <span className="truncate">{value}</span>
+        {copied ? (
+          <Check className="h-3 w-3 shrink-0 text-emerald-600" />
+        ) : (
+          <Copy className="h-3 w-3 shrink-0 text-neutral-400 group-hover:text-neutral-600" />
+        )}
+      </button>
+    </div>
+  );
+}
+
 export default function AdminAuditLogsPage() {
   const memberRequest = useMemberRequest();
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
@@ -27,7 +180,7 @@ export default function AdminAuditLogsPage() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Sliding Detail Drawer state
+  // Detail modal state
   const [selectedLog, setSelectedLog] = useState<AuditLogItem | null>(null);
 
   async function load() {
@@ -53,13 +206,23 @@ export default function AdminAuditLogsPage() {
     void load();
   }, []);
 
+  // Close modal on Escape
+  useEffect(() => {
+    if (!selectedLog) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedLog(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selectedLog]);
+
   const columns: Column<AuditLogItem>[] = [
     {
       header: 'System Action',
       accessor: (log) => (
         <span className="font-extrabold text-[#2F2F2F] tracking-wide flex items-center gap-1.5">
           <Settings className="h-3.5 w-3.5 text-neutral-400" />
-          {log.action}
+          {humanize(log.action)}
         </span>
       ),
       sortKey: 'action',
@@ -111,6 +274,9 @@ export default function AdminAuditLogsPage() {
     },
   ];
 
+  const category = selectedLog ? actionCategory(selectedLog.action) : null;
+  const metadataEntries = selectedLog?.metadata ? Object.entries(selectedLog.metadata) : [];
+
   return (
     <AdminShell
       title="System Audit Logs"
@@ -159,106 +325,184 @@ export default function AdminAuditLogsPage() {
         emptyDescription="Please adjust filters or check log records later."
       />
 
-      {/* SLIDING DETAIL DRAWER OVERLAY */}
-      {selectedLog && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Backdrop overlay */}
-          <div
+      {/* DETAIL MODAL */}
+      {selectedLog && category && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <button
             onClick={() => setSelectedLog(null)}
-            className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm transition-opacity duration-300"
+            className="fixed inset-0 bg-neutral-950/65 backdrop-blur-sm"
+            aria-label="Close Dialog"
           />
-          
-          {/* Sliding drawer element */}
-          <aside className="relative z-50 w-full max-w-md bg-white h-full shadow-2xl flex flex-col p-6 animate-in slide-in-from-right duration-300 justify-between">
-            <div className="space-y-6">
-              {/* Header */}
-              <div className="flex items-start justify-between border-b border-neutral-100 pb-4">
-                <div>
-                  <h3 className="text-base font-extrabold text-neutral-900 flex items-center gap-2">
-                    <History className="h-5 w-5 text-[#A10E4D]" />
-                    Audit Entry Inspector
-                  </h3>
-                  <p className="text-[10px] text-neutral-400 mt-1 font-mono">
-                    Log UUID: {selectedLog._id}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedLog(null)}
-                  className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:bg-neutral-50"
-                  type="button"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
 
-              {/* Data list fields */}
-              <div className="space-y-4 text-xs font-medium text-neutral-600">
+          {/* Modal */}
+          <div className="relative z-50 flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-neutral-100 bg-gradient-to-br from-[#FFF9F5] to-white p-5">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#A10E4D]/10 text-[#A10E4D]">
+                  <History className="h-5 w-5" />
+                </div>
                 <div>
-                  <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Operator Name</span>
-                  <span className="flex items-center gap-1.5 font-extrabold text-[#2F2F2F]">
-                    <User className="h-3.5 w-3.5 text-neutral-400" />
-                    {selectedLog.actorName ?? 'System'}
+                  <h3 className="text-base font-extrabold text-neutral-900 leading-tight">
+                    {humanize(selectedLog.action)}
+                  </h3>
+                  <span
+                    className={`mt-1.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${category.className}`}
+                  >
+                    {category.label}
                   </span>
                 </div>
+              </div>
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:bg-neutral-50 transition"
+                type="button"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
+            {/* Scrollable body */}
+            <div className="flex-1 space-y-5 overflow-y-auto p-5">
+              {/* Plain-language summary */}
+              <p className="rounded-xl border border-neutral-150 bg-neutral-50/70 p-3 text-xs leading-relaxed text-neutral-700">
+                <span className="font-bold text-neutral-900">{selectedLog.actorName ?? 'System'}</span>
+                {selectedLog.actorRole ? ` (${humanize(selectedLog.actorRole)})` : ''} performed{' '}
+                <span className="font-bold text-[#A10E4D]">{humanize(selectedLog.action)}</span>
+                {selectedLog.targetType ? (
+                  <>
+                    {' '}
+                    on a <span className="font-bold text-neutral-900">{humanize(selectedLog.targetType)}</span>
+                  </>
+                ) : (
+                  ''
+                )}{' '}
+                <span className="text-neutral-500">({relativeTime(selectedLog.createdAt)})</span>.
+              </p>
+
+              {/* Actor section */}
+              <section>
+                <h4 className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <User className="h-3.5 w-3.5" /> Operator
+                </h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <div>
-                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">System Action</span>
-                    <span className="font-extrabold text-[#2F2F2F]">{selectedLog.action}</span>
+                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Name</span>
+                    <span className="font-extrabold text-[#2F2F2F]">{selectedLog.actorName ?? 'System'}</span>
                   </div>
                   <div>
-                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Actor Role</span>
-                    <span className="rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[9px] font-extrabold text-neutral-700 uppercase tracking-wider">
+                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Role</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 border border-neutral-200 px-2 py-0.5 text-[10px] font-extrabold text-neutral-700 uppercase tracking-wider">
+                      <Shield className="h-3 w-3 text-neutral-500" />
                       {selectedLog.actorRole ?? 'SYSTEM'}
                     </span>
                   </div>
+                  {selectedLog.actorId && (
+                    <div className="col-span-2">
+                      <CopyField label="Operator ID" value={selectedLog.actorId} />
+                    </div>
+                  )}
                 </div>
+              </section>
 
-                <div className="grid grid-cols-2 gap-4">
+              {/* Target section */}
+              <section>
+                <h4 className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <Target className="h-3.5 w-3.5" /> Target Entity
+                </h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <div>
-                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Actor ID Reference</span>
-                    <code className="font-mono text-neutral-600 bg-neutral-50 px-2 py-0.5 rounded border border-neutral-150 text-[10px]">
-                      {selectedLog.actorId ?? 'SYSTEM'}
-                    </code>
+                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Type</span>
+                    <span className="font-bold text-[#2F2F2F]">
+                      {selectedLog.targetType ? humanize(selectedLog.targetType) : 'None'}
+                    </span>
+                  </div>
+                  {selectedLog.targetId ? (
+                    <div className="col-span-2">
+                      <CopyField label="Target ID" value={selectedLog.targetId} />
+                    </div>
+                  ) : (
+                    <div>
+                      <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">ID</span>
+                      <span className="text-neutral-400 italic text-xs">None</span>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Timing section */}
+              <section>
+                <h4 className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <Clock className="h-3.5 w-3.5" /> Timing
+                </h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div>
+                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">When</span>
+                    <span className="font-semibold text-neutral-700 capitalize">{relativeTime(selectedLog.createdAt)}</span>
                   </div>
                   <div>
-                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Target Entity Type</span>
-                    <span className="font-bold text-[#2F2F2F]">{selectedLog.targetType ?? 'None'}</span>
+                    <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1 flex items-center gap-1">
+                      <CalendarClock className="h-3 w-3" /> Exact
+                    </span>
+                    <span className="font-semibold text-neutral-700 text-[11px]">
+                      {new Date(selectedLog.createdAt).toLocaleString()}
+                    </span>
                   </div>
                 </div>
+              </section>
 
-                <div>
-                  <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Target Entity UUID</span>
-                  <code className="font-mono text-neutral-600 bg-neutral-50 px-2 py-0.5 rounded border border-neutral-150 text-[10px]">
-                    {selectedLog.targetId ?? 'None'}
-                  </code>
-                </div>
+              {/* Metadata section — readable key/value, no raw JSON */}
+              <section>
+                <h4 className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  <span className="flex items-center gap-1.5">
+                    <Database className="h-3.5 w-3.5" /> Additional Details
+                  </span>
+                  {metadataEntries.length > 0 && (
+                    <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] text-neutral-500">
+                      {metadataEntries.length} {metadataEntries.length === 1 ? 'field' : 'fields'}
+                    </span>
+                  )}
+                </h4>
+                {metadataEntries.length > 0 ? (
+                  <dl className="divide-y divide-neutral-100 rounded-xl border border-neutral-200 overflow-hidden">
+                    {metadataEntries.map(([key, value]) => (
+                      <div key={key} className="flex items-start justify-between gap-4 px-3.5 py-2.5 odd:bg-neutral-50/40">
+                        <dt className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-500 pt-0.5">
+                          <Hash className="h-3 w-3 text-neutral-300" />
+                          {humanize(key)}
+                        </dt>
+                        <dd className="max-w-[60%] text-right text-xs">
+                          <MetadataValue value={value} />
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 p-4 text-center text-xs text-neutral-400">
+                    No additional details were recorded for this action.
+                  </div>
+                )}
+              </section>
 
-                <div>
-                  <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Timestamp</span>
-                  <span className="text-neutral-500 font-semibold">{new Date(selectedLog.createdAt).toLocaleString()}</span>
-                </div>
-
-                {/* Metadata JSON diff board */}
-                <div>
-                  <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1.5">Action Metadata / Payload</span>
-                  <pre className="max-h-64 overflow-y-auto rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-[10px] font-mono leading-relaxed text-neutral-700 shadow-inner">
-                    {JSON.stringify(selectedLog.metadata || { note: 'No metadata snapshot attached.' }, null, 2)}
-                  </pre>
-                </div>
-              </div>
+              {/* Log reference */}
+              <section className="border-t border-neutral-100 pt-4">
+                <CopyField label="Log Reference ID" value={selectedLog._id} />
+              </section>
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-neutral-100 mt-6">
+            {/* Footer */}
+            <div className="border-t border-neutral-100 bg-neutral-50/50 p-4">
               <button
                 onClick={() => setSelectedLog(null)}
-                className="rounded-xl border border-neutral-250 px-4.5 py-2 text-xs font-bold text-neutral-600 hover:bg-neutral-50 bg-white transition w-full shadow-sm"
+                className="w-full rounded-xl bg-[#A10E4D] hover:bg-[#890B40] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition"
                 type="button"
               >
-                Close Inspector
+                Close
               </button>
             </div>
-          </aside>
+          </div>
         </div>
       )}
     </AdminShell>

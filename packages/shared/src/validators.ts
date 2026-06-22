@@ -561,6 +561,8 @@ export const adminUserNoteSchema = z.object({
 export const profileModerationQuerySchema = z.object({
   status: z.enum(['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'NEEDS_CHANGES']).default('PENDING'),
   sort: z.enum(['RECENTLY_UPDATED', 'NEWEST']).default('RECENTLY_UPDATED'),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(10),
 });
 
 export const profileModerationReviewSchema = z.object({

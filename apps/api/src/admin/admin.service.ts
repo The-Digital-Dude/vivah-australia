@@ -945,10 +945,19 @@ export async function addUserNote(
 export async function listProfilesForModeration(input: ProfileModerationQueryInput) {
   const sort =
     input.sort === 'NEWEST' ? ({ createdAt: -1 } as const) : ({ updatedAt: -1 } as const);
-  return ProfileModel.find({ 'moderation.approvalStatus': input.status, isDeleted: false })
-    .sort(sort)
-    .limit(100)
-    .lean();
+  const filter = { 'moderation.approvalStatus': input.status, isDeleted: false };
+  const skip = (input.page - 1) * input.pageSize;
+  const [profiles, total] = await Promise.all([
+    ProfileModel.find(filter).sort(sort).skip(skip).limit(input.pageSize).lean(),
+    ProfileModel.countDocuments(filter),
+  ]);
+  return {
+    profiles,
+    total,
+    page: input.page,
+    pageSize: input.pageSize,
+    totalPages: Math.max(1, Math.ceil(total / input.pageSize)),
+  };
 }
 
 export async function getProfileModerationDetail(profileId: string) {
