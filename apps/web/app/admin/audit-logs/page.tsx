@@ -5,11 +5,12 @@ import AdminShell from '../admin-shell';
 import { useMemberRequest } from '@/lib/member-api';
 import { AdminDataTable } from '../components/admin-data-table';
 import type { Column } from '../components/admin-data-table';
-import { AlertCircle, Eye, X, Filter, History, Settings } from 'lucide-react';
+import { AlertCircle, Eye, X, Filter, History, Settings, User } from 'lucide-react';
 
 interface AuditLogItem {
   _id: string;
   actorId?: string;
+  actorName?: string | null;
   actorRole?: string;
   action: string;
   targetType?: string;
@@ -64,6 +65,16 @@ export default function AdminAuditLogsPage() {
       sortKey: 'action',
     },
     {
+      header: 'Operator Name',
+      accessor: (log) => (
+        <span className="flex items-center gap-1.5 font-bold text-neutral-700">
+          <User className="h-3.5 w-3.5 text-neutral-400" />
+          {log.actorName ?? 'System'}
+        </span>
+      ),
+      sortKey: 'actorName',
+    },
+    {
       header: 'Operator Role',
       accessor: (log) => (
         <div>
@@ -78,20 +89,6 @@ export default function AdminAuditLogsPage() {
         </div>
       ),
       sortKey: 'actorRole',
-    },
-    {
-      header: 'Target Entity',
-      accessor: (log) => (
-        <div>
-          <span className="text-xs font-bold text-neutral-700">{log.targetType ?? 'NONE'}</span>
-          {log.targetId && (
-            <code className="ml-2 font-mono text-[10px] text-neutral-450 bg-neutral-50 px-1.5 py-0.5 rounded border border-neutral-150">
-              {log.targetId.slice(-8).toUpperCase()}
-            </code>
-          )}
-        </div>
-      ),
-      sortKey: 'targetType',
     },
     {
       header: 'Timestamp',
@@ -196,6 +193,14 @@ export default function AdminAuditLogsPage() {
 
               {/* Data list fields */}
               <div className="space-y-4 text-xs font-medium text-neutral-600">
+                <div>
+                  <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">Operator Name</span>
+                  <span className="flex items-center gap-1.5 font-extrabold text-[#2F2F2F]">
+                    <User className="h-3.5 w-3.5 text-neutral-400" />
+                    {selectedLog.actorName ?? 'System'}
+                  </span>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="block font-bold text-neutral-400 uppercase tracking-wider text-[9px] mb-1">System Action</span>

@@ -398,9 +398,7 @@ export default function MemberDashboardPage() {
 
         <div
           className={
-            isGated
-              ? 'pointer-events-none max-h-[600px] select-none overflow-hidden blur-sm'
-              : undefined
+            isGated ? 'pointer-events-none select-none overflow-hidden blur-sm' : undefined
           }
           aria-hidden={isGated || undefined}
         >

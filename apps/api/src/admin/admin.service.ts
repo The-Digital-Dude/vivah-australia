@@ -957,6 +957,26 @@ export async function getProfileModerationDetail(profileId: string) {
   return profile;
 }
 
+async function attachActorNames<T extends { actorId?: unknown }>(logs: T[]): Promise<(T & { actorName: string | null })[]> {
+  const actorIds = [...new Set(logs.map((log) => log.actorId).filter(Boolean).map((id) => String(id)))];
+  if (actorIds.length === 0) {
+    return logs.map((log) => ({ ...log, actorName: null }));
+  }
+  const profiles = await ProfileModel.find({ userId: { $in: actorIds }, isDeleted: false })
+    .select('userId personal.firstName personal.lastName')
+    .lean();
+  const nameByUser = new Map(
+    profiles.map((profile) => [
+      String(profile.userId),
+      [profile.personal?.firstName, profile.personal?.lastName].filter(Boolean).join(' ').trim() || null,
+    ]),
+  );
+  return logs.map((log) => ({
+    ...log,
+    actorName: log.actorId ? nameByUser.get(String(log.actorId)) ?? null : null,
+  }));
+}
+
 export async function listAuditLogs(input: AuditLogQueryInput) {
   const filter: Record<string, unknown> = {};
   if (input.actor) filter.actorId = input.actor;
@@ -986,7 +1006,7 @@ export async function listAuditLogs(input: AuditLogQueryInput) {
     const page = hasMore ? logs.slice(0, pageSize) : logs;
     const tail = page.at(-1);
     return {
-      logs: page,
+      logs: await attachActorNames(page),
       nextCursor:
         hasMore && tail
           ? encodeCursor({ timestamp: tail.createdAt.toISOString(), id: String(tail._id) })
@@ -999,7 +1019,11 @@ export async function listAuditLogs(input: AuditLogQueryInput) {
     AuditLogModel.find(filter).sort({ createdAt: -1, _id: -1 }).skip(skip).limit(pageSize).lean(),
     AuditLogModel.countDocuments(filter),
   ]);
-  return { logs, nextCursor: null, pagination: { page: input.page, pageSize, total } };
+  return {
+    logs: await attachActorNames(logs),
+    nextCursor: null,
+    pagination: { page: input.page, pageSize, total },
+  };
 }
 
 export async function reviewProfile(
