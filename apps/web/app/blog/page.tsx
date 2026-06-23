@@ -71,13 +71,21 @@ const TAG_COLORS: Record<string, string> = {
   Advice: 'bg-orange-100 text-orange-800',
 };
 
+function stripHtml(html: string) {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export default async function BlogPage() {
   const { blogs } = await getBlogs(12);
   const rawItems = blogs.length ? blogs : FALLBACK_BLOGS;
 
   const blogItems = rawItems.map((b, i) => ({
     title: b.title,
-    body: b.body ?? '',
+    body: stripHtml(b.body ?? ''),
     slug: b.slug ?? `blog-${i}`,
     tag: (b as { tag?: string }).tag ?? 'Advice',
     readTime: (b as { readTime?: string }).readTime ?? '4 min read',
@@ -100,8 +108,7 @@ export default async function BlogPage() {
             Vivah Australia Insights
           </p>
           <h1 className="font-playfair text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-            Advice for Your{' '}
-            <span className="text-brand-gold">Matrimonial Journey</span>
+            Advice for Your <span className="text-brand-gold">Matrimonial Journey</span>
           </h1>
           <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
             Profile tips, relationship guides, safety advice, and community stories — written for
@@ -111,8 +118,16 @@ export default async function BlogPage() {
 
         {/* Wave divider */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z" fill="#FFF9F5" />
+          <svg
+            viewBox="0 0 1440 60"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full"
+          >
+            <path
+              d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z"
+              fill="#FFF9F5"
+            />
           </svg>
         </div>
       </section>
@@ -128,7 +143,9 @@ export default async function BlogPage() {
               <div className="rounded-[32px] bg-white border border-gray-100 overflow-hidden shadow-sm grid lg:grid-cols-2 gap-0 hover:shadow-lg transition-shadow">
                 <div className="bg-gradient-to-br from-brand-maroon to-[#6B0830] p-10 sm:p-14 flex flex-col justify-between min-h-[320px]">
                   <div>
-                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest mb-5 ${TAG_COLORS[featured.tag] ?? 'bg-amber-100 text-amber-800'}`}>
+                    <span
+                      className={`inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest mb-5 ${TAG_COLORS[featured.tag] ?? 'bg-amber-100 text-amber-800'}`}
+                    >
                       {featured.tag}
                     </span>
                     <h2 className="font-playfair text-2xl sm:text-3xl font-bold text-white leading-snug mb-4 group-hover:text-brand-gold transition-colors">
@@ -150,7 +167,7 @@ export default async function BlogPage() {
                 <div className="bg-brand-ivory p-10 sm:p-14 flex flex-col justify-center">
                   <BookOpen className="size-10 text-brand-maroon/20 mb-6" />
                   <p className="text-gray-600 text-base leading-relaxed">
-                    {featured.body}
+                    {featured.body.slice(0, 250)}...
                   </p>
                   <div className="mt-6 flex items-center gap-2">
                     <div className="size-8 rounded-full bg-brand-maroon/10 flex items-center justify-center">
@@ -179,7 +196,9 @@ export default async function BlogPage() {
               <Link key={blog.slug} href={`/blog/${blog.slug}`} className="group block">
                 <div className="rounded-[24px] bg-white border border-gray-100 p-7 h-full flex flex-col hover:-translate-y-1 hover:shadow-md transition-all">
                   <div className="flex items-center justify-between mb-5">
-                    <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${TAG_COLORS[blog.tag] ?? 'bg-amber-100 text-amber-800'}`}>
+                    <span
+                      className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${TAG_COLORS[blog.tag] ?? 'bg-amber-100 text-amber-800'}`}
+                    >
                       {blog.tag}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-gray-400">
@@ -227,11 +246,11 @@ export default async function BlogPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,160,76,0.15),transparent_55%)]" />
         <div className="relative z-10 mx-auto max-w-2xl text-center">
           <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-white mb-5">
-            Ready to Start Your{' '}
-            <span className="text-brand-gold">Journey?</span>
+            Ready to Start Your <span className="text-brand-gold">Journey?</span>
           </h2>
           <p className="text-white/70 text-base mb-8 leading-relaxed">
-            Join 10,000+ verified Indian singles across Australia who are finding meaningful relationships on Vivah.
+            Join 10,000+ verified Indian singles across Australia who are finding meaningful
+            relationships on Vivah.
           </p>
           <PremiumButton href="/register" variant="gold">
             Create Free Profile

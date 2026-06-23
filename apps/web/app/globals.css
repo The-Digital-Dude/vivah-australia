@@ -100,6 +100,56 @@ body {
   stroke-dashoffset: 0;
 }
 
+/* ─── Rich text content (TipTap editor + public blog body) ──── */
+.tiptap-prose:focus { outline: none; }
+.tiptap-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: #a3a3a3;
+}
+.tiptap-prose,
+.blog-content {
+  word-break: break-word;
+}
+.tiptap-prose h1, .blog-content h1 { font-size: 1.75rem; font-weight: 700; line-height: 1.2; margin: 1.2em 0 0.5em; }
+.tiptap-prose h2, .blog-content h2 { font-size: 1.4rem;  font-weight: 700; line-height: 1.25; margin: 1.1em 0 0.5em; }
+.tiptap-prose h3, .blog-content h3 { font-size: 1.15rem; font-weight: 700; line-height: 1.3; margin: 1em 0 0.4em; }
+.tiptap-prose p, .blog-content p { margin: 0.6em 0; }
+.tiptap-prose ul, .blog-content ul { list-style: disc;    padding-left: 1.5em; margin: 0.6em 0; }
+.tiptap-prose ol, .blog-content ol { list-style: decimal; padding-left: 1.5em; margin: 0.6em 0; }
+.tiptap-prose li, .blog-content li { margin: 0.25em 0; }
+.tiptap-prose a, .blog-content a { color: #A10E4D; text-decoration: underline; }
+.tiptap-prose blockquote, .blog-content blockquote {
+  border-left: 3px solid #A10E4D;
+  padding-left: 1em;
+  margin: 0.8em 0;
+  color: #6b7280;
+  font-style: italic;
+}
+.tiptap-prose pre, .blog-content pre {
+  background: #1f2937;
+  color: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 0.9em 1em;
+  overflow-x: auto;
+  font-size: 0.85em;
+  margin: 0.8em 0;
+}
+.tiptap-prose code, .blog-content code { font-family: ui-monospace, monospace; }
+.tiptap-prose :not(pre) > code, .blog-content :not(pre) > code {
+  background: #f3f4f6;
+  border-radius: 0.3rem;
+  padding: 0.1em 0.35em;
+  font-size: 0.85em;
+}
+.tiptap-prose mark, .blog-content mark { background: #fef08a; border-radius: 0.2rem; padding: 0 0.15em; }
+.tiptap-prose img, .blog-content img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 0.8em 0; }
+.tiptap-prose ul[data-type='taskList'], .blog-content ul[data-type='taskList'] { list-style: none; padding-left: 0.25em; }
+.tiptap-prose ul[data-type='taskList'] li, .blog-content ul[data-type='taskList'] li { display: flex; gap: 0.5em; align-items: flex-start; }
+.tiptap-prose ul[data-type='taskList'] li > label, .blog-content ul[data-type='taskList'] li > label { margin-top: 0.2em; }
+
 /* ─── Print Styles ──────────────────────────────────────────── */
 @media print {
   @page { margin: 10mm; }

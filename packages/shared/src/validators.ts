@@ -126,6 +126,24 @@ export const cmsSuccessStoryInputSchema = cmsContentInputSchema.extend({
   coupleName: z.string().trim().max(160).optional(),
 });
 
+export const cmsBlogInputSchema = cmsPageInputSchema.extend({
+  body: z.string().trim().min(1).max(100000),
+  coverImage: z.string().trim().url().max(1000).optional(),
+  tags: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
+  readTimeMinutes: z.number().int().min(0).max(180).optional(),
+  author: z.string().trim().max(120).optional(),
+});
+
+export const cmsCoverImageUploadSchema = z.object({
+  fileName: z.string().trim().min(1).max(256),
+  mimeType: z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
+  fileSizeBytes: z
+    .number()
+    .int()
+    .positive()
+    .max(10 * 1024 * 1024),
+});
+
 export const cmsTestimonialInputSchema = z.object({
   name: z.string().trim().min(2).max(160),
   quote: z.string().trim().min(5).max(2000),
@@ -970,6 +988,8 @@ export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type CmsPageInput = z.infer<typeof cmsPageInputSchema>;
 export type CmsContentInput = z.infer<typeof cmsContentInputSchema>;
 export type CmsSuccessStoryInput = z.infer<typeof cmsSuccessStoryInputSchema>;
+export type CmsBlogInput = z.infer<typeof cmsBlogInputSchema>;
+export type CmsCoverImageUploadInput = z.infer<typeof cmsCoverImageUploadSchema>;
 export type CmsTestimonialInput = z.infer<typeof cmsTestimonialInputSchema>;
 export type CmsBannerInput = z.infer<typeof cmsBannerInputSchema>;
 export type CmsSectionInput = z.infer<typeof cmsSectionInputSchema>;

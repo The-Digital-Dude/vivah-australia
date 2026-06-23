@@ -150,7 +150,7 @@ describe('verification routes', () => {
       upload: { provider: string; method: string; url: string; fields: Record<string, string> };
     }>(signResponse);
 
-    expect(signBody.upload.provider).toBe('gcs');
+    expect(signBody.upload.provider).toBe('mock');
     expect(signBody.upload.method).toBe('PUT');
     expect(signBody.document.storedSecurely).toBe(false);
 

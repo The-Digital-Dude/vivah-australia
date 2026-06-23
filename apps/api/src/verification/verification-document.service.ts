@@ -8,49 +8,33 @@ import type {
 import { Types, type HydratedDocument } from 'mongoose';
 import { HttpError } from '../auth/auth-errors.js';
 import { UserModel, VerificationDocumentModel, type VerificationDocument } from '../models/index.js';
+import {
+  isGcsConfigured,
+  objectExists,
+  publicUrl,
+  signedReadUrl,
+  signedUploadUrl,
+} from '../storage/gcs.js';
 
 const UPLOAD_TTL_SECONDS = 10 * 60;
 const ACCESS_TTL_SECONDS = 5 * 60;
 const LOCAL_UPLOAD_BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:4000';
 const LOCAL_STORAGE_ROUTE = '/api/mock-gcs-storage/';
 
-function envValue(name: string) {
-  const value = process.env[name];
-  return value && value.trim() ? value.trim() : undefined;
-}
-
 function isProductionEnv() {
   return process.env.NODE_ENV === 'production';
 }
 
-function cloudinaryConfig() {
-  const cloudName = envValue('CLOUDINARY_CLOUD_NAME');
-  const apiKey = envValue('CLOUDINARY_API_KEY');
-  const apiSecret = envValue('CLOUDINARY_API_SECRET');
-
-  if (!cloudName || !apiKey || !apiSecret) {
-    return null;
+// Real Google Cloud Storage when configured; otherwise a local on-disk mock for
+// development. Verification documents are always private — never public-read.
+function storageProvider(): 'gcs' | 'mock' {
+  if (isGcsConfigured()) {
+    return 'gcs';
   }
-
-  return { cloudName, apiKey, apiSecret };
-}
-
-function requireCloudinaryConfig() {
-  const config = cloudinaryConfig();
-  if (!config) {
-    throw new HttpError(500, 'Cloudinary is required for verification document uploads in production');
+  if (isProductionEnv()) {
+    throw new HttpError(500, 'Google Cloud Storage is required for uploads in production');
   }
-  return config;
-}
-
-function signCloudinaryParams(params: Record<string, string | number>, apiSecret: string) {
-  const payload = Object.entries(params)
-    .filter(([, value]) => value !== '' && value !== undefined)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('&');
-
-  return crypto.createHash('sha1').update(`${payload}${apiSecret}`).digest('hex');
+  return 'mock';
 }
 
 function storageKeyFor(userId: Types.ObjectId) {
@@ -160,13 +144,12 @@ export async function createSignedVerificationDocumentUpload(
 
   const storageKey = storageKeyFor(userId);
   const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
-  const cloudinary = isProductionEnv() ? requireCloudinaryConfig() : cloudinaryConfig();
-  const provider: 'cloudinary' | 'gcs' = cloudinary ? 'cloudinary' : 'gcs';
+  const provider = storageProvider();
   const document = await VerificationDocumentModel.create({
     userId,
     documentType: input.documentType,
     storageKey,
-    assetUrl: localAssetUrl(storageKey),
+    assetUrl: provider === 'gcs' ? publicUrl(storageKey) : localAssetUrl(storageKey),
     uploadProvider: provider,
     uploadExpiresAt: expiresAt,
     uploadStatus: MediaUploadStatus.SIGNED,
@@ -175,44 +158,20 @@ export async function createSignedVerificationDocumentUpload(
     originalFilename: input.fileName,
   });
 
-  if (!cloudinary) {
-    return {
-      document: publicVerificationDocument(document),
-      upload: {
-        provider: 'gcs' as const,
-        method: 'PUT' as const,
-        url: localAssetUrl(storageKey),
-        expiresAt: expiresAt.toISOString(),
-        fields: {
-          storageKey,
-        },
-      },
-    };
-  }
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const folder = storageKey.split('/').slice(0, -1).join('/');
-  const publicId = storageKey.split('/').at(-1) ?? document.id;
-  const params = {
-    folder,
-    public_id: publicId,
-    timestamp,
-    type: 'authenticated',
-    context: `verification_document_id=${document.id}|user_id=${userId.toString()}`,
-  };
-  const signature = signCloudinaryParams(params, cloudinary.apiSecret);
+  const url =
+    provider === 'gcs'
+      ? await signedUploadUrl(storageKey, input.mimeType)
+      : localAssetUrl(storageKey);
 
   return {
     document: publicVerificationDocument(document),
     upload: {
-      provider: 'cloudinary' as const,
-      method: 'POST' as const,
-      url: `https://api.cloudinary.com/v1_1/${cloudinary.cloudName}/auto/upload`,
+      provider,
+      method: 'PUT' as const,
+      url,
       expiresAt: expiresAt.toISOString(),
       fields: {
-        ...Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])),
-        api_key: cloudinary.apiKey,
-        signature,
+        storageKey,
       },
     },
   };
@@ -240,30 +199,24 @@ export async function completeSignedVerificationDocumentUpload(
     throw new HttpError(400, 'Verification document storage key does not match the signed upload');
   }
 
+  let assetUrl: string;
   if (document.uploadProvider === 'gcs') {
+    // Verification documents stay private — no public ACL is applied.
+    if (!(await objectExists(document.storageKey))) {
+      throw new HttpError(400, 'Verification document upload was not found in storage');
+    }
+    assetUrl = publicUrl(document.storageKey);
+  } else {
     if (isProductionEnv()) {
       throw new HttpError(400, 'Mock storage uploads are not allowed in production');
     }
-
     if (input.assetUrl.split('?')[0] !== localAssetUrl(document.storageKey)) {
       throw new HttpError(400, 'Verification document asset URL does not match the signed upload target');
     }
-  } else {
-    const cloudinary = requireCloudinaryConfig();
-    const parsed = new URL(input.assetUrl);
-    const decodedPath = decodeURIComponent(parsed.pathname);
-    if (
-      parsed.hostname !== 'res.cloudinary.com' &&
-      !parsed.hostname.endsWith('.cloudinary.com')
-    ) {
-      throw new HttpError(400, 'Invalid verification document asset URL');
-    }
-    if (!decodedPath.includes(`/${cloudinary.cloudName}/`) || !decodedPath.includes(document.storageKey)) {
-      throw new HttpError(400, 'Verification document asset URL does not match the signed upload');
-    }
+    assetUrl = localAssetUrl(document.storageKey);
   }
 
-  document.assetUrl = input.assetUrl;
+  document.assetUrl = assetUrl;
   document.uploadStatus = MediaUploadStatus.UPLOADED;
   document.fileSizeBytes = input.bytes ?? document.fileSizeBytes;
   await document.save();
@@ -324,7 +277,7 @@ export async function resolveVerificationDocumentPreview(
     throw new HttpError(404, 'Verification document not found');
   }
 
-  if (document.uploadProvider === 'gcs') {
+  if (document.uploadProvider === 'mock') {
     return {
       mode: 'local' as const,
       filePath: path.join(process.cwd(), 'uploads', document.storageKey),
@@ -332,8 +285,10 @@ export async function resolveVerificationDocumentPreview(
     };
   }
 
+  // Real GCS: deliver the private object via a short-lived signed read URL.
+  const signedUrl = await signedReadUrl(document.storageKey);
   return {
     mode: 'redirect' as const,
-    assetUrl: document.assetUrl,
+    assetUrl: signedUrl,
   };
 }

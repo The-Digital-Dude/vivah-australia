@@ -3,8 +3,10 @@ import fs from 'fs';
 import type { Types } from 'mongoose';
 import {
   cmsBannerInputSchema,
+  cmsBlogInputSchema,
   cmsCampaignBannerInputSchema,
   cmsContentInputSchema,
+  cmsCoverImageUploadSchema,
   cmsFaqInputSchema,
   cmsHomeContentSchema,
   cmsLandingPageInputSchema,
@@ -38,6 +40,7 @@ import {
 import type { AuthConfig, AuthenticatedRequest } from '../auth/auth-types.js';
 import { HttpError } from '../auth/auth-errors.js';
 import { logAudit } from '../common/audit.service.js';
+import { createSignedCmsImageUpload } from '../media/media.service.js';
 import {
   createVerificationRequest,
   addUserNote,
@@ -170,6 +173,10 @@ function pageProjection() {
 
 function contentProjection() {
   return 'slug title body published updatedAt';
+}
+
+function blogProjection() {
+  return 'slug title body author coverImage tags readTimeMinutes seoTitle seoDescription published updatedAt';
 }
 
 function successStoryProjection() {
@@ -577,7 +584,7 @@ export function createAdminRouter(config: AuthConfig): Router {
     asyncHandler(async (_request, response) => {
       const blogs = await BlogPostModel.find({ isDeleted: false })
         .sort({ updatedAt: -1 })
-        .select(contentProjection())
+        .select(blogProjection())
         .lean();
       response.status(200).json({ blogs });
     }),
@@ -588,7 +595,7 @@ export function createAdminRouter(config: AuthConfig): Router {
     ...cmsAdminOnly,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
-      const input = cmsContentInputSchema.parse(request.body);
+      const input = cmsBlogInputSchema.parse(request.body);
       const blog = (await BlogPostModel.create({
         ...input,
         authorId: auth.userId,
@@ -609,7 +616,7 @@ export function createAdminRouter(config: AuthConfig): Router {
     ...cmsAdminOnly,
     asyncHandler(async (request: AuthenticatedRequest, response) => {
       const auth = requireRequestAuth(request);
-      const input = cmsContentInputSchema.partial().parse(request.body);
+      const input = cmsBlogInputSchema.partial().parse(request.body);
       const blog: SlugAuditEntity | null = await BlogPostModel.findByIdAndUpdate(request.params.id, input, {
         returnDocument: 'after',
         runValidators: true,
@@ -648,6 +655,15 @@ export function createAdminRouter(config: AuthConfig): Router {
         targetId: blog._id,
       });
       response.status(204).send();
+    }),
+  );
+
+  router.post(
+    '/admin/cms/cover-image/sign',
+    ...cmsAdminOnly,
+    asyncHandler(async (request: AuthenticatedRequest, response) => {
+      const input = cmsCoverImageUploadSchema.parse(request.body);
+      response.status(200).json(await createSignedCmsImageUpload(input));
     }),
   );
 

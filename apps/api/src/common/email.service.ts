@@ -205,6 +205,33 @@ class MailgunEmailProvider implements EmailProvider {
   }
 }
 
+class BrevoEmailProvider implements EmailProvider {
+  constructor(private readonly apiKey: string) {}
+
+  async sendEmail(email: Email): Promise<void> {
+    const fromAddress = email.from ?? env.EMAIL_FROM;
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': this.apiKey,
+        accept: 'application/json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { email: fromAddress },
+        to: [{ email: email.to }],
+        subject: email.subject,
+        htmlContent: email.html,
+        textContent: email.text ?? email.html.replace(/<[^>]+>/g, ''),
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Brevo email failed: ${response.status}`);
+    }
+  }
+}
+
 let provider: EmailProvider;
 
 function getEmailProvider(): EmailProvider {
@@ -217,6 +244,10 @@ function getEmailProvider(): EmailProvider {
   }
   if (env.EMAIL_PROVIDER === 'mailgun' && env.MAILGUN_API_KEY && env.MAILGUN_DOMAIN) {
     provider = new MailgunEmailProvider(env.MAILGUN_API_KEY, env.MAILGUN_DOMAIN);
+    return provider;
+  }
+  if (env.EMAIL_PROVIDER === 'brevo' && env.BREVO_API_KEY) {
+    provider = new BrevoEmailProvider(env.BREVO_API_KEY);
     return provider;
   }
   provider = new ConsoleEmailProvider();

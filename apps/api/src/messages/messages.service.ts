@@ -25,6 +25,13 @@ import {
 } from '../models/index.js';
 import type { ConversationDocument, MessageDocument } from '../models/phase-one.models.js';
 import { runInTransaction } from '../common/mongo-transactions.js';
+import {
+  isGcsConfigured,
+  makeObjectPublic,
+  objectExists,
+  publicUrl,
+  signedUploadUrl,
+} from '../storage/gcs.js';
 
 const UPLOAD_TTL_SECONDS = 10 * 60;
 const ACCESS_TTL_SECONDS = 5 * 60;
@@ -39,31 +46,23 @@ const ATTACHMENT_MIME_ALLOWLIST = new Set([
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]);
 
-function envValue(name: string) {
-  const value = process.env[name];
-  return value && value.trim() ? value.trim() : undefined;
+function isProductionEnv() {
+  return process.env.NODE_ENV === 'production';
 }
 
-function cloudinaryConfig() {
-  const cloudName = envValue('CLOUDINARY_CLOUD_NAME');
-  const apiKey = envValue('CLOUDINARY_API_KEY');
-  const apiSecret = envValue('CLOUDINARY_API_SECRET');
-
-  if (!cloudName || !apiKey || !apiSecret) {
-    return null;
+// Real Google Cloud Storage when configured; otherwise a local on-disk mock.
+function storageProvider(): 'gcs' | 'mock' {
+  if (isGcsConfigured()) {
+    return 'gcs';
   }
-
-  return { cloudName, apiKey, apiSecret };
+  if (isProductionEnv()) {
+    throw new HttpError(500, 'Google Cloud Storage is required for uploads in production');
+  }
+  return 'mock';
 }
 
-function signCloudinaryParams(params: Record<string, string | number>, apiSecret: string) {
-  const payload = Object.entries(params)
-    .filter(([, value]) => value !== '' && value !== undefined)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('&');
-
-  return crypto.createHash('sha1').update(`${payload}${apiSecret}`).digest('hex');
+function localAttachmentUrl(storageKey: string) {
+  return `${LOCAL_UPLOAD_BASE_URL}/api/mock-gcs-storage/${storageKey}`;
 }
 
 function attachmentStorageKeyFor(userId: Types.ObjectId, attachmentType: 'IMAGE' | 'DOCUMENT') {
@@ -257,66 +256,35 @@ export async function createSignedMessageAttachmentUpload(
   }
 
   const storageKey = attachmentStorageKeyFor(userId, input.attachmentType);
-  const cloudinary = cloudinaryConfig();
+  const provider = storageProvider();
   const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
   const attachment = await MessageAttachmentModel.create({
     uploadedBy: userId,
     attachmentType: input.attachmentType,
-    assetUrl: `${LOCAL_UPLOAD_BASE_URL}/api/message-attachments/${storageKey}`,
+    assetUrl: provider === 'gcs' ? publicUrl(storageKey) : localAttachmentUrl(storageKey),
     storageKey,
     uploadStatus: MediaUploadStatus.SIGNED,
     fileName: input.fileName,
     mimeType: input.mimeType,
     fileSizeBytes: input.fileSizeBytes,
-    uploadProvider: cloudinary ? 'cloudinary' : 'mock',
+    uploadProvider: provider,
     uploadExpiresAt: expiresAt,
   });
 
-  if (!cloudinary) {
-    const timestamp = Math.floor(Date.now() / 1000);
-    return {
-      attachment: publicAttachment(attachment, userId),
-      upload: {
-        provider: 'mock',
-        method: 'POST',
-        url: `${LOCAL_UPLOAD_BASE_URL}/api/mock-storage/upload`,
-        expiresAt: expiresAt.toISOString(),
-        fields: {
-          public_id: storageKey,
-          timestamp: String(timestamp),
-          signature: signAccessToken(
-            attachment.id,
-            userId.toString(),
-            Math.floor(expiresAt.getTime() / 1000),
-          ),
-        },
-      },
-    };
-  }
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const folder = storageKey.split('/').slice(0, -1).join('/');
-  const publicId = storageKey.split('/').at(-1) ?? attachment.id;
-  const params = {
-    folder,
-    public_id: publicId,
-    timestamp,
-    type: 'authenticated',
-    context: `attachment_id=${attachment.id}|user_id=${userId.toString()}`,
-  };
-  const signature = signCloudinaryParams(params, cloudinary.apiSecret);
+  const url =
+    provider === 'gcs'
+      ? await signedUploadUrl(storageKey, input.mimeType)
+      : localAttachmentUrl(storageKey);
 
   return {
     attachment: publicAttachment(attachment, userId),
     upload: {
-      provider: 'cloudinary',
-      method: 'POST',
-      url: `https://api.cloudinary.com/v1_1/${cloudinary.cloudName}/auto/upload`,
+      provider,
+      method: 'PUT' as const,
+      url,
       expiresAt: expiresAt.toISOString(),
       fields: {
-        ...Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])),
-        api_key: cloudinary.apiKey,
-        signature,
+        storageKey,
       },
     },
   };
@@ -327,7 +295,6 @@ export async function completeMessageAttachmentUpload(
   input: MessageAttachmentCompleteUploadInput,
 ) {
   const attachment = await getOwnMessageAttachmentOrFail(userId, input.attachmentId);
-  const cloudinary = cloudinaryConfig();
 
   if (attachment.uploadStatus !== MediaUploadStatus.SIGNED) {
     throw new HttpError(400, 'Attachment upload is not awaiting completion');
@@ -352,37 +319,27 @@ export async function completeMessageAttachmentUpload(
     throw new HttpError(400, 'Unsupported attachment type');
   }
 
-  if (cloudinary) {
-    if (attachment.uploadProvider !== 'cloudinary') {
-      throw new HttpError(400, 'Attachment upload provider mismatch');
-    }
-
-    const expectedPublicId = String(attachment.storageKey).split('/').join('/');
-    const encodedPublicId = expectedPublicId
-      .split('/')
-      .map((segment) => encodeURIComponent(segment))
-      .join('/');
-    const cloudinaryBase = `https://res.cloudinary.com/${cloudinary.cloudName}/`;
-
-    if (
-      !input.assetUrl.startsWith(cloudinaryBase) ||
-      (!input.assetUrl.includes(`/upload/`) && !input.assetUrl.includes('/image/authenticated/')) ||
-      !input.assetUrl.includes(encodedPublicId)
-    ) {
-      throw new HttpError(400, 'Invalid attachment asset URL');
-    }
-  } else {
-    if (attachment.uploadProvider !== 'mock') {
-      throw new HttpError(400, 'Attachment upload provider mismatch');
-    }
-
-    const expectedUrl = `${LOCAL_UPLOAD_BASE_URL}/api/mock-storage/${attachment.storageKey}`;
-    if (input.assetUrl !== expectedUrl) {
-      throw new HttpError(400, 'Invalid attachment asset URL');
-    }
+  if (!attachment.storageKey) {
+    throw new HttpError(400, 'Attachment upload metadata is incomplete');
   }
 
-  attachment.assetUrl = input.assetUrl;
+  let assetUrl: string;
+  if (attachment.uploadProvider === 'gcs') {
+    // Message attachments are public-read (obscure random keys), matching prior
+    // behaviour where they were served from public provider URLs.
+    if (!(await objectExists(attachment.storageKey))) {
+      throw new HttpError(400, 'Attachment upload was not found in storage');
+    }
+    await makeObjectPublic(attachment.storageKey);
+    assetUrl = publicUrl(attachment.storageKey);
+  } else {
+    if (isProductionEnv()) {
+      throw new HttpError(400, 'Mock storage uploads are not allowed in production');
+    }
+    assetUrl = localAttachmentUrl(attachment.storageKey);
+  }
+
+  attachment.assetUrl = assetUrl;
   attachment.uploadStatus = MediaUploadStatus.UPLOADED;
   attachment.fileSizeBytes = input.bytes ?? attachment.fileSizeBytes;
   attachment.set('uploadExpiresAt', undefined);

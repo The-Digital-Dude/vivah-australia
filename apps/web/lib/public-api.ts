@@ -62,6 +62,9 @@ export interface PublicBlog {
   readTimeMinutes?: number;
   coverImage?: string;
   tags?: string[];
+  author?: string;
+  seoTitle?: string;
+  seoDescription?: string;
   createdAt: string;
   updatedAt?: string;
   authorId?: {

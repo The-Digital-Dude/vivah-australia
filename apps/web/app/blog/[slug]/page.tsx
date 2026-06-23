@@ -3,56 +3,57 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PublicHeader, PublicFooter, PremiumButton } from '@/app/components';
 import { getBlogBySlug, getBlogs } from '@/lib/public-api';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Calendar,
-  Clock,
-  Tag,
-  BookOpen,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Clock, Tag, BookOpen, Sparkles } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 const TAG_COLORS: Record<string, string> = {
-  'Profile Tips':  'bg-amber-100 text-amber-800',
-  Safety:          'bg-red-100 text-red-800',
-  Verification:    'bg-blue-100 text-blue-800',
-  Community:       'bg-emerald-100 text-emerald-800',
-  Communication:   'bg-purple-100 text-purple-800',
-  Relationships:   'bg-rose-100 text-rose-800',
-  Advice:          'bg-orange-100 text-orange-800',
+  'Profile Tips': 'bg-amber-100 text-amber-800',
+  Safety: 'bg-red-100 text-red-800',
+  Verification: 'bg-blue-100 text-blue-800',
+  Community: 'bg-emerald-100 text-emerald-800',
+  Communication: 'bg-purple-100 text-purple-800',
+  Relationships: 'bg-rose-100 text-rose-800',
+  Advice: 'bg-orange-100 text-orange-800',
 };
 
 function tagColor(tag: string) {
   return TAG_COLORS[tag] ?? 'bg-brand-gold/20 text-brand-charcoal';
 }
 
+function stripHtml(html: string) {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const { blog } = await getBlogBySlug(slug);
   if (!blog) return { title: 'Article Not Found | Vivah Australia' };
+  const description =
+    blog.seoDescription?.trim() ||
+    stripHtml(blog.body ?? '').substring(0, 160) ||
+    'Read insights and matrimonial advice on Vivah Australia.';
   return {
-    title: `${blog.title} | Vivah Australia Blog`,
-    description: blog.body?.substring(0, 160) ?? 'Read insights and matrimonial advice on Vivah Australia.',
+    title: blog.seoTitle?.trim()
+      ? `${blog.seoTitle} | Vivah Australia`
+      : `${blog.title} | Vivah Australia Blog`,
+    description,
   };
 }
 
 export default async function BlogPostDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [{ blog }, { blogs: latestBlogs }] = await Promise.all([
-    getBlogBySlug(slug),
-    getBlogs(4),
-  ]);
+  const [{ blog }, { blogs: latestBlogs }] = await Promise.all([getBlogBySlug(slug), getBlogs(4)]);
 
   if (!blog) notFound();
 
-  const related = (latestBlogs ?? [])
-    .filter((item) => item.slug !== slug)
-    .slice(0, 3);
+  const related = (latestBlogs ?? []).filter((item) => item.slug !== slug).slice(0, 3);
 
   const formattedDate = new Date(blog.updatedAt ?? blog.createdAt).toLocaleDateString('en-AU', {
     day: 'numeric',
@@ -60,9 +61,12 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
     year: 'numeric',
   });
 
-  const authorName = blog.authorId
-    ? `${blog.authorId.firstName ?? ''} ${blog.authorId.lastName ?? ''}`.trim() || 'Vivah Australia Team'
-    : 'Vivah Australia Team';
+  const authorName =
+    blog.author?.trim() ||
+    (blog.authorId
+      ? `${blog.authorId.firstName ?? ''} ${blog.authorId.lastName ?? ''}`.trim()
+      : '') ||
+    'Vivah Australia Team';
 
   const readTime = blog.readTimeMinutes ? `${blog.readTimeMinutes} min read` : '4 min read';
 
@@ -124,8 +128,16 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
 
         {/* Wave divider */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z" fill="#FFF9F5" />
+          <svg
+            viewBox="0 0 1440 60"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full"
+          >
+            <path
+              d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z"
+              fill="#FFF9F5"
+            />
           </svg>
         </div>
       </section>
@@ -134,7 +146,6 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
       <section className="py-16 px-6 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-4xl">
           <div className="grid lg:grid-cols-[1fr_280px] gap-10 items-start">
-
             {/* Main content */}
             <article>
               {/* Cover image */}
@@ -155,9 +166,10 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
 
               {/* Article text */}
               <div className="rounded-[28px] bg-white border border-gray-100 shadow-sm p-8 sm:p-10">
-                <div className="prose prose-base max-w-none text-gray-700 leading-8 whitespace-pre-wrap">
-                  {blog.body}
-                </div>
+                <div
+                  className="blog-content max-w-none text-gray-700 leading-8"
+                  dangerouslySetInnerHTML={{ __html: blog.body ?? '' }}
+                />
               </div>
 
               {/* Tags (bottom) */}
@@ -177,10 +189,12 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
             </article>
 
             {/* Sidebar */}
-            <aside className="space-y-5 lg:sticky lg:top-8">
+            <aside className="space-y-5 lg:sticky lg:top-20">
               {/* Author card */}
               <div className="rounded-[22px] bg-white border border-gray-100 shadow-sm p-6">
-                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Written by</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">
+                  Written by
+                </p>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="size-10 rounded-full bg-brand-maroon/10 flex items-center justify-center shrink-0">
                     <span className="text-xs font-bold text-brand-maroon">VA</span>
@@ -190,9 +204,6 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
                     <p className="text-xs text-gray-400">Vivah Australia</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed">
-                  Our team shares practical advice for Indian singles navigating the matrimonial process in Australia.
-                </p>
               </div>
 
               {/* Join CTA */}
@@ -245,7 +256,11 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {related.map((article, idx) => (
-                <Link key={article.slug ?? idx} href={`/blog/${article.slug}`} className="group block">
+                <Link
+                  key={article.slug ?? idx}
+                  href={`/blog/${article.slug}`}
+                  className="group block"
+                >
                   <div className="rounded-[24px] border border-gray-100 bg-brand-ivory p-6 h-full flex flex-col hover:-translate-y-1 hover:shadow-md transition-all">
                     <div className="size-10 rounded-xl bg-brand-maroon/10 flex items-center justify-center mb-4">
                       <BookOpen className="size-4 text-brand-maroon" />
@@ -254,7 +269,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
                       {article.title}
                     </h3>
                     <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 mb-4">
-                      {article.body}
+                      {stripHtml(article.body ?? '')}
                     </p>
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-maroon mt-auto">
                       Read <ArrowRight className="size-3" />
@@ -272,11 +287,11 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,160,76,0.15),transparent_55%)]" />
         <div className="relative z-10 mx-auto max-w-2xl text-center">
           <h2 className="font-playfair text-3xl font-bold text-white mb-4">
-            Ready to Start Your{' '}
-            <span className="text-brand-gold">Journey?</span>
+            Ready to Start Your <span className="text-brand-gold">Journey?</span>
           </h2>
           <p className="text-white/70 text-base mb-8 leading-relaxed">
-            Join 10,000+ verified Indian singles across Australia finding meaningful relationships on Vivah.
+            Join 10,000+ verified Indian singles across Australia finding meaningful relationships
+            on Vivah.
           </p>
           <PremiumButton href="/register" variant="gold">
             Create Free Profile

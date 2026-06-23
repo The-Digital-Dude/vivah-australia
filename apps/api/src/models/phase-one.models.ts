@@ -31,7 +31,7 @@ export interface ProfileMedia {
   profileId: ObjectId;
   assetUrl: string;
   storageKey?: string;
-  uploadProvider?: 'cloudinary' | 'gcs';
+  uploadProvider?: 'gcs' | 'mock' | 'cloudinary';
   uploadExpiresAt?: Date;
   mediaType: 'PHOTO' | 'VIDEO';
   category: MediaCategoryType;
@@ -63,7 +63,7 @@ const profileMediaSchema = new Schema<ProfileMedia>(
     profileId: { type: Schema.Types.ObjectId, ref: 'Profile', required: true, index: true },
     assetUrl: { type: String, required: true },
     storageKey: { type: String },
-    uploadProvider: { type: String, enum: ['cloudinary', 'gcs'] },
+    uploadProvider: { type: String, enum: ['gcs', 'mock', 'cloudinary'] },
     uploadExpiresAt: { type: Date },
     mediaType: { type: String, enum: ['PHOTO', 'VIDEO'], default: 'PHOTO', required: true },
     category: {
@@ -178,7 +178,7 @@ export interface VerificationDocument {
   documentType: string;
   storageKey: string;
   assetUrl: string;
-  uploadProvider?: 'cloudinary' | 'gcs';
+  uploadProvider?: 'gcs' | 'mock' | 'cloudinary';
   uploadExpiresAt?: Date;
   uploadStatus: MediaUploadStatusType;
   mimeType: string;
@@ -203,7 +203,7 @@ const verificationDocumentSchema = new Schema<VerificationDocument>(
     documentType: { type: String, required: true, trim: true },
     storageKey: { type: String, required: true },
     assetUrl: { type: String, required: true, trim: true },
-    uploadProvider: { type: String, enum: ['cloudinary', 'gcs'] },
+    uploadProvider: { type: String, enum: ['gcs', 'mock', 'cloudinary'] },
     uploadExpiresAt: { type: Date },
     uploadStatus: {
       type: String,
@@ -581,7 +581,7 @@ export interface MessageAttachment {
   attachmentType: 'IMAGE' | 'DOCUMENT';
   assetUrl: string;
   storageKey?: string;
-  uploadProvider?: 'cloudinary' | 'mock';
+  uploadProvider?: 'gcs' | 'mock' | 'cloudinary';
   uploadExpiresAt?: Date;
   uploadStatus: MediaUploadStatusType;
   fileName: string;
@@ -600,7 +600,7 @@ const messageAttachmentSchema = new Schema<MessageAttachment>(
     attachmentType: { type: String, enum: ['IMAGE', 'DOCUMENT'], required: true, index: true },
     assetUrl: { type: String, required: true, trim: true },
     storageKey: { type: String, trim: true },
-    uploadProvider: { type: String, enum: ['cloudinary', 'mock'] },
+    uploadProvider: { type: String, enum: ['gcs', 'mock', 'cloudinary'] },
     uploadExpiresAt: { type: Date },
     uploadStatus: {
       type: String,
@@ -1153,9 +1153,12 @@ const blogPostSchema = new Schema(
   {
     ...simpleContentFields,
     authorId: { type: Schema.Types.ObjectId, ref: 'User' },
+    author: { type: String, trim: true },
     coverImage: { type: String, trim: true },
     tags: [{ type: String, trim: true }],
     readTimeMinutes: { type: Number, default: 0 },
+    seoTitle: { type: String, trim: true },
+    seoDescription: { type: String, trim: true },
     ...auditedSchemaFields,
   },
   { ...timestampedSchemaOptions, collection: 'blog_posts' },

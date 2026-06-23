@@ -8,6 +8,7 @@ import {
   VerificationStatus,
 } from '@vivah/shared';
 import type {
+  CmsCoverImageUploadInput,
   MediaCompleteUploadInput,
   MediaReviewInput,
   MediaSignUploadInput,
@@ -22,6 +23,15 @@ import {
   UserModel,
   type ProfileMediaDocument,
 } from '../models/index.js';
+import {
+  isGcsConfigured,
+  makeObjectPrivate,
+  makeObjectPublic,
+  objectExists,
+  publicUrl,
+  signedReadUrl,
+  signedUploadUrl,
+} from '../storage/gcs.js';
 
 const UPLOAD_TTL_SECONDS = 10 * 60;
 const ACCESS_TTL_SECONDS = 5 * 60;
@@ -38,43 +48,27 @@ const MEDIA_COUNT_LIMITS: Record<MediaCategory, number> = {
   [MediaCategory.VIDEO_INTRO]: 1,
 };
 
-function envValue(name: string) {
-  const value = process.env[name];
-  return value && value.trim() ? value.trim() : undefined;
-}
-
 function isProductionEnv() {
   return process.env.NODE_ENV === 'production';
 }
 
-function cloudinaryConfig() {
-  const cloudName = envValue('CLOUDINARY_CLOUD_NAME');
-  const apiKey = envValue('CLOUDINARY_API_KEY');
-  const apiSecret = envValue('CLOUDINARY_API_SECRET');
-
-  if (!cloudName || !apiKey || !apiSecret) {
-    return null;
+// Real Google Cloud Storage when configured; otherwise a local on-disk mock for
+// development (served from /api/mock-gcs-storage). Production requires GCS.
+function storageProvider(): 'gcs' | 'mock' {
+  if (isGcsConfigured()) {
+    return 'gcs';
   }
-
-  return { cloudName, apiKey, apiSecret };
+  if (isProductionEnv()) {
+    throw new HttpError(500, 'Google Cloud Storage is required for uploads in production');
+  }
+  return 'mock';
 }
 
-function requireCloudinaryConfig() {
-  const config = cloudinaryConfig();
-  if (!config) {
-    throw new HttpError(500, 'Cloudinary is required for media uploads in production');
-  }
-  return config;
-}
-
-function signCloudinaryParams(params: Record<string, string | number>, apiSecret: string) {
-  const payload = Object.entries(params)
-    .filter(([, value]) => value !== '' && value !== undefined)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('&');
-
-  return crypto.createHash('sha1').update(`${payload}${apiSecret}`).digest('hex');
+// Only truly-private media is locked down in the bucket. Public and
+// matches-only objects are made public-read so their URLs are stable, matching
+// how the app already gates access at the application layer.
+function isPubliclyReadable(visibility: ProfileMediaDocument['visibility']) {
+  return visibility !== MediaVisibility.PRIVATE;
 }
 
 function storageKeyFor(userId: Types.ObjectId, category: string) {
@@ -96,51 +90,12 @@ function localAssetUrl(storageKey: string) {
   return `${LOCAL_UPLOAD_BASE_URL}${LOCAL_STORAGE_ROUTE}${storageKey}`;
 }
 
-function publicIdFromStorageKey(storageKey: string) {
-  return storageKey.split('/').at(-1) ?? storageKey;
-}
-
-function insertCloudinaryTransform(assetUrl: string, transform: string) {
-  return assetUrl.replace('/upload/', `/upload/${transform}/`);
-}
-
-function deriveThumbnailUrl(provider: 'cloudinary' | 'gcs', assetUrl: string, mediaType: 'PHOTO' | 'VIDEO') {
-  if (provider === 'cloudinary') {
-    if (mediaType === 'VIDEO') {
-      return insertCloudinaryTransform(assetUrl, 'so_0,f_jpg,w_640,c_fill,q_auto');
-    }
-    return insertCloudinaryTransform(assetUrl, 'f_auto,q_auto,w_640,c_limit');
-  }
-
-  return assetUrl;
-}
-
-function deriveVideoPosterUrl(provider: 'cloudinary' | 'gcs', assetUrl: string) {
-  if (provider === 'cloudinary') {
-    return insertCloudinaryTransform(assetUrl, 'so_0,f_jpg,w_960,c_fill,q_auto');
-  }
-
-  return assetUrl;
+function initialAssetUrl(provider: 'gcs' | 'mock', storageKey: string) {
+  return provider === 'gcs' ? publicUrl(storageKey) : localAssetUrl(storageKey);
 }
 
 function categoryByteLimit(category: MediaCategory) {
   return category === MediaCategory.VIDEO_INTRO ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
-}
-
-function watermarkFallbackForViewer(viewerId: Types.ObjectId) {
-  return `Member ${viewerId.toString().slice(-8).toUpperCase()}`;
-}
-
-function encodeCloudinaryTextOverlay(value: string) {
-  return encodeURIComponent(value).replace(/%20/g, '%2520');
-}
-
-function buildPrivatePhotoWatermarkTransform(viewerDisplayId: string) {
-  const text = encodeCloudinaryTextOverlay(viewerDisplayId);
-  return [
-    `l_text:Arial_64_bold:${text},co_rgb:FFFFFF,o_45,a_45,g_north_west,x_60,y_80`,
-    `l_text:Arial_64_bold:${text},co_rgb:FFFFFF,o_45,a_45,g_south_east,x_60,y_80`,
-  ].join('/');
 }
 
 function mediaVariantPath(mediaId: string) {
@@ -248,6 +203,31 @@ function publicMedia(media: ProfileMediaDocument) {
   };
 }
 
+type PublicMedia = ReturnType<typeof publicMedia>;
+
+// Owner and admin views render asset/thumbnail URLs directly. For private GCS
+// objects those are not publicly fetchable, so swap in short-lived signed read
+// URLs the viewer's browser can load.
+async function withDisplayUrls(media: ProfileMediaDocument): Promise<PublicMedia> {
+  const dto = publicMedia(media);
+
+  if (
+    media.uploadProvider === 'gcs' &&
+    media.visibility === MediaVisibility.PRIVATE &&
+    media.storageKey &&
+    media.uploadStatus === MediaUploadStatus.UPLOADED
+  ) {
+    const signed = await signedReadUrl(media.storageKey);
+    dto.assetUrl = signed;
+    dto.thumbnailUrl = signed;
+    if (dto.videoPosterUrl) {
+      dto.videoPosterUrl = signed;
+    }
+  }
+
+  return dto;
+}
+
 async function getOwnProfileOrFail(userId: Types.ObjectId) {
   const profile = await ProfileModel.findOne({ userId, isDeleted: false });
 
@@ -301,7 +281,10 @@ function validateCompletionSize(media: ProfileMediaDocument, input: MediaComplet
   }
 }
 
-function assertProviderAssetUrl(media: ProfileMediaDocument, input: MediaCompleteUploadInput) {
+// Resolves the final asset URL for a completed upload and applies the correct
+// bucket-object access level. Trusts the server-known storage key rather than a
+// client-supplied URL.
+async function finalizeUploadedObject(media: ProfileMediaDocument, input: MediaCompleteUploadInput) {
   if (!media.uploadProvider || !media.storageKey) {
     throw new HttpError(400, 'Upload metadata is incomplete');
   }
@@ -311,29 +294,30 @@ function assertProviderAssetUrl(media: ProfileMediaDocument, input: MediaComplet
   }
 
   if (media.uploadProvider === 'gcs') {
-    if (isProductionEnv()) {
-      throw new HttpError(400, 'Mock storage uploads are not allowed in production');
+    if (!(await objectExists(media.storageKey))) {
+      throw new HttpError(400, 'Upload was not found in storage');
     }
 
-    const expectedUrl = localAssetUrl(media.storageKey);
-    if (input.assetUrl.split('?')[0] !== expectedUrl) {
-      throw new HttpError(400, 'Upload asset URL does not match the signed upload target');
+    if (isPubliclyReadable(media.visibility)) {
+      await makeObjectPublic(media.storageKey);
+    } else {
+      await makeObjectPrivate(media.storageKey);
     }
-    return;
+
+    return publicUrl(media.storageKey);
   }
 
-  const cloudinary = requireCloudinaryConfig();
-  const parsed = new URL(input.assetUrl);
-  const hostOk = parsed.hostname === 'res.cloudinary.com' || parsed.hostname.endsWith('.cloudinary.com');
-  const decodedPath = decodeURIComponent(parsed.pathname);
-
-  if (
-    !hostOk ||
-    !decodedPath.includes(`/${cloudinary.cloudName}/`) ||
-    !decodedPath.includes(media.storageKey)
-  ) {
-    throw new HttpError(400, 'Upload asset URL does not match the signed Cloudinary upload');
+  // Local mock storage (development only).
+  if (isProductionEnv()) {
+    throw new HttpError(400, 'Mock storage uploads are not allowed in production');
   }
+
+  const expectedUrl = localAssetUrl(media.storageKey);
+  if (input.assetUrl.split('?')[0] !== expectedUrl) {
+    throw new HttpError(400, 'Upload asset URL does not match the signed upload target');
+  }
+
+  return expectedUrl;
 }
 
 async function ensurePrivateMediaAccess(viewerId: Types.ObjectId, media: ProfileMediaDocument) {
@@ -362,59 +346,6 @@ async function ensurePrivateMediaAccess(viewerId: Types.ObjectId, media: Profile
   if (!activeGrant) {
     throw new HttpError(403, 'You do not have permission to view this private media');
   }
-}
-
-function deliveryAssetForVariant(
-  media: ProfileMediaDocument,
-  variant: 'original' | 'thumbnail' | 'poster',
-) {
-  if (variant === 'thumbnail' && media.thumbnailUrl) {
-    return media.thumbnailUrl;
-  }
-
-  if (variant === 'poster' && media.videoPosterUrl) {
-    return media.videoPosterUrl;
-  }
-
-  return media.assetUrl;
-}
-
-function shouldWatermarkPrivateOriginal(
-  media: ProfileMediaDocument,
-  variant: 'original' | 'thumbnail' | 'poster',
-) {
-  return (
-    isProductionEnv() &&
-    media.uploadProvider === 'cloudinary' &&
-    media.category === MediaCategory.PRIVATE_GALLERY &&
-    media.mediaType === 'PHOTO' &&
-    variant === 'original'
-  );
-}
-
-async function resolveViewerWatermarkText(viewerId: Types.ObjectId) {
-  const viewerProfile = await ProfileModel.findOne({ userId: viewerId, isDeleted: false })
-    .select('displayId')
-    .lean();
-
-  return viewerProfile?.displayId?.trim() || watermarkFallbackForViewer(viewerId);
-}
-
-async function resolveDeliveryAssetUrl(
-  viewerId: Types.ObjectId,
-  media: ProfileMediaDocument,
-  variant: 'original' | 'thumbnail' | 'poster',
-) {
-  const assetUrl = deliveryAssetForVariant(media, variant);
-  if (!shouldWatermarkPrivateOriginal(media, variant)) {
-    return assetUrl;
-  }
-
-  const viewerWatermarkText = await resolveViewerWatermarkText(viewerId);
-  return insertCloudinaryTransform(
-    assetUrl,
-    buildPrivatePhotoWatermarkTransform(viewerWatermarkText),
-  );
 }
 
 export async function resolveMediaDelivery(
@@ -448,9 +379,17 @@ export async function resolveMediaDelivery(
 
   await ensurePrivateMediaAccess(viewerId, media);
 
-  const assetUrl = await resolveDeliveryAssetUrl(viewerId, media, variant);
   if (media.uploadProvider === 'gcs' && media.storageKey) {
-    // Local/mock storage intentionally stays unwatermarked in this first pass.
+    // GCS objects (thumbnail/poster are the same object) are delivered via a
+    // short-lived signed read URL. No server-side variant transforms.
+    const signedUrl = await signedReadUrl(media.storageKey);
+    return {
+      mode: 'redirect' as const,
+      assetUrl: signedUrl,
+    };
+  }
+
+  if (media.uploadProvider === 'mock' && media.storageKey) {
     return {
       mode: 'local' as const,
       filePath: path.join(process.cwd(), 'uploads', media.storageKey),
@@ -460,7 +399,7 @@ export async function resolveMediaDelivery(
 
   return {
     mode: 'redirect' as const,
-    assetUrl,
+    assetUrl: media.assetUrl,
   };
 }
 
@@ -472,13 +411,12 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
   const visibility = input.visibility ?? defaultVisibility(input.category);
   const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
   const isVideo = input.category === MediaCategory.VIDEO_INTRO;
-  const cloudinary = isProductionEnv() ? requireCloudinaryConfig() : cloudinaryConfig();
+  const provider = storageProvider();
 
-  const provider: 'cloudinary' | 'gcs' = cloudinary ? 'cloudinary' : 'gcs';
   const media = await ProfileMediaModel.create({
     userId,
     profileId: profile._id,
-    assetUrl: localAssetUrl(storageKey),
+    assetUrl: initialAssetUrl(provider, storageKey),
     storageKey,
     uploadProvider: provider,
     uploadExpiresAt: expiresAt,
@@ -493,44 +431,60 @@ export async function createSignedMediaUpload(userId: Types.ObjectId, input: Med
     isPrimary: input.category === MediaCategory.PROFILE_PHOTO,
   });
 
-  if (!cloudinary) {
-    return {
-      media: publicMedia(media),
-      upload: {
-        provider: 'gcs' as const,
-        method: 'PUT' as const,
-        url: localAssetUrl(storageKey),
-        expiresAt: expiresAt.toISOString(),
-        fields: {
-          storageKey,
-        },
-      },
-    };
-  }
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const folder = storageKey.split('/').slice(0, -1).join('/');
-  const publicId = publicIdFromStorageKey(storageKey);
-  const params = {
-    folder,
-    public_id: publicId,
-    timestamp,
-    context: `media_id=${media.id}|user_id=${userId.toString()}`,
-  };
-  const signature = signCloudinaryParams(params, cloudinary.apiSecret);
+  const url =
+    provider === 'gcs'
+      ? await signedUploadUrl(storageKey, input.mimeType)
+      : localAssetUrl(storageKey);
 
   return {
     media: publicMedia(media),
     upload: {
-      provider: 'cloudinary' as const,
-      method: 'POST' as const,
-      url: `https://api.cloudinary.com/v1_1/${cloudinary.cloudName}/${isVideo ? 'video' : 'image'}/upload`,
+      provider,
+      method: 'PUT' as const,
+      url,
       expiresAt: expiresAt.toISOString(),
       fields: {
-        ...Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])),
-        api_key: cloudinary.apiKey,
-        signature,
+        storageKey,
       },
+    },
+  };
+}
+
+export async function createSignedCmsImageUpload(input: CmsCoverImageUploadInput) {
+  if (input.fileSizeBytes > IMAGE_MAX_BYTES) {
+    throw new HttpError(400, 'Cover image must be 10MB or smaller');
+  }
+
+  const suffix = crypto.randomBytes(8).toString('hex');
+  const storageKey = `vivah/cms/blogs/${suffix}`;
+  const expiresAt = new Date(Date.now() + UPLOAD_TTL_SECONDS * 1000);
+  const provider = storageProvider();
+
+  if (provider === 'gcs') {
+    // Blog covers are always public and have no completion step, so the object
+    // is made public-read at upload time via the signed ACL header.
+    const url = await signedUploadUrl(storageKey, input.mimeType, { publicRead: true });
+    return {
+      upload: {
+        provider: 'gcs' as const,
+        method: 'PUT' as const,
+        url,
+        assetUrl: publicUrl(storageKey),
+        expiresAt: expiresAt.toISOString(),
+        fields: { storageKey },
+      },
+    };
+  }
+
+  const url = localAssetUrl(storageKey);
+  return {
+    upload: {
+      provider: 'mock' as const,
+      method: 'PUT' as const,
+      url,
+      assetUrl: url,
+      expiresAt: expiresAt.toISOString(),
+      fields: { storageKey },
     },
   };
 }
@@ -547,7 +501,7 @@ export async function completeMediaUpload(userId: Types.ObjectId, input: MediaCo
   }
 
   validateCompletionSize(media, input);
-  assertProviderAssetUrl(media, input);
+  const assetUrl = await finalizeUploadedObject(media, input);
 
   if (media.category === MediaCategory.VIDEO_INTRO) {
     if (!input.durationSeconds) {
@@ -559,7 +513,7 @@ export async function completeMediaUpload(userId: Types.ObjectId, input: MediaCo
     media.durationSeconds = input.durationSeconds;
   }
 
-  media.assetUrl = input.assetUrl;
+  media.assetUrl = assetUrl;
   media.uploadStatus = MediaUploadStatus.UPLOADED;
   media.fileSizeBytes = input.bytes ?? media.fileSizeBytes;
   if (input.width) {
@@ -568,9 +522,11 @@ export async function completeMediaUpload(userId: Types.ObjectId, input: MediaCo
   if (input.height) {
     media.height = input.height;
   }
-  media.thumbnailUrl = deriveThumbnailUrl(media.uploadProvider ?? 'gcs', input.assetUrl, media.mediaType);
+  // GCS/mock storage has no server-side transforms: the original doubles as the
+  // thumbnail and video poster.
+  media.thumbnailUrl = assetUrl;
   if (media.mediaType === 'VIDEO') {
-    media.videoPosterUrl = deriveVideoPosterUrl(media.uploadProvider ?? 'gcs', input.assetUrl);
+    media.videoPosterUrl = assetUrl;
   } else {
     media.set('videoPosterUrl', undefined);
   }
@@ -585,7 +541,7 @@ export async function listOwnMedia(userId: Types.ObjectId) {
   const media = await ProfileMediaModel.find({ userId, isDeleted: false })
     .sort({ isPrimary: -1, createdAt: -1 })
     .exec();
-  return media.map(publicMedia);
+  return Promise.all(media.map((item) => withDisplayUrls(item)));
 }
 
 export async function updateOwnMedia(
@@ -597,6 +553,19 @@ export async function updateOwnMedia(
 
   if (input.visibility) {
     media.visibility = input.visibility;
+
+    // Keep the bucket object's access level in sync with visibility changes.
+    if (
+      media.uploadProvider === 'gcs' &&
+      media.storageKey &&
+      media.uploadStatus === MediaUploadStatus.UPLOADED
+    ) {
+      if (isPubliclyReadable(input.visibility)) {
+        await makeObjectPublic(media.storageKey);
+      } else {
+        await makeObjectPrivate(media.storageKey);
+      }
+    }
   }
 
   if (input.isPrimary !== undefined) {
@@ -616,7 +585,7 @@ export async function updateOwnMedia(
   }
 
   await media.save();
-  return publicMedia(media);
+  return withDisplayUrls(media);
 }
 
 export async function deleteOwnMedia(userId: Types.ObjectId, mediaId: string) {
@@ -673,7 +642,27 @@ export async function listMediaForReview(status?: string) {
     .populate('profileId', 'displayId personal.firstName personal.lastName')
     .lean();
 
-  return media;
+  // Moderators must be able to preview private GCS objects, which are not
+  // public-read; hand them short-lived signed URLs.
+  return Promise.all(
+    media.map(async (doc) => {
+      if (
+        doc.uploadProvider === 'gcs' &&
+        doc.visibility === MediaVisibility.PRIVATE &&
+        doc.storageKey &&
+        doc.uploadStatus === MediaUploadStatus.UPLOADED
+      ) {
+        const signed = await signedReadUrl(doc.storageKey);
+        return {
+          ...doc,
+          assetUrl: signed,
+          thumbnailUrl: signed,
+          ...(doc.videoPosterUrl ? { videoPosterUrl: signed } : {}),
+        };
+      }
+      return doc;
+    }),
+  );
 }
 
 export async function reviewMedia(

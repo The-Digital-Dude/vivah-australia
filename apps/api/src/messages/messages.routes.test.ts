@@ -68,10 +68,10 @@ async function createUploadedAttachment(
     .expect(201);
   const signedBody = bodyAs<{
     attachment: { id: string };
-    upload: { provider: 'cloudinary' | 'mock'; fields?: { public_id?: string } };
+    upload: { provider: 'gcs' | 'mock'; fields?: { storageKey?: string } };
   }>(signed);
   const attachmentId = signedBody.attachment.id;
-  const storageKey = signedBody.upload.fields?.public_id;
+  const storageKey = signedBody.upload.fields?.storageKey;
 
   if (!storageKey) {
     throw new Error('Expected signed upload to include a storage key');

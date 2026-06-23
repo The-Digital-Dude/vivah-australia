@@ -58,7 +58,7 @@ interface VerificationRequestItem {
 interface SignedVerificationDocumentResponse {
   document: { id: string };
   upload: {
-    provider: 'cloudinary' | 'gcs';
+    provider: 'gcs' | 'mock';
     method: 'POST' | 'PUT';
     url: string;
     expiresAt: string;
@@ -266,49 +266,23 @@ export default function MemberVerificationPage() {
       let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
       let storageKey = signedBody.upload.fields.storageKey;
 
-      if (signedBody.upload.provider === 'cloudinary') {
-        const cloudinaryForm = new FormData();
-        Object.entries(signedBody.upload.fields).forEach(([key, value]) => {
-          cloudinaryForm.append(key, value);
-        });
-        cloudinaryForm.append('file', file);
-        const uploadResponse = await fetch(signedBody.upload.url, {
-          method: 'POST',
-          body: cloudinaryForm,
-        });
-        const uploadJson = (await uploadResponse.json()) as {
-          secure_url?: string;
-          public_id?: string;
-          message?: string;
-        };
+      // GCS (signed PUT) or local mock — upload the raw file directly.
+      const uploadResponse = await fetch(signedBody.upload.url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
 
-        if (!uploadResponse.ok || !uploadJson.secure_url) {
-          setUploadingDocument(false);
-          setMessage(uploadJson.message ?? 'Verification document upload failed.');
-          setIsSuccess(false);
-          return;
-        }
-
-        assetUrl = uploadJson.secure_url;
-        storageKey = uploadJson.public_id ?? storageKey;
-      } else {
-        const uploadResponse = await fetch(signedBody.upload.url, {
-          method: 'PUT',
-          body: file,
-          headers: {
-            'Content-Type': file.type,
-          },
-        });
-
-        if (!uploadResponse.ok) {
-          setUploadingDocument(false);
-          setMessage('Verification document upload failed.');
-          setIsSuccess(false);
-          return;
-        }
-
-        assetUrl = signedBody.upload.url.split('?')[0] ?? assetUrl;
+      if (!uploadResponse.ok) {
+        setUploadingDocument(false);
+        setMessage('Verification document upload failed.');
+        setIsSuccess(false);
+        return;
       }
+
+      assetUrl = signedBody.upload.url.split('?')[0] ?? assetUrl;
 
       const completed = await memberRequest('/api/me/verification-documents/complete', {
         method: 'POST',

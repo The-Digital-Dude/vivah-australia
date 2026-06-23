@@ -5,8 +5,7 @@ const nextConfig: NextConfig = {
   transpilePackages: ['@vivah/shared', '@vivah/ui'],
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
-      { protocol: 'https', hostname: '*.cloudinary.com' },
+      { protocol: 'https', hostname: 'storage.googleapis.com' },
       { protocol: 'http', hostname: 'localhost' },
     ],
   },

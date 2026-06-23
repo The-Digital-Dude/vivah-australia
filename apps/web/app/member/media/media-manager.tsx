@@ -27,7 +27,7 @@ interface MediaListResponse {
 interface SignedUploadResponse {
   media: MediaItem;
   upload: {
-    provider: 'cloudinary' | 'gcs';
+    provider: 'gcs' | 'mock';
     method: 'POST' | 'PUT';
     url: string;
     expiresAt: string;
@@ -150,47 +150,22 @@ export default function MediaManager() {
     let storageKey = signedBody.upload.fields.storageKey;
     let durationSeconds: number | undefined;
 
-    if (signedBody.upload.provider === 'cloudinary') {
-      const cloudinaryForm = new FormData();
-      Object.entries(signedBody.upload.fields).forEach(([key, value]) => {
-        cloudinaryForm.append(key, value);
-      });
-      cloudinaryForm.append('file', file);
-      const uploadResponse = await fetch(signedBody.upload.url, {
-        method: 'POST',
-        body: cloudinaryForm,
-      });
-      const uploadJson = (await uploadResponse.json()) as {
-        secure_url?: string;
-        public_id?: string;
-        message?: string;
-      };
+    // GCS (signed PUT) or local mock — upload the raw file directly.
+    const uploadResponse = await fetch(signedBody.upload.url, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
 
-      if (!uploadResponse.ok || !uploadJson.secure_url) {
-        setMessage(uploadJson.message ?? 'Cloudinary upload failed.');
-        setPending(false);
-        return;
-      }
-
-      assetUrl = uploadJson.secure_url;
-      storageKey = uploadJson.public_id ?? storageKey;
-    } else if (signedBody.upload.provider === 'gcs') {
-      const uploadResponse = await fetch(signedBody.upload.url, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        setMessage('Local upload failed.');
-        setPending(false);
-        return;
-      }
-
-      assetUrl = signedBody.upload.url.split('?')[0] ?? assetUrl;
+    if (!uploadResponse.ok) {
+      setMessage('Upload failed.');
+      setPending(false);
+      return;
     }
+
+    assetUrl = signedBody.upload.url.split('?')[0] ?? assetUrl;
 
     if (parsed.data.category === 'VIDEO_INTRO') {
       try {

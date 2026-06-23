@@ -1406,7 +1406,7 @@ interface UploadFields {
 }
 
 interface UploadData {
-  provider: 'cloudinary' | 'gcs';
+  provider: 'gcs' | 'mock';
   method: 'POST' | 'PUT';
   url: string;
   expiresAt: string;
@@ -1416,12 +1416,6 @@ interface UploadData {
 interface SignUploadResponse {
   media: { id: string };
   upload: UploadData;
-}
-
-interface CloudinaryUploadResponse {
-  secure_url?: string;
-  public_id?: string;
-  message?: string;
 }
 
 async function getVideoDurationSeconds(file: File) {
@@ -1502,36 +1496,21 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
     let durationSeconds: number | undefined;
     setUploadPhase('uploading');
 
-    if (signedBody.upload.provider === 'cloudinary') {
-      const cf = new FormData();
-      Object.entries(signedBody.upload.fields).forEach(([k, v]) => cf.append(k, v));
-      cf.append('file', file);
-      const up = await fetch(signedBody.upload.url, { method: 'POST', body: cf });
-      const upJson = (await up.json()) as CloudinaryUploadResponse;
-      if (!up.ok || !upJson.secure_url) {
-        setMsg({ text: upJson.message ?? 'Upload failed', ok: false });
-        setUploading(false);
-        return;
-      }
-      assetUrl = upJson.secure_url;
-      storageKey = upJson.public_id ?? storageKey;
-    } else if (signedBody.upload.provider === 'gcs') {
-      // Direct binary PUT upload for GCS
-      const up = await fetch(signedBody.upload.url, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
-      if (!up.ok) {
-        setMsg({ text: 'Upload failed', ok: false });
-        setUploading(false);
-        return;
-      }
-      // GCS URLs are the upload URL without query parameters (if signed URL used queries)
-      assetUrl = signedBody.upload.url?.split('?')[0] ?? '';
+    // Direct binary PUT upload for GCS (signed URL) or local mock storage.
+    const up = await fetch(signedBody.upload.url, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
+    if (!up.ok) {
+      setMsg({ text: 'Upload failed', ok: false });
+      setUploading(false);
+      return;
     }
+    // GCS URLs are the upload URL without query parameters (if signed URL used queries)
+    assetUrl = signedBody.upload.url?.split('?')[0] ?? '';
 
     if (parsed.data.category === 'VIDEO_INTRO') {
       try {

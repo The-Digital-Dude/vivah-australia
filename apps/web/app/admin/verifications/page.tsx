@@ -150,8 +150,8 @@ export default function AdminVerificationsPage() {
 
     // Open the tab synchronously inside the click gesture to avoid popup blockers, then
     // point it at the signed URL once we have it. We use a top-level navigation (not fetch)
-    // because the preview endpoint redirects to an authenticated Cloudinary URL that returns
-    // a wildcard CORS header — a credentialed fetch to it is blocked, but a navigation is not.
+    // because the preview endpoint redirects to a short-lived signed GCS URL — a credentialed
+    // fetch to it is blocked by CORS, but a top-level navigation is not.
     const previewWindow = window.open('', '_blank');
 
     const result = await memberRequest(

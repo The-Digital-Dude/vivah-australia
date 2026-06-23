@@ -26,6 +26,10 @@ test-results/
 tmp-web-dev.log
 dev-local.log
 apps/api/uploads/
+# GCS service-account credentials — never commit
+.gcs-credentials.json
+apps/api/.gcs-credentials.json
+gcs-credentials*.json
 .backups/
 .codex-temp/
 .codex-runtime/

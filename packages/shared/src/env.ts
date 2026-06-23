@@ -21,16 +21,24 @@ export const apiEnvSchema = z
     ADMIN_SEED_PASSWORD: z.string().min(12).optional(),
     TURNSTILE_SECRET: nonEmptyString.optional(),
     MEDIA_ACCESS_SECRET: nonEmptyString.min(32).optional(),
-    CLOUDINARY_CLOUD_NAME: nonEmptyString.optional(),
-    CLOUDINARY_API_KEY: nonEmptyString.optional(),
-    CLOUDINARY_API_SECRET: nonEmptyString.optional(),
+    // Google Cloud Storage — primary media/document/attachment storage.
+    GCS_BUCKET: nonEmptyString.optional(),
+    GCP_PROJECT_ID: nonEmptyString.optional(),
+    // Credentials are optional: prefer Application Default Credentials
+    // (GOOGLE_APPLICATION_CREDENTIALS key file, or workload identity on GCP).
+    // The inline options below are a fallback for non-GCP hosts.
+    GCS_CLIENT_EMAIL: nonEmptyString.optional(),
+    GCS_PRIVATE_KEY: nonEmptyString.optional(),
+    GCS_CREDENTIALS_JSON: nonEmptyString.optional(),
+    GCS_PUBLIC_BASE_URL: urlString.optional(),
     STRIPE_SECRET_KEY: nonEmptyString.optional(),
     STRIPE_WEBHOOK_SECRET: nonEmptyString.optional(),
     STRIPE_PRICE_PREFIX: nonEmptyString.default('price_'),
-    EMAIL_PROVIDER: z.enum(['console', 'sendgrid', 'mailgun']).default('console'),
+    EMAIL_PROVIDER: z.enum(['console', 'sendgrid', 'mailgun', 'brevo']).default('console'),
     SENDGRID_API_KEY: nonEmptyString.optional(),
     MAILGUN_API_KEY: nonEmptyString.optional(),
     MAILGUN_DOMAIN: nonEmptyString.optional(),
+    BREVO_API_KEY: nonEmptyString.optional(),
     EMAIL_FROM: z.string().trim().email().default('noreply@vivahaustralia.com.au'),
     SMS_PROVIDER: z.enum(['console', 'twilio']).default('console'),
     TWILIO_ACCOUNT_SID: nonEmptyString.optional(),
@@ -49,6 +57,14 @@ export const apiEnvSchema = z
         code: z.ZodIssueCode.custom,
         path: ['TURNSTILE_SECRET'],
         message: 'TURNSTILE_SECRET is required in production.',
+      });
+    }
+
+    if (env.NODE_ENV === 'production' && !env.GCS_BUCKET) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['GCS_BUCKET'],
+        message: 'GCS_BUCKET is required in production for media storage.',
       });
     }
   });

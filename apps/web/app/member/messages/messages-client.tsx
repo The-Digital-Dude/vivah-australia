@@ -67,7 +67,7 @@ interface SignedAttachmentUploadResponse {
     attachmentType?: string;
   };
   upload: {
-    provider: 'cloudinary' | 'mock';
+    provider: 'gcs' | 'mock';
     url: string;
     fields: Record<string, string>;
   };
@@ -520,34 +520,23 @@ export default function MessagesClient() {
     }
 
     const signedBody = signed.data as SignedAttachmentUploadResponse;
-    let assetUrl = `${apiBaseUrl}/api/mock-storage/${signedBody.upload.fields.public_id}`;
-    let storageKey = signedBody.upload.fields.public_id;
+    let assetUrl = signedBody.upload.url.split('?')[0] ?? signedBody.upload.url;
+    const storageKey = signedBody.upload.fields.storageKey ?? '';
 
-    if (signedBody.upload.provider === 'cloudinary') {
-      const cloudinaryForm = new FormData();
-      Object.entries(signedBody.upload.fields).forEach(([key, value]) => {
-        cloudinaryForm.append(key, value);
-      });
-      cloudinaryForm.append('file', file);
-      const uploadResponse = await fetch(signedBody.upload.url, {
-        method: 'POST',
-        body: cloudinaryForm,
-      });
-      const uploadJson = (await uploadResponse.json()) as {
-        secure_url?: string;
-        public_id?: string;
-        message?: string;
-      };
+    // GCS (signed PUT) or local mock — upload the raw file directly.
+    const uploadResponse = await fetch(signedBody.upload.url, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    });
 
-      if (!uploadResponse.ok || !uploadJson.secure_url) {
-        setMessage(uploadJson.message ?? 'Attachment upload failed.');
-        setUploadingAttachment(false);
-        return;
-      }
-
-      assetUrl = uploadJson.secure_url;
-      storageKey = uploadJson.public_id ?? storageKey;
+    if (!uploadResponse.ok) {
+      setMessage('Attachment upload failed.');
+      setUploadingAttachment(false);
+      return;
     }
+
+    assetUrl = signedBody.upload.url.split('?')[0] ?? assetUrl;
 
     const completed = await memberRequest('/api/me/message-attachments/complete', {
       method: 'POST',
