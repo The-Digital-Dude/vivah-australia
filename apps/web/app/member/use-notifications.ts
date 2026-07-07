@@ -28,7 +28,7 @@ export function toNotificationItem(notification: RealtimeNotificationItem): Noti
     type: notification.type,
     title: notification.title,
     ...(notification.body ? { body: notification.body } : {}),
-    ...(notification.data ? { data: notification.data } : {}),
+    ...(notification.data ? { data: notification.data as Record<string, unknown> } : {}),
     ...(notification.readAt ? { readAt: notification.readAt } : {}),
     createdAt: notification.createdAt,
     ...(notification.updatedAt ? { updatedAt: notification.updatedAt } : {}),
