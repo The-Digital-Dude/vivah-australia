@@ -492,7 +492,7 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
 
   if (viewerId && !profile.userId.equals(viewerId)) {
     const viewedAt = new Date();
-    const existingView = await ProfileViewModel.findOneAndUpdate(
+    await ProfileViewModel.findOneAndUpdate(
       { viewerId, profileId: profile._id },
       {
         $set: {
