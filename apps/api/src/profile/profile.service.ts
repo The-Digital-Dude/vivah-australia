@@ -505,17 +505,6 @@ export async function getVisibleProfile(profileId: string, viewerId?: Types.Obje
       { upsert: true, returnDocument: 'before', setDefaultsOnInsert: true },
     );
 
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    if (!existingView || (existingView.viewedAt && existingView.viewedAt < sevenDaysAgo)) {
-      await createNotification({
-        userId: profile.userId,
-        type: 'PROFILE_VIEWED',
-        title: 'Someone viewed your profile',
-        body: 'A member recently viewed your profile. Log in to see who it is.',
-        data: { viewerId: viewerId.toString() }
-      });
-    }
-
     await notifyPaidProfileView(viewerId, profile, viewedAt);
     const recentViewCount = await ProfileViewModel.countDocuments({
       viewerId,

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AccountStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { createTokenPair } from '../auth/token.service.js';
@@ -121,12 +121,14 @@ describe('notification delivery extensions', () => {
         .expect(400);
     }
 
-    expect(
-      await FraudEventModel.countDocuments({
-        userId: user._id,
-        rule: 'REPEATED_OTP_FAILURES',
-      }),
-    ).toBe(1);
+    await vi.waitFor(async () => {
+      expect(
+        await FraudEventModel.countDocuments({
+          userId: user._id,
+          rule: 'REPEATED_OTP_FAILURES',
+        }),
+      ).toBe(1);
+    }, { timeout: 2000 });
   });
 
   it('stores push subscriptions and queues a test push notification', async () => {

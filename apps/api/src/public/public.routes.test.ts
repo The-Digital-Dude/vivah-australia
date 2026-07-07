@@ -2,7 +2,7 @@ import request from 'supertest';
 import type { Response } from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AccountStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { connectDatabase, disconnectDatabase } from '../db/connection.js';
@@ -402,7 +402,9 @@ describe('public web routes', () => {
           .expect(201);
       }
 
-      expect(await FraudEventModel.countDocuments({ rule: 'DUPLICATE_CONTACT_ATTEMPTS' })).toBe(1);
+      await vi.waitFor(async () => {
+        expect(await FraudEventModel.countDocuments({ rule: 'DUPLICATE_CONTACT_ATTEMPTS' })).toBe(1);
+      }, { timeout: 2000 });
     } finally {
       process.env.TURNSTILE_SECRET = originalSecret;
     }

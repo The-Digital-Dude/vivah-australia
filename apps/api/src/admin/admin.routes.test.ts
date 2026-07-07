@@ -144,17 +144,18 @@ describe('admin production readiness routes', () => {
       status: 'OPEN',
       severity: 'LOW',
     });
+    const now = new Date();
     const boost = await ProfileBoostModel.create({
       userId: member.user._id,
       profileId: memberProfile._id,
       source: 'ENTITLEMENT',
-      startsAt: new Date('2026-06-10T00:00:00.000Z'),
-      endsAt: new Date('2026-06-20T00:00:00.000Z'),
+      startsAt: new Date(now.getTime() - 24 * 60 * 60 * 1000),
+      endsAt: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000),
       active: true,
     });
     await ProfileBoostModel.collection.updateOne(
       { _id: boost._id },
-      { $set: { createdAt: new Date('2026-06-10T00:00:00.000Z') } },
+      { $set: { createdAt: now } },
     );
 
     await request(app)
@@ -206,14 +207,14 @@ describe('admin production readiness routes', () => {
       bodyAs<{ activeBoostCount: number }>(analyticsResponse).activeBoostCount,
     ).toBeGreaterThanOrEqual(1);
 
+    const analyticsRange = bodyAs<{ range: { from: string; to: string } }>(analyticsResponse).range;
     const csvResponse = await request(app)
-      .get('/api/admin/analytics/export.csv?from=2026-06-01T00:00:00.000Z&to=2026-06-17T23:59:59.999Z')
+      .get(`/api/admin/analytics/export.csv?from=${analyticsRange.from}&to=${analyticsRange.to}`)
       .set('Authorization', `Bearer ${admin.accessToken}`)
       .expect(200);
     expect(csvResponse.text).toContain('section,key,count,totalCents');
     expect(csvResponse.text).toContain('"boostSourceStats","ENTITLEMENT","1",""');
     expect(csvResponse.text).toContain('activeBoostCount,LIVE,');
-    const analyticsRange = bodyAs<{ range: { from: string; to: string } }>(analyticsResponse).range;
     expect(typeof analyticsRange.from).toBe('string');
     expect(typeof analyticsRange.to).toBe('string');
   });

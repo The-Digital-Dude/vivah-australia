@@ -2,7 +2,7 @@ import request from 'supertest';
 import type { Response } from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AccountStatus, Gender, InterestStatus, SubscriptionStatus, UserRole } from '@vivah/shared';
 import { createApp } from '../app.js';
 import { createTokenPair } from '../auth/token.service.js';
@@ -509,13 +509,16 @@ describe('interaction routes', () => {
     expect(
       await NotificationModel.findOne({ userId: reporter.user._id, type: 'REPORT_SUBMITTED' }),
     ).toBeTruthy();
-    const riskEvent = await FraudEventModel.findOne({
-      userId: target.user._id,
-      rule: 'REPORTED_USER_RISK_SCORE',
-      isDeleted: false,
-    }).lean();
-    expect(riskEvent?.status).toBe('OPEN');
-    expect(riskEvent?.metadata).toMatchObject({ activeReportCount: 1, highestSeverity: 'HIGH' });
+
+    await vi.waitFor(async () => {
+      const riskEvent = await FraudEventModel.findOne({
+        userId: target.user._id,
+        rule: 'REPORTED_USER_RISK_SCORE',
+        isDeleted: false,
+      }).lean();
+      expect(riskEvent?.status).toBe('OPEN');
+      expect(riskEvent?.metadata).toMatchObject({ activeReportCount: 1, highestSeverity: 'HIGH' });
+    }, { timeout: 2000 });
   });
 
   it('blocks immediate resend after rejection for the same member pair', async () => {
@@ -684,14 +687,16 @@ describe('interaction routes', () => {
       .expect(200);
     expect(bodyAs<{ report: { status: string } }>(resolved).report.status).toBe('RESOLVED');
 
-    const riskEvent = await FraudEventModel.findOne({
-      userId: target.user._id,
-      rule: 'REPORTED_USER_RISK_SCORE',
-      isDeleted: false,
-    }).lean();
-    expect(riskEvent?.status).toBe('REVIEWED');
-    expect(riskEvent?.score).toBe(0);
-    expect(riskEvent?.metadata).toMatchObject({ activeReportCount: 0 });
+    await vi.waitFor(async () => {
+      const riskEvent = await FraudEventModel.findOne({
+        userId: target.user._id,
+        rule: 'REPORTED_USER_RISK_SCORE',
+        isDeleted: false,
+      }).lean();
+      expect(riskEvent?.status).toBe('REVIEWED');
+      expect(riskEvent?.score).toBe(0);
+      expect(riskEvent?.metadata).toMatchObject({ activeReportCount: 0 });
+    }, { timeout: 2000 });
   });
 
   it('increments reported-user risk counters across multiple active reports', async () => {
@@ -720,18 +725,20 @@ describe('interaction routes', () => {
         .expect(201);
     }
 
-    const riskEvent = await FraudEventModel.findOne({
-      userId: target.user._id,
-      rule: 'REPORTED_USER_RISK_SCORE',
-      isDeleted: false,
-    }).lean();
-    expect(riskEvent?.severity).toBe('CRITICAL');
-    expect(riskEvent?.status).toBe('OPEN');
-    expect(riskEvent?.score).toBeGreaterThanOrEqual(90);
-    expect(riskEvent?.metadata).toMatchObject({
-      activeReportCount: 3,
-      highestSeverity: 'CRITICAL',
-    });
+    await vi.waitFor(async () => {
+      const riskEvent = await FraudEventModel.findOne({
+        userId: target.user._id,
+        rule: 'REPORTED_USER_RISK_SCORE',
+        isDeleted: false,
+      }).lean();
+      expect(riskEvent?.severity).toBe('CRITICAL');
+      expect(riskEvent?.status).toBe('OPEN');
+      expect(riskEvent?.score).toBeGreaterThanOrEqual(90);
+      expect(riskEvent?.metadata).toMatchObject({
+        activeReportCount: 3,
+        highestSeverity: 'CRITICAL',
+      });
+    }, { timeout: 2000 });
   });
 
   it('allows moderators to review interest activity and blocks normal members', async () => {

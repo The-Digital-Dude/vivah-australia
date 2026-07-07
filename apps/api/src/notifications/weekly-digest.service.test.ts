@@ -146,6 +146,7 @@ describe('weekly activity digest service', () => {
       senderId: new mongoose.Types.ObjectId(),
       receiverId: user._id,
       status: 'PENDING',
+      createdAt: new Date('2026-06-16T09:00:00.000Z'),
     });
 
     await expect(sendWeeklyActivityDigests(now)).resolves.toMatchObject({ sent: 1 });
