@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useGoogleLogin } from '@react-oauth/google';
 import { appleAuthHelpers } from 'react-apple-signin-auth';
@@ -60,7 +60,6 @@ interface FacebookAuthResponse {
 }
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { setSession } = useAuth();
   const [error, setError] = useState('');

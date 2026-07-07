@@ -19,7 +19,6 @@ import {
   ShieldAlert,
   CreditCard,
   FileText,
-  Globe,
   History,
   Menu,
   X,
@@ -31,7 +30,6 @@ import {
   Settings,
   Tag,
   Megaphone,
-  MapPin,
 } from 'lucide-react';
 
 interface NavItem {

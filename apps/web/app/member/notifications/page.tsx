@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Bell,
   Check,
@@ -165,7 +165,7 @@ export default function MemberNotificationsPage() {
                   <Link
                     href={getNotificationUrl(n)}
                     key={n._id}
-                    onClick={() => { if (isUnread) markRead(n._id); }}
+                    onClick={() => { if (isUnread) void markRead(n._id); }}
                     className={cx(
                       'rounded-2xl border px-4 py-3 flex gap-3 transition hover:border-[#A10E4D]/30 block',
                       isUnread

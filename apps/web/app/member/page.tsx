@@ -7,7 +7,7 @@ import MemberShell from './member-shell';
 import { useAuth } from '@/app/auth-context';
 import { useMemberRequest } from '@/lib/member-api';
 import { useEntitlement } from '@/lib/use-entitlement';
-import ProfileStrengthMeter, { type ProfileStrength } from './profile-strength-meter';
+import type { ProfileStrength } from './profile-strength-meter';
 import ProfileCompletionGate from './profile-completion-gate';
 import { EmptyState, PremiumButton, PremiumCard, ProfileMatchCard } from '@/app/components';
 import {
@@ -257,8 +257,6 @@ export default function MemberDashboardPage() {
       // MemberShell handles the redirect to /login when there is no session.
       return;
     }
-    void loadDashboardData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized, token]);
 
   async function handleActivateBoost() {

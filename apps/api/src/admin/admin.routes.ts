@@ -5,7 +5,6 @@ import {
   cmsBannerInputSchema,
   cmsBlogInputSchema,
   cmsCampaignBannerInputSchema,
-  cmsContentInputSchema,
   cmsCoverImageUploadSchema,
   cmsFaqInputSchema,
   cmsHomeContentSchema,
@@ -169,10 +168,6 @@ async function getHomeContent() {
 
 function pageProjection() {
   return 'slug title body seoTitle seoDescription published updatedAt';
-}
-
-function contentProjection() {
-  return 'slug title body published updatedAt';
 }
 
 function blogProjection() {

@@ -23,7 +23,6 @@ import {
   ShieldCheck,
   UserCircle2,
   Users,
-  Users2,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/app/auth-context';
@@ -488,7 +487,7 @@ export default function MemberShell({
                                       href={getNotificationUrl(n)}
                                       onClick={() => {
                                         setIsNotificationsOpen(false);
-                                        markRead(n._id);
+                                        void markRead(n._id);
                                       }}
                                       className="block border-b border-[#A10E4D]/5 p-4 hover:bg-[#FFF9F5] transition"
                                     >

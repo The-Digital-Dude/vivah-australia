@@ -1492,7 +1492,7 @@ function StepPhotos({ memberRequest }: { memberRequest: ReturnType<typeof useMem
 
     const signedBody = signed.data as unknown as SignUploadResponse;
     let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
-    let storageKey = signedBody.upload.fields.storageKey;
+    const storageKey = signedBody.upload.fields.storageKey;
     let durationSeconds: number | undefined;
     setUploadPhase('uploading');
 

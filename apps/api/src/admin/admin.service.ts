@@ -982,7 +982,7 @@ async function attachActorNames<T extends { actorId?: unknown }>(logs: T[]): Pro
   );
   return logs.map((log) => ({
     ...log,
-    actorName: log.actorId ? nameByUser.get(String(log.actorId)) ?? null : null,
+    actorName: log.actorId ? nameByUser.get(String(log.actorId as Types.ObjectId)) ?? null : null,
   }));
 }
 

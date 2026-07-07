@@ -12,7 +12,7 @@ export interface NotificationItem {
   type: string;
   title: string;
   body?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   readAt?: string;
   createdAt: string;
   updatedAt?: string;
@@ -38,7 +38,7 @@ export function toNotificationItem(notification: RealtimeNotificationItem): Noti
 export function getNotificationUrl(notification: NotificationItem): string {
   switch (notification.type) {
     case 'PROFILE_VIEWED':
-      return notification.data?.viewerId ? `/profiles/${notification.data.viewerId}` : '/member/notifications';
+      return notification.data?.viewerId ? `/profiles/${String(notification.data.viewerId)}` : '/member/notifications';
     case 'INTEREST_RECEIVED':
       return '/member/activity';
     case 'INTEREST_ACCEPTED':

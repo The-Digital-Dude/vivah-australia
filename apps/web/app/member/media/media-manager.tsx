@@ -147,7 +147,7 @@ export default function MediaManager() {
 
     const signedBody = dataAs<SignedUploadResponse>(signed.data);
     let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
-    let storageKey = signedBody.upload.fields.storageKey;
+    const storageKey = signedBody.upload.fields.storageKey;
     let durationSeconds: number | undefined;
 
     // GCS (signed PUT) or local mock — upload the raw file directly.

@@ -264,7 +264,7 @@ export default function MemberVerificationPage() {
 
       const signedBody = signed.data as SignedVerificationDocumentResponse;
       let assetUrl = `http://localhost:4000/api/mock-gcs-storage/${signedBody.upload.fields.storageKey}`;
-      let storageKey = signedBody.upload.fields.storageKey;
+      const storageKey = signedBody.upload.fields.storageKey;
 
       // GCS (signed PUT) or local mock — upload the raw file directly.
       const uploadResponse = await fetch(signedBody.upload.url, {
