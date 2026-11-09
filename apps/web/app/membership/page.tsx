@@ -1,652 +1,432 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import PlanCTA from './plan-cta';
+import { PublicHeader, PublicFooter } from '@/app/components';
 import {
+  CheckCircle2,
   ArrowRight,
   Check,
   X,
   Crown,
-  MessageCircle,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  TrendingUp,
-  Eye,
-  Zap,
-  Lock,
-  Phone,
-  Globe,
+  HelpCircle,
 } from 'lucide-react';
-import { PublicHeader, PublicFooter } from '@/app/components';
 
 export const metadata: Metadata = {
-  title: 'Membership Plans | Vivah Australia',
+  title: 'Vivah Australia Premium Membership | Plans & Pricing',
   description:
-    'Choose the Vivah Australia membership plan that fits your search. From free browsing to platinum concierge — find your life partner faster.',
+    'Join Vivah Australia for free or activate Vivah Australia Premium for $51 for 3 months ($17/mo equivalent). Full profile access, messaging, and partner filters.',
 };
 
-const plans = [
+const FEATURES_TABLE = [
   {
-    id: 'free',
-    name: 'Essential',
-    price: 'Free',
-    period: '',
-    priceNote: 'No credit card required',
-    positioning: 'Begin your search',
-    highlight: false,
-    badge: null,
-    color: 'border-gray-200',
-    accent: 'text-gray-400',
-    buttonStyle: 'border border-gray-300 text-gray-600 hover:bg-gray-50',
-    buttonLabel: 'Get Started Free',
-    features: [
-      'Create your profile',
-      'Browse verified members',
-      'Send 5 interests / month',
-      'Receive unlimited interests',
-      'Photo privacy controls',
-      'Basic search filters',
-    ],
-    notIncluded: [
-      'Direct messaging',
-      'Advanced search filters',
-      'Priority discovery',
-      'Profile boosts',
-      'Verification support',
-    ],
+    feature: 'Full profile access',
+    received: 'View detailed profiles and member photos, subject to privacy settings',
+    freeLabel: 'Basic profiles only',
+    premiumLabel: 'View detailed profiles & photos',
+    premiumCheck: true,
   },
   {
-    id: 'silver',
-    name: 'Silver',
-    price: '$29',
-    period: '/month',
-    priceNote: 'Billed monthly · cancel anytime',
-    positioning: 'Best for serious members',
-    highlight: false,
-    badge: null,
-    color: 'border-brand-silver',
-    accent: 'text-brand-silver',
-    buttonStyle: 'border border-brand-maroon text-brand-maroon hover:bg-brand-maroon/5',
-    buttonLabel: 'Upgrade to Silver',
-    features: [
-      'Everything in Essential',
-      'Direct messaging',
-      '50 interests / month',
-      'Advanced search filters',
-      '1 profile boost / month',
-      'Photo privacy controls',
-      'Standard verification support',
-      'Member care support',
-    ],
-    notIncluded: ['Priority discovery', 'Dedicated profile review', 'Front-of-queue support'],
+    feature: 'Send messages',
+    received: 'Start conversations with other members',
+    freeLabel: null,
+    premiumLabel: 'Start conversations',
+    premiumCheck: true,
   },
   {
-    id: 'gold',
-    name: 'Gold',
-    price: '$59',
-    period: '/month',
-    priceNote: 'Billed monthly · cancel anytime',
-    positioning: 'For faster results',
-    highlight: true,
-    badge: 'Most Popular',
-    color: 'border-brand-gold',
-    buttonStyle: 'bg-brand-gold text-brand-charcoal hover:bg-brand-gold/90',
-    buttonLabel: 'Choose Gold',
-    features: [
-      'Everything in Premium',
-      '120 interests / month',
-      'Priority discovery',
-      '4 profile boosts / month',
-      'Priority verification',
-      'Smart compatibility filters',
-      'Priority member care',
-      'Rise to top of search results',
-    ],
-    notIncluded: ['Dedicated profile review', 'Concierge matchmaking'],
+    feature: 'Reply to messages',
+    received: 'Continue conversations throughout the membership',
+    freeLabel: null,
+    premiumLabel: 'Continue conversations',
+    premiumCheck: true,
   },
   {
-    id: 'platinum',
-    name: 'Platinum',
-    price: '$99',
-    period: '/month',
-    priceNote: 'Billed monthly · cancel anytime',
-    positioning: 'Maximum visibility + concierge',
-    highlight: false,
-    badge: 'Premium Experience',
-    color: 'border-brand-maroon',
-    buttonStyle: 'bg-brand-maroon text-white hover:bg-brand-maroon/90',
-    buttonLabel: 'Go Platinum',
-    features: [
-      'Everything in Gold',
-      '200 interests / month',
-      '8 profile boosts / month',
-      'Dedicated profile review',
-      'Concierge matchmaking support',
-      'Fast-track verification',
-      'Front-of-queue support',
-      'Highest discovery presence',
-    ],
-    notIncluded: [],
+    feature: 'Express interest',
+    received: 'Let someone know you’re interested in connecting',
+    freeLabel: 'Receive notifications only',
+    premiumLabel: 'Express interest in potential matches',
+    premiumCheck: true,
+  },
+  {
+    feature: 'Search filters',
+    received: 'Find profiles by age, location and relevant partner preferences',
+    freeLabel: 'Basic age & location',
+    premiumLabel: 'Age, location & partner preferences',
+    premiumCheck: true,
+  },
+  {
+    feature: 'Shortlist profiles',
+    received: 'Save potential matches to revisit',
+    freeLabel: null,
+    premiumLabel: 'Save potential matches',
+    premiumCheck: true,
+  },
+  {
+    feature: 'See who’s interested',
+    received: 'View members who have expressed interest in their profile',
+    freeLabel: 'Notification only',
+    premiumLabel: 'View interested member profiles',
+    premiumCheck: true,
+  },
+  {
+    feature: 'Member support',
+    received: 'Get help with their profile, account and platform access',
+    freeLabel: 'Help Centre & FAQs',
+    premiumLabel: 'Dedicated member support',
+    premiumCheck: true,
   },
 ];
 
-const comparisonRows = [
-  { label: 'Monthly Interests', free: '5', premium: '50', gold: '120', platinum: '200' },
-  { label: 'Direct Messaging', free: false, premium: true, gold: true, platinum: true },
-  { label: 'Advanced Filters', free: false, premium: true, gold: true, platinum: true },
-  { label: 'Priority Discovery', free: false, premium: false, gold: true, platinum: true },
+const FAQS = [
   {
-    label: 'Profile Boosts',
-    free: false,
-    premium: '1 / month',
-    gold: '4 / month',
-    platinum: '8 / month',
+    q: 'How does Vivah Australia Premium work?',
+    a: 'Vivah Australia Premium is available for $51 for 3 months (equivalent to $17 per month, paid as one $51 payment). It provides full access to view detailed member profiles, send and reply to messages, express interest, search with partner preferences, shortlist favourites, see who has expressed interest in you, and access dedicated member support.',
   },
-  { label: 'Photo Privacy', free: true, premium: true, gold: true, platinum: true },
   {
-    label: 'Verification Support',
-    free: false,
-    premium: 'Standard',
-    gold: 'Priority',
-    platinum: 'Fast-track',
+    q: 'What is included in Free Registration?',
+    a: 'Free registration is designed to be genuinely useful. As a free member, you can create your profile, upload photos, browse basic member profiles, and receive interest notifications when other members want to connect.',
   },
-  { label: 'Dedicated Profile Review', free: false, premium: false, gold: false, platinum: true },
   {
-    label: 'Support Priority',
-    free: 'Standard',
-    premium: 'Member care',
-    gold: 'Priority care',
-    platinum: 'Front-of-queue',
+    q: 'How will the payment appear on my statement?',
+    a: 'All transactions are processed in Australian Dollars (AUD) inclusive of GST. The transaction will appear on your cardholder bank statement as "VIVAH AUSTRALIA".',
+  },
+  {
+    q: 'How quickly is my membership activated?',
+    a: 'Delivery is 100% digital and instantaneous. Upon successful payment of $51, all Premium capabilities (messaging, full profiles, advanced filters) unlock immediately in your account within 0–5 minutes.',
+  },
+  {
+    q: 'What is your refund and dispute policy?',
+    a: 'In accordance with Australian Consumer Law (ACL), we honour all statutory guarantees. If you experience an unresolved technical failure or dispute, please contact our support team. See our Refund Policy for complete claim procedures.',
+  },
+  {
+    q: 'How can I get in touch with member support?',
+    a: 'Our Australian member support team is available via email at support@vivahaustralia.com.au or phone at +61 479 134 385 (Monday to Friday, 9:00 AM – 6:00 PM AEST).',
   },
 ];
-
-const whyUpgrade = [
-  {
-    icon: MessageCircle,
-    stat: '3×',
-    statLabel: 'more conversations',
-    title: 'Connect Directly',
-    desc: 'Stop waiting. Premium members message serious verified members instantly — no interest-request bottleneck.',
-  },
-  {
-    icon: Eye,
-    stat: '5×',
-    statLabel: 'more profile views',
-    title: 'Get Noticed',
-    desc: 'Profile boosts push you to the top of search results and daily recommendations when members are actively browsing.',
-  },
-  {
-    icon: TrendingUp,
-    stat: '50+',
-    statLabel: 'curated matches/month',
-    title: 'Reach More Matches',
-    desc: 'Our compatibility engine surfaces profiles aligned with your values, lifestyle, and goals — not just anyone nearby.',
-  },
-  {
-    icon: Zap,
-    stat: '4 weeks',
-    statLabel: 'average to first meeting',
-    title: 'Find Faster',
-    desc: 'Gold and Platinum members find meaningful matches in a fraction of the time compared to free browsing.',
-  },
-];
-
-const testimonials = [
-  {
-    names: 'Priya & Arjun',
-    location: 'Sydney, NSW',
-    tier: 'Gold Member',
-    quote:
-      'Arjun upgraded to Gold and within three weeks we were having genuine conversations. Something that felt impossible on other platforms. We got engaged last December.',
-    duration: 'Met in 6 weeks',
-  },
-  {
-    names: 'Kavya & Rahul',
-    location: 'Melbourne, VIC',
-    tier: 'Premium Member',
-    quote:
-      'The advanced filters were the game changer. I found someone who shared my values. His boosted profile showed up first — and the rest is history.',
-    duration: 'Met in 5 weeks',
-  },
-  {
-    names: 'Ananya & Dev',
-    location: 'Brisbane, QLD',
-    tier: 'Platinum Member',
-    quote:
-      "As a busy professional I needed a platform that respected my time. Vivah's Platinum gave me curated introductions and a team that helped me present my best self.",
-    duration: 'Met in 4 weeks',
-  },
-];
-
-const faqs = [
-  {
-    q: 'Can I cancel my membership at any time?',
-    a: 'Yes. All paid plans are billed monthly with no lock-in contracts. You can cancel at any time from your account settings and your access will continue until the end of your billing period.',
-  },
-  {
-    q: 'Is there a free trial for Premium or Gold?',
-    a: 'We offer a 7-day trial on selected plans for new members. The Essential (Free) plan is always available with no time limit.',
-  },
-  {
-    q: 'How does billing work and how will charges appear?',
-    a: 'Plans are billed in Australian Dollars (AUD) inclusive of GST. All payments will appear on your credit card or bank account statement as "VIVAH AUSTRALIA". We accept Visa, Mastercard, Amex, Apple Pay, Google Pay, and PayPal via our secure Australian gateway.',
-  },
-  {
-    q: 'How are paid memberships delivered?',
-    a: 'Delivery is 100% digital and instantaneous. Upon payment approval, all paid features (direct messaging, filters, boosts) unlock immediately in your account. No physical shipping is required. See our Delivery Policy for full details.',
-  },
-  {
-    q: 'What is a profile boost?',
-    a: 'A profile boost temporarily places your profile at the top of search results and daily recommendations. Boosts last 24 hours and significantly increase the number of members who see your profile.',
-  },
-  {
-    q: 'Can I upgrade or downgrade my plan?',
-    a: 'Absolutely. You can upgrade at any time and the change takes effect immediately. Downgrades take effect at the end of your current billing cycle. All plan changes are managed from your account settings.',
-  },
-  {
-    q: 'What does the Platinum concierge service include?',
-    a: 'Platinum members receive a dedicated profile review from our matchmaking team, personalised tips to improve your profile, and front-of-queue support for any queries. Our concierge team is here to maximise your chances of finding the right match.',
-  },
-];
-
-const trustBadges = [
-  { icon: ShieldCheck, label: 'Verified Profiles', sub: 'Every member manually reviewed' },
-  { icon: Lock, label: 'Secure Payments', sub: 'Stripe-powered checkout' },
-  { icon: Globe, label: 'Privacy Protected', sub: 'Your data stays yours' },
-  { icon: Phone, label: 'Australian Support', sub: 'Local team, real humans' },
-];
-
-function ComparisonCell({ value }: { value: string | boolean }) {
-  if (value === true)
-    return <Check className="size-5 text-brand-maroon mx-auto" strokeWidth={2.5} />;
-  if (value === false) return <X className="size-4 text-gray-300 mx-auto" />;
-  return <span className="text-sm font-semibold text-brand-charcoal">{value}</span>;
-}
 
 export default function MembershipPage() {
   return (
-    <div className="min-h-screen bg-brand-ivory font-poppins">
+    <div className="min-h-screen bg-brand-ivory font-poppins selection:bg-brand-gold/20 selection:text-brand-maroon">
       <PublicHeader />
 
-      <main>
-        {/* HERO */}
-        <section className="relative bg-brand-maroon pt-24 pb-36 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,160,76,0.15),transparent_55%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,0,0,0.3),transparent_60%)]" />
-          <div className="relative z-10 mx-auto max-w-4xl px-6 sm:px-8 lg:px-12 text-center">
-            <div className="flex justify-center mb-5">
-              <Crown className="size-10 text-brand-gold" strokeWidth={1.5} />
-            </div>
-            <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-4">
-              Choose Your Plan
-            </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-playfair text-white leading-tight mb-6">
-              Invest in Your
-              <br />
-              <span className="text-brand-gold">Perfect Match</span>
-            </h1>
-            <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-10">
-              From free browsing to dedicated concierge matchmaking — choose the plan that fits
-              where you are in your journey. Every plan is built for serious, meaningful
-              connections.
-            </p>
-            {/* Trust mini-strip */}
-            <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
-              {[
-                'No lock-in contracts',
-                'Cancel anytime',
-                'Secure Stripe checkout',
-                'Australian support',
-              ].map((t) => (
-                <div key={t} className="flex items-center gap-2 text-white/60 text-sm">
-                  <Check className="size-3.5 text-brand-gold" strokeWidth={2.5} />
-                  {t}
-                </div>
-              ))}
-            </div>
+      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      <section className="relative bg-brand-maroon pt-28 pb-36 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,160,76,0.18),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,0,0,0.35),transparent_60%)]" />
+        <div className="relative z-10 mx-auto max-w-4xl px-6 sm:px-8 lg:px-12 text-center">
+          <div className="flex justify-center mb-4">
+            <Crown className="size-10 text-brand-gold" strokeWidth={1.5} />
           </div>
-          <div className="absolute bottom-0 left-0 right-0">
-            <svg
-              viewBox="0 0 1440 60"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full"
-            >
-              <path
-                d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z"
-                fill="#FFF9F5"
-              />
-            </svg>
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-3">
+            Membership Plans
+          </p>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-playfair text-white leading-tight mb-5">
+            Invest in Your <span className="text-brand-gold">Perfect Match</span>
+          </h1>
+          <p className="text-white/80 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
+            Keep free registration useful with basic browsing, or activate Vivah Australia Premium to unlock messaging and find genuine connections faster.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-xs sm:text-sm text-white/70">
+            <span className="flex items-center gap-1.5">
+              <Check className="size-4 text-brand-gold" strokeWidth={2.5} /> Instant digital delivery
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="size-4 text-brand-gold" strokeWidth={2.5} /> Australian registered business
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="size-4 text-brand-gold" strokeWidth={2.5} /> AUD (GST included)
+            </span>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* PLAN CARDS */}
-        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-brand-ivory">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
-              {plans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`relative bg-white rounded-3xl border-2 ${plan.color} flex flex-col p-7 shadow-sm ${plan.highlight ? 'shadow-[0_12px_40px_rgba(212,160,76,0.18)]' : 'hover:shadow-md'} transition`}
-                >
-                  {/* Badge */}
-                  {plan.badge && (
-                    <div
-                      className={`absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap ${plan.highlight ? 'bg-brand-gold text-brand-charcoal' : 'bg-brand-maroon text-white'}`}
-                    >
-                      {plan.badge}
-                    </div>
-                  )}
-
-                  {/* Header */}
-                  <div className="mb-6 pt-2">
-                    <p className="text-xs font-bold uppercase tracking-widest text-brand-maroon/60 mb-1">
-                      {plan.positioning}
-                    </p>
-                    <h2 className="text-2xl font-playfair font-bold text-brand-charcoal mb-3">
-                      {plan.name}
-                    </h2>
-                    <div className="flex items-end gap-1">
-                      <span className="text-4xl font-bold font-playfair text-brand-charcoal">
-                        {plan.price}
-                      </span>
-                      {plan.period && (
-                        <span className="text-gray-400 text-base mb-1">{plan.period}</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">{plan.priceNote}</p>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-gray-100 mb-6" />
-
-                  {/* Features */}
-                  <ul className="space-y-3 flex-1 mb-6">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-sm text-brand-charcoal">
-                        <Check
-                          className={`size-4 shrink-0 mt-0.5 ${
-                            ('accent' in plan && plan.accent) ||
-                            (plan.highlight ? 'text-brand-gold' : 'text-brand-maroon')
-                          }`}
-                          strokeWidth={2.5}
-                        />
-                        {f}
-                      </li>
-                    ))}
-                    {plan.notIncluded.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-sm text-gray-300">
-                        <X className="size-4 shrink-0 mt-0.5" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <PlanCTA
-                    tierKey={plan.id.toUpperCase() as 'FREE' | 'PREMIUM' | 'GOLD' | 'PLATINUM'}
-                    label={plan.buttonLabel}
-                    style={plan.buttonStyle}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <p className="text-center text-gray-400 text-sm mt-8">
-              All prices in AUD. Annual and quarterly billing options available — save up to 30%.
-            </p>
-          </div>
-        </section>
-
-        {/* WHY UPGRADE */}
-        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-white border-t border-gray-100">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
-                Why Upgrade
-              </p>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-brand-charcoal">
-                Find Your Match Faster
-              </h2>
-              <div className="flex items-center justify-center gap-2 mt-4">
-                <span className="h-px w-10 bg-gradient-to-r from-transparent to-brand-gold" />
-                <div className="size-1.5 rotate-45 bg-brand-gold" />
-                <span className="h-px w-10 bg-gradient-to-l from-transparent to-brand-gold" />
-              </div>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {whyUpgrade.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={item.title}
-                    className="bg-brand-ivory rounded-2xl border border-gray-100 p-7 flex flex-col gap-4"
-                  >
-                    <div className="size-12 rounded-xl bg-white border border-brand-maroon/10 flex items-center justify-center text-brand-maroon shadow-sm">
-                      <Icon className="size-6" strokeWidth={1.8} />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-bold font-playfair text-brand-maroon">
-                        {item.stat}
-                      </p>
-                      <p className="text-xs text-gray-500 font-semibold">{item.statLabel}</p>
-                    </div>
-                    <h3 className="font-bold text-brand-charcoal text-base">{item.title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* COMPARISON TABLE */}
-        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-brand-ivory border-t border-gray-100">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
-                Side by Side
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-playfair font-bold text-brand-charcoal">
-                Plan Comparison
-              </h2>
-            </div>
-
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-              {/* Header row */}
-              <div className="grid grid-cols-5 border-b border-gray-100">
-                <div className="p-5 col-span-1" />
-                {plans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className={`p-5 text-center border-l border-gray-100 ${plan.highlight ? 'bg-brand-gold/5' : ''}`}
-                  >
-                    <p className="font-bold text-brand-charcoal text-base">{plan.name}</p>
-                    <p className="text-brand-maroon font-bold text-lg font-playfair">
-                      {plan.price}
-                      {plan.period}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Rows */}
-              {comparisonRows.map((row, idx) => (
-                <div
-                  key={row.label}
-                  className={`grid grid-cols-5 border-b border-gray-50 ${idx % 2 === 0 ? '' : 'bg-gray-50/50'}`}
-                >
-                  <div className="p-4 pl-5 col-span-1 flex items-center">
-                    <span className="text-sm font-semibold text-brand-charcoal">{row.label}</span>
-                  </div>
-                  {(['free', 'premium', 'gold', 'platinum'] as const).map((key) => (
-                    <div
-                      key={key}
-                      className={`p-4 flex items-center justify-center border-l border-gray-50 ${key === 'gold' ? 'bg-brand-gold/5' : ''}`}
-                    >
-                      <ComparisonCell value={row[key]} />
-                    </div>
-                  ))}
-                </div>
-              ))}
-
-              {/* CTA row */}
-              <div className="grid grid-cols-5 pt-6 pb-6 border-t border-gray-100">
-                <div className="col-span-1" />
-                {plans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className={`px-3 text-center border-l border-gray-100 ${plan.highlight ? 'bg-brand-gold/5' : ''}`}
-                  >
-                    <PlanCTA
-                      tierKey={plan.id.toUpperCase() as 'FREE' | 'PREMIUM' | 'GOLD' | 'PLATINUM'}
-                      label={plan.id === 'free' ? 'Start Free' : 'Choose'}
-                      style={`inline-flex w-full items-center justify-center gap-1.5 rounded-xl py-3 text-sm font-bold transition ${plan.buttonStyle}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* TESTIMONIALS */}
-        <section className="bg-brand-maroon py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,160,76,0.12),transparent_55%)]" />
-          <div className="max-w-6xl mx-auto relative z-10">
-            <div className="text-center mb-14">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-3">
-                Member Stories
-              </p>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-white">
-                Real Results
-              </h2>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-6">
-              {testimonials.map((t) => (
-                <div
-                  key={t.names}
-                  className="bg-white/8 border border-white/10 rounded-2xl p-7 flex flex-col gap-5"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
-                  <div className="flex gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="size-4 fill-brand-gold text-brand-gold" />
-                    ))}
-                  </div>
-                  <p className="text-white/80 text-base leading-relaxed italic flex-1">
-                    &ldquo;{t.quote}&rdquo;
+      {/* ── Pricing Cards ─────────────────────────────────────────────── */}
+      <section className="-mt-20 pb-16 px-6 sm:px-8 lg:px-12 relative z-20">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-8 items-stretch">
+            
+            {/* Free Registration Card */}
+            <div className="bg-white rounded-3xl p-8 sm:p-9 shadow-md border border-gray-200 flex flex-col justify-between relative transition hover:shadow-lg">
+              <div>
+                <div className="mb-6">
+                  <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                    Basic Access
+                  </span>
+                  <h2 className="font-playfair text-3xl font-bold text-brand-charcoal mt-1">
+                    Free Registration
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                    Keep free registration useful: members can create a profile, browse basic profiles and receive interest notifications.
                   </p>
-                  <div className="border-t border-white/10 pt-4 flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-bold text-sm">{t.names}</p>
-                      <p className="text-white/50 text-xs">{t.location}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-brand-gold text-xs font-bold">{t.tier}</p>
-                      <p className="text-white/50 text-xs">{t.duration}</p>
-                    </div>
+                  
+                  <div className="mt-6 flex items-baseline gap-2">
+                    <span className="text-5xl font-extrabold text-brand-charcoal font-playfair">$0</span>
+                    <span className="text-sm font-semibold text-gray-500">Forever Free</span>
                   </div>
+                  <p className="text-xs text-gray-400 mt-1">No credit card required</p>
                 </div>
-              ))}
+
+                <hr className="border-gray-100 my-6" />
+
+                <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
+                  What is included:
+                </div>
+                <ul className="space-y-3.5 mb-8 text-sm text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Create &amp; edit your matrimonial profile</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Browse basic member profiles</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Receive interest notifications from other members</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Upload profile photos with privacy settings</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Access Help Centre &amp; FAQs</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <Link
+                  href="/register"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-sm font-bold transition border-2 border-brand-maroon/20 text-brand-maroon hover:bg-brand-maroon/5 bg-white shadow-xs"
+                >
+                  Register for Free <ArrowRight className="size-4" />
+                </Link>
+                <p className="text-xs text-center text-gray-400 mt-3">
+                  Always free · Upgrade anytime
+                </p>
+              </div>
             </div>
 
-            <div className="mt-10 text-center">
-              <Link
-                href="/success-stories"
-                className="inline-flex items-center gap-2 text-brand-gold font-bold text-base hover:underline"
-              >
-                Read All Success Stories <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
+            {/* Vivah Australia Premium Card (Highlighted) */}
+            <div className="bg-gradient-to-b from-amber-50/50 via-white to-white rounded-3xl p-8 sm:p-9 shadow-xl border-2 border-brand-gold ring-4 ring-brand-gold/15 flex flex-col justify-between relative transition hover:shadow-2xl">
+              {/* Highlight Badge */}
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="rounded-full bg-brand-gold px-4 py-1 text-xs font-bold uppercase tracking-wider text-brand-charcoal shadow-sm border border-brand-gold/40">
+                  Most Popular · Full Access
+                </span>
+              </div>
 
-        {/* TRUST BADGES */}
-        <section className="py-14 px-6 sm:px-8 lg:px-12 bg-white border-t border-gray-100">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {trustBadges.map((badge) => {
-                const Icon = badge.icon;
-                return (
-                  <div key={badge.label} className="flex items-center gap-4">
-                    <div className="shrink-0 size-11 rounded-xl bg-brand-ivory border border-brand-maroon/10 flex items-center justify-center text-brand-maroon">
-                      <Icon className="size-5" strokeWidth={1.8} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-brand-charcoal text-sm">{badge.label}</p>
-                      <p className="text-gray-400 text-xs">{badge.sub}</p>
-                    </div>
+              <div>
+                <div className="mb-6 pt-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-brand-maroon">
+                    Complete Matchmaking
+                  </span>
+                  <h2 className="font-playfair text-3xl font-bold text-brand-charcoal mt-1">
+                    Vivah Australia Premium
+                  </h2>
+                  <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                    Premium unlocks messaging and all advanced features to help you connect and find your life partner.
+                  </p>
+                  
+                  <div className="mt-6 flex items-baseline gap-2">
+                    <span className="text-5xl font-extrabold text-brand-maroon font-playfair">$51</span>
+                    <span className="text-base font-bold text-gray-700">for 3 months</span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-brand-ivory border-t border-gray-100">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
-                Got Questions?
-              </p>
-              <h2 className="text-3xl sm:text-4xl font-playfair font-bold text-brand-charcoal">
-                Membership FAQs
-              </h2>
-            </div>
-
-            <div className="space-y-4">
-              {faqs.map((faq, idx) => (
-                <div key={idx} className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-7">
-                  <h3 className="font-bold text-brand-charcoal text-base sm:text-lg mb-3">
-                    {faq.q}
-                  </h3>
-                  <p className="text-gray-600 text-base leading-relaxed">{faq.a}</p>
+                  <p className="text-xs font-semibold text-brand-maroon/90 mt-1.5 bg-brand-gold/20 inline-block px-2.5 py-1 rounded-md">
+                    Equivalent to $17 per month, paid as one $51 payment.
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">All prices in AUD · GST Included</p>
                 </div>
-              ))}
+
+                <hr className="border-gray-100 my-6" />
+
+                <div className="text-xs font-bold uppercase tracking-wider text-brand-charcoal mb-3">
+                  What you receive:
+                </div>
+                <ul className="space-y-3.5 mb-8 text-sm text-brand-charcoal">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">View detailed member profiles</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Send and reply to messages</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Express interest in potential matches</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Search using partner preferences</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Save your favourite profiles</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">See who has expressed interest in you</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Member support</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <Link
+                  href="/register?plan=premium"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-base font-bold transition bg-brand-gold text-brand-charcoal hover:bg-brand-gold/90 shadow-md hover:shadow-lg"
+                >
+                  Activate Premium <ArrowRight className="size-5" />
+                </Link>
+                <p className="text-xs text-center text-gray-500 mt-3 font-medium">
+                  Instant digital activation · Safe &amp; secure checkout
+                </p>
+              </div>
             </div>
 
-            <p className="text-center text-gray-500 text-base mt-8">
-              Still have questions?{' '}
-              <Link href="/help" className="text-brand-maroon font-bold hover:underline">
-                Visit our Help Center
-              </Link>
-            </p>
           </div>
-        </section>
 
-        {/* FINAL CTA */}
-        <section className="bg-brand-maroon py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,160,76,0.12),transparent_60%)]" />
-          <div className="relative z-10 max-w-3xl mx-auto text-center">
-            <Sparkles className="size-8 text-brand-gold mx-auto mb-5" />
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-white mb-5">
-              Ready to Find Your Match?
+          {/* Merchant Billing Disclosure Banner */}
+          <div className="mt-12 rounded-2xl bg-white border border-gray-200/80 p-6 sm:p-8 shadow-sm">
+            <div className="grid md:grid-cols-3 gap-6 text-xs text-gray-600">
+              <div>
+                <p className="font-bold text-brand-charcoal text-sm mb-1">🇦🇺 Registered Australian Entity</p>
+                <p className="leading-relaxed">
+                  Vivah Australia (ABN: 85 700 086 808), registered trading address: 3 Leafton Street, Truganina, VIC 3029, Australia.
+                </p>
+              </div>
+              <div>
+                <p className="font-bold text-brand-charcoal text-sm mb-1">💳 Cardholder Statement Descriptor</p>
+                <p className="leading-relaxed">
+                  Charges will appear as <strong className="text-brand-charcoal font-semibold">&quot;VIVAH AUSTRALIA&quot;</strong> on your cardholder statement. All prices in AUD including GST.
+                </p>
+              </div>
+              <div>
+                <p className="font-bold text-brand-charcoal text-sm mb-1">⚡ Digital Service Delivery</p>
+                <p className="leading-relaxed">
+                  Membership features unlock immediately upon transaction completion (0–5 minutes). Review our <Link href="/delivery-policy" className="text-brand-maroon underline font-medium">Delivery Policy</Link> and <Link href="/refund-policy" className="text-brand-maroon underline font-medium">Refund Policy</Link>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Feature Breakdown Table ───────────────────────────────────── */}
+      <section className="bg-white py-16 px-6 sm:px-8 lg:px-12 border-y border-gray-200/80">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon">
+              Side-by-Side Breakdown
+            </span>
+            <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-brand-charcoal mt-2 mb-3">
+              Feature Breakdown: What Members Receive
             </h2>
-            <p className="text-white/65 text-base sm:text-lg leading-relaxed mb-10 max-w-xl mx-auto">
-              Join thousands of Australian Indian singles who are finding meaningful connections
-              every day. Start free — upgrade when you are ready.
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">
+              Compare free registration with Vivah Australia Premium to see how each level helps you connect.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center gap-2 rounded bg-brand-gold px-8 py-4 text-base font-bold text-brand-charcoal transition hover:bg-brand-gold/90"
-              >
-                Create Free Profile <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                href="/membership#plans"
-                className="inline-flex items-center justify-center gap-2 rounded border border-white/30 px-8 py-4 text-base font-bold text-white transition hover:bg-white/10"
-              >
-                Compare Plans <ArrowRight className="size-4" />
-              </Link>
-            </div>
           </div>
-        </section>
-      </main>
+
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr className="bg-brand-maroon/5 border-b border-gray-200 text-brand-charcoal font-semibold">
+                  <th className="py-4 px-6 text-left w-1/4">Feature</th>
+                  <th className="py-4 px-6 text-left w-2/5">What members receive</th>
+                  <th className="py-4 px-4 text-center">Free Registration</th>
+                  <th className="py-4 px-4 text-center bg-brand-gold/15 text-brand-charcoal font-bold">
+                    Vivah Australia Premium
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-gray-700">
+                {FEATURES_TABLE.map((row, idx) => (
+                  <tr key={row.feature} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}>
+                    <td className="py-4 px-6 font-semibold text-brand-charcoal align-middle">
+                      {row.feature}
+                    </td>
+                    <td className="py-4 px-6 text-xs sm:text-sm text-gray-600 leading-relaxed align-middle">
+                      {row.received}
+                    </td>
+                    <td className="py-4 px-4 text-center text-xs align-middle">
+                      {row.freeLabel ? (
+                        <span className="text-gray-600 font-medium">{row.freeLabel}</span>
+                      ) : (
+                        <X className="size-4 text-gray-300 mx-auto" />
+                      )}
+                    </td>
+                    <td className="py-4 px-4 text-center bg-brand-gold/5 align-middle">
+                      <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-brand-maroon">
+                        <Check className="size-4 text-emerald-600 shrink-0" strokeWidth={2.5} />
+                        <span className="hidden sm:inline">{row.premiumLabel}</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              href="/register?plan=premium"
+              className="inline-flex items-center gap-2 rounded-xl py-3 px-8 text-sm font-bold transition bg-brand-maroon text-white hover:bg-brand-maroon/90 shadow-sm"
+            >
+              Activate Premium ($51 for 3 months) <ArrowRight className="size-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ Section ───────────────────────────────────────────────── */}
+      <section className="py-16 px-6 sm:px-8 lg:px-12 bg-brand-ivory">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon mb-2">
+              <HelpCircle className="size-4" />
+              Frequently Asked Questions
+            </div>
+            <h2 className="font-playfair text-3xl font-bold text-brand-charcoal">
+              Everything You Need to Know
+            </h2>
+          </div>
+
+          <div className="grid gap-4">
+            {FAQS.map((faq, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl bg-white border border-gray-200/80 p-6 shadow-xs"
+              >
+                <h3 className="font-bold text-brand-charcoal text-base mb-2">
+                  {faq.q}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {faq.a}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 rounded-2xl bg-white border border-brand-maroon/15 p-6 text-center text-sm text-gray-600">
+            <p className="font-semibold text-brand-charcoal mb-1">Have more questions about our membership?</p>
+            <p>
+              Contact our Australian support team at{' '}
+              <a href="mailto:support@vivahaustralia.com.au" className="text-brand-maroon font-bold underline">
+                support@vivahaustralia.com.au
+              </a>{' '}
+              or call{' '}
+              <a href="tel:+61479134385" className="text-brand-maroon font-bold">
+                +61 479 134 385
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </section>
 
       <PublicFooter />
     </div>

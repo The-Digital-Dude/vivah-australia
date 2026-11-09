@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { PublicHeader, PublicFooter, PremiumButton } from '@/app/components';
+import Link from 'next/link';
+import { PublicHeader, PublicFooter } from '@/app/components';
 import {
   CheckCircle2,
   ArrowRight,
@@ -8,135 +9,100 @@ import {
   X,
   CreditCard,
   Building2,
+  Sparkles,
+  HelpCircle,
 } from 'lucide-react';
-import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Membership Plans & Pricing | Vivah Australia',
-  description: 'Explore Vivah Australia membership options. Transparent pricing in AUD with instant digital activation for genuine connections.',
+  title: 'Vivah Australia Premium | Membership & Pricing',
+  description:
+    'Join Vivah Australia for free or activate Vivah Australia Premium for $51 for 3 months ($17/mo equivalent). Full profile access, messaging, and partner filters.',
 };
 
-const PLANS = [
+const FEATURES_TABLE = [
   {
-    id: 'free',
-    name: 'Essential',
-    price: '$0',
-    period: 'Forever Free',
-    description: 'Begin your search with verified Australian Indian profiles.',
-    highlight: false,
-    badge: null,
-    border: 'border-gray-200',
-    buttonVariant: 'outline' as const,
-    buttonText: 'Create Free Profile',
-    buttonHref: '/register',
-    features: [
-      'Create and edit your matrimony profile',
-      'Upload and manage up to 5 photos',
-      'Browse verified member profiles',
-      'Send 5 interests every month',
-      'Receive unlimited interests',
-      'Standard photo privacy controls',
-      'Basic search & location filters',
-    ],
-    notIncluded: [
-      'Direct messaging & chat',
-      'Advanced compatibility filters',
-      'Profile visibility boosts',
-      'Priority verification badge review',
-      'See who viewed your profile',
-    ],
+    feature: 'Full profile access',
+    received: 'View detailed profiles and member photos, subject to privacy settings',
+    freeLabel: 'Basic profiles only',
+    premiumLabel: 'View detailed profiles & photos',
+    premiumCheck: true,
   },
   {
-    id: 'silver',
-    name: 'Silver',
-    price: '$29',
-    period: '/ month (AUD)',
-    description: 'Ideal for serious members ready to connect and communicate directly.',
-    highlight: false,
-    badge: 'Popular',
-    border: 'border-slate-300',
-    buttonVariant: 'outline' as const,
-    buttonText: 'Choose Silver',
-    buttonHref: '/register?plan=silver',
-    features: [
-      'Everything in Essential',
-      'Unlimited direct messaging & chat',
-      'Send 50 interests per month',
-      'Advanced search & cultural filters',
-      '1 profile boost per month',
-      'Photo privacy & lock controls',
-      'Standard verification support',
-      'Member care assistance',
-    ],
-    notIncluded: [
-      'Top-of-search priority discovery',
-      'Dedicated profile review',
-      'Priority queue member support',
-    ],
+    feature: 'Send messages',
+    received: 'Start conversations with other members',
+    freeLabel: null,
+    premiumLabel: 'Start conversations',
+    premiumCheck: true,
   },
   {
-    id: 'gold',
-    name: 'Gold',
-    price: '$59',
-    period: '/ month (AUD)',
-    description: 'Our most popular plan for maximum matches and accelerated discovery.',
-    highlight: true,
-    badge: 'Most Popular',
-    border: 'border-brand-gold ring-2 ring-brand-gold/30',
-    buttonVariant: 'gold' as const,
-    buttonText: 'Get Started with Gold',
-    buttonHref: '/register?plan=gold',
-    features: [
-      'Everything in Silver',
-      'Send 120 interests per month',
-      'Top-of-search priority discovery',
-      '4 profile visibility boosts per month',
-      'Priority verification badge review',
-      'Smart compatibility recommendations',
-      'See who viewed your profile',
-      'Priority member care support',
-    ],
-    notIncluded: [
-      'Dedicated concierge matchmaking review',
-    ],
+    feature: 'Reply to messages',
+    received: 'Continue conversations throughout the membership',
+    freeLabel: null,
+    premiumLabel: 'Continue conversations',
+    premiumCheck: true,
   },
   {
-    id: 'platinum',
-    name: 'Platinum',
-    price: '$99',
-    period: '/ month (AUD)',
-    description: 'The ultimate VIP experience with maximum visibility and personal care.',
-    highlight: false,
-    badge: 'VIP Concierge',
-    border: 'border-brand-maroon',
-    buttonVariant: 'maroon' as const,
-    buttonText: 'Go Platinum',
-    buttonHref: '/register?plan=platinum',
-    features: [
-      'Everything in Gold',
-      'Unlimited monthly interests',
-      'Maximum visibility in all match feeds',
-      '8 profile visibility boosts per month',
-      'Fast-track verification review',
-      'Dedicated concierge assistance',
-      'Profile presentation coaching',
-      'Direct phone & front-of-queue care',
-    ],
-    notIncluded: [],
+    feature: 'Express interest',
+    received: 'Let someone know you’re interested in connecting',
+    freeLabel: 'Receive notifications only',
+    premiumLabel: 'Express interest in potential matches',
+    premiumCheck: true,
+  },
+  {
+    feature: 'Search filters',
+    received: 'Find profiles by age, location and relevant partner preferences',
+    freeLabel: 'Basic age & location',
+    premiumLabel: 'Age, location & partner preferences',
+    premiumCheck: true,
+  },
+  {
+    feature: 'Shortlist profiles',
+    received: 'Save potential matches to revisit',
+    freeLabel: null,
+    premiumLabel: 'Save potential matches',
+    premiumCheck: true,
+  },
+  {
+    feature: 'See who’s interested',
+    received: 'View members who have expressed interest in their profile',
+    freeLabel: 'Notification only',
+    premiumLabel: 'View interested member profiles',
+    premiumCheck: true,
+  },
+  {
+    feature: 'Member support',
+    received: 'Get help with their profile, account and platform access',
+    freeLabel: 'Help Centre & FAQs',
+    premiumLabel: 'Dedicated member support',
+    premiumCheck: true,
   },
 ];
 
-const COMPARISON_ROWS = [
-  { feature: 'Profile Creation & Photo Upload', free: true, silver: true, gold: true, platinum: true },
-  { feature: 'Browse Verified Member Profiles', free: true, silver: true, gold: true, platinum: true },
-  { feature: 'Monthly Interests Quota', free: '5 / month', silver: '50 / month', gold: '120 / month', platinum: 'Unlimited' },
-  { feature: 'Direct Messaging & Realtime Chat', free: false, silver: true, gold: true, platinum: true },
-  { feature: 'Advanced Community & Visa Filters', free: false, silver: true, gold: true, platinum: true },
-  { feature: 'Profile Visibility Boosts', free: false, silver: '1 / month', gold: '4 / month', platinum: '8 / month' },
-  { feature: 'Top of Search Results Discovery', free: false, silver: false, gold: true, platinum: true },
-  { feature: 'See Who Viewed Your Profile', free: false, silver: false, gold: true, platinum: true },
-  { feature: 'Priority Identity & Verification Review', free: false, silver: 'Standard', gold: 'Priority', platinum: 'Fast-Track' },
-  { feature: 'Australian Phone & Front-of-Queue Support', free: false, silver: false, gold: false, platinum: true },
+const FAQS = [
+  {
+    q: 'How does Vivah Australia Premium work?',
+    a: 'Vivah Australia Premium is available for $51 for 3 months (equivalent to $17 per month, paid as one $51 payment). It provides full access to view detailed member profiles, send and reply to messages, express interest, search with partner preferences, shortlist favourites, see who has expressed interest in you, and access dedicated member support.',
+  },
+  {
+    q: 'What is included in Free Registration?',
+    a: 'Free registration is designed to be genuinely useful. As a free member, you can create your profile, upload photos, browse basic member profiles, and receive interest notifications when other members want to connect.',
+  },
+  {
+    q: 'How will the payment appear on my statement?',
+    a: 'All transactions are processed in Australian Dollars (AUD) inclusive of GST. The transaction will appear on your cardholder bank statement as "VIVAH AUSTRALIA".',
+  },
+  {
+    q: 'How quickly is my membership activated?',
+    a: 'Delivery is 100% digital and instantaneous. Upon successful payment of $51, all Premium capabilities (messaging, full profiles, advanced filters) unlock immediately in your account within 0–5 minutes.',
+  },
+  {
+    q: 'What is your refund and dispute policy?',
+    a: 'In accordance with Australian Consumer Law (ACL), we honour all statutory guarantees. If you experience an unresolved technical failure or dispute, please contact our support team. See our Refund Policy for complete claim procedures.',
+  },
+  {
+    q: 'How can I get in touch with member support?',
+    a: 'Our Australian member support team is available via email at support@vivahaustralia.com.au or phone at +61 479 134 385 (Monday to Friday, 9:00 AM – 6:00 PM AEST).',
+  },
 ];
 
 export default function PricingPage() {
@@ -145,113 +111,203 @@ export default function PricingPage() {
       <PublicHeader />
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section className="pt-28 pb-10 px-6 text-center">
+      <section className="pt-28 pb-12 px-6 text-center">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon mb-4">
-            Membership Options &amp; Pricing
-          </p>
-          <h1 className="font-playfair text-4xl sm:text-5xl font-bold text-brand-charcoal mb-4">
-            Transparent Pricing. Genuine Connections.
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-maroon/5 border border-brand-maroon/10 text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon mb-4">
+            <Sparkles className="size-3.5 text-brand-gold" />
+            Membership Options
+          </div>
+          <h1 className="font-playfair text-4xl sm:text-5xl font-bold text-brand-charcoal mb-4 leading-tight">
+            Transparent Membership.<br className="hidden sm:inline" /> Genuine Connections.
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-            All plans are charged in Australian Dollars (AUD) with instant digital access upon payment confirmation. Cancel or upgrade anytime without lock-in contracts.
+          <p className="text-gray-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+            Keep free registration useful with basic browsing, or activate Vivah Australia Premium to start conversations, explore detailed profiles, and connect directly.
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-gray-500">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-emerald-600" /> Instant Digital Delivery</span>
-            <span className="flex items-center gap-1.5"><CreditCard className="size-4 text-brand-maroon" /> Secure Australian Payments</span>
-            <span className="flex items-center gap-1.5"><Building2 className="size-4 text-brand-gold" /> AUD (Incl. GST)</span>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-gray-600">
+            <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-gray-200/80 shadow-xs">
+              <ShieldCheck className="size-4 text-emerald-600" /> Instant Digital Delivery
+            </span>
+            <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-gray-200/80 shadow-xs">
+              <CreditCard className="size-4 text-brand-maroon" /> Secure Gateway
+            </span>
+            <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-gray-200/80 shadow-xs">
+              <Building2 className="size-4 text-brand-gold" /> AUD (Incl. GST)
+            </span>
           </div>
         </div>
       </section>
 
-      {/* ── Product & Pricing Cards ───────────────────────────────────── */}
+      {/* ── Pricing Cards ─────────────────────────────────────────────── */}
       <section className="pb-16 px-6 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-            {PLANS.map((plan) => (
-              <div
-                key={plan.id}
-                className={`bg-white rounded-[24px] p-6 sm:p-7 shadow-sm border ${plan.border} flex flex-col relative transition-all duration-300 hover:shadow-md ${
-                  plan.highlight ? 'bg-gradient-to-b from-amber-50/40 via-white to-white' : ''
-                }`}
-              >
-                {plan.badge && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-brand-gold px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-charcoal shadow-sm border border-brand-gold/40">
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
-
-                <div className="mb-5">
-                  <h2 className="font-playfair text-2xl font-bold text-brand-charcoal">{plan.name}</h2>
-                  <p className="text-xs text-gray-500 mt-1 min-h-[32px]">{plan.description}</p>
-                  
-                  <div className="mt-4 flex items-baseline gap-1.5">
-                    <span className="text-4xl font-extrabold text-brand-charcoal font-playfair">{plan.price}</span>
-                    <span className="text-xs font-semibold text-gray-500">{plan.period}</span>
-                  </div>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Billed in AUD · GST Included</p>
-                </div>
-
-                <hr className="border-gray-100 mb-5" />
-
-                <ul className="space-y-3 mb-8 flex-1 text-xs sm:text-sm">
-                  {plan.features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-2.5 text-gray-700">
-                      <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                  {plan.notIncluded.map((feat) => (
-                    <li key={feat} className="flex items-start gap-2.5 text-gray-400">
-                      <X className="size-4 text-gray-300 shrink-0 mt-0.5" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div>
-                  <Link
-                    href={plan.buttonHref}
-                    className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-sm font-bold transition shadow-sm ${
-                      plan.buttonVariant === 'gold'
-                        ? 'bg-brand-gold text-brand-charcoal hover:bg-brand-gold/90'
-                        : plan.buttonVariant === 'maroon'
-                        ? 'bg-brand-maroon text-white hover:bg-brand-maroon/90'
-                        : 'border border-brand-maroon/30 text-brand-maroon hover:bg-brand-maroon/5 bg-white'
-                    }`}
-                  >
-                    {plan.buttonText} <ArrowRight className="size-4" />
-                  </Link>
-                  <p className="text-[11px] text-center text-gray-400 mt-2.5">
-                    Instant digital activation
+        <div className="mx-auto max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-8 items-stretch">
+            
+            {/* Free Registration Card */}
+            <div className="bg-white rounded-3xl p-8 sm:p-9 shadow-sm border border-gray-200 flex flex-col justify-between relative transition hover:shadow-md">
+              <div>
+                <div className="mb-6">
+                  <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                    Basic Access
+                  </span>
+                  <h2 className="font-playfair text-3xl font-bold text-brand-charcoal mt-1">
+                    Free Registration
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                    Keep free registration useful: members can create a profile, browse basic profiles and receive interest notifications.
                   </p>
+                  
+                  <div className="mt-6 flex items-baseline gap-2">
+                    <span className="text-5xl font-extrabold text-brand-charcoal font-playfair">$0</span>
+                    <span className="text-sm font-semibold text-gray-500">Forever Free</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">No credit card required</p>
                 </div>
+
+                <hr className="border-gray-100 my-6" />
+
+                <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
+                  What is included:
+                </div>
+                <ul className="space-y-3.5 mb-8 text-sm text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Create &amp; edit your matrimonial profile</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Browse basic member profiles</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Receive interest notifications from other members</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Upload profile photos with privacy settings</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Access Help Centre &amp; FAQs</span>
+                  </li>
+                </ul>
               </div>
-            ))}
+
+              <div>
+                <Link
+                  href="/register"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-sm font-bold transition border-2 border-brand-maroon/20 text-brand-maroon hover:bg-brand-maroon/5 bg-white shadow-xs"
+                >
+                  Register for Free <ArrowRight className="size-4" />
+                </Link>
+                <p className="text-xs text-center text-gray-400 mt-3">
+                  Always free · Upgrade anytime
+                </p>
+              </div>
+            </div>
+
+            {/* Vivah Australia Premium Card (Highlighted) */}
+            <div className="bg-gradient-to-b from-amber-50/50 via-white to-white rounded-3xl p-8 sm:p-9 shadow-lg border-2 border-brand-gold ring-4 ring-brand-gold/15 flex flex-col justify-between relative transition hover:shadow-xl">
+              {/* Highlight Badge */}
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="rounded-full bg-brand-gold px-4 py-1 text-xs font-bold uppercase tracking-wider text-brand-charcoal shadow-sm border border-brand-gold/40">
+                  Most Popular · Full Access
+                </span>
+              </div>
+
+              <div>
+                <div className="mb-6 pt-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-brand-maroon">
+                    Complete Matchmaking
+                  </span>
+                  <h2 className="font-playfair text-3xl font-bold text-brand-charcoal mt-1">
+                    Vivah Australia Premium
+                  </h2>
+                  <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                    Premium unlocks messaging and all advanced features to help you connect and find your life partner.
+                  </p>
+                  
+                  <div className="mt-6 flex items-baseline gap-2">
+                    <span className="text-5xl font-extrabold text-brand-maroon font-playfair">$51</span>
+                    <span className="text-base font-bold text-gray-700">for 3 months</span>
+                  </div>
+                  <p className="text-xs font-semibold text-brand-maroon/90 mt-1.5 bg-brand-gold/20 inline-block px-2.5 py-1 rounded-md">
+                    Equivalent to $17 per month, paid as one $51 payment.
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">All prices in AUD · GST Included</p>
+                </div>
+
+                <hr className="border-gray-100 my-6" />
+
+                <div className="text-xs font-bold uppercase tracking-wider text-brand-charcoal mb-3">
+                  What you receive:
+                </div>
+                <ul className="space-y-3.5 mb-8 text-sm text-brand-charcoal">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">View detailed member profiles</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Send and reply to messages</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Express interest in potential matches</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Search using partner preferences</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Save your favourite profiles</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">See who has expressed interest in you</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="font-medium">Member support</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <Link
+                  href="/register?plan=premium"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-base font-bold transition bg-brand-gold text-brand-charcoal hover:bg-brand-gold/90 shadow-md hover:shadow-lg"
+                >
+                  Activate Premium <ArrowRight className="size-5" />
+                </Link>
+                <p className="text-xs text-center text-gray-500 mt-3 font-medium">
+                  Instant digital activation · Safe &amp; secure checkout
+                </p>
+              </div>
+            </div>
+
           </div>
 
           {/* Merchant Billing Disclosure Banner */}
           <div className="mt-12 rounded-2xl bg-white border border-gray-200/80 p-6 sm:p-8 shadow-sm">
             <div className="grid md:grid-cols-3 gap-6 text-xs text-gray-600">
               <div>
-                <p className="font-bold text-brand-charcoal text-sm mb-1">🇦🇺 Australian Business Entity</p>
+                <p className="font-bold text-brand-charcoal text-sm mb-1">🇦🇺 Registered Australian Entity</p>
                 <p className="leading-relaxed">
-                  Vivah Australia (ABN: 85 700 086 808), registered at 3 Leafton Street, Truganina, VIC 3029, Australia.
+                  Vivah Australia (ABN: 85 700 086 808), registered trading address: 3 Leafton Street, Truganina, VIC 3029, Australia.
                 </p>
               </div>
               <div>
                 <p className="font-bold text-brand-charcoal text-sm mb-1">💳 Cardholder Statement Descriptor</p>
                 <p className="leading-relaxed">
-                  Transactions will appear as <strong className="text-brand-charcoal font-semibold">&quot;VIVAH AUSTRALIA&quot;</strong> on cardholder bank statements. All prices are in AUD.
+                  Charges will appear as <strong className="text-brand-charcoal font-semibold">&quot;VIVAH AUSTRALIA&quot;</strong> on your cardholder statement. All prices in AUD including GST.
                 </p>
               </div>
               <div>
                 <p className="font-bold text-brand-charcoal text-sm mb-1">⚡ Digital Service Delivery</p>
                 <p className="leading-relaxed">
-                  Paid features unlock immediately upon transaction completion. Read our <Link href="/delivery-policy" className="text-brand-maroon underline font-medium">Delivery Policy</Link> and <Link href="/refund-policy" className="text-brand-maroon underline font-medium">Refund Policy</Link>.
+                  Membership features unlock immediately upon transaction completion (0–5 minutes). Review our <Link href="/delivery-policy" className="text-brand-maroon underline font-medium">Delivery Policy</Link> and <Link href="/refund-policy" className="text-brand-maroon underline font-medium">Refund Policy</Link>.
                 </p>
               </div>
             </div>
@@ -259,15 +315,18 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── Feature Comparison Table ─────────────────────────────────── */}
-      <section className="bg-white py-16 px-6 sm:px-8 lg:px-12 border-y border-gray-100">
+      {/* ── Feature Breakdown Table ───────────────────────────────────── */}
+      <section className="bg-white py-16 px-6 sm:px-8 lg:px-12 border-y border-gray-200/80">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-12">
-            <h2 className="font-playfair text-3xl font-bold text-brand-charcoal mb-3">
-              Detailed Plan Comparison
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon">
+              Side-by-Side Breakdown
+            </span>
+            <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-brand-charcoal mt-2 mb-3">
+              Feature Breakdown: What Members Receive
             </h2>
-            <p className="text-gray-500 text-sm">
-              Review what is included in each membership tier
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">
+              Compare free registration with Vivah Australia Premium to see how each level helps you connect.
             </p>
           </div>
 
@@ -275,134 +334,95 @@ export default function PricingPage() {
             <table className="w-full text-left text-sm border-collapse">
               <thead>
                 <tr className="bg-brand-maroon/5 border-b border-gray-200 text-brand-charcoal font-semibold">
-                  <th className="py-4 px-6 text-left">Feature</th>
-                  <th className="py-4 px-4 text-center">Essential ($0)</th>
-                  <th className="py-4 px-4 text-center">Silver ($29/mo)</th>
-                  <th className="py-4 px-4 text-center bg-brand-gold/10">Gold ($59/mo)</th>
-                  <th className="py-4 px-4 text-center">Platinum ($99/mo)</th>
+                  <th className="py-4 px-6 text-left w-1/4">Feature</th>
+                  <th className="py-4 px-6 text-left w-2/5">What members receive</th>
+                  <th className="py-4 px-4 text-center">Free Registration</th>
+                  <th className="py-4 px-4 text-center bg-brand-gold/15 text-brand-charcoal font-bold">
+                    Vivah Australia Premium
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
-                {COMPARISON_ROWS.map((row, idx) => (
-                  <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
-                    <td className="py-3.5 px-6 font-medium text-brand-charcoal">{row.feature}</td>
-                    
-                    <td className="py-3.5 px-4 text-center">
-                      {typeof row.free === 'boolean' ? (
-                        row.free ? <Check className="size-4 text-emerald-600 mx-auto" /> : <X className="size-4 text-gray-300 mx-auto" />
+                {FEATURES_TABLE.map((row, idx) => (
+                  <tr key={row.feature} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}>
+                    <td className="py-4 px-6 font-semibold text-brand-charcoal align-middle">
+                      {row.feature}
+                    </td>
+                    <td className="py-4 px-6 text-xs sm:text-sm text-gray-600 leading-relaxed align-middle">
+                      {row.received}
+                    </td>
+                    <td className="py-4 px-4 text-center text-xs align-middle">
+                      {row.freeLabel ? (
+                        <span className="text-gray-600 font-medium">{row.freeLabel}</span>
                       ) : (
-                        <span className="text-xs font-semibold">{row.free}</span>
+                        <X className="size-4 text-gray-300 mx-auto" />
                       )}
                     </td>
-
-                    <td className="py-3.5 px-4 text-center">
-                      {typeof row.silver === 'boolean' ? (
-                        row.silver ? <Check className="size-4 text-emerald-600 mx-auto" /> : <X className="size-4 text-gray-300 mx-auto" />
-                      ) : (
-                        <span className="text-xs font-semibold">{row.silver}</span>
-                      )}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-center bg-brand-gold/5">
-                      {typeof row.gold === 'boolean' ? (
-                        row.gold ? <Check className="size-4 text-emerald-600 mx-auto font-bold" /> : <X className="size-4 text-gray-300 mx-auto" />
-                      ) : (
-                        <span className="text-xs font-bold text-brand-charcoal">{row.gold}</span>
-                      )}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-center">
-                      {typeof row.platinum === 'boolean' ? (
-                        row.platinum ? <Check className="size-4 text-emerald-600 mx-auto" /> : <X className="size-4 text-gray-300 mx-auto" />
-                      ) : (
-                        <span className="text-xs font-semibold text-brand-maroon">{row.platinum}</span>
-                      )}
+                    <td className="py-4 px-4 text-center bg-brand-gold/5 align-middle">
+                      <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-brand-maroon">
+                        <Check className="size-4 text-emerald-600 shrink-0" strokeWidth={2.5} />
+                        <span className="hidden sm:inline">{row.premiumLabel}</span>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              href="/register?plan=premium"
+              className="inline-flex items-center gap-2 rounded-xl py-3 px-8 text-sm font-bold transition bg-brand-maroon text-white hover:bg-brand-maroon/90 shadow-sm"
+            >
+              Activate Premium ($51 for 3 months) <ArrowRight className="size-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── FAQ Section ─────────────────────────────────────────────── */}
-      <section className="py-16 px-6 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-playfair text-3xl font-bold text-brand-charcoal text-center mb-10">
-            Billing &amp; Membership FAQs
-          </h2>
+      {/* ── FAQ Section ───────────────────────────────────────────────── */}
+      <section className="py-16 px-6 sm:px-8 lg:px-12 bg-brand-ivory">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-brand-maroon mb-2">
+              <HelpCircle className="size-4" />
+              Frequently Asked Questions
+            </div>
+            <h2 className="font-playfair text-3xl font-bold text-brand-charcoal">
+              Everything You Need to Know
+            </h2>
+          </div>
 
-          <div className="space-y-5">
-            {[
-              {
-                q: 'What currency are your plans billed in?',
-                a: 'All membership prices are quoted and processed in Australian Dollars (AUD). Australian Goods and Services Tax (GST) is included where applicable.',
-              },
-              {
-                q: 'How fast is my paid membership delivered?',
-                a: 'Delivery is immediate. Your account upgrades within seconds of payment confirmation, unlocking messaging, search filters, and boost credits right away.',
-              },
-              {
-                q: 'How will charges appear on my card statement?',
-                a: 'All payments processed on Vivah Australia will appear as "VIVAH AUSTRALIA" on your credit card or bank account statement.',
-              },
-              {
-                q: 'Can I cancel my membership renewal at any time?',
-                a: 'Yes. You can cancel your subscription renewal at any time via your Member Dashboard or by contacting support@vivahaustralia.com.au. You will retain access until the end of your paid billing period.',
-              },
-              {
-                q: 'What is your refund policy?',
-                a: 'Because digital features are unlocked immediately, subscriptions are generally non-refundable once accessed. However, in accordance with Australian Consumer Law and our Refund Policy, requests due to technical errors, duplicate charges, or platform unavailability are reviewed within 5 business days.',
-              },
-            ].map((faq, i) => (
-              <div key={i} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                <h3 className="font-bold text-brand-charcoal text-base mb-2">{faq.q}</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{faq.a}</p>
+          <div className="grid gap-4">
+            {FAQS.map((faq, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl bg-white border border-gray-200/80 p-6 shadow-xs"
+              >
+                <h3 className="font-bold text-brand-charcoal text-base mb-2">
+                  {faq.q}
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {faq.a}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 text-center">
-            <p className="text-sm text-gray-500">
-              Need assistance selecting a plan? Call our Melbourne team on{' '}
-              <a href="tel:+61479134385" className="font-bold text-brand-maroon hover:underline">
-                +61 479 134 385
-              </a>{' '}
-              or email{' '}
-              <a href="mailto:support@vivahaustralia.com.au" className="font-bold text-brand-maroon hover:underline">
+          <div className="mt-10 rounded-2xl bg-white border border-brand-maroon/15 p-6 text-center text-sm text-gray-600">
+            <p className="font-semibold text-brand-charcoal mb-1">Have more questions about our membership?</p>
+            <p>
+              Contact our Australian support team at{' '}
+              <a href="mailto:support@vivahaustralia.com.au" className="text-brand-maroon font-bold underline">
                 support@vivahaustralia.com.au
+              </a>{' '}
+              or call{' '}
+              <a href="tel:+61479134385" className="text-brand-maroon font-bold">
+                +61 479 134 385
               </a>
               .
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Final CTA ─────────────────────────────────────────────────── */}
-      <section className="bg-brand-maroon py-20 px-6 sm:px-8 lg:px-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,160,76,0.12),transparent_60%)]" />
-        <div className="relative z-10 max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-white mb-5">
-            Ready to Find Your Life Partner?
-          </h2>
-          <p className="text-white/70 text-base sm:text-lg leading-relaxed mb-10 max-w-xl mx-auto">
-            Join thousands of genuine Australian Indian singles and families looking for marriage.
-          </p>
-          <div className="flex justify-center mb-10">
-            <PremiumButton href="/register" variant="gold">
-              Create Your Free Profile Today
-            </PremiumButton>
-          </div>
-          
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-brand-gold text-xs sm:text-sm font-medium">
-            <span>🛡️ Verified Profiles</span>
-            <span className="opacity-50">•</span>
-            <span>🔒 Bank-Grade 256-Bit SSL</span>
-            <span className="opacity-50">•</span>
-            <span>❤️ Real Australian Singles</span>
-            <span className="opacity-50">•</span>
-            <span>🇦🇺 Truganina, Melbourne VIC</span>
           </div>
         </div>
       </section>

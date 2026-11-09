@@ -629,7 +629,7 @@ export function MemberPageLayout({
 const publicLinks = [
   ['About Us', '/about'],
   ['Success Stories', '/success-stories'],
-  ['Membership', '/membership'],
+  ['How It Works', '/how-it-works'],
   ['Community', '/community'],
 ] as const;
 
@@ -1179,13 +1179,12 @@ export function PublicFooter() {
             ]}
           />
           <FooterList
-            title="Membership"
+            title="Community"
             links={[
-              ['Free Membership', '/pricing'],
-              ['Silver Membership ($29/mo)', '/membership'],
-              ['Gold Membership ($59/mo)', '/membership'],
-              ['Platinum Membership ($99/mo)', '/membership'],
-              ['Plans & Pricing', '/pricing'],
+              ['Community Hub', '/community'],
+              ['Safety Guidelines', '/safety'],
+              ['Community Guidelines', '/community-guidelines'],
+              ['Verification Process', '/verification-policy'],
             ]}
           />
           <FooterList
