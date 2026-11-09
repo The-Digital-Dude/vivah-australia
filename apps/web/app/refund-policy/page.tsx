@@ -2,40 +2,58 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicHeader, PublicFooter } from '@/app/components';
 import { getCmsPage } from '@/lib/public-api';
-import { CreditCard, ArrowRight } from 'lucide-react';
+import { CreditCard, ArrowRight, ShieldCheck, Phone, Mail, MapPin } from 'lucide-react';
 
 const slug = 'refund-policy';
 const fallback = {
-  title: 'Refund Policy',
-  description: 'Understand the billing refund conditions for paid membership plans on Vivah Australia.',
-  eyebrow: 'Billing Policy',
-  body: `Vivah Australia offers transparent, fair billing for all premium membership plans.
+  title: 'Refunds & Dispute Policy',
+  description: 'Understand the billing refund conditions, dispute rights, and Australian Consumer Law guarantees for Vivah Australia.',
+  eyebrow: 'Billing & Consumer Rights',
+  body: `Vivah Australia (ABN: 85 700 086 808) operates transparent, fair, and compliant billing policies for all membership plans and services.
 
-Digital Service Nature
-Our premium memberships — Premium, Gold, and Platinum — unlock immediate digital features including direct messaging, advanced search filters, profile boosts, and priority discovery. Because these features are delivered digitally and activated immediately upon payment, subscriptions are generally non-refundable once accessed.
+1. Australian Consumer Law (ACL) Guarantees
+Our services come with statutory guarantees that cannot be excluded under Schedule 2 of the Competition and Consumer Act 2010 (Cth) (Australian Consumer Law).
+Nothing in this Refund Policy excludes, limits, or modifies any rights, remedies, or statutory consumer guarantees that you are entitled to under Australian Consumer Law.
+If a digital service fails to meet a major statutory guarantee, you are entitled to cancel your service and obtain a refund or compensation.
 
-Refund Eligibility
-We will consider refund requests in the following circumstances:
-- Technical error resulting in a duplicate charge
-- Accidental purchase of the wrong plan where features have not yet been accessed
-- Service unavailability lasting more than 48 continuous hours attributable to our platform
+2. Digital Service Nature & Fulfillment
+Our paid membership subscriptions — Silver ($29/mo), Gold ($59/mo), and Platinum ($99/mo) — provide immediate digital access to features including direct messaging, advanced cultural search filters, priority profile discovery, and profile boosts.
+Because features are delivered electronically and activated immediately upon payment confirmation (see our Delivery Policy), subscriptions are generally non-refundable once accessed, except as required by law or outlined below.
 
-How to Request a Refund
-All refund requests must be submitted within 14 days of the original purchase date. To request a refund, contact our billing team at support@vivahaustralia.com.au with:
-- Your registered email address
-- The date and amount of the charge
-- A brief description of the reason for the request
+3. Refund Eligibility Criteria
+Vivah Australia will review and approve refund requests in the following circumstances:
+- Duplicate or Incorrect Charge: Technical error resulting in duplicate charges or an incorrect billing amount.
+- Unused Accidental Purchase: Where an incorrect tier was accidentally purchased and reported within 48 hours without accessing paid features (e.g. no messages sent, no boost utilized).
+- Major Technical Service Failure: Significant platform downtime lasting more than 48 continuous hours attributable directly to our servers or hosting infrastructure.
+- Statutory ACL Entitlement: Where required under Australian Consumer Law guarantees.
 
-We aim to review all refund requests within 5 business days. Approved refunds are returned to the original payment method within 7–10 business days, depending on your bank or card issuer.
+4. Refund Request & Dispute Process
+All refund requests must be submitted within 14 calendar days of the original transaction date.
+To lodge a request or dispute:
+- Email our dedicated billing team at support@vivahaustralia.com.au or call +61 479 134 385 (Mon–Fri 9am–5pm AEST).
+- Include your registered account email address.
+- Provide the transaction date, amount charged (in AUD), and payment reference number.
+- State the reason for your refund request or billing dispute.
 
-Cancellation vs Refund
-Cancelling your subscription stops future renewals but does not automatically entitle you to a refund of the current billing period. Your membership access will continue until the end of the paid period.
+Review & Processing Timeframe:
+- Our billing team investigates and responds to all claims within 5 business days.
+- If approved, refunds are credited back to the original credit/debit card or payment method within 7–10 business days, depending on your financial institution's processing cycles.
 
-Disputes
-If you believe a charge was made in error and our team is unable to resolve it, you may contact your bank or card issuer to initiate a dispute. We encourage members to contact us first, as we can often resolve billing issues faster than a formal dispute process.
+5. Subscription Cancellation vs Refund
+You may cancel automatic recurring renewals at any time directly through your Member Dashboard or by emailing support@vivahaustralia.com.au.
+Cancellation stops future renewal charges. Upon cancellation, your access remains active until the expiration date of your current paid billing cycle. Cancellation does not automatically generate a pro-rata refund for days elapsed.
 
-Contact
-For billing enquiries, email support@vivahaustralia.com.au. Our billing team is available Monday to Friday, 9am–5pm AEST.`,
+6. Cardholder Statement & Currency Disclosure
+Payments processed through our payment gateway will appear on your bank or credit card statement as "VIVAH AUSTRALIA".
+All transactions are processed in Australian Dollars (AUD) and are inclusive of Australian Goods and Services Tax (GST) where applicable.
+
+7. Merchant Trading Entity & Contact Details
+Vivah Australia
+ABN: 85 700 086 808
+Registered Trading Address: 3 Leafton Street, Truganina, VIC 3029, Australia
+Customer Support Phone: +61 479 134 385 (Mon–Fri 9:00 AM – 5:00 PM AEST)
+Billing & Disputes Email: support@vivahaustralia.com.au
+Website: www.vivahaustralia.com.au`,
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -67,7 +85,7 @@ export default async function RefundPolicyPage() {
             {fallback.eyebrow}
           </p>
           <h1 className="font-playfair text-4xl sm:text-5xl font-bold text-white mb-4">{title}</h1>
-          <p className="text-white/50 text-sm">Last reviewed: June 2025</p>
+          <p className="text-white/70 text-sm">Last updated: November 2026 · Built under Australian Consumer Law</p>
         </div>
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
@@ -83,10 +101,47 @@ export default async function RefundPolicyPage() {
             {renderPolicyBody(body)}
           </div>
 
+          {/* Quick Merchant Contact Card */}
+          <div className="mt-8 rounded-2xl bg-white border border-brand-maroon/10 p-6 sm:p-8 shadow-sm">
+            <h3 className="font-playfair text-xl font-bold text-brand-charcoal mb-2">Merchant Registration &amp; Dispute Contact</h3>
+            <p className="text-xs text-gray-500 mb-4">If you notice an unrecognized charge or wish to request assistance with a refund:</p>
+            
+            <div className="grid sm:grid-cols-2 gap-4 text-xs text-gray-700">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="size-4 text-brand-maroon shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-brand-charcoal">Trading Entity &amp; ABN</p>
+                  <p>Vivah Australia · ABN: 85 700 086 808</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPin className="size-4 text-brand-maroon shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-brand-charcoal">Registered Address</p>
+                  <p>3 Leafton Street, Truganina, VIC 3029, Australia</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Phone className="size-4 text-brand-maroon shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-brand-charcoal">Phone Support</p>
+                  <p><a href="tel:+61479134385" className="hover:text-brand-maroon underline font-semibold">+61 479 134 385</a> (Mon–Fri 9am–5pm AEST)</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Mail className="size-4 text-brand-maroon shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-brand-charcoal">Billing Enquiries</p>
+                  <p><a href="mailto:support@vivahaustralia.com.au" className="hover:text-brand-maroon underline font-semibold">support@vivahaustralia.com.au</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-8 rounded-[20px] border border-brand-gold/25 bg-[linear-gradient(135deg,#FFF8EC,#FFF9F5)] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="font-bold text-brand-charcoal text-sm">Billing question or refund request?</p>
-              <p className="text-xs text-gray-500 mt-0.5">Submit requests within 14 days of purchase.</p>
+              <p className="text-xs text-gray-500 mt-0.5">Submit requests within 14 days of purchase. Reviewed within 5 business days.</p>
             </div>
             <Link href="/contact" className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-maroon hover:underline shrink-0">
               Contact Billing Team <ArrowRight className="size-3.5" />
@@ -114,9 +169,9 @@ function renderPolicyBody(body: string) {
           (prevTrimmed === null || prevTrimmed === '') &&
           !trimmed.endsWith('.') &&
           !trimmed.startsWith('-') &&
-          trimmed.length < 70;
+          trimmed.length < 80;
         return isHeading ? (
-          <span key={i} className="font-bold text-brand-charcoal">{line}{'\n'}</span>
+          <span key={i} className="font-bold text-brand-charcoal text-lg block mt-6 mb-2 first:mt-0">{line}{'\n'}</span>
         ) : (
           <span key={i}>{line}{i < lines.length - 1 ? '\n' : ''}</span>
         );
@@ -128,7 +183,8 @@ function renderPolicyBody(body: string) {
 function PolicyLinks({ current }: { current: string }) {
   const links = [
     ['Privacy Policy',        '/privacy'],
-    ['Terms of Service',      '/terms'],
+    ['Terms of Use',          '/terms'],
+    ['Delivery & Fulfillment','/delivery-policy'],
     ['Verification Policy',   '/verification-policy'],
     ['Community Guidelines',  '/community-guidelines'],
     ['Refund Policy',         '/refund-policy'],

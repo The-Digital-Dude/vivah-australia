@@ -9,6 +9,15 @@ interface OAuthProfile {
   email?: string | undefined;
   firstName?: string | undefined;
   lastName?: string | undefined;
+  // Apple only: refresh token from the sign-in authorization code, kept so the
+  // grant can be revoked when the member deletes their account.
+  appleRefreshToken?: string | undefined;
+}
+
+export interface AppleSignInExtras {
+  authorizationCode?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
 }
 
 import { OAuth2Client } from 'google-auth-library';
@@ -16,8 +25,9 @@ import { OAuth2Client } from 'google-auth-library';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export async function verifyGoogleToken(accessToken: string): Promise<OAuthProfile> {
-  // Local/Testing Mock Bypass
-  if (accessToken === 'mock-google-token' || process.env.NODE_ENV === 'test') {
+  // Mock profile for the automated test suite only. It is gated on the runtime
+  // environment, never on a token value a caller could send to a live server.
+  if (process.env.NODE_ENV === 'test') {
     return {
       id: '12345google',
       email: 'google-user@example.com',
@@ -56,8 +66,7 @@ export async function verifyGoogleToken(accessToken: string): Promise<OAuthProfi
 }
 
 export async function verifyFacebookToken(token: string): Promise<OAuthProfile> {
-  // Local/Testing Mock Bypass
-  if (token === 'mock-facebook-token' || process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test') {
     return {
       id: '12345fb',
       email: 'facebook-user@example.com',
@@ -86,9 +95,25 @@ export async function verifyFacebookToken(token: string): Promise<OAuthProfile> 
 
 import appleSignin from 'apple-signin-auth';
 
-export async function verifyAppleToken(token: string): Promise<OAuthProfile> {
-  // Local/Testing Mock Bypass
-  if (token === 'mock-apple-token' || process.env.NODE_ENV === 'test') {
+// Sign in with Apple. APPLE_CLIENT_ID is the iOS bundle id. The revoke/refresh
+// calls additionally need a Sign in with Apple key (APPLE_TEAM_ID, APPLE_KEY_ID,
+// APPLE_PRIVATE_KEY — the .p8 contents, "\n" escapes allowed).
+function appleClientSecret(): string | null {
+  const { APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY } = process.env;
+  if (!APPLE_CLIENT_ID || !APPLE_TEAM_ID || !APPLE_KEY_ID || !APPLE_PRIVATE_KEY) return null;
+  return appleSignin.getClientSecret({
+    clientID: APPLE_CLIENT_ID,
+    teamID: APPLE_TEAM_ID,
+    keyIdentifier: APPLE_KEY_ID,
+    privateKey: APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  });
+}
+
+export async function verifyAppleToken(
+  token: string,
+  extras: AppleSignInExtras = {},
+): Promise<OAuthProfile> {
+  if (process.env.NODE_ENV === 'test') {
     return {
       id: '12345apple',
       email: 'apple-user@example.com',
@@ -97,21 +122,70 @@ export async function verifyAppleToken(token: string): Promise<OAuthProfile> {
     };
   }
 
+  // Without an audience the library would accept an Apple token minted for any
+  // other app, so refuse to verify at all rather than verify loosely.
+  const clientId = process.env.APPLE_CLIENT_ID;
+  if (!clientId) {
+    throw new HttpError(503, 'Sign in with Apple is not configured.');
+  }
+
+  let data: Awaited<ReturnType<typeof appleSignin.verifyIdToken>>;
   try {
-    const data = await appleSignin.verifyIdToken(token, {
-      audience: process.env.APPLE_CLIENT_ID,
+    data = await appleSignin.verifyIdToken(token, {
+      audience: clientId,
       ignoreExpiration: false,
     });
-
-    return {
-      id: data.sub,
-      email: data.email,
-      firstName: undefined, // Apple only sends name on the first login via another parameter
-      lastName: undefined,
-    };
-  } catch (error) {
-    if (error instanceof HttpError) throw error;
+  } catch {
     throw new HttpError(400, 'Failed to verify Apple token');
+  }
+
+  // Apple reveals the member's name only to the app, on the first sign-in, so it
+  // arrives alongside the token rather than inside it.
+  const profile: OAuthProfile = {
+    id: data.sub,
+    email: data.email,
+    firstName: extras.firstName,
+    lastName: extras.lastName,
+  };
+
+  // Best effort: a refresh token lets us revoke the grant on account deletion.
+  // Failing to get one must never block the member from signing in.
+  const clientSecret = extras.authorizationCode ? appleClientSecret() : null;
+  if (extras.authorizationCode && clientSecret) {
+    try {
+      const grant = await appleSignin.getAuthorizationToken(extras.authorizationCode, {
+        clientID: clientId,
+        clientSecret,
+        redirectUri: '',
+      });
+      profile.appleRefreshToken = grant.refresh_token;
+    } catch {
+      // Sign-in proceeds without it.
+    }
+  }
+
+  return profile;
+}
+
+/**
+ * Revokes the member's Sign in with Apple grant. Apple (guideline 5.1.1(v))
+ * expects this when an account is deleted. No-op when the member never signed in
+ * with Apple or revocation is not configured; never throws, so a failure here
+ * cannot block the deletion itself.
+ */
+export async function revokeAppleGrant(refreshToken: string | undefined | null): Promise<boolean> {
+  const clientSecret = refreshToken ? appleClientSecret() : null;
+  const clientId = process.env.APPLE_CLIENT_ID;
+  if (!refreshToken || !clientSecret || !clientId) return false;
+  try {
+    await appleSignin.revokeAuthorizationToken(refreshToken, {
+      clientID: clientId,
+      clientSecret,
+      tokenTypeHint: 'refresh_token',
+    });
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -229,6 +303,10 @@ export async function loginOrRegisterOAuth(
 
   if (user.status !== AccountStatus.ACTIVE || user.isDeleted) {
     throw new HttpError(403, 'Account is not active.');
+  }
+
+  if (provider === 'apple' && profile.appleRefreshToken) {
+    user.appleRefreshToken = profile.appleRefreshToken;
   }
 
   const sessionId = createOpaqueToken();

@@ -1175,23 +1175,26 @@ export function PublicFooter() {
               ['Community', '/community'],
               ['About Us', '/about'],
               ['Browse Profiles', '/search'],
+              ['FAQs', '/faq'],
             ]}
           />
           <FooterList
             title="Membership"
             links={[
+              ['Free Membership', '/pricing'],
+              ['Silver Membership ($29/mo)', '/membership'],
+              ['Gold Membership ($59/mo)', '/membership'],
+              ['Platinum Membership ($99/mo)', '/membership'],
               ['Plans & Pricing', '/pricing'],
-              ['Membership', '/membership'],
-              ['FAQ', '/faq'],
             ]}
           />
           <FooterList
             title="Resources"
             links={[
-              ['Blog & Advice', '/blog'],
-              ['Help Center', '/help'],
-              ['Safety Guidelines', '/safety'],
+              ['Safety Centre', '/safety'],
+              ['Help Centre', '/help'],
               ['Contact Us', '/contact'],
+              ['Blog & Advice', '/blog'],
             ]}
           />
           <FooterList
@@ -1200,6 +1203,7 @@ export function PublicFooter() {
               ['Privacy Policy', '/privacy'],
               ['Terms of Service', '/terms'],
               ['Refund Policy', '/refund-policy'],
+              ['Delivery & Fulfillment', '/delivery-policy'],
               ['Community Guidelines', '/community-guidelines'],
               ['Verification Policy', '/verification-policy'],
             ]}
@@ -1207,21 +1211,31 @@ export function PublicFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 border-t border-white/20 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-white/70">
-            © {year} Vivah Australia Pty Ltd. All rights reserved.
-          </p>
-          <p className="text-sm text-white/90 font-medium flex items-center gap-1.5">
-            Made with ❤️ by{' '}
-            <a
-              href="https://rokoautomations.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-brand-gold transition-colors font-bold"
-            >
-              RokoAutomations
-            </a>
-          </p>
+        <div className="mt-12 border-t border-white/20 pt-6 flex flex-col gap-4 text-xs text-white/70">
+          <div className="rounded-xl bg-white/5 border border-white/10 p-4 leading-relaxed">
+            <p className="font-semibold text-white/90 mb-1">
+              Merchant &amp; Cardholder Statement Disclosure:
+            </p>
+            <p>
+              Vivah Australia (ABN: 85 700 086 808) is registered and operated in Australia. Registered Trading Address: 3 Leafton Street, Truganina, VIC 3029, Australia.
+              Payments processed on this website will appear on your cardholder statement as <strong className="text-brand-gold font-bold">&quot;VIVAH AUSTRALIA&quot;</strong>.
+              All prices and transactions are processed in Australian Dollars (AUD) and include GST where applicable.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-white/70">© {year} Vivah Australia. All rights reserved.</p>
+            <p className="text-sm text-white/90 font-medium flex items-center gap-1.5">
+              Made with ❤️ by{' '}
+              <a
+                href="https://rokoautomations.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-brand-gold transition-colors font-bold"
+              >
+                RokoAutomations
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

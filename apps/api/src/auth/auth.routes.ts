@@ -301,7 +301,14 @@ export function createAuthRouter(config: AuthConfig): Router {
       if (typeof token !== 'string' || !token) {
         throw new HttpError(400, 'Token is required');
       }
-      const profile = await verifyAppleToken(token);
+      const { authorizationCode, firstName, lastName } = request.body as Record<string, unknown>;
+      const optionalString = (value: unknown) =>
+        typeof value === 'string' && value.trim() ? value.trim().slice(0, 100) : undefined;
+      const profile = await verifyAppleToken(token, {
+        authorizationCode: optionalString(authorizationCode),
+        firstName: optionalString(firstName),
+        lastName: optionalString(lastName),
+      });
       const result = await loginOrRegisterOAuth('apple', profile, config);
       setAuthCookies(response, result.tokenPair.accessToken, result.tokenPair.refreshToken);
       response.status(200).json({

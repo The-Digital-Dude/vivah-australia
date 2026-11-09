@@ -25,6 +25,7 @@ export interface User {
   googleId?: string;
   facebookId?: string;
   appleId?: string;
+  appleRefreshToken?: string;
   role: UserRoleType;
   status: AccountStatusType;
   emailVerified: boolean;
@@ -75,6 +76,7 @@ const userSchema = new Schema<User>(
     googleId: { type: String },
     facebookId: { type: String },
     appleId: { type: String },
+    appleRefreshToken: { type: String, select: false },
     role: {
       type: String,
       enum: Object.values(UserRole),

@@ -36,7 +36,8 @@ const plans = [
     highlight: false,
     badge: null,
     color: 'border-gray-200',
-    buttonStyle: 'border border-brand-maroon text-brand-maroon hover:bg-brand-maroon/5',
+    accent: 'text-gray-400',
+    buttonStyle: 'border border-gray-300 text-gray-600 hover:bg-gray-50',
     buttonLabel: 'Get Started Free',
     features: [
       'Create your profile',
@@ -55,17 +56,18 @@ const plans = [
     ],
   },
   {
-    id: 'premium',
-    name: 'Premium',
+    id: 'silver',
+    name: 'Silver',
     price: '$29',
     period: '/month',
     priceNote: 'Billed monthly · cancel anytime',
     positioning: 'Best for serious members',
     highlight: false,
     badge: null,
-    color: 'border-gray-200',
+    color: 'border-brand-silver',
+    accent: 'text-brand-silver',
     buttonStyle: 'border border-brand-maroon text-brand-maroon hover:bg-brand-maroon/5',
-    buttonLabel: 'Upgrade to Premium',
+    buttonLabel: 'Upgrade to Silver',
     features: [
       'Everything in Essential',
       'Direct messaging',
@@ -76,11 +78,7 @@ const plans = [
       'Standard verification support',
       'Member care support',
     ],
-    notIncluded: [
-      'Priority discovery',
-      'Dedicated profile review',
-      'Front-of-queue support',
-    ],
+    notIncluded: ['Priority discovery', 'Dedicated profile review', 'Front-of-queue support'],
   },
   {
     id: 'gold',
@@ -104,10 +102,7 @@ const plans = [
       'Priority member care',
       'Rise to top of search results',
     ],
-    notIncluded: [
-      'Dedicated profile review',
-      'Concierge matchmaking',
-    ],
+    notIncluded: ['Dedicated profile review', 'Concierge matchmaking'],
   },
   {
     id: 'platinum',
@@ -140,11 +135,29 @@ const comparisonRows = [
   { label: 'Direct Messaging', free: false, premium: true, gold: true, platinum: true },
   { label: 'Advanced Filters', free: false, premium: true, gold: true, platinum: true },
   { label: 'Priority Discovery', free: false, premium: false, gold: true, platinum: true },
-  { label: 'Profile Boosts', free: false, premium: '1 / month', gold: '4 / month', platinum: '8 / month' },
+  {
+    label: 'Profile Boosts',
+    free: false,
+    premium: '1 / month',
+    gold: '4 / month',
+    platinum: '8 / month',
+  },
   { label: 'Photo Privacy', free: true, premium: true, gold: true, platinum: true },
-  { label: 'Verification Support', free: false, premium: 'Standard', gold: 'Priority', platinum: 'Fast-track' },
+  {
+    label: 'Verification Support',
+    free: false,
+    premium: 'Standard',
+    gold: 'Priority',
+    platinum: 'Fast-track',
+  },
   { label: 'Dedicated Profile Review', free: false, premium: false, gold: false, platinum: true },
-  { label: 'Support Priority', free: 'Standard', premium: 'Member care', gold: 'Priority care', platinum: 'Front-of-queue' },
+  {
+    label: 'Support Priority',
+    free: 'Standard',
+    premium: 'Member care',
+    gold: 'Priority care',
+    platinum: 'Front-of-queue',
+  },
 ];
 
 const whyUpgrade = [
@@ -183,21 +196,24 @@ const testimonials = [
     names: 'Priya & Arjun',
     location: 'Sydney, NSW',
     tier: 'Gold Member',
-    quote: "Arjun upgraded to Gold and within three weeks we were having genuine conversations. Something that felt impossible on other platforms. We got engaged last December.",
+    quote:
+      'Arjun upgraded to Gold and within three weeks we were having genuine conversations. Something that felt impossible on other platforms. We got engaged last December.',
     duration: 'Met in 6 weeks',
   },
   {
     names: 'Kavya & Rahul',
     location: 'Melbourne, VIC',
     tier: 'Premium Member',
-    quote: "The advanced filters were the game changer. I found someone who shared my values. His boosted profile showed up first — and the rest is history.",
+    quote:
+      'The advanced filters were the game changer. I found someone who shared my values. His boosted profile showed up first — and the rest is history.',
     duration: 'Met in 5 weeks',
   },
   {
     names: 'Ananya & Dev',
     location: 'Brisbane, QLD',
     tier: 'Platinum Member',
-    quote: "As a busy professional I needed a platform that respected my time. Vivah's Platinum gave me curated introductions and a team that helped me present my best self.",
+    quote:
+      "As a busy professional I needed a platform that respected my time. Vivah's Platinum gave me curated introductions and a team that helped me present my best self.",
     duration: 'Met in 4 weeks',
   },
 ];
@@ -212,12 +228,16 @@ const faqs = [
     a: 'We offer a 7-day trial on selected plans for new members. The Essential (Free) plan is always available with no time limit.',
   },
   {
-    q: 'How does billing work?',
-    a: 'Plans are billed monthly via Stripe, our secure payment partner. We accept Visa, Mastercard, Amex, Apple Pay, Google Pay, and PayPal. Your payment details are never stored on our servers.',
+    q: 'How does billing work and how will charges appear?',
+    a: 'Plans are billed in Australian Dollars (AUD) inclusive of GST. All payments will appear on your credit card or bank account statement as "VIVAH AUSTRALIA". We accept Visa, Mastercard, Amex, Apple Pay, Google Pay, and PayPal via our secure Australian gateway.',
+  },
+  {
+    q: 'How are paid memberships delivered?',
+    a: 'Delivery is 100% digital and instantaneous. Upon payment approval, all paid features (direct messaging, filters, boosts) unlock immediately in your account. No physical shipping is required. See our Delivery Policy for full details.',
   },
   {
     q: 'What is a profile boost?',
-    a: "A profile boost temporarily places your profile at the top of search results and daily recommendations. Boosts last 24 hours and significantly increase the number of members who see your profile.",
+    a: 'A profile boost temporarily places your profile at the top of search results and daily recommendations. Boosts last 24 hours and significantly increase the number of members who see your profile.',
   },
   {
     q: 'Can I upgrade or downgrade my plan?',
@@ -237,7 +257,8 @@ const trustBadges = [
 ];
 
 function ComparisonCell({ value }: { value: string | boolean }) {
-  if (value === true) return <Check className="size-5 text-brand-maroon mx-auto" strokeWidth={2.5} />;
+  if (value === true)
+    return <Check className="size-5 text-brand-maroon mx-auto" strokeWidth={2.5} />;
   if (value === false) return <X className="size-4 text-gray-300 mx-auto" />;
   return <span className="text-sm font-semibold text-brand-charcoal">{value}</span>;
 }
@@ -260,15 +281,23 @@ export default function MembershipPage() {
               Choose Your Plan
             </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-playfair text-white leading-tight mb-6">
-              Invest in Your<br />
+              Invest in Your
+              <br />
               <span className="text-brand-gold">Perfect Match</span>
             </h1>
             <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-10">
-              From free browsing to dedicated concierge matchmaking — choose the plan that fits where you are in your journey. Every plan is built for serious, meaningful connections.
+              From free browsing to dedicated concierge matchmaking — choose the plan that fits
+              where you are in your journey. Every plan is built for serious, meaningful
+              connections.
             </p>
             {/* Trust mini-strip */}
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
-              {['No lock-in contracts', 'Cancel anytime', 'Secure Stripe checkout', 'Australian support'].map((t) => (
+              {[
+                'No lock-in contracts',
+                'Cancel anytime',
+                'Secure Stripe checkout',
+                'Australian support',
+              ].map((t) => (
                 <div key={t} className="flex items-center gap-2 text-white/60 text-sm">
                   <Check className="size-3.5 text-brand-gold" strokeWidth={2.5} />
                   {t}
@@ -277,8 +306,16 @@ export default function MembershipPage() {
             </div>
           </div>
           <div className="absolute bottom-0 left-0 right-0">
-            <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-              <path d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z" fill="#FFF9F5" />
+            <svg
+              viewBox="0 0 1440 60"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full"
+            >
+              <path
+                d="M0 60L1440 60L1440 30C1200 0 960 60 720 30C480 0 240 60 0 30L0 60Z"
+                fill="#FFF9F5"
+              />
             </svg>
           </div>
         </section>
@@ -294,18 +331,28 @@ export default function MembershipPage() {
                 >
                   {/* Badge */}
                   {plan.badge && (
-                    <div className={`absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap ${plan.highlight ? 'bg-brand-gold text-brand-charcoal' : 'bg-brand-maroon text-white'}`}>
+                    <div
+                      className={`absolute -top-4 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap ${plan.highlight ? 'bg-brand-gold text-brand-charcoal' : 'bg-brand-maroon text-white'}`}
+                    >
                       {plan.badge}
                     </div>
                   )}
 
                   {/* Header */}
                   <div className="mb-6 pt-2">
-                    <p className="text-xs font-bold uppercase tracking-widest text-brand-maroon/60 mb-1">{plan.positioning}</p>
-                    <h2 className="text-2xl font-playfair font-bold text-brand-charcoal mb-3">{plan.name}</h2>
+                    <p className="text-xs font-bold uppercase tracking-widest text-brand-maroon/60 mb-1">
+                      {plan.positioning}
+                    </p>
+                    <h2 className="text-2xl font-playfair font-bold text-brand-charcoal mb-3">
+                      {plan.name}
+                    </h2>
                     <div className="flex items-end gap-1">
-                      <span className="text-4xl font-bold font-playfair text-brand-charcoal">{plan.price}</span>
-                      {plan.period && <span className="text-gray-400 text-base mb-1">{plan.period}</span>}
+                      <span className="text-4xl font-bold font-playfair text-brand-charcoal">
+                        {plan.price}
+                      </span>
+                      {plan.period && (
+                        <span className="text-gray-400 text-base mb-1">{plan.period}</span>
+                      )}
                     </div>
                     <p className="text-xs text-gray-400 mt-1">{plan.priceNote}</p>
                   </div>
@@ -317,7 +364,13 @@ export default function MembershipPage() {
                   <ul className="space-y-3 flex-1 mb-6">
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-start gap-3 text-sm text-brand-charcoal">
-                        <Check className={`size-4 shrink-0 mt-0.5 ${plan.highlight ? 'text-brand-gold' : 'text-brand-maroon'}`} strokeWidth={2.5} />
+                        <Check
+                          className={`size-4 shrink-0 mt-0.5 ${
+                            ('accent' in plan && plan.accent) ||
+                            (plan.highlight ? 'text-brand-gold' : 'text-brand-maroon')
+                          }`}
+                          strokeWidth={2.5}
+                        />
                         {f}
                       </li>
                     ))}
@@ -349,7 +402,9 @@ export default function MembershipPage() {
         <section className="py-20 px-6 sm:px-8 lg:px-12 bg-white border-t border-gray-100">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-14">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">Why Upgrade</p>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
+                Why Upgrade
+              </p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-brand-charcoal">
                 Find Your Match Faster
               </h2>
@@ -364,12 +419,17 @@ export default function MembershipPage() {
               {whyUpgrade.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.title} className="bg-brand-ivory rounded-2xl border border-gray-100 p-7 flex flex-col gap-4">
+                  <div
+                    key={item.title}
+                    className="bg-brand-ivory rounded-2xl border border-gray-100 p-7 flex flex-col gap-4"
+                  >
                     <div className="size-12 rounded-xl bg-white border border-brand-maroon/10 flex items-center justify-center text-brand-maroon shadow-sm">
                       <Icon className="size-6" strokeWidth={1.8} />
                     </div>
                     <div>
-                      <p className="text-3xl font-bold font-playfair text-brand-maroon">{item.stat}</p>
+                      <p className="text-3xl font-bold font-playfair text-brand-maroon">
+                        {item.stat}
+                      </p>
                       <p className="text-xs text-gray-500 font-semibold">{item.statLabel}</p>
                     </div>
                     <h3 className="font-bold text-brand-charcoal text-base">{item.title}</h3>
@@ -385,7 +445,9 @@ export default function MembershipPage() {
         <section className="py-20 px-6 sm:px-8 lg:px-12 bg-brand-ivory border-t border-gray-100">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-14">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">Side by Side</p>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
+                Side by Side
+              </p>
               <h2 className="text-3xl sm:text-4xl font-playfair font-bold text-brand-charcoal">
                 Plan Comparison
               </h2>
@@ -401,7 +463,10 @@ export default function MembershipPage() {
                     className={`p-5 text-center border-l border-gray-100 ${plan.highlight ? 'bg-brand-gold/5' : ''}`}
                   >
                     <p className="font-bold text-brand-charcoal text-base">{plan.name}</p>
-                    <p className="text-brand-maroon font-bold text-lg font-playfair">{plan.price}{plan.period}</p>
+                    <p className="text-brand-maroon font-bold text-lg font-playfair">
+                      {plan.price}
+                      {plan.period}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -430,7 +495,10 @@ export default function MembershipPage() {
               <div className="grid grid-cols-5 pt-6 pb-6 border-t border-gray-100">
                 <div className="col-span-1" />
                 {plans.map((plan) => (
-                  <div key={plan.id} className={`px-3 text-center border-l border-gray-100 ${plan.highlight ? 'bg-brand-gold/5' : ''}`}>
+                  <div
+                    key={plan.id}
+                    className={`px-3 text-center border-l border-gray-100 ${plan.highlight ? 'bg-brand-gold/5' : ''}`}
+                  >
                     <PlanCTA
                       tierKey={plan.id.toUpperCase() as 'FREE' | 'PREMIUM' | 'GOLD' | 'PLATINUM'}
                       label={plan.id === 'free' ? 'Start Free' : 'Choose'}
@@ -448,7 +516,9 @@ export default function MembershipPage() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(212,160,76,0.12),transparent_55%)]" />
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="text-center mb-14">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-3">Member Stories</p>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-gold mb-3">
+                Member Stories
+              </p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-white">
                 Real Results
               </h2>
@@ -520,7 +590,9 @@ export default function MembershipPage() {
         <section className="py-20 px-6 sm:px-8 lg:px-12 bg-brand-ivory border-t border-gray-100">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">Got Questions?</p>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-maroon mb-3">
+                Got Questions?
+              </p>
               <h2 className="text-3xl sm:text-4xl font-playfair font-bold text-brand-charcoal">
                 Membership FAQs
               </h2>
@@ -555,7 +627,8 @@ export default function MembershipPage() {
               Ready to Find Your Match?
             </h2>
             <p className="text-white/65 text-base sm:text-lg leading-relaxed mb-10 max-w-xl mx-auto">
-              Join thousands of Australian Indian singles who are finding meaningful connections every day. Start free — upgrade when you are ready.
+              Join thousands of Australian Indian singles who are finding meaningful connections
+              every day. Start free — upgrade when you are ready.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

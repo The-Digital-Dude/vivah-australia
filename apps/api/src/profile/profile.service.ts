@@ -13,6 +13,7 @@ import { logActivity, logAudit } from '../common/audit.service.js';
 import { sendEmail, sendTemplatedEmail } from '../common/email.service.js';
 import { HttpError } from '../auth/auth-errors.js';
 import { isPaidMember, cancelSubscription } from '../billing/billing.service.js';
+import { revokeAppleGrant } from '../auth/oauth.service.js';
 import {
   BlockModel,
   AuthTokenModel,
@@ -944,7 +945,7 @@ export async function deactivateOwnAccount(userId: Types.ObjectId) {
 export async function requestAccountDeletion(userId: Types.ObjectId) {
   const now = new Date();
   const [user, profile] = await Promise.all([
-    UserModel.findById(userId).orFail(),
+    UserModel.findById(userId).select('+appleRefreshToken').orFail(),
     ProfileModel.findOne({ userId, isDeleted: false }),
   ]);
 
@@ -1005,6 +1006,12 @@ export async function requestAccountDeletion(userId: Types.ObjectId) {
     await cancelSubscription(userId);
   } catch {
     // Ignore if no active subscription
+  }
+
+  // Apple requires the Sign in with Apple grant to be revoked on deletion. A
+  // failure must not undo the deletion, so this never throws.
+  if (await revokeAppleGrant(user.appleRefreshToken)) {
+    await UserModel.updateOne({ _id: userId }, { $unset: { appleRefreshToken: 1 } });
   }
 
   await Promise.all([
