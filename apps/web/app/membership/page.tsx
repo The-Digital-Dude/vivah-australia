@@ -296,7 +296,7 @@ export default function MembershipPage() {
               <div>
                 <p className="font-bold text-brand-charcoal text-sm mb-1">🇦🇺 Registered Australian Entity</p>
                 <p className="leading-relaxed">
-                  Vivah Australia (ABN: 85 700 086 808), registered trading address: 3 Leafton Street, Truganina, VIC 3029, Australia.
+                  Vivah Australia is owned and operated by Aussi Biz Pty Ltd (ABN: 85 700 086 808), registered trading address: 3 Leafton Street, Truganina, VIC 3029, Australia.
                 </p>
               </div>
               <div>

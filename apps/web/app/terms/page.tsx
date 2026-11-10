@@ -229,7 +229,7 @@ const content = {
     },
     {
       heading: '21. REGISTERED MERCHANT ENTITY & CONTACT US',
-      body: 'Vivah Australia is an Australian registered business entity.\n\n• Legal & Trading Entity: Vivah Australia\n• Australian Business Number (ABN): 85 700 086 808\n• Registered Trading Address: 3 Leafton Street, Truganina, VIC 3029, Australia\n• Support Phone: +61 479 134 385 (Monday to Friday, 9:00 AM – 5:00 PM AEST)\n• Support Email: support@vivahaustralia.com.au\n• General Enquiries: info@vivahaustralia.com.au\n• Website: www.vivahaustralia.com.au\n\nFor questions regarding purchases, subscriptions, or these Terms of Use, please contact our team.',
+      body: 'Vivah Australia is an Australian registered business entity.\n\n• Legal Entity: Aussi Biz Pty Ltd (Trading as Vivah Australia)\n• Australian Business Number (ABN): 85 700 086 808\n• Registered Trading Address: 3 Leafton Street, Truganina, VIC 3029, Australia\n• Support Phone: +61 479 134 385 (Monday to Friday, 9:00 AM – 5:00 PM AEST)\n• Support Email: support@vivahaustralia.com.au\n• General Enquiries: info@vivahaustralia.com.au\n• Website: www.vivahaustralia.com.au\n\nFor questions regarding purchases, subscriptions, or these Terms of Use, please contact our team.',
     },
   ],
 };

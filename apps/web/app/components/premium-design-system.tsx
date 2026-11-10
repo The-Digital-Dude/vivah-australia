@@ -1216,13 +1216,13 @@ export function PublicFooter() {
               Merchant &amp; Cardholder Statement Disclosure:
             </p>
             <p>
-              Vivah Australia (ABN: 85 700 086 808) is registered and operated in Australia. Registered Trading Address: 3 Leafton Street, Truganina, VIC 3029, Australia.
+              Vivah Australia is owned and operated by Aussi Biz Pty Ltd (ABN: 85 700 086 808), registered in Australia. Registered Trading Address: 3 Leafton Street, Truganina, VIC 3029, Australia.
               Payments processed on this website will appear on your cardholder statement as <strong className="text-brand-gold font-bold">&quot;VIVAH AUSTRALIA&quot;</strong>.
               All prices and transactions are processed in Australian Dollars (AUD) and include GST where applicable.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-white/70">© {year} Vivah Australia. All rights reserved.</p>
+            <p className="text-sm text-white/70">© {year} Vivah Australia. All rights reserved. Vivah Australia is owned and operated by Aussi Biz Pty Ltd.</p>
             <p className="text-sm text-white/90 font-medium flex items-center gap-1.5">
               Made with ❤️ by{' '}
               <a
